@@ -4,32 +4,40 @@ __author__ = 'justusadam'
 BASEDIR = 'localhost:8000'
 
 
-def html_element(*contents, html_type='div', classes=[], element_id='', additional_properties=[]):
+def html_element(*contents, html_type='div', classes='', element_id='', additional_properties=''):
     frame = ['<' + html_type]
     if classes:
-        frame += ['class="' + ' '.join(classes) + '"']
+        if isinstance(classes, list) or isinstance(classes, tuple):
+            classes = ' '.join(classes)
+        frame += ['class="' + classes + '"']
     if element_id:
         frame += ['id="' + element_id + '"']
     if additional_properties:
-        frame += [' '.join(additional_properties)]
+        if isinstance(additional_properties, list) or isinstance(additional_properties, tuple):
+            additional_properties = ' '.join(additional_properties)
+        frame += [additional_properties]
     frame[-1] += '>'
     return ' '.join(frame) + ''.join(contents) + '</' + html_type + '>'
 
 
-def closed_html_element(html_type='div', classes=[], element_id='', additional_properties=[]):
+def closed_html_element(html_type='div', classes='', element_id='', additional_properties=''):
     frame = ['<' + html_type]
     if classes:
-        frame += ['class="' + ' '.join(classes) + '"']
+        if isinstance(classes, list) or isinstance(classes, tuple):
+            classes = ' '.join(classes)
+        frame += ['class="' + classes + '"']
     if element_id:
         frame += ['id="' + element_id + '"']
     if additional_properties:
-        frame += [' '.join(additional_properties)]
+        if isinstance(additional_properties, list) or isinstance(additional_properties, tuple):
+            additional_properties = ' '.join(additional_properties)
+        frame += [additional_properties]
     frame += ['/>']
     return ' '.join(frame)
 
 
-def list_element(*contents, list_type='ul', classes=[], element_id='', additional_properties=[],
-                 sublist_classes=[], sublist_additional_properties=[]):
+def list_element(*contents, list_type='ul', classes='', element_id='', additional_properties='',
+                 sublist_classes='', sublist_additional_properties=''):
     new_contents = [
         html_element(element, html_type='li', classes=sublist_classes,
                      additional_properties=sublist_additional_properties) for element in contents]
@@ -37,19 +45,19 @@ def list_element(*contents, list_type='ul', classes=[], element_id='', additiona
                         additional_properties=additional_properties)
 
 
-def table_element(*contents, classes=[], element_id='', additional_properties=[]):
+def table_element(*contents, classes='', element_id='', additional_properties=''):
     new_contents = [tr_element(*elements) for elements in contents]
     return html_element(*new_contents, html_type='table', classes=classes, element_id=element_id,
                         additional_properties=additional_properties)
 
 
-def tr_element(*contents, classes=[], element_id='', additional_properties=[]):
+def tr_element(*contents, classes='', element_id='', additional_properties=''):
     new_contents = [html_element(*element, html_type='td') for element in contents]
     return html_element(*new_contents, html_type='tr', classes=classes, element_id=element_id,
                         additional_properties=additional_properties)
 
 
-def input_element(classes=[], element_id='', input_type='text', name='', end_line=True, form='', additional_properties=[]):
+def input_element(classes='', element_id='', input_type='text', name='', end_line=True, form='', additional_properties=''):
     input_properties = ['type="' + input_type + '"']
     if form:
         input_properties = ['form="' + form + '"'] + input_properties
@@ -62,16 +70,16 @@ def input_element(classes=[], element_id='', input_type='text', name='', end_lin
     return element
 
 
-def submit_input_element(value='Submit', classes=[], element_id='', name='submit',
-                         end_line=False, form='', additional_properties=[]):
+def submit_input_element(value='Submit', classes='', element_id='', name='submit',
+                         end_line=False, form='', additional_properties=''):
     submit_properties = ['value="' + value + '"']
     return input_element(classes=classes, element_id=element_id, input_type='submit', name=name,
                          end_line=end_line, form=form, additional_properties=submit_properties + additional_properties)
 
 
-def form_element(*contents, classes=[], element_id='',
+def form_element(*contents, classes='', element_id='',
                  action='/', method='post', charset='UTF-8',
-                 submit=submit_input_element(), target='_self', additional_properties=[]):
+                 submit=submit_input_element(), target='_self', additional_properties=''):
     form_properties = ['action="' + action + '"',
                        'method="' + method + '"',
                        'target="' + target + '"',

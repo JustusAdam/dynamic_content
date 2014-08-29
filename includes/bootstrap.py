@@ -5,7 +5,8 @@ __author__ = 'justusadam'
 
 TRACKER_TABLE_CREATION_QUERY = 'create table created_tables (' \
                                'id int unsigned not null auto_increment unique primary key, ' \
-                               'created_table varchar(500) not null unique, source_module_name varchar(500) not null, ' \
+                               'created_table varchar(500) not null unique, ' \
+                               'source_module_name varchar(500) not null, ' \
                                'source_module_id int unsigned not null);'
 
 SETUP_TABLE_CREATION_QUERIES = (
@@ -13,7 +14,8 @@ SETUP_TABLE_CREATION_QUERIES = (
         'table_name': 'page_handlers',
         'module_name': 'core',
         'columns': (
-            'id int unsigned not null auto_increment unique primary key comment \'primary key used for identification\'',
+            'id int unsigned not null auto_increment unique primary key '
+            'comment \'primary key used for identification\'',
             'handler_module int not null comment \'identifier for the module providing the handler\'',
             'handler_name varchar(500) comment \'human readable name of the page handler\''
         )
@@ -21,16 +23,19 @@ SETUP_TABLE_CREATION_QUERIES = (
         'table_name': 'modules',
         'module_name': 'core',
         'columns': (
-            'id int unsigned not null auto_increment unique primary key comment \'primary key used for identification\'',
+            'id int unsigned not null auto_increment unique primary key '
+            'comment \'primary key used for identification\'',
             'module_name varchar(500) not null unique comment \'machine readable name for the module\'',
-            'module_path varchar(500) comment \'name of the modules package provided correctly configured __init__.py or file '
-                'that is reachable by (omit ".py")\''
+            'module_path varchar(500) comment \'name of the modules package provided '
+            'correctly configured __init__.py or file '
+            'that is reachable by (omit ".py")\''
         )
     }, {
         'table_name': 'content_types',
         'module_name': 'core',
         'columns': (
-            'id int unsigned not null auto_increment unique primary key comment \'primary key used for identification\'',
+            'id int unsigned not null auto_increment unique primary key '
+            'comment \'primary key used for identification\'',
             'content_type_name varchar(500) not null unique comment \'name of the content type\'',
             'page_handler int not null comment \'id of the associated page handler type\'',
             'description text comment \'human readable content type description\''
