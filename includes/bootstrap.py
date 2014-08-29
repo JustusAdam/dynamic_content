@@ -1,3 +1,6 @@
+import os
+import sys
+
 __author__ = 'justusadam'
 
 TRACKER_TABLE_CREATION_QUERY = 'create table created_tables (' \
@@ -61,10 +64,15 @@ SETUP_TABLE_CREATION_QUERIES = (
 SETUP_DATABASE_POPULATION_QUERIES = (
     {
         'into_table': 'modules',
-        'into_cols': ('module_name', 'module_path'),
-        'values': ('core', '.')
-    },
+        'into_cols': ('id', 'module_name', 'module_path'),
+        'values': ('0', 'core', '.')
+    }, {
+        'into_table': 'created_tables',
+        'into_cols': ('id', 'created_table', 'source_module_name', 'source_module_id'),
+        'values': ('0', 'created_tables', 'core', '0')
+    }
 )
 DEFAULT_MODULES = ('adminpages', 'atlanta', 'entity', 'common_elements')
 COREMODULES_DIRECTORY = 'coremodules'
 MODULES_DIRECTORY = 'custom/modules'
+DOCUMENT_ROOT = os.getcwd()
