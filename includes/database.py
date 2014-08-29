@@ -14,10 +14,11 @@ def db_connect():
 
 class Database:
     def __init__(self):
-        self.connection = db_connect()
+        self._connection = db_connect()
 
     def __del__(self):
-        self.connection.close()
+        self._connection.commit()
+        self._connection.close()
 
     def create_table(self, table_name, columns, module_name):
         if isinstance(columns, list) or isinstance(columns, tuple):
@@ -25,20 +26,20 @@ class Database:
 
         module_id = self.get_module_id(module_name)
 
-        cursor = self.connection.cursor()
+        cursor = self._connection.cursor()
         try:
             self.replace('created_tables', ('created_table', 'source_module_id', 'source_module_name'),
                         (table_name, module_id, module_name))
         except pymysql.DatabaseError:
             from .bootstrap import TRACKER_TABLE_CREATION_QUERY
             cursor.execute(TRACKER_TABLE_CREATION_QUERY)
-            self.insert('created_tables', ('created_table', 'source_module_id', 'source_module_name'),
+            self.replace('created_tables', ('created_table', 'source_module_id', 'source_module_name'),
                         (table_name, module_id, module_name))
         cursor.execute('create table ' + ' '.join([table_name, columns]) + ';')
         cursor.close()
 
     def get_module_id(self, module_name):
-        cursor = self.connection.cursor()
+        cursor = self._connection.cursor()
         if module_name != 'core':
             return cursor.execute('select id from modules where module_name = ' + module_name + ';')[0]
         else:
@@ -49,7 +50,7 @@ class Database:
             columns = '(' + ', '.join(columns) + ')'
         if not query_tail.endswith(';'):
             query_tail += ';'
-        cursor = self.connection.cursor()
+        cursor = self._connection.cursor()
         data = cursor.execute('select ' + columns + ' from ' + from_table + ' ' + query_tail)
         cursor.close()
         return data
@@ -70,9 +71,8 @@ class Database:
         into_cols = unwrap_values(into_cols)
         values = unwrap_values(values)
 
-        cursor = self.connection.cursor()
+        cursor = self._connection.cursor()
         query = 'insert into ' + ' '.join([into_table, into_cols, 'values', values]) + ';'
-        print(query)
         cursor.execute(query)
         cursor.close()
         return
@@ -93,9 +93,8 @@ class Database:
         into_cols = unwrap_values(into_cols)
         values = unwrap_values(values)
 
-        cursor = self.connection.cursor()
+        cursor = self._connection.cursor()
         query = 'replace into ' + ' '.join([into_table, into_cols, 'values', values]) + ';'
-        print(query)
         cursor.execute(query)
         cursor.close()
         return
@@ -113,7 +112,7 @@ class Database:
     def drop_tables(self, tables):
         if isinstance(tables, list) or isinstance(tables, tuple):
             tables = ', '.join(tables)
-        cursor = self.connection.cursor()
+        cursor = self._connection.cursor()
         cursor.execute('drop table ' + tables + ';')
         cursor.close()
 
@@ -125,7 +124,7 @@ class Database:
         function only used for the setup process to test whether indexing the database works
         :return:
         """
-        cursor = self.connection.cursor()
+        cursor = self._connection.cursor()
         try:
             cursor.execute('show tables')
             return True
