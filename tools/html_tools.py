@@ -95,6 +95,10 @@ def form_element(*contents, classes='', element_id='',
                         additional_properties=form_properties + additional_properties)
 
 
+def stylesheet_link(link, html_type='text/css'):
+    return '<link rel="stylesheet" href="' + link + '" type="' + html_type + '" />'
+
+
 def test():
     print(html_element())
     print(html_element(html_element(), html_type='html', classes=['main', 'hellooo']))

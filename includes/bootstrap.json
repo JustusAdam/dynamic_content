@@ -16,14 +16,12 @@
         },
         {
             "values": [
-                "0",
                 "created_tables",
                 "olymp",
                 "0"
             ],
             "into_table": "created_tables",
             "into_cols": [
-                "id",
                 "created_table",
                 "source_module_name",
                 "source_module_id"
@@ -94,5 +92,14 @@
                 "alias varchar(500) not null unique comment 'page alias'"
             ]
         }
-    ]
+    ],
+    "CORE_MODULE": "zeus",
+    "FILE_DIRECTORIES": {
+        "private": "custom/files/private",
+        "public": "custom/files/public",
+        "theme": [
+            "custom/themes",
+            "themes"
+        ]
+    }
 }

@@ -1,8 +1,8 @@
 from pymysql import DatabaseError
 import pymysql
-from tools.html_tools import html_element, input_element, form_element, table_element, list_element
+from tools.html_tools import html_element, input_element, form_element, table_element, list_element, stylesheet_link
 from tools.config_tools import read_config
-from includes.basic_handlers import PageHandler
+from includes.basic_page_handlers import PageHandler
 
 
 __author__ = 'justusadam'
@@ -78,7 +78,7 @@ class SetupHandler(PageHandler):
             }
         }
         generic = {
-            'stylesheets': '',
+            'stylesheets': stylesheet_link('/theme/default_theme/css/setup.css'),
             'scripts': '',
             'header': '',
             'footer': ''
@@ -93,8 +93,8 @@ class SetupHandler(PageHandler):
 
         if self.page_id == 2:
             page = page.format(**self.setup_wrapper())
-
-        return page
+        self._document = page
+        return 200
 
     def process_post(self, post_query):
         return self.page_id == 3
