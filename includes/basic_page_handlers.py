@@ -11,6 +11,7 @@ class PageHandler:
         self.query = self.parse_get(get_query)
         self.page_id = page_id
         self._document = ''
+        self.content_type = 'text/html'
 
     @property
     def document(self):
@@ -39,7 +40,7 @@ class FileHandler(PageHandler):
 
     def parse_path(self):
         if len(self.path) < 2:
-            return False
+            return 403
         config = read_config('includes/bootstrap')
         basedirs = config['FILE_DIRECTORIES'][self.path[0]]
         if isinstance(basedirs, str):
@@ -49,16 +50,18 @@ class FileHandler(PageHandler):
                 filepath = basedir + '/'.join([''] + self.path[1:])
                 basedir = Path(basedir).resolve()
                 filepath = Path(filepath).resolve()
-                print(basedir)
-                print(filepath)
-                if basedir not in filepath.parents:
-                    return False
-                if filepath.is_dir():
-                    return False
-                self._document = filepath.open().read()
-                return True
+                if filepath.exists():
+                    if basedir not in filepath.parents:
+                        return 403
+                    if filepath.is_dir():
+                        return 403
+                    if filepath.name.endswith('.css'):
+                        self.content_type = 'text/css'
+                    self._document = filepath.open().read()
+                    return 200
             except FileNotFoundError:
                 pass
+        return 404
 
 
 class DBPageHandler(PageHandler):

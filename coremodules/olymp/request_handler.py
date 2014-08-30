@@ -3,15 +3,12 @@ import io
 import sys
 import shutil
 from urllib.error import HTTPError
-
 from pymysql import DatabaseError
-
 from includes import database
 from includes.basic_page_handlers import FileHandler
 from tools.http_tools import split_path, join_path, parse_url
 from tools.module_tools import get_page_handlers
 from tools.config_tools import read_config
-
 
 
 __author__ = 'justusadam'
@@ -31,7 +28,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         post_request = self.rfile.read(int(self.headers['Content-Length'])).decode()
 
         if page_handler.process_post(post_request):
-            self.send_response(302, self.responses[302][1])
+            self.send_response(302, *self.responses[302])
             self.send_header("Location", self.get_post_target())
             self.end_headers()
         else:
@@ -45,7 +42,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         try:
             page_handler = self.get_handler()
         except HTTPError:
-            self.send_error(404, self.responses[404][0], self.responses[404][1])
+            self.send_error(404, *self.responses[404])
             return 0
 
         self.send_document(page_handler=page_handler)
@@ -62,7 +59,8 @@ class RequestHandler(BaseHTTPRequestHandler):
         if handler_response == 200 or handler_response is True:
             encoded = page_handler.document.encode(enc)
             self.send_response(200)
-            self.send_header("Content-type", "text/html; charset={encoding}".format(encoding=enc))
+            self.send_header("Content-type", "{content_type}; charset={encoding}".format(
+                content_type=page_handler.content_type, encoding=enc))
             self.send_header("Content-Length", str(len(encoded)))
             self.end_headers()
             stream = io.BytesIO()
@@ -73,7 +71,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             finally:
                 stream.close()
         else:
-            self.send_error(handler_response, **self.responses[handler_response])
+            self.send_error(handler_response, *self.responses[handler_response])
             return
 
     def get_post_target(self):
