@@ -7,6 +7,7 @@ __author__ = 'justusadam'
 
 class PageHandler:
     def __init__(self, page_id, get_query=''):
+        # TODO decide what the default page_type should be
         self.page_type = ''
         self.query = self.parse_get(get_query)
         self.page_id = page_id
@@ -55,6 +56,7 @@ class FileHandler(PageHandler):
                         return 403
                     if filepath.is_dir():
                         return 403
+                    # RFE figure out what content types can occur and how to identify them here with a dict()
                     if filepath.name.endswith('.css'):
                         self.content_type = 'text/css'
                     self._document = filepath.open().read()

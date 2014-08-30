@@ -22,7 +22,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         try:
             page_handler = self.get_handler()
         except HTTPError:
-            self.send_error(404, self.responses[404][0], self.responses[404][1])
+            self.send_error(404, *self.responses[404])
             return 0
 
         post_request = self.rfile.read(int(self.headers['Content-Length'])).decode()
@@ -54,7 +54,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         handler_response = page_handler.compile_page()
         print(handler_response)
         if not handler_response:
-            # send some error
+            # TODO set some generic error if handler rejects request
             return
         if handler_response == 200 or handler_response is True:
             encoded = page_handler.document.encode(enc)
@@ -97,6 +97,8 @@ class RequestHandler(BaseHTTPRequestHandler):
     def get_handler(self):
         config = read_config('includes/bootstrap')
 
+        # BUG endless loop when accessing '/'
+
         (path, location,  get_query) = parse_url(url=self.path)
         print(self.path)
         if path[0] == 'setup':
@@ -113,7 +115,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 db_connection = database.Database()
                 page_handlers = get_page_handlers(db_connection)
             except DatabaseError:
-                # temporary exception
+                # TODO figure out which error to raise if database unreachable
                 raise HTTPError(url=self.path, code=404, msg='', fp=None, hdrs=None)
 
             path = de_alias(path, db_connection)
@@ -142,5 +144,5 @@ def de_alias(path, db):
 
 def translate_alias(alias, db):
     query_result = db.select('source', 'alias', 'where alias = "' + alias + '"')[0]
-    # Do things
+    # TODO implementation missing/check and test this
     return query_result
