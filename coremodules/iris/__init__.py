@@ -3,7 +3,9 @@ from .entity import EditEntityHandler, EntityPageHandler
 __author__ = 'justusadam'
 
 
-name = 'entity'
+name = 'iris'
+
+role = 'page_handler'
 
 
 def page_handler_factory(page_id, url_tail, get_query):

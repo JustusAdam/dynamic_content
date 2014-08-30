@@ -31,8 +31,9 @@
     "DEFAULT_MODULES": [
         "zeus",
         "atlanta",
-        "entity",
-        "common_elements"
+        "iris",
+        "dionysus",
+        "hera"
     ],
     "MODULES_DIRECTORY": "custom/modules",
     "TRACKER_TABLE_CREATION_QUERY": "create table created_tables (id int unsigned not null auto_increment unique primary key, created_table varchar(500) not null unique, source_module_name varchar(500) not null, source_module_id int unsigned not null);",

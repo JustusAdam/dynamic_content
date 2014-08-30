@@ -1,7 +1,6 @@
 from includes.database import Database
 from tools.config_tools import read_config
 from pathlib import Path
-import shutil
 
 __author__ = 'justusadam'
 
@@ -60,7 +59,6 @@ class FileHandler(PageHandler):
                 return True
             except FileNotFoundError:
                 pass
-
 
 
 class DBPageHandler(PageHandler):
