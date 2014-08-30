@@ -1,7 +1,7 @@
 __author__ = 'justusadam'
 
 
-name = 'adminpages'
+name = 'zeus'
 
 
 def page_handler_factory():

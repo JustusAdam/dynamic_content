@@ -1,4 +1,4 @@
-from includes import database
+from includes.database import Database
 
 __author__ = 'justusadam'
 
@@ -20,18 +20,18 @@ class FileHandler(PageHandler):
     def __init__(self, path):
         super().__init__(0)
         self.path = path
+        with open(self.path, mode='r') as file:
+            self.file = file.read
+
+    def compile_page(self):
+        return self.file
 
 
 class DBPageHandler(PageHandler):
 
     def __init__(self, page_id, get_query=''):
         super().__init__(page_id=page_id, get_query=get_query)
-        self.db_connection = database.db_connect()
-        self.db_cursor = self.db_connection.cursor()
-
-    def __del__(self):
-        self.db_cursor.close()
-        self.db_connection.close()
+        self.db = Database
 
 
 class SimplePageHandler(DBPageHandler):

@@ -1,0 +1,13 @@
+{
+    "server_arguments": {
+        "host": "",
+        "port": 8000
+    },
+    "database_connection_arguments": {
+        "passwd": "python_cms",
+        "database": "python_cms",
+        "user": "python_cms",
+        "host": "localhost"
+    },
+    "database_type": "mysql"
+}

@@ -63,6 +63,8 @@ def input_element(classes='', element_id='', input_type='text', name='', end_lin
         input_properties = ['form="' + form + '"'] + input_properties
     if name:
         input_properties = ['name="' + name + '"'] + input_properties
+    if isinstance(additional_properties, str):
+        additional_properties = [additional_properties]
     element = closed_html_element(html_type='input', classes=classes, element_id=element_id,
                                   additional_properties=input_properties + additional_properties)
     if end_line:
@@ -73,6 +75,8 @@ def input_element(classes='', element_id='', input_type='text', name='', end_lin
 def submit_input_element(value='Submit', classes='', element_id='', name='submit',
                          end_line=False, form='', additional_properties=''):
     submit_properties = ['value="' + value + '"']
+    if isinstance(additional_properties, str):
+        additional_properties = [additional_properties]
     return input_element(classes=classes, element_id=element_id, input_type='submit', name=name,
                          end_line=end_line, form=form, additional_properties=submit_properties + additional_properties)
 
@@ -85,6 +89,8 @@ def form_element(*contents, classes='', element_id='',
                        'target="' + target + '"',
                        'accept-charset="' + charset + '"']
     new_content = contents + (submit,)
+    if isinstance(additional_properties, str):
+        additional_properties = [additional_properties]
     return html_element(*new_content, html_type='form', classes=classes, element_id=element_id,
                         additional_properties=form_properties + additional_properties)
 

@@ -6,10 +6,11 @@ from urllib.error import HTTPError
 
 from pymysql import DatabaseError
 
-from includes import http_tools, database
+from includes import database
 from includes.basic_handlers import FileHandler
-from includes.http_tools import split_path, join_path
-from includes.module_tools import get_page_handlers
+from tools.http_tools import split_path, join_path
+from tools.module_tools import get_page_handlers
+from tools import http_tools
 
 
 __author__ = 'justusadam'
@@ -97,16 +98,13 @@ class RequestHandler(BaseHTTPRequestHandler):
             return page_handler_factory(page_id=page_id, get_query=get_query)
         else:
             try:
-                db_connection = database.db_connect()
-                page_handlers = get_page_handlers(db_connection.cursor())
+                db_connection = database.Database
+                page_handlers = get_page_handlers(db_connection)
             except DatabaseError:
                 # temporary exception
                 raise HTTPError(url=self.path, code=404, msg='', fp=None, hdrs=None)
 
-            path = de_alias(path, db_connection.cursor())
-
-            db_connection.close()
-            del db_connection
+            path = de_alias(path, db_connection)
 
             page_id = int(path[1])
 
@@ -131,7 +129,7 @@ def de_alias(path, db):
 
 
 def translate_alias(alias, db):
-    query_result = db.execute(query='Select source from alias where alias = "' + alias + '"')[0]
+    query_result = db.select('source', 'alias', 'where alias = "' + alias + '"')[0]
     # Do things
     return query_result
 

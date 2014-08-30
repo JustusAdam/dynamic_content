@@ -1,9 +1,7 @@
 from pymysql import DatabaseError
 import pymysql
-
-from includes.html_tools import html_element, input_element, submit_input_element, \
-    form_element, table_element, list_element
-import config
+from tools.html_tools import html_element, input_element, form_element, table_element, list_element
+from tools.config_tools import read_config
 from includes.basic_handlers import PageHandler
 
 
@@ -33,6 +31,7 @@ def try_database_connection():
 class SetupHandler(PageHandler):
 
     def compile_page(self):
+        config = read_config('config')
         setup_pages = {
             0: {
                 'title': 'Setup of your CMS Installation',
@@ -49,13 +48,13 @@ class SetupHandler(PageHandler):
             1: {
                 'title': 'Verifying Database Configuration',
                 'content': table_element(
-                    ['Type', config.database_type],
-                    ['Host', config.database_connection_arguments['host']],
-                    ['User', config.database_connection_arguments['user']],
-                    ['Password', config.database_connection_arguments['passwd']],
-                    ['Database Name', config.database_connection_arguments['database']]
+                    ['Type', config['database_type']],
+                    ['Host', config['database_connection_arguments']['host']],
+                    ['User', config['database_connection_arguments']['user']],
+                    ['Password', config['database_connection_arguments']['passwd']],
+                    ['Database Name', config['database_connection_arguments']['database']]
                 ) + html_element(
-                    'Please verify that these settings are correct or change them accordingly in the \'config.py\' file.',
+                    'Please verify that these settings are correct or change them accordingly in the \'config.json\' file.',
                     html_type='p'
                 ) + try_database_connection()
             },
@@ -102,21 +101,21 @@ class SetupHandler(PageHandler):
 
     def setup(self):
         from includes.database import Database
-        from includes.bootstrap import SETUP_TABLE_CREATION_QUERIES, DEFAULT_MODULES
-        from includes.module_tools import get_modules
+        from tools.module_tools import get_modules
+        from tools.config_tools import read_config
         db = Database()
+        bootstrap = read_config('includes/bootstrap')
 
         if 'reset' in self.query:
             if self.query['reset'].lower() == 'true':
-                db.drop_tables(tuple(table['table_name'] for table in SETUP_TABLE_CREATION_QUERIES))
+                db.drop_tables(tuple(table['table_name'] for table in bootstrap['SETUP_TABLE_CREATION_QUERIES']))
         try:
-            for table in SETUP_TABLE_CREATION_QUERIES:
+            for table in bootstrap['SETUP_TABLE_CREATION_QUERIES']:
                 db.create_table(**table)
-            from includes.bootstrap import SETUP_DATABASE_POPULATION_QUERIES
-            for query in SETUP_DATABASE_POPULATION_QUERIES:
+            for query in bootstrap['SETUP_DATABASE_POPULATION_QUERIES']:
                 db.insert(**query)
             found_modules = get_modules()
-            for module in DEFAULT_MODULES:
+            for module in bootstrap['DEFAULT_MODULES']:
                 try:
                     db.replace('modules', ('module_name', 'module_path'), (module, found_modules[module]))
                 except pymysql.DatabaseError as error:

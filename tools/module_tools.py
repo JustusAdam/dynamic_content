@@ -21,10 +21,12 @@ def get_page_handlers(db):
 def get_modules():
     modules = {}
     import os
-    from .bootstrap import COREMODULES_DIRECTORY, MODULES_DIRECTORY
+    from tools.config_tools import read_config
     from importlib import import_module
 
-    for module_directory in (MODULES_DIRECTORY, COREMODULES_DIRECTORY):
+    bootstrap = read_config('includes/bootstrap')
+
+    for module_directory in (bootstrap['MODULES_DIRECTORY'], bootstrap['COREMODULES_DIRECTORY']):
         for file in os.listdir(module_directory):
             try:
                 if file.endswith('.py'):

@@ -1,8 +1,8 @@
 from http.server import *
 
-from includes.http_tools import split_path, join_path
-from request_handler import RequestHandler
-import config
+from tools.http_tools import split_path, join_path
+from coremodules.olymp.request_handler import RequestHandler
+from tools.config_tools import read_config
 
 
 __author__ = 'justusadam'
@@ -18,7 +18,8 @@ def main():
 
 
 def run(server_class=HTTPServer, handler_class=BaseHTTPRequestHandler):
-    server_address = (config.server_arguments['host'], config.server_arguments['port'])
+    config = read_config('config')
+    server_address = (config['server_arguments']['host'], config['server_arguments']['port'])
     httpd = server_class(server_address, handler_class)
     httpd.serve_forever()
 

@@ -1,20 +1,13 @@
 __author__ = 'justusadam'
 
 import pymysql
-from config import database_connection_arguments
-
-
-def get_db_connection():
-    return pymysql.connect(**database_connection_arguments).cursor()
-
-
-def db_connect():
-    return pymysql.connect(**database_connection_arguments)
+from tools.config_tools import read_config
 
 
 class Database:
     def __init__(self):
-        self._connection = db_connect()
+        config = read_config('config')
+        self._connection = pymysql.connect(**config['database_connection_arguments'])
 
     def __del__(self):
         self._connection.commit()
@@ -31,8 +24,9 @@ class Database:
             self.replace('created_tables', ('created_table', 'source_module_id', 'source_module_name'),
                         (table_name, module_id, module_name))
         except pymysql.DatabaseError:
-            from .bootstrap import TRACKER_TABLE_CREATION_QUERY
-            cursor.execute(TRACKER_TABLE_CREATION_QUERY)
+            from tools.config_tools import read_config
+            config = read_config('includes/bootstrap')
+            cursor.execute(config['TRACKER_TABLE_CREATION_QUERY'])
             self.replace('created_tables', ('created_table', 'source_module_id', 'source_module_name'),
                         (table_name, module_id, module_name))
         cursor.execute('create table ' + ' '.join([table_name, columns]) + ';')
