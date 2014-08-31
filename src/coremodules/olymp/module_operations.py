@@ -24,7 +24,7 @@ class Module:
             'update': self.db.update,
             'replace': self.db.replace
         }
-        
+
         for operation in operations.keys():
             queries = operations[operation]
             if isinstance(queries, list) or isinstance(queries, tuple):

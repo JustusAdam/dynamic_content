@@ -20,14 +20,16 @@ def try_database_connection():
                 'The connection with the database was successfully established, you may continue with this setup',
                 html_type='p') + html_element('Continue',
                                               html_type='a', classes=['continue', 'button'],
-                                              additional_properties=['href="/setup/2"'])
+                                              additional_properties=['href="/setup/{next_page}"'])
         else:
             return html_element(
-                'The connection with the database could not be established. Please review your settings and then reload this page',
+                'The connection with the database could not be established. Please review your settings '
+                'and then reload this page',
                 html_type='p')
     except DatabaseError:
         return html_element(
-            'The connection with the database could not be established. Please review your settings and then reload this page',
+            'The connection with the database could not be established. Please review your settings and then '
+            'reload this page',
             html_type='p')
 
 
@@ -37,18 +39,32 @@ class SetupHandler(PageHandler):
         setup_pages = {
             0: {
                 'title': 'Setup of your CMS Installation',
-                'content': html_element(
-                    'The following steps will be taken during this setup',
-                    html_type='h3'
-                ) + list_element(
-                    'Verifying Database Information',
-                    'Configure site information',
-                    'Set up an admin user',
-                    list_type='ol'
-                ) + html_element('Continue', html_type='a', classes=['continue', 'button'],
-                                 additional_properties=['href="/setup/1"'])
+                'content': html_element('Welcome to the setup process of your python_cms content management system.',
+                                        html_type='p') + html_element(
+                    'These pages will guide you trough the necessary steps and tests that need to be taken to ensure '
+                    'python_cms will function properly for you.',
+                    html_type='p') + html_element(
+                    'During this process you will be required to enter and confirm sensible data to your '
+                    'installation as well as set a password for the administration user. It is therefore '
+                    'recommended that you perform this setup directly on the server or ahead of deployment or '
+                    'utilizing a secure and encrypted connection.',
+                    html_type='p') + html_element('I hope that you will enjoy and be pleased with python_cms.',
+                                                  html_type='p') +
+                           html_element('Continue', html_type='a', classes=['continue', 'button'],
+                                        additional_properties=['href="/setup/{next_page}"'])
             },
             1: {
+                'title': 'Overview',
+                'content': html_element('The following steps will be taken during this setup', html_type='h3') +
+                           list_element(
+                               'Verifying Database Information',
+                               'Configure site information',
+                               'Set up an admin user',
+                               list_type='ul'
+                           ) + html_element('Continue', html_type='a', classes=['continue', 'button'],
+                                            additional_properties=['href="/setup/{next_page}"'])
+            },
+            2: {
                 'title': 'Verifying Database Configuration',
                 'content': table_element(
                     ['Type', config['database_type']],
@@ -62,10 +78,20 @@ class SetupHandler(PageHandler):
                 ) + try_database_connection()
             },
             3: {
+                'title': 'Executing initial queries on the database',
+                'content': html_element('The following step will execute the initial queries to the database requred for python_cms to function. This will create new tables and fill them according to the installation specifications provided sufficient access to the database has been granted.', html_type='p') + html_element('This step is required to proceed', html_type='p') + html_element('If you are certain, that the database has been properly configured to allow sufficient access to python_cms and are content with this software making changes to your database please click \'Continue\'', html_type='p') + html_element('Continue', html_type='a', classes=['button', 'continue'], additional_properties='href="/setup/{next_page}"')
+            },
+            4: {
+                'title': '{result}',
+                'content': '{message}' + html_element('{link}', html_type='a',
+                                                      classes=['continue', 'button'],
+                                                      additional_properties=['href="{target}"'])
+            },
+            5: {
                 'title': 'Create an admin account',
                 'content': html_element(
                     'This page is a placeholder since the authorization is not yet implemented. Please click submit.'
-                , classes='alert') +
+                    , classes='alert') +
                            form_element(
                                table_element(
                                    ['username:', input_element(name='username', end_line=False)],
@@ -73,15 +99,9 @@ class SetupHandler(PageHandler):
                                    ['re-enter password:', input_element(input_type='password',
                                                                         name='confirm_password', end_line=False)],
                                ),
-                               action='/setup/3?destination=/',
+                               action='/setup/{page_id}?destination=/',
                                element_id='admin_form'
                            )
-            },
-            2: {
-                'title': '{result}',
-                'content': '{message}' + html_element('{link}', html_type='a',
-                                                      classes=['continue', 'button'],
-                                                      additional_properties=['href="{target}"'])
             }
         }
         generic = {
@@ -100,7 +120,9 @@ class SetupHandler(PageHandler):
         page = setup_template.format(**replacement_pattern)
 
         if self.page_id == 2:
-            page = page.format(**self.setup_wrapper())
+            page = page.format(page_id=self.page_id, next_page=self.page_id + 1, **self.setup_wrapper())
+        else:
+            page = page.format(page_id=self.page_id, next_page=self.page_id + 1)
         self._document = page
         return 200
 
@@ -147,7 +169,7 @@ class SetupHandler(PageHandler):
                                  html_type='p') +
                     html_element('You may proceed.', html_type='p')
                 ),
-                'target': '/setup/3',
+                'target': '/setup/{next_page}',
                 'link': 'Continue'
             }
         else:
@@ -161,7 +183,7 @@ class SetupHandler(PageHandler):
                     html_element('You may delete all existing tables that should be created by clicking reset',
                                  html_type='p')
                 ) + html_element('Reset', html_type='a', classes='button',
-                                 additional_properties=['href="/setup/2?reset=True"']),
+                                 additional_properties=['href="/setup/{page_id}?reset=True"']),
                 'target': '/setup',
                 'link': 'Restart'
             }

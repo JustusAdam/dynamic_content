@@ -20,6 +20,7 @@ li {
     border-color: #ccc;
     border-style: solid;
     border-width: 0 1px;
+    padding: 10px 0;
 }
 .page-wrapper {
 	width: 960px;
@@ -57,25 +58,32 @@ a.button.continue {
 #main {
 	padding: 20px;
 	float: left;
-	margin-left: 33%;
+	margin: 20px 0 20px 33%;
 }
 #left {
+}
+td {
+    padding: 2px 5px;
 }
 header {
 	min-height: 100px;
 	width: 100%;
 	background-color: #9ABB6F;
+	box-shadow: 0 0 8px #999;
 }
 footer {
 	background-color: #222;
 	color: #ddd;
 	min-height: 50px;
 	font-size: 11px;
+	box-shadow: 0 0 8px #999;
 }
 #wrapper-footer {
 }
 #pagetitle {
-	font-size: 25px;
+	color: white;
+    font-size: 25px;
+    text-shadow: 1px 1px 5px #666;
 }
 .content {
 	padding: 40px;
@@ -86,4 +94,5 @@ input[type='submit'] {
 .alert {
 	padding: 10px 15px;
 	background-color: rgba(255, 82, 0, 0.3);
+	box-shadow: 0 0 9px #bbb;
 }
