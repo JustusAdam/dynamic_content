@@ -1,4 +1,4 @@
-from .entity import EditEntityHandler, EntityPageHandler
+from .iris import EditIrisHandler, IrisPageHandler
 
 __author__ = 'justusadam'
 
@@ -10,6 +10,6 @@ role = 'page_handler'
 
 def page_handler_factory(page_id, url_tail, get_query):
     if url_tail[0] == 'edit':
-        return EditEntityHandler(page_id, get_query)
+        return EditIrisHandler(page_id, get_query)
     else:
-        return EntityPageHandler(page_id,get_query)
+        return IrisPageHandler(page_id,get_query)

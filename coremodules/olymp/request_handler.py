@@ -2,7 +2,6 @@ from http.server import BaseHTTPRequestHandler
 import io
 import sys
 import shutil
-from urllib.error import HTTPError
 from pymysql import DatabaseError
 from includes import database
 from includes.basic_page_handlers import FileHandler
@@ -16,51 +15,55 @@ __author__ = 'justusadam'
 
 class RequestHandler(BaseHTTPRequestHandler):
 
+    def __init__(self, request, client_address, server):
+        super().__init__(request, client_address, server)
+        self.page_handler = None
+
     def do_POST(self):
         if not self.check_path():
             return 0
-        try:
-            page_handler = self.get_handler()
-        except HTTPError:
-            self.send_error(404, *self.responses[404])
+
+        get_handler_response = self.get_handler()
+        if get_handler_response != 0:
+            self.send_error(get_handler_response, *self.responses[get_handler_response])
             return 0
 
         post_request = self.rfile.read(int(self.headers['Content-Length'])).decode()
 
-        if page_handler.process_post(post_request):
+        if self.page_handler.process_post(post_request):
             self.send_response(302, *self.responses[302])
             self.send_header("Location", self.get_post_target())
             self.end_headers()
         else:
-            self.send_document(page_handler=page_handler)
+            self.send_document()
 
         return 0
 
     def do_GET(self):
         if not self.check_path():
             return 0
-        try:
-            page_handler = self.get_handler()
-        except HTTPError:
-            self.send_error(404, *self.responses[404])
+
+        get_handler_response = self.get_handler()
+        if get_handler_response != 0:
+            self.send_error(get_handler_response, *self.responses[get_handler_response])
             return 0
 
-        self.send_document(page_handler=page_handler)
+        self.send_document()
 
         return 0
 
-    def send_document(self, page_handler):
+    def send_document(self):
         enc = sys.getfilesystemencoding()
-        handler_response = page_handler.compile_page()
+        handler_response = self.page_handler.compile_page()
         print(handler_response)
         if not handler_response:
             # TODO set some generic error if handler rejects request
             return
         if handler_response == 200 or handler_response is True:
-            encoded = page_handler.document.encode(enc)
+            encoded = self.page_handler.document.encode(enc)
             self.send_response(200)
             self.send_header("Content-type", "{content_type}; charset={encoding}".format(
-                content_type=page_handler.content_type, encoding=enc))
+                content_type=self.page_handler.content_type, encoding=enc))
             self.send_header("Content-Length", str(len(encoded)))
             self.end_headers()
             stream = io.BytesIO()
@@ -87,7 +90,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         (path, location, query) = split_path(path=self.path)
 
-        if path.endswith('/'):
+        print(path)
+
+        if path.endswith('/') and path != '/':
             self.send_response(301)
             self.send_header("Location", join_path(path[:-1], location, query))
             self.end_headers()
@@ -97,46 +102,54 @@ class RequestHandler(BaseHTTPRequestHandler):
     def get_handler(self):
         config = read_config('includes/bootstrap')
 
-        # BUG endless loop when accessing '/'
-
         (path, location,  get_query) = parse_url(url=self.path)
-        print(self.path)
-        if path[0] == 'setup':
-            if len(path) == 1:
-                page_id = 0
-            else:
-                page_id = int(path[1])
-            from includes.setup import page_handler_factory
-            return page_handler_factory(page_id=page_id, get_query=get_query)
-        elif path[0] in config['FILE_DIRECTORIES'].keys():
-            return FileHandler(path)
+        if len(path) > 0:
+            if path[0] == 'setup':
+                if len(path) == 1:
+                    page_id = 0
+                else:
+                    page_id = int(path[1])
+                from includes.setup import page_handler_factory
+                self.page_handler = page_handler_factory(page_id=page_id, get_query=get_query)
+                return 0
+            elif path[0] in config['FILE_DIRECTORIES'].keys():
+                self.page_handler = FileHandler(path)
+                return 0
+        try:
+            db_connection = database.Database()
+            page_handlers = get_page_handlers(db_connection)
+        except DatabaseError:
+            # TODO figure out which error to raise if database unreachable, currently 'internal server error'
+            return 500
+
+        path = de_alias(path, db_connection)
+
+        if len(path) == 0:
+            return 404
+
+        if path[0] not in page_handlers.keys():
+            return 404
+
+        page_id = int(path[1])
+
+        if len(path >= 3):
+            url_tail = path[2:]
         else:
-            try:
-                db_connection = database.Database()
-                page_handlers = get_page_handlers(db_connection)
-            except DatabaseError:
-                # TODO figure out which error to raise if database unreachable
-                raise HTTPError(url=self.path, code=404, msg='', fp=None, hdrs=None)
+            url_tail = ''
 
-            path = de_alias(path, db_connection)
-
-            if path[0] not in page_handlers.keys():
-                raise HTTPError(url=self.path, code=404, msg='', fp=None, hdrs=None)
-
-            page_id = int(path[1])
-
-            if len(path >= 3):
-                url_tail = path[2:]
-            else:
-                url_tail = ''
-
-            ph_callback_module = __import__(page_handlers['module'])
-            return ph_callback_module.page_handler_factory(page_id=page_id, url_tail=url_tail, get_query=get_query)
+        ph_callback_module = __import__(page_handlers['module'])
+        self.page_handler = ph_callback_module.page_handler_factory(page_id=page_id, url_tail=url_tail,
+                                                                    get_query=get_query)
+        return 0
 
 
 def de_alias(path, db):
+    if len(path) == 0:
+        alias = '/'
+    else:
+        alias = '/' + '/'.join([word for word in path])
     try:
-        source = translate_alias('/' + '/'.join([word for word in path]), db)
+        source = translate_alias(alias, db)
         return source
     except DatabaseError:
         return path

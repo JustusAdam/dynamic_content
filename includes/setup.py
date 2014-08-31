@@ -8,9 +8,6 @@ from includes.basic_page_handlers import PageHandler
 __author__ = 'justusadam'
 
 
-url = 'http://localhost:8000'
-
-
 def try_database_connection():
     from includes import database
     try:
@@ -43,7 +40,7 @@ class SetupHandler(PageHandler):
                     'Configure site information',
                     'Set up an admin user',
                     list_type='ol'
-                ) + html_element('Continue', html_type='a', additional_properties=['href="' + url + '/setup/1"'])
+                ) + html_element('Continue', html_type='a', additional_properties=['href="/setup/1"'])
             },
             1: {
                 'title': 'Verifying Database Configuration',
