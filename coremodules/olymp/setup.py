@@ -11,6 +11,7 @@ __author__ = 'justusadam'
 
 def try_database_connection():
     from includes import database
+
     try:
         test_database = database.Database()
         if test_database.check_connection():
@@ -19,15 +20,16 @@ def try_database_connection():
                 html_type='p') + html_element(
                 'Continue', html_type='a', classes=['continue', 'button'], additional_properties=['href="/setup/2"'])
         else:
-            return html_element('The connection with the database could not be established. Please review your settings and then reload this page',
-                                html_type='p')
+            return html_element(
+                'The connection with the database could not be established. Please review your settings and then reload this page',
+                html_type='p')
     except DatabaseError:
-        return html_element('The connection with the database could not be established. Please review your settings and then reload this page',
-                            html_type='p')
+        return html_element(
+            'The connection with the database could not be established. Please review your settings and then reload this page',
+            html_type='p')
 
 
 class SetupHandler(PageHandler):
-
     def compile_page(self):
         config = read_config('config')
         setup_pages = {
@@ -58,17 +60,19 @@ class SetupHandler(PageHandler):
                 ) + try_database_connection()
             },
             3: {
-                'title': 'Setting up an admin account',
-                'content': form_element(
-                    table_element(
-                        ['username:', input_element(name='username', end_line=False)],
-                        ['password:', input_element(input_type='password', name='password', end_line=False)],
-                        ['re-enter password:', input_element(input_type='password',
-                                                             name='confirm_password', end_line=False)],
-                    ),
-                    action='/setup/3?destination=/',
-                    element_id='admin_form'
-                ) + html_element('This page is a placeholder since the authorization is not yet implemented. Please click continue.')
+                'title': 'Create an admin account',
+                'content': html_element(
+                    'This page is a placeholder since the authorization is not yet implemented. Please click continue.') +
+                           form_element(
+                               table_element(
+                                   ['username:', input_element(name='username', end_line=False)],
+                                   ['password:', input_element(input_type='password', name='password', end_line=False)],
+                                   ['re-enter password:', input_element(input_type='password',
+                                                                        name='confirm_password', end_line=False)],
+                               ),
+                               action='/setup/3?destination=/',
+                               element_id='admin_form'
+                           )
             },
             2: {
                 'title': '{result}',
@@ -104,6 +108,7 @@ class SetupHandler(PageHandler):
         from includes.database import Database
         from tools.module_tools import get_modules
         from tools.config_tools import read_config
+
         db = Database()
         bootstrap = read_config('includes/bootstrap')
 
@@ -137,7 +142,7 @@ class SetupHandler(PageHandler):
                 'message': html_element(
                     html_element('Your installation has been successful.', html_type='p') +
                     html_element('All necessary tables have been created and filled in the database',
-                                html_type='p') +
+                                 html_type='p') +
                     html_element('You may proceed.', html_type='p')
                 ),
                 'target': '/setup/3',
@@ -150,7 +155,7 @@ class SetupHandler(PageHandler):
                     html_element('Your installation has failed.', html_type='p') +
                     html_element('Please revisit you settings and try again.', html_type='p') +
                     html_element('Please ensure the database does not contain any tables that this CMS'
-                                ' is trying to create', html_type='p') +
+                                 ' is trying to create', html_type='p') +
                     html_element('You may delete all existing tables that should be created by clicking reset',
                                  html_type='p')
                 ) + html_element('Reset', html_type='a', classes='button',
