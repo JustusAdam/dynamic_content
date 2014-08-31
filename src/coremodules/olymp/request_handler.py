@@ -56,9 +56,8 @@ class RequestHandler(BaseHTTPRequestHandler):
     def send_document(self):
         enc = sys.getfilesystemencoding()
         handler_response = self.page_handler.compile_page()
-        print(handler_response)
         if not handler_response:
-            # TODO set some generic error if handler rejects request
+            # TODO send some generic error if handler rejects request
             return
         if handler_response == 200 or handler_response is True:
             encoded = self.page_handler.document.encode(enc)
@@ -90,8 +89,6 @@ class RequestHandler(BaseHTTPRequestHandler):
     def check_path(self):
 
         (path, location, query) = split_path(path=self.path)
-
-        print(path)
 
         if path.endswith('/') and path != '/':
             self.send_response(301)
@@ -127,7 +124,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         if len(path) == 0:
             return 404
 
-        handler_module = db_connection.select('handler_module', 'page_handlers', 'where path_prefix = ' + path[0]).fetchone()
+        handler_module = db_connection.select('handler_module', 'page_handlers', 'where path_prefix = ' + database.escape(path[0]).fetchone())
         if handler_module is None:
             return 404
 
@@ -157,6 +154,6 @@ def de_alias(path, db):
 
 
 def translate_alias(alias, db):
-    query_result = db.select('source', 'alias', 'where alias = "' + alias + '"').fetchone
+    query_result = db.select('source', 'alias', 'where alias = ' + database.escape(alias)).fetchone
     # TODO check if this works
     return query_result

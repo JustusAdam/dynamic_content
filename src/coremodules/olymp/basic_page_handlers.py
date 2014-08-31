@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from coremodules.olymp.database import Database
+from coremodules.olymp.database import Database, escape
 from src.tools.config_tools import read_config
 
 
@@ -81,8 +81,8 @@ class SimplePageHandler(DBPageHandler):
         self.content_type = self.get_content_type()
 
     def get_content_type(self):
-        return self.db.select(from_table=self.page_type, columns='content_type', query_tail='where id = ' + self.page_id)
+        return self.db.select(from_table=self.page_type, columns='content_type', query_tail='where id = ' + escape(self.page_id))
 
     def get_used_fields(self):
         return sorted(self.db.select(from_table='page_fields', columns=('id', 'weight'),
-                              query_tail='where content_type = ' + self.content_type), key=lambda a: a[1])
+                              query_tail='where content_type = ' + escape(self.content_type)), key=lambda a: a[1])

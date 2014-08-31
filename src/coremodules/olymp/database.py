@@ -54,7 +54,7 @@ class Database:
 
     def insert(self, into_table, into_cols, values):
 
-        values = self.escape(values)
+        values = escape(values)
 
         def unwrap_values(a):
             if isinstance(a, tuple) or isinstance(a, list):
@@ -76,7 +76,7 @@ class Database:
 
     def replace(self, into_table, into_cols, values):
 
-        values = self.escape(values)
+        values = escape(values)
 
         def unwrap_values(a):
             if isinstance(a, tuple) or isinstance(a, list):
@@ -96,16 +96,6 @@ class Database:
         cursor.close()
         return
 
-    def escape(self, value):
-        if isinstance(value, tuple):
-            return tuple((self.escape(element) for element in value))
-        elif isinstance(value, list):
-            return list([self.escape(element) for element in value])
-        elif isinstance(value, str):
-            return '\'' + value.replace('\'', '\\\'') + '\''
-        else:
-            return self.escape(str(value))
-
     def drop_tables(self, tables):
         if isinstance(tables, list) or isinstance(tables, tuple):
             tables = ', '.join(tables)
@@ -118,7 +108,7 @@ class Database:
             return False
         set_clause = ''
         for key in pairing.keys():
-            set_clause += key + '=' + self.escape(pairing[key])
+            set_clause += key + '=' + escape(pairing[key])
         if where_condition:
             where_condition = 'where ' + where_condition
         cursor = self._connection.cursor()
@@ -135,3 +125,14 @@ class Database:
             return True
         except pymysql.DatabaseError:
             return False
+
+
+def escape(value):
+    if isinstance(value, tuple):
+        return tuple((escape(element) for element in value))
+    elif isinstance(value, list):
+        return list([escape(element) for element in value])
+    elif isinstance(value, str):
+        return '\'' + value.replace('\'', '\\\'') + '\''
+    else:
+        return escape(str(value))

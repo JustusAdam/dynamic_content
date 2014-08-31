@@ -1,7 +1,8 @@
 import os
+from pymysql import DatabaseError
 from tools.config_tools import read_config
 from pathlib import Path
-from .database import Database
+from .database import Database, escape
 
 __author__ = 'justusadam'
 
@@ -13,6 +14,8 @@ class Module:
         self.db = Database()
 
     def activate_module(self, module_name):
+        if self.is_active(module_name):
+            return False
         path = self.get_module_path(module_name)
 
         module_conf = read_config(path.replace('.', '/') + '/config.json')
@@ -33,14 +36,21 @@ class Module:
             else:
                 db_operations[operation](**queries)
 
-
-        self.db.update('modules', {'enabled': 'true'}, 'module_name = ' + module_name)
+        self.db.update('modules', {'enabled': 'true'}, 'module_name = ' + escape(module_name))
+        return True
 
     def get_module_path(self, module):
-        self.db.select('module_path', 'modules', 'where module_name = ' + module)
+        return self.db.select('module_path', 'modules', 'where module_name = ' + escape(module)).fetchone()
+
+    def is_active(self, module_name):
+        try:
+            result = self.db.select('enabled', 'modules', 'where module_name = ' + escape(module_name)).fetchone()
+        except DatabaseError:
+            return False
+        return result == 1
+
 
     def register_modules(self):
-
         for directory in (self.bootstrap['MODULES_DIRECTORY'], self.bootstrap['COREMODULES_DIRECTORY']):
             for file in Path(directory).iterdir():
                 if file.is_dir():

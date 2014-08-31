@@ -7,6 +7,7 @@ from . import get_installed_core_modules
 from src.tools.html_tools import html_element, input_element, form_element, table_element, list_element, stylesheet_link
 from src.tools.config_tools import read_config
 from coremodules.olymp.basic_page_handlers import PageHandler
+from .module_operations import Module
 
 
 __author__ = 'justusadam'
@@ -144,6 +145,9 @@ class SetupHandler(PageHandler):
                     print('printing error:')
                     print(error.args)
         try:
+            temp = Module()
+            for module in [bootstrap['CORE_MODULE']] + bootstrap['DEFAULT_MODULES']:
+                temp.activate_module(module)
             for table in bootstrap['SETUP_TABLE_CREATION_QUERIES']:
                 db.create_table(**table)
             for query in bootstrap['SETUP_DATABASE_POPULATION_QUERIES']:
