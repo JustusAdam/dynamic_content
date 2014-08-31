@@ -11,3 +11,5 @@ role = 'core'
 # TODO refactor everything to get core module and move it here
 
 register_modules = Module().register_modules
+
+get_installed_core_modules = Module().get_installed_core_modules

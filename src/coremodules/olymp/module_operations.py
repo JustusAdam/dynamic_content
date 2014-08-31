@@ -1,6 +1,7 @@
 import os
 from tools.config_tools import read_config
 from pathlib import Path
+from .database import Database
 
 __author__ = 'justusadam'
 
@@ -9,9 +10,34 @@ class Module:
 
     def __init__(self):
         self.bootstrap = read_config('includes/bootstrap')
+        self.db = Database()
 
-    def activate_module(self,module):
-        pass
+    def activate_module(self, module_name):
+        path = self.get_module_path(module_name)
+
+        module_conf = read_config(path.replace('.', '/') + '/config.json')
+        operations = module_conf['database_queries']
+
+        db_operations = {
+            'create_table': self.db.create_table,
+            'insert': self.db.insert,
+            'update': self.db.update,
+            'replace': self.db.replace
+        }
+        
+        for operation in operations.keys():
+            queries = operations[operation]
+            if isinstance(queries, list) or isinstance(queries, tuple):
+                for query in queries:
+                    db_operations[operation](**query)
+            else:
+                db_operations[operation](**queries)
+
+
+        self.db.update('modules', {'enabled': 'true'}, 'module_name = ' + module_name)
+
+    def get_module_path(self, module):
+        self.db.select('module_path', 'modules', 'where module_name = ' + module)
 
     def register_modules(self):
 
@@ -26,9 +52,7 @@ class Module:
                             self.register_module(str(file.resolve()), info)
 
     def register_module(self, path, info):
-        from .database import Database
-        db = Database()
-        db.replace('modules', ('module_name', 'module_path', 'module_role'), (info['name'], path, info['role']))
+        self.db.replace('modules', ('module_name', 'module_path', 'module_role'), (info['name'], path, info['role']))
 
     def check_info(self, info):
         keys = info.keys()

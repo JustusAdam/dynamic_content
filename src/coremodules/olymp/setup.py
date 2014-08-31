@@ -1,8 +1,8 @@
 from pymysql import DatabaseError
 import pymysql
 
-from coremodules.olymp import database
-from coremodules.olymp.module_operations import get_installed_core_modules
+from . import database
+from . import get_installed_core_modules
 
 from src.tools.html_tools import html_element, input_element, form_element, table_element, list_element, stylesheet_link
 from src.tools.config_tools import read_config
@@ -18,8 +18,9 @@ def try_database_connection():
         if test_database.check_connection():
             return html_element(
                 'The connection with the database was successfully established, you may continue with this setup',
-                html_type='p') + html_element(
-                'Continue', html_type='a', classes=['continue', 'button'], additional_properties=['href="/setup/2"'])
+                html_type='p') + html_element('Continue',
+                                              html_type='a', classes=['continue', 'button'],
+                                              additional_properties=['href="/setup/2"'])
         else:
             return html_element(
                 'The connection with the database could not be established. Please review your settings and then reload this page',

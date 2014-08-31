@@ -104,7 +104,7 @@ class Database:
         elif isinstance(value, str):
             return '\'' + value.replace('\'', '\\\'') + '\''
         else:
-            return str(value)
+            return self.escape(str(value))
 
     def drop_tables(self, tables):
         if isinstance(tables, list) or isinstance(tables, tuple):
@@ -113,8 +113,16 @@ class Database:
         cursor.execute('drop table ' + tables + ';')
         cursor.close()
 
-    def update(self):
-        pass
+    def update(self, table, pairing, where_condition=''):
+        if not isinstance(pairing, dict):
+            return False
+        set_clause = ''
+        for key in pairing.keys():
+            set_clause += key + '=' + self.escape(pairing[key])
+        if where_condition:
+            where_condition = 'where ' + where_condition
+        cursor = self._connection.cursor()
+        cursor.execute(' '.join(['update', table, 'set', set_clause, where_condition]))
 
     def check_connection(self):
         """
