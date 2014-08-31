@@ -1,7 +1,7 @@
 from http.server import *
 
 from coremodules.olymp.request_handler import RequestHandler
-from tools.config_tools import read_config
+from src.tools.config_tools import read_config
 
 
 __author__ = 'justusadam'

@@ -7,9 +7,9 @@ from pymysql import DatabaseError
 
 from includes import database
 from coremodules.olymp.basic_page_handlers import FileHandler
-from tools.http_tools import split_path, join_path, parse_url
-from tools.module_tools import get_page_handlers
-from tools.config_tools import read_config
+from src.tools.http_tools import split_path, join_path, parse_url
+from src.tools.module_tools import get_page_handlers
+from src.tools.config_tools import read_config
 
 
 __author__ = 'justusadam'
@@ -111,7 +111,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                     page_id = 0
                 else:
                     page_id = int(path[1])
-                from coremodules.olymp.setup import page_handler_factory
+                from src.coremodules.olymp.setup import page_handler_factory
                 self.page_handler = page_handler_factory(page_id=page_id, get_query=get_query)
                 return 0
             elif path[0] in config['FILE_DIRECTORIES'].keys():

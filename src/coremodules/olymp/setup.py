@@ -1,8 +1,10 @@
 from pymysql import DatabaseError
 import pymysql
 
-from tools.html_tools import html_element, input_element, form_element, table_element, list_element, stylesheet_link
-from tools.config_tools import read_config
+from src.includes import database
+
+from src.tools.html_tools import html_element, input_element, form_element, table_element, list_element, stylesheet_link
+from src.tools.config_tools import read_config
 from coremodules.olymp.basic_page_handlers import PageHandler
 
 
@@ -10,8 +12,6 @@ __author__ = 'justusadam'
 
 
 def try_database_connection():
-    from includes import database
-
     try:
         test_database = database.Database()
         if test_database.check_connection():
@@ -106,9 +106,9 @@ class SetupHandler(PageHandler):
         return self.page_id == 3
 
     def setup(self):
-        from includes.database import Database
-        from tools.module_tools import get_modules
-        from tools.config_tools import read_config
+        from src.includes.database import Database
+        from src.tools.module_tools import get_modules
+        from src.tools.config_tools import read_config
 
         db = Database()
         bootstrap = read_config('includes/bootstrap')

@@ -1,6 +1,6 @@
-from includes.database import get_db_connection
 import re
-from coremodules.dionysus.commons import get_common_elements
+from src.coremodules.dionysus.commons import get_common_elements
+
 
 __author__ = 'justusadam'
 

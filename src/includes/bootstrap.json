@@ -31,7 +31,8 @@
             "columns": [
                 "id int unsigned not null auto_increment unique primary key comment 'primary key used for identification'",
                 "handler_module int not null comment 'identifier for the module providing the handler'",
-                "handler_name varchar(500) comment 'human readable name of the page handler'"
+                "handler_name varchar(500) comment 'human readable name of the page handler'",
+                "path_prefix varchar(500) not null unique comment 'path prefix identifying this page handler' "
             ]
         },
         {

@@ -1,7 +1,8 @@
 __author__ = 'justusadam'
 
 import pymysql
-from tools.config_tools import read_config
+
+from src.tools.config_tools import read_config
 
 
 class Database:
@@ -26,7 +27,7 @@ class Database:
             self.replace('created_tables', ('created_table', 'source_module_id', 'source_module_name'),
                         (table_name, module_id, module_name))
         except pymysql.DatabaseError:
-            from tools.config_tools import read_config
+            from src.tools.config_tools import read_config
             config = read_config('includes/bootstrap')
             cursor.execute(config['TRACKER_TABLE_CREATION_QUERY'])
             self.replace('created_tables', ('created_table', 'source_module_id', 'source_module_name'),

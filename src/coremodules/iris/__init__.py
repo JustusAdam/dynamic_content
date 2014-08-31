@@ -1,4 +1,4 @@
-from .iris import EditIrisHandler, IrisPageHandler
+from src.coremodules.iris.iris import EditIrisHandler, IrisPageHandler
 
 __author__ = 'justusadam'
 

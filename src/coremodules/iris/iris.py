@@ -1,4 +1,4 @@
-from coremodules.olymp.basic_page_handlers import SimplePageHandler
+from src.coremodules.olymp.basic_page_handlers import SimplePageHandler
 
 __author__ = 'justusadam'
 

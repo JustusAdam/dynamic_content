@@ -2,6 +2,7 @@ __author__ = 'justusadam'
 
 
 def get_page_handlers(db):
+    q_result = db.select(('path_prefix', 'id', 'handler_module'), 'page_handlers')
     return {
         'admin': {
             'type': 'admin',
@@ -21,7 +22,7 @@ def get_page_handlers(db):
 def get_modules():
     modules = {}
     import os
-    from tools.config_tools import read_config
+    from src.tools.config_tools import read_config
     from importlib import import_module
 
     bootstrap = read_config('includes/bootstrap')
