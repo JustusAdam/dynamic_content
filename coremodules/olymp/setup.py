@@ -1,8 +1,9 @@
 from pymysql import DatabaseError
 import pymysql
+
 from tools.html_tools import html_element, input_element, form_element, table_element, list_element, stylesheet_link
 from tools.config_tools import read_config
-from includes.basic_page_handlers import PageHandler
+from coremodules.olymp.basic_page_handlers import PageHandler
 
 
 __author__ = 'justusadam'
