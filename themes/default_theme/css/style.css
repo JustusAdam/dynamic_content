@@ -1,15 +1,25 @@
 body {
-	font-family: 'Open Sans', Helvetica, sans-serif;
+	font-family: Helvetica, Arial, Verdana, sans-serif;
 	margin: 0;
 	padding: 0;
 	font-size: 13px;
 	color: #333;
+	font-weight: lighter;
+}
+h1, h2, h3, h4, h5, h6 {
+	font-weight: normal;
+}
+li {
+	padding-bottom: 3px;
 }
 #wrapper-main {
 	background-color: #e4e4e4;
 }
 #wrapper-middle {
 	margin: 0 auto 0 auto;
+    border-color: #ccc;
+    border-style: solid;
+    border-width: 0 1px;
 }
 .page-wrapper {
 	width: 960px;
@@ -21,7 +31,6 @@ body {
 }
 h1 {
     color: rgb(66, 124, 247);
-    font-weight: normal;
     font-size: 22px;
 }
 #content {
@@ -51,12 +60,9 @@ a.button.continue {
 	margin-left: 33%;
 }
 #left {
-	width: 33%;
-	min-height: 1px;
-	float: left;
 }
 header {
-	height: 100px;
+	min-height: 100px;
 	width: 100%;
 	background-color: #9ABB6F;
 }
@@ -76,4 +82,8 @@ footer {
 }
 input[type='submit'] {
 	float: right;
+}
+.alert {
+	padding: 10px 15px;
+	background-color: rgba(255, 82, 0, 0.3);
 }

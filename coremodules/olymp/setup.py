@@ -62,7 +62,8 @@ class SetupHandler(PageHandler):
             3: {
                 'title': 'Create an admin account',
                 'content': html_element(
-                    'This page is a placeholder since the authorization is not yet implemented. Please click continue.') +
+                    'This page is a placeholder since the authorization is not yet implemented. Please click submit.'
+                , classes='alert') +
                            form_element(
                                table_element(
                                    ['username:', input_element(name='username', end_line=False)],
