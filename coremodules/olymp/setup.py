@@ -17,7 +17,7 @@ def try_database_connection():
             return html_element(
                 'The connection with the database was successfully established, you may continue with this setup',
                 html_type='p') + html_element(
-                'Continue', html_type='a', additional_properties=['href="/setup/2"'])
+                'Continue', html_type='a', classes=['continue', 'button'], additional_properties=['href="/setup/2"'])
         else:
             return html_element('The connection with the database could not be established. Please review your settings and then reload this page',
                                 html_type='p')
@@ -41,7 +41,8 @@ class SetupHandler(PageHandler):
                     'Configure site information',
                     'Set up an admin user',
                     list_type='ol'
-                ) + html_element('Continue', html_type='a', additional_properties=['href="/setup/1"'])
+                ) + html_element('Continue', html_type='a', classes=['continue', 'button'],
+                                 additional_properties=['href="/setup/1"'])
             },
             1: {
                 'title': 'Verifying Database Configuration',
@@ -67,25 +68,27 @@ class SetupHandler(PageHandler):
                     ),
                     action='/setup/3?destination=/',
                     element_id='admin_form'
-                ) + html_element('This page is a placeholder since the authorization is not yet implemented. PLease click continue.')
+                ) + html_element('This page is a placeholder since the authorization is not yet implemented. Please click continue.')
             },
             2: {
                 'title': '{result}',
-                'content': html_element('{message}') + html_element('{link}', html_type='a',
-                                                                    additional_properties=['href="{target}"'])
+                'content': '{message}' + html_element('{link}', html_type='a',
+                                                      classes=['continue', 'button'],
+                                                      additional_properties=['href="{target}"'])
             }
         }
         generic = {
-            'stylesheets': stylesheet_link('/theme/default_theme/css/setup.css'),
+            'stylesheets': stylesheet_link('/theme/default_theme/css/style.css'),
             'scripts': '',
             'header': '',
-            'footer': ''
+            'footer': html_element('Python CMS 2014', element_id=''),
+            'pagetitle': 'Setting up your CMS installation'
         }
         replacement_pattern = setup_pages[self.page_id]
 
         replacement_pattern.update(generic)
 
-        setup_template = open('themes/default_theme/template/setup.html')
+        setup_template = open('themes/default_theme/template/page.html')
         setup_template = setup_template.read()
         page = setup_template.format(**replacement_pattern)
 
@@ -106,7 +109,11 @@ class SetupHandler(PageHandler):
 
         if 'reset' in self.query:
             if self.query['reset'].lower() == 'true':
-                db.drop_tables(tuple(table['table_name'] for table in bootstrap['SETUP_TABLE_CREATION_QUERIES']))
+                try:
+                    db.drop_tables(tuple(table['table_name'] for table in bootstrap['SETUP_TABLE_CREATION_QUERIES']))
+                except DatabaseError as error:
+                    print('printing error:')
+                    print(error.args)
         try:
             for table in bootstrap['SETUP_TABLE_CREATION_QUERIES']:
                 db.create_table(**table)
@@ -115,7 +122,7 @@ class SetupHandler(PageHandler):
             found_modules = get_modules()
             for module in bootstrap['DEFAULT_MODULES']:
                 try:
-                    db.replace('modules', ('module_name', 'module_path'), (module, found_modules[module]))
+                    db.insert('modules', ('module_name', 'module_path'), (module, found_modules[module]))
                 except pymysql.DatabaseError as error:
                     print(error)
             return True
@@ -127,23 +134,27 @@ class SetupHandler(PageHandler):
         if self.setup():
             return {
                 'result': 'Success',
-                'message': html_element('Your installation has been successful.', html_type='p') +
-                           html_element('All necessary tables have been created and filled in the database',
-                                        html_type='p') +
-                           html_element('You may proceed.', html_type='p'),
+                'message': html_element(
+                    html_element('Your installation has been successful.', html_type='p') +
+                    html_element('All necessary tables have been created and filled in the database',
+                                html_type='p') +
+                    html_element('You may proceed.', html_type='p')
+                ),
                 'target': '/setup/3',
                 'link': 'Continue'
             }
         else:
             return {
                 'result': 'Failed',
-                'message': html_element('Your installation has failed.', html_type='p') +
-                           html_element('Please revisit you settings and try again.', html_type='p') +
-                           html_element('Please ensure the database does not contain any tables that this CMS'
-                                        ' is trying to create', html_type='p') +
-                           html_element('You may delete all existing tables that should be created by clicking reset',
-                                        html_type='p') + html_element('Reset', html_type='a',
-                                                                      additional_properties=['href="/setup/2?reset=True"']),
+                'message': html_element(
+                    html_element('Your installation has failed.', html_type='p') +
+                    html_element('Please revisit you settings and try again.', html_type='p') +
+                    html_element('Please ensure the database does not contain any tables that this CMS'
+                                ' is trying to create', html_type='p') +
+                    html_element('You may delete all existing tables that should be created by clicking reset',
+                                 html_type='p')
+                ) + html_element('Reset', html_type='a', classes='button',
+                                 additional_properties=['href="/setup/2?reset=True"']),
                 'target': '/setup',
                 'link': 'Restart'
             }

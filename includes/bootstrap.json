@@ -13,24 +13,11 @@
                 "module_name",
                 "module_path"
             ]
-        },
-        {
-            "values": [
-                "created_tables",
-                "olymp",
-                "0"
-            ],
-            "into_table": "created_tables",
-            "into_cols": [
-                "created_table",
-                "source_module_name",
-                "source_module_id"
-            ]
         }
     ],
     "DEFAULT_MODULES": [
         "zeus",
-        "atlanta",
+        "aphrodite",
         "iris",
         "dionysus",
         "hera"
@@ -94,7 +81,7 @@
             ]
         }
     ],
-    "CORE_MODULE": "zeus",
+    "CORE_MODULE": "olymp",
     "FILE_DIRECTORIES": {
         "private": "custom/files/private",
         "public": "custom/files/public",

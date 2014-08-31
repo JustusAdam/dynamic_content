@@ -1,0 +1,79 @@
+body {
+	font-family: 'Open Sans', Helvetica, sans-serif;
+	margin: 0;
+	padding: 0;
+	font-size: 13px;
+	color: #333;
+}
+#wrapper-main {
+	background-color: #e4e4e4;
+}
+#wrapper-middle {
+	margin: 0 auto 0 auto;
+}
+.page-wrapper {
+	width: 960px;
+	margin-left: auto;
+	margin-right: auto;
+}
+.wrapper {
+	overflow: hidden;
+}
+h1 {
+    color: rgb(66, 124, 247);
+    font-weight: normal;
+    font-size: 22px;
+}
+#content {
+	padding: 20px;
+}
+a.button {
+    background: linear-gradient(#eee, #aaa) repeat scroll 0 0 rgba(0, 0, 0, 0);
+    border: 1px solid #aaa;
+    border-radius: 15px;
+    padding: 6px 17px;
+    text-decoration: none;
+    color: #666;
+    float: left;
+}
+a.button:hover {
+    background: linear-gradient(#ccc, #999) repeat scroll 0 0 rgba(0, 0, 0, 0);
+}
+a.button:visited {
+	color: #666;
+}
+a.button.continue {
+	float: right;
+}
+#main {
+	padding: 20px;
+	float: left;
+	margin-left: 33%;
+}
+#left {
+	width: 33%;
+	min-height: 1px;
+	float: left;
+}
+header {
+	height: 100px;
+	width: 100%;
+	background-color: #9ABB6F;
+}
+footer {
+	background-color: #222;
+	color: #ddd;
+	min-height: 50px;
+	font-size: 11px;
+}
+#wrapper-footer {
+}
+#pagetitle {
+	font-size: 25px;
+}
+.content {
+	padding: 40px;
+}
+input[type='submit'] {
+	float: right;
+}
