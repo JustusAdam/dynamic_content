@@ -1,4 +1,5 @@
 import re
+
 from src.coremodules.dionysus.commons import get_common_elements
 
 

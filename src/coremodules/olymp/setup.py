@@ -2,6 +2,7 @@ from pymysql import DatabaseError
 import pymysql
 
 from coremodules.olymp import database
+from coremodules.olymp.module_operations import get_installed_core_modules
 
 from src.tools.html_tools import html_element, input_element, form_element, table_element, list_element, stylesheet_link
 from src.tools.config_tools import read_config
@@ -107,7 +108,6 @@ class SetupHandler(PageHandler):
 
     def setup(self):
         from coremodules.olymp.database import Database
-        from src.tools.module_tools import get_modules
         from src.tools.config_tools import read_config
 
         db = Database()
@@ -125,7 +125,7 @@ class SetupHandler(PageHandler):
                 db.create_table(**table)
             for query in bootstrap['SETUP_DATABASE_POPULATION_QUERIES']:
                 db.insert(**query)
-            found_modules = get_modules()
+            found_modules = get_installed_core_modules()
             for module in bootstrap['DEFAULT_MODULES']:
                 try:
                     db.insert('modules', ('module_name', 'module_path'), (module, found_modules[module]))

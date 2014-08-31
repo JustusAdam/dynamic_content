@@ -1,5 +1,5 @@
 from http.server import BaseHTTPRequestHandler
-import io
+from io import BytesIO
 import sys
 import shutil
 
@@ -67,7 +67,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 content_type=self.page_handler.content_type, encoding=enc))
             self.send_header("Content-Length", str(len(encoded)))
             self.end_headers()
-            stream = io.BytesIO()
+            stream = BytesIO()
             stream.write(encoded)
             stream.seek(0)
             try:
@@ -101,11 +101,11 @@ class RequestHandler(BaseHTTPRequestHandler):
         return True
 
     def get_handler(self):
-        config = read_config('includes/bootstrap')
+        bootstrap = read_config('includes/bootstrap')
 
         (path, location,  get_query) = parse_url(url=self.path)
         if len(path) > 0:
-            if path[0] == 'setup':
+            if path[0] == 'setup' and bootstrap['SETUP']:
                 if len(path) == 1:
                     page_id = 0
                 else:
@@ -113,7 +113,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 from src.coremodules.olymp.setup import page_handler_factory
                 self.page_handler = page_handler_factory(page_id=page_id, get_query=get_query)
                 return 0
-            elif path[0] in config['FILE_DIRECTORIES'].keys():
+            elif path[0] in bootstrap['FILE_DIRECTORIES'].keys():
                 self.page_handler = FileHandler(path)
                 return 0
         try:
@@ -157,6 +157,6 @@ def de_alias(path, db):
 
 
 def translate_alias(alias, db):
-    query_result = db.select('source', 'alias', 'where alias = "' + alias + '"')[0]
-    # TODO implementation missing/check and test this
+    query_result = db.select('source', 'alias', 'where alias = "' + alias + '"').fetchone
+    # TODO check if this works
     return query_result
