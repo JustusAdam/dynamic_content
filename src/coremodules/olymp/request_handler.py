@@ -5,11 +5,10 @@ import shutil
 
 from pymysql import DatabaseError
 
-from includes import database
+from coremodules.olymp import database
 from coremodules.olymp.basic_page_handlers import FileHandler
-from src.tools.http_tools import split_path, join_path, parse_url
-from src.tools.module_tools import get_page_handlers
-from src.tools.config_tools import read_config
+from tools.http_tools import split_path, join_path, parse_url
+from tools.config_tools import read_config
 
 
 __author__ = 'justusadam'
@@ -119,7 +118,6 @@ class RequestHandler(BaseHTTPRequestHandler):
                 return 0
         try:
             db_connection = database.Database()
-            page_handlers = get_page_handlers(db_connection)
         except DatabaseError:
             # TODO figure out which error to raise if database unreachable, currently 'internal server error'
             return 500
@@ -129,7 +127,8 @@ class RequestHandler(BaseHTTPRequestHandler):
         if len(path) == 0:
             return 404
 
-        if path[0] not in page_handlers.keys():
+        handler_module = db_connection.select('handler_module', 'page_handlers', 'where path_prefix = ' + path[0]).fetchone()
+        if handler_module is None:
             return 404
 
         page_id = int(path[1])
@@ -139,7 +138,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         else:
             url_tail = ''
 
-        ph_callback_module = __import__(page_handlers['module'])
+        ph_callback_module = __import__(handler_module)
         self.page_handler = ph_callback_module.page_handler_factory(page_id=page_id, url_tail=url_tail,
                                                                     get_query=get_query)
         return 0

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from includes.database import Database
+from coremodules.olymp.database import Database
 from src.tools.config_tools import read_config
 
 

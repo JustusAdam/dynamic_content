@@ -1,13 +1,16 @@
 from http.server import *
-
 from coremodules.olymp.request_handler import RequestHandler
-from src.tools.config_tools import read_config
+from tools.config_tools import read_config
+import os
+from pathlib import Path
 
 
 __author__ = 'justusadam'
 
 
 def main():
+
+    os.chdir(str(Path(__file__).parent.resolve()))
 
     run_server(handler_class=RequestHandler)
 

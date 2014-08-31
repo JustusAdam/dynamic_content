@@ -1,23 +1,6 @@
 __author__ = 'justusadam'
 
 
-def get_page_handlers(db):
-    q_result = db.select(('path_prefix', 'id', 'handler_module'), 'page_handlers')
-    return {
-        'admin': {
-            'type': 'admin',
-            'module': 'coremodules/adminpages'
-        },
-        'entity': {
-            'type': 'entity',
-            'module': 'coremodules/entity'
-        },
-        'setup': {
-            'type': 'setup',
-            'module': 'includes/setup'
-        }
-    }
-
 
 def get_modules():
     modules = {}
