@@ -2,7 +2,6 @@ from pymysql import DatabaseError
 import pymysql
 
 from . import database
-from . import get_installed_core_modules
 
 from src.tools.html_tools import html_element, input_element, form_element, table_element, list_element, stylesheet_link
 from src.tools.config_tools import read_config
@@ -120,8 +119,9 @@ class SetupHandler(PageHandler):
         setup_template = setup_template.read()
         page = setup_template.format(**replacement_pattern)
 
-        if self.page_id == 2:
-            page = page.format(page_id=self.page_id, next_page=self.page_id + 1, **self.setup_wrapper())
+        if self.page_id == 4:
+            page = page.format(**self.setup_wrapper())
+            page = page.format(page_id=self.page_id, next_page=self.page_id + 1)
         else:
             page = page.format(page_id=self.page_id, next_page=self.page_id + 1)
         self._document = page
@@ -140,24 +140,32 @@ class SetupHandler(PageHandler):
         if 'reset' in self.query:
             if self.query['reset'].lower() == 'true':
                 try:
-                    db.drop_tables(tuple(table['table_name'] for table in bootstrap['SETUP_TABLE_CREATION_QUERIES']))
+                    moduleconf = Module().discover_modules()
+                    for module in moduleconf:
+                        if module['name'] in bootstrap['DEFAULT_MODULES'] + [bootstrap['CORE_MODULE']]:
+                            print(module['name'])
+                            try:
+                                db.drop_tables(tuple(a['table_name'] for a in module['required_tables']))
+                            except DatabaseError as newerror:
+                                print('Database Error in setup: ' + str(newerror.args))
                 except DatabaseError as error:
-                    print('printing error:')
-                    print(error.args)
+                    print('Database Error in setup: ' + str(error.args))
         try:
             temp = Module()
-            for module in [bootstrap['CORE_MODULE']] + bootstrap['DEFAULT_MODULES']:
-                temp.activate_module(module)
-            for table in bootstrap['SETUP_TABLE_CREATION_QUERIES']:
-                db.create_table(**table)
-            for query in bootstrap['SETUP_DATABASE_POPULATION_QUERIES']:
-                db.insert(**query)
-            found_modules = get_installed_core_modules()
-            for module in bootstrap['DEFAULT_MODULES']:
-                try:
-                    db.insert('modules', ('module_name', 'module_path'), (module, found_modules[module]))
-                except pymysql.DatabaseError as error:
-                    print(error)
+            temp.is_setup = True
+            temp.activate_module('olymp')
+            # for module in [bootstrap['CORE_MODULE']] + bootstrap['DEFAULT_MODULES']:
+            #     temp.activate_module(module)
+            # for table in bootstrap['SETUP_TABLE_CREATION_QUERIES']:
+            #     db.create_table(**table)
+            # for query in bootstrap['SETUP_DATABASE_POPULATION_QUERIES']:
+            #     db.insert(**query)
+            # found_modules = get_installed_core_modules()
+            # for module in bootstrap['DEFAULT_MODULES']:
+            #     try:
+            #         db.insert('modules', ('module_name', 'module_path'), (module, found_modules[module]))
+            #     except pymysql.DatabaseError as error:
+            #         print(error)
             return True
         except pymysql.DatabaseError as err:
             print(err)

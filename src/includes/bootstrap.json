@@ -37,5 +37,6 @@
         "role"
     ],
     "CORE_MODULE": "olymp",
-    "COREMODULES_DIRECTORY": "coremodules"
+    "COREMODULES_DIRECTORY": "coremodules",
+    "MODULE_CONFIG_NAME": "config.json"
 }

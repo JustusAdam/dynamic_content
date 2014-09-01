@@ -19,7 +19,7 @@ def main():
     del bootstrap
     core = import_module(core_path.replace('/', '.'))
     try:
-        core.register_modules()
+        core.register_installed_modules()
     except DatabaseError as error:
         print('Failed to register installed modules, continuing.')
         print(error)

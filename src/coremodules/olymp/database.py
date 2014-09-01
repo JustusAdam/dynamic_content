@@ -16,22 +16,21 @@ class Database:
         self._connection.commit()
         self._connection.close()
 
-    def create_table(self, table_name, columns, module_name):
+    def create_table(self, table_name, columns):
         if isinstance(columns, list) or isinstance(columns, tuple):
             columns = '(' + ', '.join(columns) + ')'
 
-        module_id = self.get_module_id(module_name)
-
+        # module_id = self.get_module_id(module_name)
+        #
         cursor = self._connection.cursor()
-        try:
-            self.replace('created_tables', ('created_table', 'source_module_id', 'source_module_name'),
-                        (table_name, module_id, module_name))
-        except pymysql.DatabaseError:
-            from src.tools.config_tools import read_config
-            config = read_config('includes/bootstrap')
-            cursor.execute(config['TRACKER_TABLE_CREATION_QUERY'])
-            self.replace('created_tables', ('created_table', 'source_module_id', 'source_module_name'),
-                        (table_name, module_id, module_name))
+        # try:
+        #     self.replace('created_tables', ('created_table', 'source_module_id', 'source_module_name'),
+        #                 (table_name, module_id, module_name))
+        # except pymysql.DatabaseError:
+        #     config = read_config('includes/bootstrap')
+        #     cursor.execute(config['TRACKER_TABLE_CREATION_QUERY'])
+        #     self.replace('created_tables', ('created_table', 'source_module_id', 'source_module_name'),
+        #                 (table_name, module_id, module_name))
         cursor.execute('create table ' + ' '.join([table_name, columns]) + ';')
         cursor.close()
 
@@ -48,9 +47,9 @@ class Database:
         if not query_tail.endswith(';'):
             query_tail += ';'
         cursor = self._connection.cursor()
-        data = cursor.execute('select ' + columns + ' from ' + from_table + ' ' + query_tail)
-        cursor.close()
-        return data
+        query = 'select ' + columns + ' from ' + from_table + ' ' + query_tail
+        cursor.execute(query)
+        return cursor
 
     def insert(self, into_table, into_cols, values):
 
@@ -101,7 +100,6 @@ class Database:
             tables = ', '.join(tables)
         cursor = self._connection.cursor()
         cursor.execute('drop table ' + tables + ';')
-        cursor.close()
 
     def update(self, table, pairing, where_condition=''):
         if not isinstance(pairing, dict):
@@ -113,6 +111,9 @@ class Database:
             where_condition = 'where ' + where_condition
         cursor = self._connection.cursor()
         cursor.execute(' '.join(['update', table, 'set', set_clause, where_condition]))
+
+    def alter_table(self, table, add=None, alter={}):
+        pass
 
     def check_connection(self):
         """
