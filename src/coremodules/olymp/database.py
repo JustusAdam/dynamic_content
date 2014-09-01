@@ -1,6 +1,6 @@
 __author__ = 'justusadam'
 
-import pymysql
+from pymysql import DatabaseError, connect
 
 from src.tools.config_tools import read_config
 
@@ -9,7 +9,7 @@ class Database:
     def __init__(self):
         config = read_config('config')
         bootstrap = read_config('includes/bootstrap')
-        self._connection = pymysql.connect(**config['database_connection_arguments'])
+        self._connection = connect(**config['database_connection_arguments'])
         self.coremodule = bootstrap['CORE_MODULE']
 
     def __del__(self):
@@ -17,7 +17,7 @@ class Database:
         self._connection.close()
 
     def create_table(self, table_name, columns):
-        if isinstance(columns, list) or isinstance(columns, tuple):
+        if isinstance(columns, (list, tuple)):
             columns = '(' + ', '.join(columns) + ')'
 
         # module_id = self.get_module_id(module_name)
@@ -42,7 +42,7 @@ class Database:
             return '0'
 
     def select(self, columns, from_table, query_tail=';'):
-        if isinstance(columns, list) or isinstance(columns, tuple):
+        if isinstance(columns, (list, tuple)):
             columns = '(' + ', '.join(columns) + ')'
         if not query_tail.endswith(';'):
             query_tail += ';'
@@ -56,8 +56,8 @@ class Database:
         values = escape(values)
 
         def unwrap_values(a):
-            if isinstance(a, tuple) or isinstance(a, list):
-                if isinstance(a[0], tuple) or isinstance(a[0], list):
+            if isinstance(a, (list, tuple)):
+                if isinstance(a[0], (list, tuple)):
                     return ', '.join((unwrap_values(b) for b in a))
                 else:
                     return '(' + ', '.join(a) + ')'
@@ -78,8 +78,8 @@ class Database:
         values = escape(values)
 
         def unwrap_values(a):
-            if isinstance(a, tuple) or isinstance(a, list):
-                if isinstance(a[0], tuple) or isinstance(a[0], list):
+            if isinstance(a, (list, tuple)):
+                if isinstance(a[0], (list, tuple)):
                     return ', '.join((unwrap_values(b) for b in a))
                 else:
                     return '(' + ', '.join(a) + ')'
@@ -96,7 +96,7 @@ class Database:
         return
 
     def drop_tables(self, tables):
-        if isinstance(tables, list) or isinstance(tables, tuple):
+        if isinstance(tables, (list, tuple)):
             tables = ', '.join(tables)
         cursor = self._connection.cursor()
         cursor.execute('drop table ' + tables + ';')
@@ -124,7 +124,7 @@ class Database:
         try:
             cursor.execute('show tables')
             return True
-        except pymysql.DatabaseError:
+        except DatabaseError:
             return False
 
 

@@ -3,10 +3,8 @@ from io import BytesIO
 import sys
 import shutil
 
-from pymysql import DatabaseError
-
-from coremodules.olymp import database
-from coremodules.olymp.basic_page_handlers import FileHandler
+from .database import DatabaseError, Database, escape
+from .basic_page_handlers import FileHandler
 from tools.http_tools import split_path, join_path, parse_url
 from tools.config_tools import read_config
 
@@ -114,7 +112,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.page_handler = FileHandler(path)
                 return 0
         try:
-            db_connection = database.Database()
+            db_connection = Database()
         except DatabaseError:
             # TODO figure out which error to raise if database unreachable, currently 'internal server error'
             return 500
@@ -124,7 +122,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         if len(path) == 0:
             return 404
 
-        handler_module = db_connection.select('handler_module', 'page_handlers', 'where path_prefix = ' + database.escape(path[0]).fetchone())
+        handler_module = db_connection.select('handler_module', 'page_handlers', 'where path_prefix = ' + escape(path[0]).fetchone())
         if handler_module is None:
             return 404
 
@@ -154,6 +152,6 @@ def de_alias(path, db):
 
 
 def translate_alias(alias, db):
-    query_result = db.select('source', 'alias', 'where alias = ' + database.escape(alias)).fetchone
+    query_result = db.select('source', 'alias', 'where alias = ' + escape(alias)).fetchone
     # TODO check if this works
     return query_result

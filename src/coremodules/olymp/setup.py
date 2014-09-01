@@ -1,12 +1,10 @@
-from pymysql import DatabaseError
-import pymysql
+from .database import DatabaseError, Database
 
-from . import database
-
-from src.tools.html_tools import html_element, input_element, form_element, table_element, list_element, stylesheet_link
-from src.tools.config_tools import read_config
-from coremodules.olymp.basic_page_handlers import PageHandler
+from tools.html_tools import html_element, input_element, form_element, table_element, list_element, stylesheet_link
+from tools.config_tools import read_config, write_config
+from .basic_page_handlers import PageHandler
 from .module_operations import Module
+from pathlib import Path
 
 
 __author__ = 'justusadam'
@@ -14,7 +12,7 @@ __author__ = 'justusadam'
 
 def try_database_connection():
     try:
-        test_database = database.Database()
+        test_database = Database()
         if test_database.check_connection():
             return html_element(
                 'The connection with the database was successfully established, you may continue with this setup',
@@ -34,7 +32,18 @@ def try_database_connection():
 
 
 class SetupHandler(PageHandler):
+
+    def __init__(self, page_id, get_query):
+        super().__init__(page_id, get_query)
+        self.bootstrap = read_config('includes/bootstrap')
+
+    def disable_setup(self):
+        self.bootstrap['SETUP'] = False
+        write_config(self.bootstrap, 'includes/bootstrap')
+
     def compile_page(self):
+        if not read_config(str(Path(__file__).parent / 'config.json'))['setup']:
+            return 404
         config = read_config('config')
         setup_pages = {
             0: {
@@ -131,31 +140,35 @@ class SetupHandler(PageHandler):
         return self.page_id == 3
 
     def setup(self):
-        from coremodules.olymp.database import Database
-        from src.tools.config_tools import read_config
 
         db = Database()
-        bootstrap = read_config('includes/bootstrap')
 
         if 'reset' in self.query:
             if self.query['reset'].lower() == 'true':
                 try:
                     moduleconf = Module().discover_modules()
                     for module in moduleconf:
-                        if module['name'] in bootstrap['DEFAULT_MODULES'] + [bootstrap['CORE_MODULE']]:
-                            print(module['name'])
-                            try:
-                                db.drop_tables(tuple(a['table_name'] for a in module['required_tables']))
-                            except DatabaseError as newerror:
-                                print('Database Error in setup: ' + str(newerror.args))
+                        if module['name'] in self.bootstrap['DEFAULT_MODULES'] + [self.bootstrap['CORE_MODULE']]:
+                            if 'required_tables' in module:
+                                print('dropping tables for ' + module['name'])
+                                try:
+                                    db.drop_tables(tuple(a['table_name'] for a in module['required_tables']))
+                                except DatabaseError as newerror:
+                                    print('Could not drop table for ' + module['name'] + ' due to error: ' + str(newerror.args))
                 except DatabaseError as error:
                     print('Database Error in setup: ' + str(error.args))
         try:
             temp = Module()
             temp.is_setup = True
             temp.activate_module('olymp')
-            # for module in [bootstrap['CORE_MODULE']] + bootstrap['DEFAULT_MODULES']:
-            #     temp.activate_module(module)
+            temp.register_installed_modules()
+            temp.is_setup = False
+            temp._set_module_active('olymp')
+            for module in self.bootstrap['DEFAULT_MODULES']:
+                try:
+                    temp.activate_module(module)
+                except DatabaseError as error:
+                    print('Could not activate module ' + module + ' due to error: ' + str(error))
             # for table in bootstrap['SETUP_TABLE_CREATION_QUERIES']:
             #     db.create_table(**table)
             # for query in bootstrap['SETUP_DATABASE_POPULATION_QUERIES']:
@@ -167,7 +180,7 @@ class SetupHandler(PageHandler):
             #     except pymysql.DatabaseError as error:
             #         print(error)
             return True
-        except pymysql.DatabaseError as err:
+        except DatabaseError as err:
             print(err)
             return False
 

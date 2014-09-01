@@ -1,6 +1,7 @@
 {
     "name": "olymp",
     "role": "core",
+    "setup": true,
     "required_tables": [
         {
             "table_name": "page_handlers",

@@ -7,13 +7,13 @@ BASEDIR = 'localhost:8000'
 def html_element(*contents, html_type='div', classes='', element_id='', additional_properties=''):
     frame = ['<' + html_type]
     if classes:
-        if isinstance(classes, list) or isinstance(classes, tuple):
+        if isinstance(classes, (list, tuple)):
             classes = ' '.join(classes)
         frame += ['class="' + classes + '"']
     if element_id:
         frame += ['id="' + element_id + '"']
     if additional_properties:
-        if isinstance(additional_properties, list) or isinstance(additional_properties, tuple):
+        if isinstance(additional_properties, (list, tuple)):
             additional_properties = ' '.join(additional_properties)
         frame += [additional_properties]
     frame[-1] += '>'
@@ -23,13 +23,13 @@ def html_element(*contents, html_type='div', classes='', element_id='', addition
 def closed_html_element(html_type='div', classes='', element_id='', additional_properties=''):
     frame = ['<' + html_type]
     if classes:
-        if isinstance(classes, list) or isinstance(classes, tuple):
+        if isinstance(classes, (list, tuple)):
             classes = ' '.join(classes)
         frame += ['class="' + classes + '"']
     if element_id:
         frame += ['id="' + element_id + '"']
     if additional_properties:
-        if isinstance(additional_properties, list) or isinstance(additional_properties, tuple):
+        if isinstance(additional_properties, (list, tuple)):
             additional_properties = ' '.join(additional_properties)
         frame += [additional_properties]
     frame += ['/>']

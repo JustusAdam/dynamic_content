@@ -1,7 +1,8 @@
 {
     "name": "iris",
     "role": "simple_pages_manager",
-    "required_tables": {
+    "required_tables": [
+    {
         "table_name": "entity",
         "columns": [
             "id int unsigned not null auto_increment unique primary key",
@@ -12,4 +13,5 @@
             "date_changed timestamp default current_timestamp on update current_timestamp"
         ]
     }
+    ]
 }
