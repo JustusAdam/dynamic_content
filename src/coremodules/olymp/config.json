@@ -61,12 +61,14 @@
             "into_cols": [
                 "id",
                 "module_name",
-                "module_path"
+                "module_path",
+                "module_role"
             ],
             "values": [
-                "0",
+                "1",
                 "olymp",
-                "."
+                ".",
+                "core"
             ],
             "into_table": "modules"
         }

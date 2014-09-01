@@ -34,6 +34,8 @@ class Module:
 
         if 'required_tables' in module_conf:
             self.create_required_tables(module_conf['required_tables'])
+        if 'insert' in module_conf:
+            self.fill_tables(module_conf['insert'])
 
         self._set_module_active(module_name)
         return True
@@ -55,6 +57,12 @@ class Module:
             tables = (tables,)
         for table in tables:
             create_table(table)
+
+    def fill_tables(self, values):
+        if not isinstance(values, (tuple, list)):
+            values = (values,)
+        for value in values:
+            self.db.insert(**value)
 
     def get_module_path(self, module):
         query_result = self.db.select('module_path', 'modules', 'where module_name = ' + escape(module)).fetchone()
