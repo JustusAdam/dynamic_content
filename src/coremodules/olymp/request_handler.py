@@ -4,7 +4,7 @@ import sys
 import shutil
 
 from .database import DatabaseError, Database, escape
-from .basic_page_handlers import FileHandler
+from .basic_page_handlers import FileHandler, BasicPageHandler
 from tools.http_tools import split_path, join_path, parse_url
 from tools.config_tools import read_config
 from pathlib import Path
@@ -126,21 +126,18 @@ class RequestHandler(BaseHTTPRequestHandler):
         if len(path) == 0:
             return 404
 
-        handler_module = self.db.select('handler_module', 'page_handlers', 'where path_prefix = ' + escape(path[0]).fetchone())
-        if handler_module is None:
-            return 404
+        return BasicPageHandler(path, get_query)
 
-        page_id = int(path[1])
+    def get_content_handler_module(self, path_prefix):
+        handler_id = self.db.select('handler_module', 'content_handlers', 'where path_prefix = ' + escape(path_prefix).fetchone())
+        if handler_id is None:
+            return None
+        handler_id = handler_id[0]
+        handler_path = self.db.select('module_path', 'modules', 'where id = ' + escape(handler_id))
 
-        if len(path >= 3):
-            url_tail = path[2:]
-        else:
-            url_tail = ''
-
-        ph_callback_module = __import__(handler_module)
-        self.page_handler = ph_callback_module.page_handler_factory(page_id=page_id, url_tail=url_tail,
-                                                                    get_query=get_query)
-        return 0
+        if handler_path is None:
+            return None
+        return handler_path[0].replace('/', '.')
 
     def de_alias(self, path):
         if len(path) == 0:
@@ -149,7 +146,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             alias = '/' + '/'.join([word for word in path])
         try:
             source = self.translate_alias(alias)
-            return source
+            return source.split('/')
         except DatabaseError:
             return path
 

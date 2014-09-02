@@ -1,3 +1,4 @@
+from importlib import import_module
 from pathlib import Path
 
 from coremodules.olymp.database import Database, escape
@@ -15,10 +16,15 @@ class PageHandler:
         self.page_id = page_id
         self._document = ''
         self.content_type = 'text/html'
+        self.response = 200
+        self._has_document = False
 
     @property
     def document(self):
-        return self._document
+        if self._has_document and self.response == 200:
+            return self._document
+        else:
+            return ''
 
     def parse_get(self, query):
         if query != '' and isinstance(query, str):
@@ -27,7 +33,7 @@ class PageHandler:
             return query
 
     def compile_page(self):
-        return 200
+        return self.response
 
 
 class FileHandler(PageHandler):
@@ -62,7 +68,8 @@ class FileHandler(PageHandler):
                     if filepath.name.endswith('.css'):
                         self.content_type = 'text/css'
                     self._document = filepath.open().read()
-                    return 200
+                    self._has_document = True
+                    return self.response
             except FileNotFoundError:
                 pass
         return 404
@@ -75,14 +82,9 @@ class DBPageHandler(PageHandler):
         self.db = Database()
 
 
-class SimplePageHandler(DBPageHandler):
-    def __init__(self, page_id, get_query=''):
+class BasicPageHandler(DBPageHandler):
+    def __init__(self, page_id, get_query):
         super().__init__(page_id=page_id, get_query=get_query)
-        self.content_type = self.get_content_type()
 
-    def get_content_type(self):
-        return self.db.select(from_table=self.page_type, columns='content_type', query_tail='where id = ' + escape(self.page_id)).fetchone()[0]
-
-    def get_used_fields(self):
-        return sorted(self.db.select(from_table='page_fields', columns=('id', 'weight'),
-                              query_tail='where content_type = ' + escape(self.content_type)), key=lambda a: a[1])
+    def compile_page(self):
+        return self.response

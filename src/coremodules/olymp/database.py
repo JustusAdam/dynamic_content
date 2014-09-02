@@ -2,7 +2,7 @@ __author__ = 'justusadam'
 
 from pymysql import DatabaseError, connect
 
-from src.tools.config_tools import read_config
+from tools.config_tools import read_config
 
 
 class Database:

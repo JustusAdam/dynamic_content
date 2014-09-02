@@ -4,7 +4,7 @@
     "setup": true,
     "required_tables": [
         {
-            "table_name": "page_handlers",
+            "table_name": "content_handlers",
             "columns": [
                 "id int unsigned not null auto_increment unique primary key comment 'primary key used for identification'",
                 "handler_module int not null comment 'identifier for the module providing the handler'",

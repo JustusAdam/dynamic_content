@@ -110,7 +110,7 @@ class BaseClassIdElement(BaseElement):
     def render_head(self):
         frame = [self.html_type]
         if self.classes:
-            frame += ['class="' + str(self.classes) + '"']
+            frame += ['class="' + str(self._classes) + '"']
         if self.element_id:
             frame += ['id="' + self.element_id + '"']
         if self.additionals:

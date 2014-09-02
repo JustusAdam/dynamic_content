@@ -1,9 +1,9 @@
-from src.coremodules.olymp.basic_page_handlers import SimplePageHandler
+from src.coremodules.olymp.basic_page_handlers import BasicPageHandler
 
 __author__ = 'justusadam'
 
 
-class IrisPageHandler(SimplePageHandler):
+class IrisContentHandler(BasicPageHandler):
 
     def __init__(self, page_id, get_query):
         super().__init__(page_id=page_id, get_query=get_query)
@@ -17,5 +17,13 @@ class IrisPageHandler(SimplePageHandler):
         pass
 
 
-class EditIrisHandler(IrisPageHandler):
+class EditIrisHandler(IrisContentHandler):
+    pass
+
+
+class IrisBaseFieldHandler():
+    pass
+
+
+class IrisBaseFieldEditHandler(IrisBaseFieldHandler):
     pass

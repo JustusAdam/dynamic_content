@@ -1,9 +1,8 @@
 from .database import DatabaseError, Database
-
-from tools.config_tools import read_config
 from .basic_page_handlers import PageHandler
 from .module_operations import Module
-from coremodules.aphrodite.elements import ContainerElement, Stylesheet, List, TableElement, FormElement
+from ..aphrodite import ContainerElement, Stylesheet, List, TableElement, FormElement
+from tools.config_tools import read_config
 
 
 __author__ = 'justusadam'
@@ -70,11 +69,10 @@ class SetupHandler(PageHandler):
                                                           config['database_connection_arguments']['database']],
                                                          ['User', config['database_connection_arguments']['user']],
                                                          ['Password',
-                                                          config['database_connection_arguments']['passwd']]
-                                                         ),
-                                            ContainerElement(
-                                                'Please verify that these settings are correct or change them accordingly in the \'config.json\' file.',
-                                                html_type='p'), try_database_connection())
+                                                          config['database_connection_arguments']['passwd']]),
+                                            ContainerElement('Please verify that these settings are correct or change '
+                                                             'them accordingly in the \'config.json\' file.',
+                                                             html_type='p'), try_database_connection())
             },
             3: {
                 'title': 'Executing initial queries on the database',
@@ -154,20 +152,9 @@ class SetupHandler(PageHandler):
             temp.is_setup = False
             temp._set_module_active('olymp')
             for module in self.bootstrap['DEFAULT_MODULES']:
-                try:
-                    temp.activate_module(module)
-                except DatabaseError as error:
-                    print('Could not activate module ' + module + ' due to error: ' + str(error))
-            # for table in bootstrap['SETUP_TABLE_CREATION_QUERIES']:
-            # db.create_table(**table)
-            # for query in bootstrap['SETUP_DATABASE_POPULATION_QUERIES']:
-            #     db.insert(**query)
-            # found_modules = get_installed_core_modules()
-            # for module in bootstrap['DEFAULT_MODULES']:
-            #     try:
-            #         db.insert('modules', ('module_name', 'module_path'), (module, found_modules[module]))
-            #     except pymysql.DatabaseError as error:
-            #         print(error)
+                if not temp.activate_module(module):
+                    print('Could not activate module ' + module)
+                    return False
             return True
         except DatabaseError as err:
             print(err)
@@ -177,10 +164,10 @@ class SetupHandler(PageHandler):
         if self.setup():
             return {
                 'result': 'Success',
-                'message': ContainerElement(ContainerElement('Your installation has been successful.', html_type='p') +
+                'message': ContainerElement(ContainerElement('Your installation has been successful.', html_type='p'),
                                             ContainerElement(
                                                 'All necessary tables have been created and filled in the database',
-                                                html_type='p') +
+                                                html_type='p'),
                                             ContainerElement('You may proceed.', html_type='p')),
                 'target': '/setup/{next_page}',
                 'link': 'Continue'
@@ -188,17 +175,17 @@ class SetupHandler(PageHandler):
         else:
             return {
                 'result': 'Failed',
-                'message': ContainerElement(ContainerElement('Your installation has failed.', html_type='p') +
+                'message': ContainerElement(ContainerElement('Your installation has failed.', html_type='p'),
                                             ContainerElement('Please revisit you settings and try again.',
-                                                             html_type='p') +
+                                                             html_type='p'),
                                             ContainerElement(
                                                 'Please ensure the database does not contain any tables that this CMS'
-                                                ' is trying to create', html_type='p') +
+                                                ' is trying to create', html_type='p'),
                                             ContainerElement(
                                                 'You may delete all existing tables that should be created by clicking reset',
-                                                html_type='p')) + ContainerElement('Reset', html_type='a',
-                                                                                   classes='button', additionals=[
-                        'href="/setup/{page_id}?reset=True"']),
+                                                html_type='p'),
+                ContainerElement('Reset', html_type='a', classes='button',
+                                 additionals=['href="/setup/{page_id}?reset=True"'])),
                 'target': '/setup',
                 'link': 'Restart'
             }

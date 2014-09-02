@@ -5,6 +5,17 @@ from .database import Database, escape, DatabaseError
 __author__ = 'justusadam'
 
 
+class ModuleError(Exception):
+    def __init__(self, module_name):
+        self.module_name = module_name
+
+
+class ModuleNotFoundError(ModuleError):
+
+    def __repr__(self):
+        return 'ModuleNotFoundError, module ' + self.module_name + ' could not be found in the Database'
+
+
 class Module:
 
     def __init__(self):
@@ -32,13 +43,41 @@ class Module:
             return False
         module_conf = read_config(path + '/config.json')
 
-        if 'required_tables' in module_conf:
-            self.create_required_tables(module_conf['required_tables'])
-        if 'insert' in module_conf:
-            self.fill_tables(module_conf['insert'])
+        try:
+            if 'required_tables' in module_conf:
+                self.create_required_tables(module_conf['required_tables'])
+            if 'insert' in module_conf:
+                self.fill_tables(module_conf['insert'])
+        except DatabaseError:
+            return False
+
+        known_roles = {
+            'page_handler': self.register_page_handler
+        }
+
+        if module_conf['role'] in known_roles:
+            known_roles[module_conf['role']](module_conf)
 
         self._set_module_active(module_name)
         return True
+
+    def register_page_handler(self, module_conf):
+        print('registering page handler' + module_conf['name'])
+        if 'path_prefix' in module_conf:
+            path_prefix = module_conf['path_prefix']
+        else:
+            path_prefix = module_conf['name']
+        try:
+            self.db.insert('page_handlers', ['handler_module', 'handler_name', 'path_prefix'],
+                           [self.get_module_id(module_conf['name']), module_conf['name'], path_prefix])
+        except DatabaseError:
+            print('Failed to register page handler')
+
+    def get_module_id(self, module_name):
+        db_result = self.db.select('id', 'modules', 'where module_name = ' + escape(module_name)).fetchone()
+        if not db_result is None:
+            return db_result[0]
+        raise ModuleNotFoundError
 
     def create_required_tables(self, tables):
         def create_table(table):
