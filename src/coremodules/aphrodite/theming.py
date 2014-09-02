@@ -6,14 +6,6 @@ from src.coremodules.dionysus.commons import get_common_elements
 __author__ = 'justusadam'
 
 
-def layout(blocks):
-    result = get_db_connection().execute(query='SELECT region, block_name FROM blocks WHERE block_name IN (' +
-                                    blocks.toString()[1:-1] +
-                                    ') ORDERED BY region, weight')
-
-    return {}
-
-
 def get_current_theme():
     return 'default_theme'
 
@@ -30,9 +22,7 @@ def get_defined_fields(template, theme=get_current_theme()):
 
 def fill_replacement_pattern(page_id, unique_page_type):
 
-    pattern = \
-        dict([(variable, '') for variable in
-              get_defined_fields(template='page')])
+    pattern = dict([(variable, '') for variable in get_defined_fields(template='page')])
 
     content_type_information = get_content_type_information(id=page_id, unique_page_type=unique_page_type)
 

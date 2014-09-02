@@ -6,7 +6,6 @@
         "dionysus",
         "hera"
     ],
-    "SETUP": true,
     "TRACKER_TABLE_CREATION_QUERY": "create table created_tables (id int unsigned not null auto_increment unique primary key, created_table varchar(500) not null unique, source_module_name varchar(500) not null, source_module_id int unsigned not null);",
     "FILE_DIRECTORIES": {
         "theme": [
@@ -16,21 +15,6 @@
         "private": "custom/files/private",
         "public": "custom/files/public"
     },
-    "SETUP_DATABASE_POPULATION_QUERIES": [
-        {
-            "into_cols": [
-                "id",
-                "module_name",
-                "module_path"
-            ],
-            "values": [
-                "0",
-                "olymp",
-                "."
-            ],
-            "into_table": "modules"
-        }
-    ],
     "MODULES_DIRECTORY": "custom/modules",
     "NECESSARY_MODULE_ATTRIBUTES": [
         "name",

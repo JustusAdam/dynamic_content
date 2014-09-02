@@ -1,0 +1,195 @@
+__author__ = 'justusadam'
+
+
+class BaseElement:
+
+    def __init__(self, html_type, additionals):
+        self.html_type = html_type
+        if isinstance(additionals, str):
+            additionals = [additionals]
+        self._additionals = additionals
+        self._customs = {}
+
+    @property
+    def additionals(self):
+        return self._additionals
+
+    @additionals.setter
+    def additionals(self, value):
+        if isinstance(value, str):
+            self._additionals = [value]
+        else:
+            self._additionals = value
+
+    def render_additionals(self):
+        if isinstance(self.additionals, dict):
+            return list(k + '="' + v + '"' for k, v in self.additionals.items())
+        else:
+            return self._additionals
+
+    def render_customs(self):
+        if isinstance(self._customs, dict):
+            acc = []
+            for k, v in self._customs:
+                if v:
+                    acc += [k + '="' + v + '"']
+            return acc
+
+    def __add__(self, other):
+        return str(self) + str(other)
+
+
+class BaseClassIdElement(BaseElement):
+    """
+    Please note: '_customs' is not to be modified from outside the class, it is purely an easy way for subclasses to add
+    custom properties without having to change the render function(s).
+    """
+
+    def __init__(self, html_type, classes=[], element_id='', additionals={}):
+        super().__init__(html_type, additionals)
+        if isinstance(classes, str):
+            classes = [classes]
+        self._classes = classes
+        self.element_id = element_id
+
+    @property
+    def classes(self):
+        return self._classes
+
+    @classes.setter
+    def classes(self, value):
+        if isinstance(value, str):
+            self._classes = [value]
+        else:
+            self._classes = value
+
+    def render_head(self):
+        frame = [self.html_type]
+        if self.classes:
+            frame += ['class="' + ' '.join(self.classes) + '"']
+        if self.element_id:
+            frame += ['id="' + self.element_id + '"']
+        if self.additionals:
+            frame += self.render_additionals()
+        if self._customs:
+            frame += self.render_customs()
+        return ' '.join(frame)
+
+
+class ContainerElement(BaseClassIdElement):
+
+    def __init__(self, *contents, html_type='div', classes=[], element_id='', additionals={}):
+        super().__init__(html_type, classes, element_id, additionals)
+        self._content = contents
+
+    @property
+    def contents(self):
+        return self._content
+
+    @contents.setter
+    def contents(self, value):
+        if isinstance(value, str):
+            self._content = [value]
+        else:
+            self._content = value
+
+    def render_content(self):
+        return ''.join(list(str(a) for a in self._content))
+
+    def __str__(self):
+        return '<' + self.render_head() + '>' + self.render_content() + '</' + self.html_type + '>'
+
+
+class Stylesheet(BaseElement):
+
+    def __init__(self, href, media='all', typedec='text/css', rel='stylesheet', additionals={}):
+        super().__init__('link', additionals)
+        self.href = href
+        self.media = media
+        self.typedec = typedec
+        self.rel = rel
+
+    def __str__(self):
+        elements = [
+            self.html_type,
+            'rel="' + self.rel + '"',
+            'type="' + self.typedec + '"',
+            'media="' + self.media + '"',
+            'href="' + self.href + '"'
+        ]
+        return '<' + ' '.join(elements + self.render_additionals() + self.render_customs()) + '>'
+
+
+class List(ContainerElement):
+
+    def __init__(self, *contents, list_type='ul', classes=[], element_id='', additionals={}, item_classes=[],
+                 item_additional_properties={}):
+        super().__init__(*contents, html_type=list_type, classes=classes, element_id=element_id, additionals=additionals)
+        self.item_classes = item_classes
+        self.item_additionals = item_additional_properties
+
+    def render_list_element(self, element):
+        if isinstance(element, ContainerElement):
+            if element.html_type == 'li':
+                return str(element)
+        else:
+            return str(ContainerElement(element, html_type='li', classes=self.item_classes,
+                                        additionals=self.item_additionals))
+
+    def render_content(self):
+        return ''.join(tuple(self.render_list_element(element) for element in self.contents))
+
+
+class TableElement(ContainerElement):
+    def __init__(self, *contents, classes=[], element_id='', additionals={}):
+        super().__init__(*contents, html_type='table', classes=classes, element_id=element_id, additionals=additionals)
+
+    def render_table_row(self, row):
+        if isinstance(row, ContainerElement):
+            if row.html_type == 'tr':
+                return str(row)
+        elif isinstance(row, (list, tuple)):
+            return '<tr>' + ''.join(tuple(self.render_table_data(data) for data in row)) + '</tr>'
+        return '<tr>' + self.render_table_data(row) + '</tr>'
+
+    def render_table_data(self, data):
+        if isinstance(data, ContainerElement):
+            if data.html_type == 'td':
+                return str(data)
+        return '<td>' + str(data) + '</td>'
+
+    def render_content(self):
+        return ''.join(tuple(self.render_table_row(element) for element in self.contents))
+
+
+class Input(BaseClassIdElement):
+
+    def __init__(self, classes=[], element_id='', input_type='text', name='', form='', value='', additionals={}):
+        super().__init__('input', classes=classes, element_id=element_id, additionals=additionals)
+        self._customs['name'] = name
+        self._customs['type'] = input_type
+        self._customs['form'] = form
+        self._customs['value'] = value
+
+
+class SubmitButton(Input):
+
+    def __init__(self, value='Submit', classes=[], element_id='', name='submit', end_line=False, form='',
+                 additionals={}):
+        super().__init__(value=value, classes=classes, element_id=element_id, name=name, input_type='submit', form=form,
+                         additionals=additionals)
+
+
+class FormElement(ContainerElement):
+
+    def __init__(self, action, *contents, classes=[], element_id='', method='post', charset='UTF-8',
+                 submit=SubmitButton(), target='', additionals={}):
+        super().__init__(*contents, html_type='form', classes=classes, element_id=element_id, additionals=additionals)
+        self._customs['method'] = method
+        self._customs['charset'] = charset
+        self._customs['target'] = target
+        self._customs['action'] = action
+        self.submit = submit
+
+    def render_content(self):
+        return super().render_content() + self.submit

@@ -17,7 +17,7 @@
             "columns": [
                 "id int unsigned not null auto_increment unique primary key comment 'primary key used for identification'",
                 "module_name varchar(500) not null unique comment 'machine readable name for the module'",
-                "module_path varchar(500) comment 'name of the modules package provided correctly configured __init__.py or file that is reachable by (omit \".py\")'",
+                "module_path varchar(500) comment 'name of the module'",
                 "enabled boolean not null default false",
                 "module_role varchar(500) not null"
             ]

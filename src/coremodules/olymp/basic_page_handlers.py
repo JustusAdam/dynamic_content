@@ -72,7 +72,7 @@ class DBPageHandler(PageHandler):
 
     def __init__(self, page_id, get_query=''):
         super().__init__(page_id=page_id, get_query=get_query)
-        self.db = Database
+        self.db = Database()
 
 
 class SimplePageHandler(DBPageHandler):
@@ -81,7 +81,7 @@ class SimplePageHandler(DBPageHandler):
         self.content_type = self.get_content_type()
 
     def get_content_type(self):
-        return self.db.select(from_table=self.page_type, columns='content_type', query_tail='where id = ' + escape(self.page_id))
+        return self.db.select(from_table=self.page_type, columns='content_type', query_tail='where id = ' + escape(self.page_id)).fetchone()[0]
 
     def get_used_fields(self):
         return sorted(self.db.select(from_table='page_fields', columns=('id', 'weight'),

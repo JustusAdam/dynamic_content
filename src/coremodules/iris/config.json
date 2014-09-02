@@ -3,7 +3,7 @@
     "role": "simple_pages_manager",
     "required_tables": [
     {
-        "table_name": "entity",
+        "table_name": "iris",
         "columns": [
             "id int unsigned not null auto_increment unique primary key",
             "content_type int unsigned not null",

@@ -7,6 +7,7 @@ from .database import DatabaseError, Database, escape
 from .basic_page_handlers import FileHandler
 from tools.http_tools import split_path, join_path, parse_url
 from tools.config_tools import read_config
+from pathlib import Path
 
 
 __author__ = 'justusadam'
@@ -17,6 +18,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     def __init__(self, request, client_address, server):
         super().__init__(request, client_address, server)
         self.page_handler = None
+        self.db = None
 
     def do_POST(self):
         if not self.check_path():
@@ -100,29 +102,31 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         (path, location,  get_query) = parse_url(url=self.path)
         if len(path) > 0:
-            if path[0] == 'setup' and bootstrap['SETUP']:
+            if path[0] == 'setup':
+                if not read_config(str(Path(__file__).parent / 'config.json'))['setup']:
+                    return 404
                 if len(path) == 1:
                     page_id = 0
                 else:
                     page_id = int(path[1])
-                from src.coremodules.olymp.setup import page_handler_factory
+                from .setup import page_handler_factory
                 self.page_handler = page_handler_factory(page_id=page_id, get_query=get_query)
                 return 0
             elif path[0] in bootstrap['FILE_DIRECTORIES'].keys():
                 self.page_handler = FileHandler(path)
                 return 0
         try:
-            db_connection = Database()
+            self.db = Database()
         except DatabaseError:
             # TODO figure out which error to raise if database unreachable, currently 'internal server error'
             return 500
 
-        path = de_alias(path, db_connection)
+        path = self.de_alias(path)
 
         if len(path) == 0:
             return 404
 
-        handler_module = db_connection.select('handler_module', 'page_handlers', 'where path_prefix = ' + escape(path[0]).fetchone())
+        handler_module = self.db.select('handler_module', 'page_handlers', 'where path_prefix = ' + escape(path[0]).fetchone())
         if handler_module is None:
             return 404
 
@@ -138,20 +142,21 @@ class RequestHandler(BaseHTTPRequestHandler):
                                                                     get_query=get_query)
         return 0
 
+    def de_alias(self, path):
+        if len(path) == 0:
+            alias = '/'
+        else:
+            alias = '/' + '/'.join([word for word in path])
+        try:
+            source = self.translate_alias(alias)
+            return source
+        except DatabaseError:
+            return path
 
-def de_alias(path, db):
-    if len(path) == 0:
-        alias = '/'
-    else:
-        alias = '/' + '/'.join([word for word in path])
-    try:
-        source = translate_alias(alias, db)
-        return source
-    except DatabaseError:
-        return path
-
-
-def translate_alias(alias, db):
-    query_result = db.select('source', 'alias', 'where alias = ' + escape(alias)).fetchone
-    # TODO check if this works
-    return query_result
+    def translate_alias(self, alias):
+        query_result = self.db.select('source', 'alias', 'where alias = ' + escape(alias)).fetchone()
+        if query_result is None:
+            query_result = alias
+        else:
+            query_result = query_result[0]
+        return query_result
