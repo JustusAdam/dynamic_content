@@ -1,6 +1,54 @@
 __author__ = 'justusadam'
 
 
+class ClassContainer:
+    def __init__(self, *classes):
+        self._classes = []
+        for value in classes:
+            if isinstance(value, str):
+                self._classes += [value]
+            if isinstance(value, list):
+                self._classes += value
+            if isinstance(value, tuple):
+                self._classes += list(value)
+
+    @property
+    def classes(self):
+        return self._classes
+
+    @classes.setter
+    def classes(self, value):
+        if isinstance(value, str):
+            self._classes = [value]
+        if isinstance(value, list):
+            self._classes = value
+        if isinstance(value, tuple):
+            self._classes = list(value)
+
+    def __add__(self, other):
+        if isinstance(other, str):
+            self._classes += [other]
+        if isinstance(other, list):
+            self._classes += other
+        if isinstance(other, tuple):
+            self._classes += list(other)
+        if isinstance(other, ClassContainer):
+            self._classes += other.classes
+        return self
+
+    def __bool__(self):
+        return bool(self._classes)
+
+    def __len__(self):
+        return len(self._classes)
+
+    def __str__(self):
+        return ' '.join(self._classes)
+
+    def __getitem__(self, item):
+        return self._classes[item]
+
+
 class BaseElement:
 
     def __init__(self, html_type, additionals):
@@ -47,26 +95,22 @@ class BaseClassIdElement(BaseElement):
 
     def __init__(self, html_type, classes=[], element_id='', additionals={}):
         super().__init__(html_type, additionals)
-        if isinstance(classes, str):
-            classes = [classes]
-        self._classes = classes
+        self._classes = ClassContainer(classes)
         self.element_id = element_id
 
     @property
     def classes(self):
-        return self._classes
+        return self._classes.classes
 
     @classes.setter
     def classes(self, value):
-        if isinstance(value, str):
-            self._classes = [value]
-        else:
-            self._classes = value
+        self._classes.classes = [value]
+
 
     def render_head(self):
         frame = [self.html_type]
         if self.classes:
-            frame += ['class="' + ' '.join(self.classes) + '"']
+            frame += ['class="' + str(self.classes) + '"']
         if self.element_id:
             frame += ['id="' + self.element_id + '"']
         if self.additionals:
