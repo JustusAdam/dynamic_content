@@ -58,3 +58,4 @@ target/
 # custom additions
 .idea/
 *.iml
+*.ogg

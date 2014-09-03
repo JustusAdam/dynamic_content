@@ -36,7 +36,7 @@ class SetupHandler(PageHandler):
         setup_pages = {
             0: {
                 'title': 'Setup of your CMS Installation',
-                'content': ContainerElement(ContainerElement(
+                'content': str(ContainerElement(ContainerElement(
                     'Welcome to the setup process of your python_cms content management system.',
                     html_type='p'), ContainerElement(
                     'These pages will guide you trough the necessary steps and tests that need to be taken to ensure '
@@ -47,11 +47,11 @@ class SetupHandler(PageHandler):
                     'utilizing a secure and encrypted connection.', html_type='p'), ContainerElement(
                     'I hope that you will enjoy and be pleased with python_cms.', html_type='p'),
                                             ContainerElement('Continue', html_type='a', classes=['continue', 'button'],
-                                                             additionals=['href="/setup/{next_page}"']))
+                                                             additionals=['href="/setup/{next_page}"'])))
             },
             1: {
                 'title': 'Overview',
-                'content': ContainerElement(
+                'content': str(ContainerElement(
                     ContainerElement('The following steps will be taken during this setup', html_type='h3'),
                     List(
                         'Verifying Database Information',
@@ -59,11 +59,11 @@ class SetupHandler(PageHandler):
                         'Set up an admin user',
                         list_type='ul'
                     ), ContainerElement('Continue', html_type='a', classes=['continue', 'button'],
-                                        additionals=['href="/setup/{next_page}"']))
+                                        additionals=['href="/setup/{next_page}"'])))
             },
             2: {
                 'title': 'Verifying Database Configuration',
-                'content': ContainerElement(TableElement(['Type', config['database_type']],
+                'content': str(ContainerElement(TableElement(['Type', config['database_type']],
                                                          ['Host', config['database_connection_arguments']['host']],
                                                          ['Database Name',
                                                           config['database_connection_arguments']['database']],
@@ -72,38 +72,38 @@ class SetupHandler(PageHandler):
                                                           config['database_connection_arguments']['passwd']]),
                                             ContainerElement('Please verify that these settings are correct or change '
                                                              'them accordingly in the \'config.json\' file.',
-                                                             html_type='p'), try_database_connection())
+                                                             html_type='p'), try_database_connection()))
             },
             3: {
                 'title': 'Executing initial queries on the database',
-                'content': ContainerElement(ContainerElement(
+                'content': str(ContainerElement(ContainerElement(
                     'The following step will execute the initial queries to the database requred for python_cms to function. This will create new tables and fill them according to the installation specifications provided sufficient access to the database has been granted.',
                     html_type='p'), ContainerElement('This step is required to proceed',
                                                      html_type='p'), ContainerElement(
                     'If you are certain, that the database has been properly configured to allow sufficient access to python_cms and are content with this software making changes to your database please click \'Continue\'',
                     html_type='p'), ContainerElement('Continue', html_type='a', classes=['button', 'continue'],
-                                                     additionals='href="/setup/{next_page}"'))
+                                                     additionals='href="/setup/{next_page}"')))
             },
             4: {
                 'title': '{result}',
-                'content': ContainerElement('{message}',
+                'content': str(ContainerElement('{message}',
                                             ContainerElement('{link}', html_type='a', classes=['continue', 'button'],
-                                                             additionals=['href="{target}"']))
+                                                             additionals=['href="{target}"'])))
             },
             5: {
                 'title': 'Create an admin account',
-                'content': ContainerElement(ContainerElement(
+                'content': str(ContainerElement(ContainerElement(
                     'This page is a placeholder since the authorization is not yet implemented. Please click submit.',
                     classes='alert'),
                                             FormElement(action='/setup/{page_id}?destination=/',
-                                                        element_id='admin_form'))
+                                                        element_id='admin_form')))
             }
         }
         generic = {
-            'stylesheets': Stylesheet('/theme/default_theme/css/style.css'),
+            'stylesheets': str(Stylesheet('/theme/default_theme/css/style.css')),
             'scripts': '',
             'header': '',
-            'footer': ContainerElement('Python CMS 2014', element_id=''),
+            'footer': str(ContainerElement('Python CMS 2014', element_id='')),
             'pagetitle': 'Setting up your CMS installation'
         }
         replacement_pattern = setup_pages[self.page_id]
@@ -120,6 +120,7 @@ class SetupHandler(PageHandler):
         else:
             page = page.format(page_id=self.page_id, next_page=self.page_id + 1)
         self._document = page
+        self._has_document = True
         return 200
 
     def process_post(self, post_query):
@@ -164,18 +165,18 @@ class SetupHandler(PageHandler):
         if self.setup():
             return {
                 'result': 'Success',
-                'message': ContainerElement(ContainerElement('Your installation has been successful.', html_type='p'),
+                'message': str(ContainerElement(ContainerElement('Your installation has been successful.', html_type='p'),
                                             ContainerElement(
                                                 'All necessary tables have been created and filled in the database',
                                                 html_type='p'),
-                                            ContainerElement('You may proceed.', html_type='p')),
+                                            ContainerElement('You may proceed.', html_type='p'))),
                 'target': '/setup/{next_page}',
                 'link': 'Continue'
             }
         else:
             return {
                 'result': 'Failed',
-                'message': ContainerElement(ContainerElement('Your installation has failed.', html_type='p'),
+                'message': str(ContainerElement(ContainerElement('Your installation has failed.', html_type='p'),
                                             ContainerElement('Please revisit you settings and try again.',
                                                              html_type='p'),
                                             ContainerElement(
@@ -185,11 +186,7 @@ class SetupHandler(PageHandler):
                                                 'You may delete all existing tables that should be created by clicking reset',
                                                 html_type='p'),
                 ContainerElement('Reset', html_type='a', classes='button',
-                                 additionals=['href="/setup/{page_id}?reset=True"'])),
+                                 additionals=['href="/setup/{page_id}?reset=True"']))),
                 'target': '/setup',
                 'link': 'Restart'
             }
-
-
-def page_handler_factory(page_id, url_tail='', get_query=''):
-    return SetupHandler(page_id, get_query)

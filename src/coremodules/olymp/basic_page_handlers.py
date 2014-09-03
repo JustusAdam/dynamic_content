@@ -1,5 +1,6 @@
 from importlib import import_module
 from pathlib import Path
+import sys
 
 from coremodules.olymp.database import Database, escape
 from src.tools.config_tools import read_config
@@ -18,6 +19,12 @@ class PageHandler:
         self.content_type = 'text/html'
         self.response = 200
         self._has_document = False
+        self.encoding = sys.getfilesystemencoding()
+
+    @property
+    def encoded_document(self):
+        print('using encoding ' + self.encoding)
+        return self._document.encode(self.encoding)
 
     @property
     def document(self):
@@ -47,6 +54,10 @@ class FileHandler(PageHandler):
     def compile_page(self):
         return self.parse_path()
 
+    @property
+    def encoded_document(self):
+        return self._document
+
     def parse_path(self):
         if len(self.path) < 2:
             return 403
@@ -65,9 +76,19 @@ class FileHandler(PageHandler):
                     if filepath.is_dir():
                         return 403
                     # RFE figure out what content types can occur and how to identify them here with a dict()
-                    if filepath.name.endswith('.css'):
-                        self.content_type = 'text/css'
-                    self._document = filepath.open().read()
+                    content_types = {
+                        '.css': 'text/css',
+                        '.mp3': 'audio/mp3',
+                        '.ogg': 'audio/ogg'
+                    }
+                    suffix = filepath.suffix
+                    if not suffix is None:
+                        if suffix == '.ogg':
+                            print('yes]]')
+                            self.encoding = 'ogg/vorbis'
+                        if suffix in content_types:
+                            self.content_type = content_types[suffix]
+                    self._document = filepath.open('rb').read()
                     self._has_document = True
                     return self.response
             except FileNotFoundError:
@@ -85,6 +106,3 @@ class DBPageHandler(PageHandler):
 class BasicPageHandler(DBPageHandler):
     def __init__(self, page_id, get_query):
         super().__init__(page_id=page_id, get_query=get_query)
-
-    def compile_page(self):
-        return self.response

@@ -19,6 +19,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         super().__init__(request, client_address, server)
         self.page_handler = None
         self.db = None
+        (self.path_list, self.location, self.get_query) = parse_url(self.path)
 
     def do_POST(self):
         if not self.check_path():
@@ -53,21 +54,23 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         return 0
 
+    def join_query(self, query):
+        return '?'.join(tuple(a + '=' + query[a] for a in query.keys()))
+
     def send_document(self):
-        enc = sys.getfilesystemencoding()
         handler_response = self.page_handler.compile_page()
         if not handler_response:
             # TODO send some generic error if handler rejects request
             return
         if handler_response == 200 or handler_response is True:
-            encoded = self.page_handler.document.encode(enc)
+            document = self.page_handler.encoded_document
             self.send_response(200)
             self.send_header("Content-type", "{content_type}; charset={encoding}".format(
-                content_type=self.page_handler.content_type, encoding=enc))
-            self.send_header("Content-Length", str(len(encoded)))
+                content_type=self.page_handler.content_type, encoding=self.page_handler.encoding))
+            self.send_header("Content-Length", str(len(document)))
             self.end_headers()
             stream = BytesIO()
-            stream.write(encoded)
+            stream.write(document)
             stream.seek(0)
             try:
                 shutil.copyfileobj(stream, self.wfile)
@@ -78,12 +81,9 @@ class RequestHandler(BaseHTTPRequestHandler):
             return
 
     def get_post_target(self):
-        (path, location, query) = split_path(self.path)
-        if query:
-            for option in query.split('?'):
-                option = option.split('=')
-                if option[0] == 'destination':
-                    return '/' + option[1]
+        if self.get_query:
+            if 'destination' in self.get_query:
+                return '/' + self.get_query['destination']
         return '/'
 
     def check_path(self):
@@ -100,20 +100,11 @@ class RequestHandler(BaseHTTPRequestHandler):
     def get_handler(self):
         bootstrap = read_config('includes/bootstrap')
 
-        (path, location,  get_query) = parse_url(url=self.path)
-        if len(path) > 0:
-            if path[0] == 'setup':
-                if not read_config(str(Path(__file__).parent / 'config.json'))['setup']:
-                    return 404
-                if len(path) == 1:
-                    page_id = 0
-                else:
-                    page_id = int(path[1])
-                from .setup import page_handler_factory
-                self.page_handler = page_handler_factory(page_id=page_id, get_query=get_query)
-                return 0
-            elif path[0] in bootstrap['FILE_DIRECTORIES'].keys():
-                self.page_handler = FileHandler(path)
+        if len(self.path_list) > 0:
+            if self.path_list[0] == 'setup':
+                return self.start_setup()
+            elif self.path_list[0] in bootstrap['FILE_DIRECTORIES'].keys():
+                self.page_handler = FileHandler(self.path_list)
                 return 0
         try:
             self.db = Database()
@@ -121,12 +112,20 @@ class RequestHandler(BaseHTTPRequestHandler):
             # TODO figure out which error to raise if database unreachable, currently 'internal server error'
             return 500
 
-        path = self.de_alias(path)
+        path = self.de_alias(self.path_list)
 
         if len(path) == 0:
             return 404
 
-        return BasicPageHandler(path, get_query)
+        self.page_handler = BasicPageHandler(path, self.get_query)
+        return 0
+
+    def start_setup(self):
+        if not read_config(str(Path(__file__).parent / 'config.json'))['setup']:
+            return 404
+        from .setup import SetupHandler
+        self.page_handler = SetupHandler(self.path_list, self.get_query)
+        return 0
 
     def get_content_handler_module(self, path_prefix):
         handler_id = self.db.select('handler_module', 'content_handlers', 'where path_prefix = ' + escape(path_prefix).fetchone())
@@ -143,7 +142,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         if len(path) == 0:
             alias = '/'
         else:
-            alias = '/' + '/'.join([word for word in path])
+            alias = join_path_list(path)
         try:
             source = self.translate_alias(alias)
             return source.split('/')
@@ -157,3 +156,6 @@ class RequestHandler(BaseHTTPRequestHandler):
         else:
             query_result = query_result[0]
         return query_result
+
+def join_path_list(path_list):
+    return '/' + '/'.join([word for word in path_list])

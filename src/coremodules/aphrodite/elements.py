@@ -78,7 +78,7 @@ class BaseElement:
     def render_customs(self):
         if isinstance(self._customs, dict):
             acc = []
-            for k, v in self._customs:
+            for k, v in self._customs.items():
                 if v:
                     acc += [k + '="' + v + '"']
             return acc
@@ -215,6 +215,9 @@ class Input(BaseClassIdElement):
         self._customs['form'] = form
         self._customs['value'] = value
 
+    def __str__(self):
+        return '<' + self.render_head() + ' />'
+
 
 class SubmitButton(Input):
 
@@ -236,4 +239,4 @@ class FormElement(ContainerElement):
         self.submit = submit
 
     def render_content(self):
-        return super().render_content() + self.submit
+        return super().render_content() + str(self.submit)
