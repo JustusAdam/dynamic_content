@@ -1,4 +1,5 @@
 {
     "name": "aphrodite",
-    "role": "theming_engine"
+    "role": "theming_engine",
+    "active_theme_path": "themes/default_theme"
 }

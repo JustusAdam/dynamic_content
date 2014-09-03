@@ -11,8 +11,7 @@ __author__ = 'justusadam'
 
 class PageHandler:
     def __init__(self, url):
-        # TODO decide what the default page_type should be
-        self.page_type = ''
+        self.page_type = None
         self._url = url
         self._document = ''
         self.content_type = 'text/html'
@@ -88,13 +87,7 @@ class FileHandler(PageHandler):
         return 404
 
 
-class DBPageHandler(PageHandler):
-
+class BasicPageHandler(PageHandler):
     def __init__(self, url):
         super().__init__(url)
         self.db = Database()
-
-
-class BasicPageHandler(DBPageHandler):
-    def __init__(self, url):
-        super().__init__(url)
