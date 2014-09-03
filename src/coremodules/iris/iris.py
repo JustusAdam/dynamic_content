@@ -1,12 +1,12 @@
-from src.coremodules.olymp.basic_page_handlers import BasicPageHandler
+from ..olymp.basic_page_handlers import BasicPageHandler
 
 __author__ = 'justusadam'
 
 
 class IrisContentHandler(BasicPageHandler):
 
-    def __init__(self, page_id, get_query):
-        super().__init__(page_id=page_id, get_query=get_query)
+    def __init__(self, url):
+        super().__init__(url)
         self.content_type = self.get_content_type()
         self.page_type = 'iris'
 

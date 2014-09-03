@@ -1,11 +1,10 @@
 from http.server import BaseHTTPRequestHandler
 from io import BytesIO
-import sys
 import shutil
 
 from .database import DatabaseError, Database, escape
 from .basic_page_handlers import FileHandler, BasicPageHandler
-from tools.http_tools import split_path, join_path, parse_url
+from tools.http_tools import Url
 from tools.config_tools import read_config
 from pathlib import Path
 
@@ -14,12 +13,6 @@ __author__ = 'justusadam'
 
 
 class RequestHandler(BaseHTTPRequestHandler):
-
-    def __init__(self, request, client_address, server):
-        super().__init__(request, client_address, server)
-        self.page_handler = None
-        self.db = None
-        (self.path_list, self.location, self.get_query) = parse_url(self.path)
 
     def do_POST(self):
         if not self.check_path():
@@ -54,9 +47,6 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         return 0
 
-    def join_query(self, query):
-        return '?'.join(tuple(a + '=' + query[a] for a in query.keys()))
-
     def send_document(self):
         handler_response = self.page_handler.compile_page()
         if not handler_response:
@@ -81,18 +71,20 @@ class RequestHandler(BaseHTTPRequestHandler):
             return
 
     def get_post_target(self):
-        if self.get_query:
-            if 'destination' in self.get_query:
-                return '/' + self.get_query['destination']
+        if self._url._get_query:
+            if 'destination' in self._url._get_query:
+                return '/' + self._url._get_query['destination']
         return '/'
 
     def check_path(self):
 
-        (path, location, query) = split_path(path=self.path)
+        self._url = Url(self.path)
 
-        if path.endswith('/') and path != '/':
+        if self._url.path.trailing_slash:
+            new_dest = Url(str(self._url))
+            new_dest.path.trailing_slash = False
             self.send_response(301)
-            self.send_header("Location", join_path(path[:-1], location, query))
+            self.send_header("Location", str(new_dest))
             self.end_headers()
             return False
         return True
@@ -100,11 +92,14 @@ class RequestHandler(BaseHTTPRequestHandler):
     def get_handler(self):
         bootstrap = read_config('includes/bootstrap')
 
-        if len(self.path_list) > 0:
-            if self.path_list[0] == 'setup':
+        self.page_handler = None
+        self.db = None
+
+        if len(self._url.path) > 0:
+            if self._url.path[0] == 'setup':
                 return self.start_setup()
-            elif self.path_list[0] in bootstrap['FILE_DIRECTORIES'].keys():
-                self.page_handler = FileHandler(self.path_list)
+            elif self._url.path[0] in bootstrap['FILE_DIRECTORIES'].keys():
+                self.page_handler = FileHandler(self._url.path)
                 return 0
         try:
             self.db = Database()
@@ -112,19 +107,19 @@ class RequestHandler(BaseHTTPRequestHandler):
             # TODO figure out which error to raise if database unreachable, currently 'internal server error'
             return 500
 
-        path = self.de_alias(self.path_list)
+        self._url.path = self.translate_alias(str(self._url.path))
 
-        if len(path) == 0:
+        if len(self._url.path) == 0:
             return 404
 
-        self.page_handler = BasicPageHandler(path, self.get_query)
+        self.page_handler = BasicPageHandler(self._url)
         return 0
 
     def start_setup(self):
         if not read_config(str(Path(__file__).parent / 'config.json'))['setup']:
             return 404
         from .setup import SetupHandler
-        self.page_handler = SetupHandler(self.path_list, self.get_query)
+        self.page_handler = SetupHandler(self._url)
         return 0
 
     def get_content_handler_module(self, path_prefix):
@@ -138,17 +133,6 @@ class RequestHandler(BaseHTTPRequestHandler):
             return None
         return handler_path[0].replace('/', '.')
 
-    def de_alias(self, path):
-        if len(path) == 0:
-            alias = '/'
-        else:
-            alias = join_path_list(path)
-        try:
-            source = self.translate_alias(alias)
-            return source.split('/')
-        except DatabaseError:
-            return path
-
     def translate_alias(self, alias):
         query_result = self.db.select('source', 'alias', 'where alias = ' + escape(alias)).fetchone()
         if query_result is None:
@@ -156,6 +140,3 @@ class RequestHandler(BaseHTTPRequestHandler):
         else:
             query_result = query_result[0]
         return query_result
-
-def join_path_list(path_list):
-    return '/' + '/'.join([word for word in path_list])

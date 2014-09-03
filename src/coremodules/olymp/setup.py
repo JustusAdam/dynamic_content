@@ -1,7 +1,7 @@
 from .database import DatabaseError, Database
 from .basic_page_handlers import PageHandler
 from .module_operations import Module
-from ..aphrodite import ContainerElement, Stylesheet, List, TableElement, FormElement
+from ..aphrodite import ContainerElement, Stylesheet, List, TableElement, FormElement, Input
 from tools.config_tools import read_config
 
 
@@ -27,8 +27,8 @@ def try_database_connection():
 
 
 class SetupHandler(PageHandler):
-    def __init__(self, page_id, get_query):
-        super().__init__(page_id, get_query)
+    def __init__(self, url):
+        super().__init__(url)
         self.bootstrap = read_config('includes/bootstrap')
 
     def compile_page(self):
@@ -95,8 +95,17 @@ class SetupHandler(PageHandler):
                 'content': str(ContainerElement(ContainerElement(
                     'This page is a placeholder since the authorization is not yet implemented. Please click submit.',
                     classes='alert'),
-                                            FormElement(action='/setup/{page_id}?destination=/',
-                                                        element_id='admin_form')))
+                    FormElement(TableElement(
+
+                        ('Name', Input(name='name')),
+                        ('Firstname', Input(name='firstname')),
+                        ('Username', Input(name='username')),
+                        ('Password', Input(name='password')),
+                        ('Confirm Password', Input(name='confirm-password'))
+
+                    ),
+                        action='{this}?destination=/',
+                                element_id='admin_form')))
             }
         }
         generic = {
@@ -106,7 +115,7 @@ class SetupHandler(PageHandler):
             'footer': str(ContainerElement('Python CMS 2014', element_id='')),
             'pagetitle': 'Setting up your CMS installation'
         }
-        replacement_pattern = setup_pages[self.page_id]
+        replacement_pattern = setup_pages[self._url.page_id]
 
         replacement_pattern.update(generic)
 
@@ -114,24 +123,24 @@ class SetupHandler(PageHandler):
         setup_template = setup_template.read()
         page = setup_template.format(**replacement_pattern)
 
-        if self.page_id == 4:
+        if self._url.page_id == 4:
             page = page.format(**self.setup_wrapper())
-            page = page.format(page_id=self.page_id, next_page=self.page_id + 1)
+            page = page.format(this=self._url.path, next_page=self._url.page_id + 1)
         else:
-            page = page.format(page_id=self.page_id, next_page=self.page_id + 1)
+            page = page.format(this=self._url.path, next_page=self._url.page_id + 1)
         self._document = page
         self._has_document = True
         return 200
 
     def process_post(self, post_query):
-        return self.page_id == 3
+        return self._url.page_id == 3
 
     def setup(self):
 
         db = Database()
 
-        if 'reset' in self.query:
-            if self.query['reset'].lower() == 'true':
+        if 'reset' in self._url.query:
+            if self._url.query['reset'].lower() == 'true':
                 try:
                     moduleconf = Module().discover_modules()
                     for module in moduleconf:

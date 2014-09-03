@@ -10,11 +10,10 @@ __author__ = 'justusadam'
 
 
 class PageHandler:
-    def __init__(self, page_id, get_query=''):
+    def __init__(self, url):
         # TODO decide what the default page_type should be
         self.page_type = ''
-        self.query = self.parse_get(get_query)
-        self.page_id = page_id
+        self._url = url
         self._document = ''
         self.content_type = 'text/html'
         self.response = 200
@@ -33,21 +32,14 @@ class PageHandler:
         else:
             return ''
 
-    def parse_get(self, query):
-        if query != '' and isinstance(query, str):
-            return dict(option.split('=') for option in query.split('?'))
-        else:
-            return query
-
     def compile_page(self):
         return self.response
 
 
 class FileHandler(PageHandler):
 
-    def __init__(self, path):
-        super().__init__(0)
-        self.path = path
+    def __init__(self, url):
+        super().__init__(url)
         self.page_type = 'file'
         self._document = ''
 
@@ -59,15 +51,15 @@ class FileHandler(PageHandler):
         return self._document
 
     def parse_path(self):
-        if len(self.path) < 2:
+        if len(self._url.path) < 2:
             return 403
         config = read_config('includes/bootstrap')
-        basedirs = config['FILE_DIRECTORIES'][self.path[0]]
+        basedirs = config['FILE_DIRECTORIES'][self._url.path[0]]
         if isinstance(basedirs, str):
             basedirs = (basedirs,)
         for basedir in basedirs:
             try:
-                filepath = basedir + '/'.join([''] + self.path[1:])
+                filepath = basedir + '/'.join([''] + self._url.path[1:])
                 basedir = Path(basedir).resolve()
                 filepath = Path(filepath).resolve()
                 if filepath.exists():
@@ -98,11 +90,11 @@ class FileHandler(PageHandler):
 
 class DBPageHandler(PageHandler):
 
-    def __init__(self, page_id, get_query=''):
-        super().__init__(page_id=page_id, get_query=get_query)
+    def __init__(self, url):
+        super().__init__(url)
         self.db = Database()
 
 
 class BasicPageHandler(DBPageHandler):
-    def __init__(self, page_id, get_query):
-        super().__init__(page_id=page_id, get_query=get_query)
+    def __init__(self, url):
+        super().__init__(url)

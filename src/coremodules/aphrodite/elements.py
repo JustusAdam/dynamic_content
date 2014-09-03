@@ -229,7 +229,7 @@ class SubmitButton(Input):
 
 class FormElement(ContainerElement):
 
-    def __init__(self, action, *contents, classes=[], element_id='', method='post', charset='UTF-8',
+    def __init__(self, *contents, action='{this}',classes=[], element_id='', method='post', charset='UTF-8',
                  submit=SubmitButton(), target='', additionals={}):
         super().__init__(*contents, html_type='form', classes=classes, element_id=element_id, additionals=additionals)
         self._customs['method'] = method
