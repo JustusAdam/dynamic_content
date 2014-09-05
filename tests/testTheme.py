@@ -1,6 +1,8 @@
 import os
-from coremodules.aphrodite.page import Page
+
+from coremodules.olymp.page import Page
 from coremodules.aphrodite.themer import Theme
+
 
 __author__ = 'justusadam'
 

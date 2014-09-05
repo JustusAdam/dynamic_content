@@ -1,8 +1,9 @@
 from .database import DatabaseError, Database
 from .basic_page_handlers import PageHandler
-from .module_operations import Module
+from . import module_operations
 from ..aphrodite import ContainerElement, Stylesheet, List, TableElement, FormElement, Input
 from tools.config_tools import read_config
+from includes.global_vars import *
 
 
 __author__ = 'justusadam'
@@ -29,7 +30,6 @@ def try_database_connection():
 class SetupHandler(PageHandler):
     def __init__(self, url):
         super().__init__(url)
-        self.bootstrap = read_config('includes/bootstrap')
 
     def compile_page(self):
         config = read_config('config')
@@ -155,12 +155,12 @@ class SetupHandler(PageHandler):
 
         db = Database()
 
-        if 'reset' in self._url.query:
-            if self._url.query['reset'].lower() == 'true':
+        if 'reset' in self._url.get_query:
+            if self._url.get_query['reset'].lower() == 'true':
                 try:
-                    moduleconf = Module().discover_modules()
+                    moduleconf = module_operations.discover_modules()
                     for module in moduleconf:
-                        if module['name'] in self.bootstrap['DEFAULT_MODULES'] + [self.bootstrap['CORE_MODULE']]:
+                        if module['name'] in bootstrap.DEFAULT_MODULES + [bootstrap.CORE_MODULE]:
                             if 'required_tables' in module:
                                 print('dropping tables for ' + module['name'])
                                 try:
@@ -171,14 +171,13 @@ class SetupHandler(PageHandler):
                 except DatabaseError as error:
                     print('Database Error in setup: ' + str(error.args))
         try:
-            temp = Module()
-            temp.is_setup = True
-            temp.activate_module('olymp')
-            temp.register_installed_modules()
-            temp.is_setup = False
-            temp._set_module_active('olymp')
-            for module in self.bootstrap['DEFAULT_MODULES']:
-                if not temp.activate_module(module):
+            module_operations._is_setup = True
+            module_operations.activate_module('olymp')
+            module_operations.register_installed_modules()
+            module_operations.is_setup = False
+            module_operations._set_module_active('olymp')
+            for module in bootstrap.DEFAULT_MODULES:
+                if not module_operations.activate_module(module):
                     print('Could not activate module ' + module)
                     return False
             return True

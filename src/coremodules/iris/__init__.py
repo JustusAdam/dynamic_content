@@ -1,4 +1,4 @@
-from src.coremodules.iris.iris import EditIrisHandler, IrisPageHandler
+from src.coremodules.iris.iris import EditIrisHandler, IrisContentHandler
 
 __author__ = 'justusadam'
 
@@ -8,8 +8,8 @@ name = 'iris'
 role = 'page_handler'
 
 
-def page_handler_factory(page_id, url_tail, get_query):
-    if url_tail[0] == 'edit':
-        return EditIrisHandler(page_id, get_query)
+def content_handler_factory(url):
+    if url.page_modifier == 'edit':
+        return EditIrisHandler(url)
     else:
-        return IrisPageHandler(page_id,get_query)
+        return IrisContentHandler(url)

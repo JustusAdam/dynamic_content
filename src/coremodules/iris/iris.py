@@ -3,7 +3,7 @@ from ..olymp.basic_page_handlers import BasicPageHandler
 __author__ = 'justusadam'
 
 
-class IrisContentHandler(BasicPageHandler):
+class IrisContentHandler:
 
     def __init__(self, url):
         super().__init__(url)

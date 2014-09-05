@@ -1,30 +1,28 @@
 from http.server import *
-from importlib import import_module
 import os
 from pathlib import Path
+
 from pymysql import DatabaseError
 
 from tools.config_tools import read_config
 
 
+os.chdir(str(Path(__file__).parent.resolve()))
+
+from includes.global_vars import *
+
 __author__ = 'justusadam'
 
 
 def main():
-
-    os.chdir(str(Path(__file__).parent.resolve()))
-
-    bootstrap = read_config('includes/bootstrap')
-    core_path = bootstrap['COREMODULES_DIRECTORY'] + '.' + bootstrap['CORE_MODULE']
-    del bootstrap
-    core = import_module(core_path.replace('/', '.'))
     try:
-        core.register_installed_modules()
+        roles['core'].register_installed_modules()
+        roles['core'].load_modules()
     except DatabaseError as error:
         print('Failed to register installed modules, continuing.')
         print(error)
 
-    run_server(handler_class=core.RequestHandler)
+    run_server(handler_class=roles['core'].RequestHandler)
 
     return 0
 

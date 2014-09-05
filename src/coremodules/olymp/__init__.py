@@ -1,8 +1,7 @@
 __author__ = 'justusadam'
 
 from .request_handler import RequestHandler
-from .database import Database
-from .module_operations import Module
+from .module_operations import register_installed_modules, load_active_modules
 
 name = 'olymp'
 
@@ -11,5 +10,5 @@ role = 'core'
 # TODO refactor everything to get core module and move it here
 
 
-def register_installed_modules():
-    Module().register_installed_modules()
+def load_modules():
+    load_active_modules()

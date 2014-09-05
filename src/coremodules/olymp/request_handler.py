@@ -1,12 +1,13 @@
 from http.server import BaseHTTPRequestHandler
 from io import BytesIO
 import shutil
+from pathlib import Path
 
+from includes.global_vars import *
 from .database import DatabaseError, Database, escape
 from .basic_page_handlers import FileHandler, BasicPageHandler
 from tools.http_tools import Url
 from tools.config_tools import read_config
-from pathlib import Path
 
 
 __author__ = 'justusadam'
@@ -31,7 +32,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
         else:
             self.send_document()
-
+        global db
+        db = None
         return 0
 
     def do_GET(self):
@@ -44,11 +46,12 @@ class RequestHandler(BaseHTTPRequestHandler):
             return 0
 
         self.send_document()
-
+        global db
+        db = None
         return 0
 
     def send_document(self):
-        handler_response = self.page_handler.compile_page()
+        handler_response = self.page_handler.compile()
         if not handler_response:
             # TODO send some generic error if handler rejects request
             return
@@ -71,9 +74,9 @@ class RequestHandler(BaseHTTPRequestHandler):
             return
 
     def get_post_target(self):
-        if self._url._get_query:
-            if 'destination' in self._url._get_query:
-                return '/' + self._url._get_query['destination']
+        if self._url.get_query:
+            if 'destination' in self._url.get_query:
+                return '/' + self._url.get_query['destination']
         return '/'
 
     def check_path(self):
@@ -90,19 +93,18 @@ class RequestHandler(BaseHTTPRequestHandler):
         return True
 
     def get_handler(self):
-        bootstrap = read_config('includes/bootstrap')
 
         self.page_handler = None
-        self.db = None
 
         if len(self._url.path) > 0:
             if self._url.path[0] == 'setup':
                 return self.start_setup()
-            elif self._url.path[0] in bootstrap['FILE_DIRECTORIES'].keys():
+            elif self._url.path[0] in bootstrap.FILE_DIRECTORIES.keys():
                 self.page_handler = FileHandler(self._url.path)
                 return 0
         try:
-            self.db = Database()
+            global db
+            db = Database()
         except DatabaseError:
             # TODO figure out which error to raise if database unreachable, currently 'internal server error'
             return 500
@@ -123,18 +125,18 @@ class RequestHandler(BaseHTTPRequestHandler):
         return 0
 
     def get_content_handler_module(self, path_prefix):
-        handler_id = self.db.select('handler_module', 'content_handlers', 'where path_prefix = ' + escape(path_prefix).fetchone())
+        handler_id = db.select('handler_module', 'content_handlers', 'where path_prefix = ' + escape(path_prefix).fetchone())
         if handler_id is None:
             return None
         handler_id = handler_id[0]
-        handler_path = self.db.select('module_path', 'modules', 'where id = ' + escape(handler_id))
+        handler_path = db.select('module_path', 'modules', 'where id = ' + escape(handler_id))
 
         if handler_path is None:
             return None
         return handler_path[0].replace('/', '.')
 
     def translate_alias(self, alias):
-        query_result = self.db.select('source', 'alias', 'where alias = ' + escape(alias)).fetchone()
+        query_result = db.select('source', 'alias', 'where alias = ' + escape(alias)).fetchone()
         if query_result is None:
             query_result = alias
         else:

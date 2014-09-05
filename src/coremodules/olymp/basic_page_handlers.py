@@ -1,8 +1,9 @@
-from importlib import import_module
+from .page import Page
 from pathlib import Path
 import sys
+from includes.global_vars import *
 
-from coremodules.olymp.database import Database, escape
+from coremodules.olymp.database import escape
 from src.tools.config_tools import read_config
 
 
@@ -18,6 +19,7 @@ class PageHandler:
         self.response = 200
         self._has_document = False
         self.encoding = sys.getfilesystemencoding()
+        self._page = None
 
     @property
     def encoded_document(self):
@@ -31,7 +33,7 @@ class PageHandler:
         else:
             return ''
 
-    def compile_page(self):
+    def compile(self):
         return self.response
 
 
@@ -42,7 +44,7 @@ class FileHandler(PageHandler):
         self.page_type = 'file'
         self._document = ''
 
-    def compile_page(self):
+    def compile(self):
         return self.parse_path()
 
     @property
@@ -90,4 +92,31 @@ class FileHandler(PageHandler):
 class BasicPageHandler(PageHandler):
     def __init__(self, url):
         super().__init__(url)
-        self.db = Database()
+        self._page = Page(url)
+
+    def get_content_handler(self):
+        db_result = db.select('handler_module', 'content_handlers', 'where path_prefix = ' +
+                              escape(self._url.page_type)).fetchone()
+        if db_result:
+            handler_module = db_result[0]
+        else:
+            return None
+        handler = modules[handler_module].content_handler
+        return handler
+
+    def get_theme_handler(self):
+        return modules['aphrodite'].theme_handler
+
+    def compile(self):
+        page = Page(self._url)
+        content_handler = self.get_content_handler()(page)
+        if not content_handler.compile():
+            self.response = 404
+            return 404
+        page = content_handler.page
+        theme_handler = self.get_theme_handler()(page)
+        if not theme_handler.compile():
+            self.response = 404
+            return 404
+        self._document = theme_handler.document
+        return self.response

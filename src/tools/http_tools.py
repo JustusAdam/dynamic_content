@@ -168,7 +168,10 @@ class UrlQuery:
         self._query[key] = value
 
     def __contains__(self, item):
-        return item in self.query
+        if self.query:
+            return item in self.query
+        else:
+            return False
 
     def __bool__(self):
         return bool(self.query)
