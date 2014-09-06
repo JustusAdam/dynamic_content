@@ -1,28 +1,6 @@
-from includes.global_vars import *
+from core.base_handlers import ContentHandler
 
 __author__ = 'justusadam'
-
-
-class ContentHandler:
-    def __init__(self, page, db, modules):
-        self._page = page
-        self._is_compiled = False
-        self.db = db
-        self.modules = modules
-
-    @property
-    def page(self):
-        if self._is_compiled:
-            return self._page
-        elif self.compile():
-            return self._page
-        else:
-            return None
-
-
-    def compile(self):
-        self._is_compiled = True
-        return True
 
 
 class FieldBasedContentHandler(ContentHandler):
@@ -52,8 +30,8 @@ class FieldBasedContentHandler(ContentHandler):
             if not self.get_fields():
                 return False
         for name in self.fields:
-            field_handler = self.field_contents.append(self.modules[name[1]].make_field(name[0]))
-            if not field_handler.compile_field():
+            field_handler = self.field_contents.append(self.modules[name[1]].field_handler(name[0], self.db))
+            if not field_handler.compile():
                 return False
             field = field_handler.field
             self.field_contents.append(field.content)

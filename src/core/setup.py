@@ -1,5 +1,5 @@
+from core.base_handlers import PageHandler
 from .database import DatabaseError, Database
-from .basic_page_handlers import PageHandler
 from . import module_operations
 from coremodules.aphrodite import ContainerElement, Stylesheet, List, TableElement, FormElement, Input
 from tools.config_tools import read_config

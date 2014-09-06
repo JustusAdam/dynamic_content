@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 
 from core.database import DatabaseError, Database, escape
-from .basic_page_handlers import FileHandler, BasicPageHandler
+from .page_handlers import FileHandler, BasicPageHandler
 from tools.http_tools import Url
 from tools.config_tools import read_config
 
