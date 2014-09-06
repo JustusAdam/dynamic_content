@@ -7,7 +7,6 @@ from core.database import Database
 
 class generalIrisTesting(unittest.TestCase):
     def setUp(self):
-        from includes.global_vars import *
         db = Database()
         db.insert('iris', ('content_type', 'published', 'creator'), ('test_type', '0', 'test_user'))
 

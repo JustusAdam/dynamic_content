@@ -1,5 +1,5 @@
 {
-    "name": "olymp",
+    "name": "core",
     "role": "core",
     "setup": true,
     "required_tables": [
@@ -56,14 +56,6 @@
                 "source_id int not null comment 'page id of the source page'",
                 "alias varchar(500) not null unique comment 'page alias'"
             ]
-        },
-        {
-            "table_name": "content_handlers",
-            "columns": [
-                "id int unsigned not null auto_increment unique primary key",
-                "handler_name varchar(500) not null unique",
-                "path_prefix varchar(500) not null unique"
-            ]
         }
     ],
     "insert": [
@@ -76,8 +68,8 @@
             ],
             "values": [
                 "1",
-                "olymp",
-                ".",
+                "core",
+                "core",
                 "core"
             ],
             "into_table": "modules"

@@ -19,28 +19,23 @@ class ModuleNotFoundError(ModuleError):
     def __repr__(self):
         return 'ModuleNotFoundError, module ' + self.module_name + ' could not be found in the Database'
 
-_is_setup = False
-
 
 def activate_module(module_name, db):
-    #print('Activating module: ' + module_name)
-    if not _is_setup:
-        if is_active(module_name, db):
-            print('Module ' + module_name + ' is already active.')
-            return True
-        path = get_module_path(module_name, db)
-    else:
-        d_modules = discover_modules()
-        path = None
-        for module in d_modules:
-            if module['name'] == module_name:
-                path = module['path']
-                break
+    print('Activating module: ' + module_name)
+    if is_active(module_name, db):
+        print('Module ' + module_name + ' is already active.')
+        return True
+    path = get_module_path(module_name, db)
 
     if path is None:
         print('Module ' + module_name + ' could not be activated')
         return False
     module_conf = read_config(path + '/config.json')
+
+    return _activate_module(module_conf, db)
+
+
+def _activate_module(module_conf, db):
 
     try:
         if 'required_tables' in module_conf:
@@ -57,7 +52,7 @@ def activate_module(module_name, db):
     if module_conf['role'] in known_roles:
         known_roles[module_conf['role']](module_conf, db)
 
-    _set_module_active(module_name, db)
+    _set_module_active(module_conf['name'], db)
     return True
 
 
@@ -100,6 +95,16 @@ def create_required_tables(tables, db):
         create_table(table)
 
 
+def drop_module_tables(moduleconf, db):
+    if 'required_tables' in moduleconf:
+        print('dropping tables for ' + moduleconf['name'])
+        try:
+            db.drop_tables(tuple(a['table_name'] for a in moduleconf['required_tables']))
+        except DatabaseError as newerror:
+            print('Could not drop table for ' + moduleconf['name'] + ' due to error: ' + str(
+                newerror.args))
+
+
 def fill_tables(values, db):
     if not isinstance(values, (tuple, list)):
         values = (values,)
@@ -115,8 +120,7 @@ def get_module_path(module, db):
 
 
 def _set_module_active(module_name, db):
-    if not is_active(module_name, db):
-        db.update('modules', {'enabled': '1'}, 'module_name = ' + escape(module_name))
+    db.update('modules', {'enabled': '1'}, 'module_name = ' + escape(module_name))
 
 
 def is_active(module_name, db):
@@ -155,13 +159,13 @@ def register_modules(r_modules, db):
         register_single_module(r_modules, db)
 
 
-def register_single_module(module, db):
+def register_single_module(moduleconf, db):
     #print('registering module ' + module['name'])
-    db_result = db.select('module_path', 'modules', 'where module_name=' + escape(module['name'])).fetchone()
+    db_result = db.select('module_path', 'modules', 'where module_name=' + escape(moduleconf['name'])).fetchone()
     if db_result is None:
-        db.insert('modules', ('module_name', 'module_path', 'module_role'), (module['name'], module['path'], module['role']))
-    elif db_result[0] != module['path']:
-        db.update('modules', {'module_path': module['path']}, 'module_name = ' + escape(module['name']))
+        db.insert('modules', ('module_name', 'module_path', 'module_role'), (moduleconf['name'], moduleconf['path'], moduleconf['role']))
+    elif db_result[0] != moduleconf['path']:
+        db.update('modules', {'module_path': moduleconf['path']}, 'module_name = ' + escape(moduleconf['name']))
 
 
 def check_info(info):

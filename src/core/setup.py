@@ -155,22 +155,25 @@ class SetupHandler(PageHandler):
 
         db = Database()
 
+        core_config = read_config('core/config')
+        core_config['path'] = 'core'
+
         if 'reset' in self._url.get_query:
             if self._url.get_query['reset'].lower() == 'true':
                 try:
+                    # HACK dropping core tables separately
+                    module_operations.drop_module_tables(core_config, db)
+
                     moduleconf = module_operations.discover_modules()
                     for module in moduleconf:
                         if module['name'] in self.bootstrap.DEFAULT_MODULES:
-                            if 'required_tables' in module:
-                                print('dropping tables for ' + module['name'])
-                                try:
-                                    db.drop_tables(tuple(a['table_name'] for a in module['required_tables']))
-                                except DatabaseError as newerror:
-                                    print('Could not drop table for ' + module['name'] + ' due to error: ' + str(
-                                        newerror.args))
+                            module_operations.drop_module_tables(module, db)
                 except DatabaseError as error:
                     print('Database Error in setup: ' + str(error.args))
         try:
+            # HACK separately registering and activating core
+            module_operations._activate_module(core_config, db)
+
             module_operations.register_installed_modules(db)
             for module in self.bootstrap.DEFAULT_MODULES:
                 if not module_operations.activate_module(module, db):
@@ -209,7 +212,7 @@ class SetupHandler(PageHandler):
                             'You may delete all existing tables that should be created by clicking reset',
                             html_type='p'),
                 ContainerElement('Reset', html_type='a', classes='button',
-                                 additionals=['href="/setup/{page_id}?reset=True"']))),
+                                 additionals=['href="/setup/{this}?reset=True"']))),
                 'target': '/setup',
                 'link': 'Restart'
             }
