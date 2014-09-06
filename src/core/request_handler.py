@@ -3,14 +3,16 @@ from io import BytesIO
 import shutil
 from pathlib import Path
 
-from includes.global_vars import *
-from .database import DatabaseError, Database, escape
+from core.database import DatabaseError, Database, escape
 from .basic_page_handlers import FileHandler, BasicPageHandler
 from tools.http_tools import Url
 from tools.config_tools import read_config
 
 
 __author__ = 'justusadam'
+
+hello = None
+bootstrap = None
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -32,11 +34,10 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
         else:
             self.send_document()
-        global db
-        db = None
         return 0
 
     def do_GET(self):
+        print(hello)
         if not self.check_path():
             return 0
 
@@ -46,8 +47,6 @@ class RequestHandler(BaseHTTPRequestHandler):
             return 0
 
         self.send_document()
-        global db
-        db = None
         return 0
 
     def send_document(self):
@@ -96,47 +95,35 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         self.page_handler = None
 
-        if len(self._url.path) > 0:
-            if self._url.path[0] == 'setup':
-                return self.start_setup()
-            elif self._url.path[0] in bootstrap.FILE_DIRECTORIES.keys():
-                self.page_handler = FileHandler(self._url.path)
-                return 0
+        if self._url.page_type == 'setup':
+            return self.start_setup()
+        elif self._url.page_type in bootstrap.FILE_DIRECTORIES.keys():
+            self.page_handler = FileHandler(self._url.path, bootstrap)
+            return 0
         try:
-            global db
             db = Database()
         except DatabaseError:
             # TODO figure out which error to raise if database unreachable, currently 'internal server error'
             return 500
 
-        self._url.path = self.translate_alias(str(self._url.path))
+        self._url.path = self.translate_alias(str(self._url.path), db)
 
         if len(self._url.path) == 0:
             return 404
 
-        self.page_handler = BasicPageHandler(self._url)
+        self.page_handler = BasicPageHandler(self._url, db, hello)
+        db = None
         return 0
 
     def start_setup(self):
         if not read_config(str(Path(__file__).parent / 'config.json'))['setup']:
             return 404
         from .setup import SetupHandler
-        self.page_handler = SetupHandler(self._url)
+        self.page_handler = SetupHandler(self._url, bootstrap)
         return 0
 
-    def get_content_handler_module(self, path_prefix):
-        handler_id = db.select('handler_module', 'content_handlers', 'where path_prefix = ' + escape(path_prefix).fetchone())
-        if handler_id is None:
-            return None
-        handler_id = handler_id[0]
-        handler_path = db.select('module_path', 'modules', 'where id = ' + escape(handler_id))
-
-        if handler_path is None:
-            return None
-        return handler_path[0].replace('/', '.')
-
-    def translate_alias(self, alias):
-        query_result = db.select('source', 'alias', 'where alias = ' + escape(alias)).fetchone()
+    def translate_alias(self, alias, db):
+        query_result = db.select('source_id', 'alias', 'where alias = ' + escape(alias)).fetchone()
         if query_result is None:
             query_result = alias
         else:

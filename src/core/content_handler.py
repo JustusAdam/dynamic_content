@@ -4,9 +4,11 @@ __author__ = 'justusadam'
 
 
 class ContentHandler:
-    def __init__(self, page):
+    def __init__(self, page, db, modules):
         self._page = page
         self._is_compiled = False
+        self.db = db
+        self.modules = modules
 
     @property
     def page(self):
@@ -25,20 +27,20 @@ class ContentHandler:
 
 class FieldBasedContentHandler(ContentHandler):
 
-    def __init__(self, page):
-        super().__init__(page)
+    def __init__(self, page, db, modules):
+        super().__init__(page, db, modules)
         self.fields = []
         self.field_contents = []
 
     def get_content_type(self):
-        db_result = db.select('content_type', self._page.url.page_type, 'where id = ' + self._page.url.page_id).fetchone()
+        db_result = self.db.select('content_type', self._page.url.page_type, 'where id = ' + self._page.url.page_id).fetchone()
         if not db_result:
             return None
         else:
             return db_result[0]
 
     def get_fields(self):
-        db_result = db.select(('field_name', 'handler_module', 'weight'), 'page_fields', 'where content_type = ' + self.get_content_type())
+        db_result = self.db.select(('field_name', 'handler_module', 'weight'), 'page_fields', 'where content_type = ' + self.get_content_type())
         if not db_result:
             return False
         acc = list(db_result).sort(lambda a: a[2])
@@ -50,7 +52,7 @@ class FieldBasedContentHandler(ContentHandler):
             if not self.get_fields():
                 return False
         for name in self.fields:
-            field_handler = self.field_contents.append(modules[name[1]].make_field(name[0]))
+            field_handler = self.field_contents.append(self.modules[name[1]].make_field(name[0]))
             if not field_handler.compile_field():
                 return False
             field = field_handler.field

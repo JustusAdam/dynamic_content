@@ -3,26 +3,33 @@ import os
 from pathlib import Path
 
 from pymysql import DatabaseError
+from core.database import Database
 
 from tools.config_tools import read_config
+from includes import bootstrap
+import core
+from core import request_handler
 
 
 os.chdir(str(Path(__file__).parent.resolve()))
-
-from includes.global_vars import *
-
 __author__ = 'justusadam'
 
 
 def main():
     try:
-        roles['core'].register_installed_modules()
-        roles['core'].load_modules()
+        db = Database()
+        core.register_installed_modules(db)
+        modules = core.load_modules(db)
+        request_handler.hello = modules
     except DatabaseError as error:
         print('Failed to register installed modules, continuing.')
         print(error)
+    finally:
+        db = None
 
-    run_server(handler_class=roles['core'].RequestHandler)
+    request_handler.bootstrap = bootstrap
+
+    run_server(handler_class=request_handler.RequestHandler)
 
     return 0
 

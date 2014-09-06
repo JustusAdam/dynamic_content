@@ -1,7 +1,8 @@
 __author__ = 'justusadam'
 
 import unittest
-from src.coremodules.olymp.database import Database
+
+from core.database import Database
 
 
 class generalIrisTesting(unittest.TestCase):

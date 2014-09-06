@@ -1,9 +1,8 @@
-from .page import Page
 from pathlib import Path
 import sys
-from includes.global_vars import *
 
-from coremodules.olymp.database import escape
+from .page import Page
+from core.database import escape
 from src.tools.config_tools import read_config
 
 
@@ -39,10 +38,11 @@ class PageHandler:
 
 class FileHandler(PageHandler):
 
-    def __init__(self, url):
+    def __init__(self, url, bootstrap):
         super().__init__(url)
         self.page_type = 'file'
         self._document = ''
+        self.bootstrap = bootstrap
 
     def compile(self):
         return self.parse_path()
@@ -54,8 +54,7 @@ class FileHandler(PageHandler):
     def parse_path(self):
         if len(self._url.path) < 2:
             return 403
-        config = read_config('includes/bootstrap')
-        basedirs = config['FILE_DIRECTORIES'][self._url.path[0]]
+        basedirs = self.bootstrap.FILE_DIRECTORIES[self._url.path[0]]
         if isinstance(basedirs, str):
             basedirs = (basedirs,)
         for basedir in basedirs:
@@ -90,26 +89,31 @@ class FileHandler(PageHandler):
 
 
 class BasicPageHandler(PageHandler):
-    def __init__(self, url):
+    def __init__(self, url, db, modules):
         super().__init__(url)
         self._page = Page(url)
+        self.db = db
+        self.modules = modules
 
     def get_content_handler(self):
-        db_result = db.select('handler_module', 'content_handlers', 'where path_prefix = ' +
-                              escape(self._url.page_type)).fetchone()
+        db_result = self.db.select('handler_module', 'content_handlers', 'where path_prefix = ' +
+                                    escape(self._url.page_type)).fetchone()
         if db_result:
             handler_module = db_result[0]
         else:
             return None
-        handler = modules[handler_module].content_handler
+        handler = self.modules[handler_module].content_handler
         return handler
 
     def get_theme_handler(self):
-        return modules['aphrodite'].theme_handler
+        return self.modules[self.get_theme_name()].theme_handler
+
+    def get_theme_name(self):
+        return 'aphrodite'
 
     def compile(self):
         page = Page(self._url)
-        content_handler = self.get_content_handler()(page)
+        content_handler = self.get_content_handler()(page, self.db, self.modules)
         if not content_handler.compile():
             self.response = 404
             return 404

@@ -1,8 +1,9 @@
+from importlib import import_module
 from pathlib import Path
-
 from tools.config_tools import read_config
-from .database import escape, DatabaseError
-from includes.global_vars import *
+from core.database import escape, DatabaseError
+from includes import bootstrap
+from .modules import Modules
 
 
 __author__ = 'justusadam'
@@ -21,13 +22,13 @@ class ModuleNotFoundError(ModuleError):
 _is_setup = False
 
 
-def activate_module(module_name):
+def activate_module(module_name, db):
     #print('Activating module: ' + module_name)
     if not _is_setup:
-        if is_active(module_name):
+        if is_active(module_name, db):
             print('Module ' + module_name + ' is already active.')
             return True
-        path = get_module_path(module_name)
+        path = get_module_path(module_name, db)
     else:
         d_modules = discover_modules()
         path = None
@@ -43,9 +44,9 @@ def activate_module(module_name):
 
     try:
         if 'required_tables' in module_conf:
-            create_required_tables(module_conf['required_tables'])
+            create_required_tables(module_conf['required_tables'], db)
         if 'insert' in module_conf:
-            fill_tables(module_conf['insert'])
+            fill_tables(module_conf['insert'], db)
     except DatabaseError:
         return False
 
@@ -54,13 +55,13 @@ def activate_module(module_name):
     }
 
     if module_conf['role'] in known_roles:
-        known_roles[module_conf['role']](module_conf)
+        known_roles[module_conf['role']](module_conf, db)
 
-    _set_module_active(module_name)
+    _set_module_active(module_name, db)
     return True
 
 
-def register_content_handler(module_conf):
+def register_content_handler(module_conf, db):
     print('registering content handler ' + module_conf['name'])
     if 'path_prefix' in module_conf:
         path_prefix = module_conf['path_prefix']
@@ -68,19 +69,19 @@ def register_content_handler(module_conf):
         path_prefix = module_conf['name']
     try:
         db.replace('content_handlers', ['handler_module', 'handler_name', 'path_prefix'],
-                       [get_module_id(module_conf['name']), module_conf['name'], path_prefix])
+                       [get_module_id(module_conf['name'], db), module_conf['name'], path_prefix])
     except DatabaseError:
         print('Failed to register page handler ' + module_conf['name'])
 
 
-def get_module_id(module_name):
+def get_module_id(module_name, db):
     db_result = db.select('id', 'modules', 'where module_name = ' + escape(module_name)).fetchone()
     if not db_result is None:
         return db_result[0]
     raise ModuleNotFoundError
 
 
-def create_required_tables(tables):
+def create_required_tables(tables, db):
     def create_table(t):
         try:
             db.create_table(**t)
@@ -99,26 +100,26 @@ def create_required_tables(tables):
         create_table(table)
 
 
-def fill_tables(values):
+def fill_tables(values, db):
     if not isinstance(values, (tuple, list)):
         values = (values,)
     for value in values:
         db.insert(**value)
 
 
-def get_module_path(module):
+def get_module_path(module, db):
     query_result = db.select('module_path', 'modules', 'where module_name = ' + escape(module)).fetchone()
     if query_result is None:
         return None
     return query_result[0]
 
 
-def _set_module_active(module_name):
-    if not is_active(module_name):
+def _set_module_active(module_name, db):
+    if not is_active(module_name, db):
         db.update('modules', {'enabled': '1'}, 'module_name = ' + escape(module_name))
 
 
-def is_active(module_name):
+def is_active(module_name, db):
     try:
         result = db.select('enabled', 'modules', 'where module_name = ' + escape(module_name)).fetchone()
     except DatabaseError:
@@ -126,8 +127,8 @@ def is_active(module_name):
     return result == 1
 
 
-def register_installed_modules():
-    register_modules(discover_modules())
+def register_installed_modules(db):
+    register_modules(discover_modules(), db)
 
 
 def discover_modules():
@@ -145,15 +146,17 @@ def discover_modules():
     return accumulator
 
 
-def register_modules(r_modules):
+def register_modules(r_modules, db):
     if isinstance(r_modules, (list, tuple)):
+        #print(','.join(list(a['name'] for a in r_modules)))
         for module in r_modules:
-            register_single_module(module)
+            register_single_module(module, db)
     else:
-        register_single_module(r_modules)
+        register_single_module(r_modules, db)
 
 
-def register_single_module(module):
+def register_single_module(module, db):
+    #print('registering module ' + module['name'])
     db_result = db.select('module_path', 'modules', 'where module_name=' + escape(module['name'])).fetchone()
     if db_result is None:
         db.insert('modules', ('module_name', 'module_path', 'module_role'), (module['name'], module['path'], module['role']))
@@ -170,9 +173,13 @@ def check_info(info):
     return True
 
 
-def load_active_modules():
-    db_result = db.select(('module_name', 'module_path'), 'modules', 'where enabled = \'1\'')
+def load_active_modules(db):
+    print('hello')
+    db_result = db.select(('module_name', 'module_path'), 'modules', 'where enabled=' + escape(1))
     item = db_result.fetchone()
+    modules = {}
     while item:
+        print('loading module ' + item[0])
         modules[item[0]] = import_module(item[1].replace('/', '.'))
         item = db_result.fetchone()
+    return Modules(modules)

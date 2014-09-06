@@ -1,9 +1,8 @@
 from .database import DatabaseError, Database
 from .basic_page_handlers import PageHandler
 from . import module_operations
-from ..aphrodite import ContainerElement, Stylesheet, List, TableElement, FormElement, Input
+from coremodules.aphrodite import ContainerElement, Stylesheet, List, TableElement, FormElement, Input
 from tools.config_tools import read_config
-from includes.global_vars import *
 
 
 __author__ = 'justusadam'
@@ -28,10 +27,11 @@ def try_database_connection():
 
 
 class SetupHandler(PageHandler):
-    def __init__(self, url):
+    def __init__(self, url, bootstrap):
         super().__init__(url)
+        self.bootstrap = bootstrap
 
-    def compile_page(self):
+    def compile(self):
         config = read_config('config')
         setup_pages = {
             0: {
@@ -160,7 +160,7 @@ class SetupHandler(PageHandler):
                 try:
                     moduleconf = module_operations.discover_modules()
                     for module in moduleconf:
-                        if module['name'] in bootstrap.DEFAULT_MODULES + [bootstrap.CORE_MODULE]:
+                        if module['name'] in self.bootstrap.DEFAULT_MODULES:
                             if 'required_tables' in module:
                                 print('dropping tables for ' + module['name'])
                                 try:
@@ -171,13 +171,9 @@ class SetupHandler(PageHandler):
                 except DatabaseError as error:
                     print('Database Error in setup: ' + str(error.args))
         try:
-            module_operations._is_setup = True
-            module_operations.activate_module('olymp')
-            module_operations.register_installed_modules()
-            module_operations.is_setup = False
-            module_operations._set_module_active('olymp')
-            for module in bootstrap.DEFAULT_MODULES:
-                if not module_operations.activate_module(module):
+            module_operations.register_installed_modules(db)
+            for module in self.bootstrap.DEFAULT_MODULES:
+                if not module_operations.activate_module(module, db):
                     print('Could not activate module ' + module)
                     return False
             return True

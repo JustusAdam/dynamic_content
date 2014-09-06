@@ -4,13 +4,13 @@ from pymysql import DatabaseError, connect
 
 from tools.config_tools import read_config
 
+from includes import bootstrap
+
 
 class Database:
     def __init__(self):
         config = read_config('config')
-        bootstrap = read_config('includes/bootstrap')
         self._connection = connect(**config['database_connection_arguments'])
-        self.coremodule = bootstrap['CORE_MODULE']
 
     def __del__(self):
         self._connection.commit()
@@ -36,18 +36,19 @@ class Database:
 
     def get_module_id(self, module_name):
         cursor = self._connection.cursor()
-        if module_name != self.coremodule:
-            return cursor.execute('select id from modules where module_name = ' + module_name + ';')[0]
-        else:
-            return '0'
+        return cursor.execute('select id from modules where module_name = ' + module_name + ';')[0]
+
 
     def select(self, columns, from_table, query_tail=';'):
         if isinstance(columns, (list, tuple)):
-            columns = '(' + ', '.join(columns) + ')'
+            # SQL fucking sucks since this vvv seems to be wrong syntax
+            #columns = '(' + ', '.join(columns) + ')'
+            columns = ', '.join(columns)
         if not query_tail.endswith(';'):
             query_tail += ';'
         cursor = self._connection.cursor()
         query = 'select ' + columns + ' from ' + from_table + ' ' + query_tail
+        print(query)
         cursor.execute(query)
         return cursor
 
