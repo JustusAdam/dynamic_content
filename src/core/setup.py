@@ -1,7 +1,7 @@
 from core.base_handlers import PageHandler
 from .database import DatabaseError, Database
 from . import module_operations
-from coremodules.aphrodite import ContainerElement, Stylesheet, List, TableElement, FormElement, Input
+from coremodules.aphrodite import ContainerElement, Stylesheet, List, TableElement, FormElement, Input, LinkElement
 from tools.config_tools import read_config
 
 
@@ -129,7 +129,8 @@ class SetupHandler(PageHandler):
             'scripts': '',
             'header': '',
             'footer': str(ContainerElement('Python CMS 2014', element_id='')),
-            'pagetitle': 'Setting up your CMS installation'
+            'pagetitle': 'Setting up your CMS installation',
+            'meta': str(LinkElement('/public/favicon.png', 'shortcut icon'))
         }
         replacement_pattern = setup_pages[self._url.page_id]
 

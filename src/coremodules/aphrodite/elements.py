@@ -86,6 +86,9 @@ class BaseElement:
     def __add__(self, other):
         return str(self) + str(other)
 
+    def __str__(self):
+        return '<' + ' '.join([self.html_type] + self.render_customs() + self.render_additionals()) + '>'
+
 
 class BaseClassIdElement(BaseElement):
     """
@@ -142,6 +145,14 @@ class ContainerElement(BaseClassIdElement):
 
     def __str__(self):
         return '<' + self.render_head() + '>' + self.render_content() + '</' + self.html_type + '>'
+
+
+class LinkElement(BaseElement):
+    def __init__(self, href, rel, additionals={}):
+        super().__init__('link', additionals)
+        self._customs['rel'] = rel
+        self._customs['href'] = href
+
 
 
 class Stylesheet(BaseElement):

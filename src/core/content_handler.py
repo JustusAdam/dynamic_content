@@ -9,16 +9,18 @@ class FieldBasedContentHandler(ContentHandler):
         super().__init__(page, db, modules)
         self.fields = []
         self.field_contents = []
+        self.page_title = ''
+        self.content_type = ''
 
-    def get_content_type(self):
-        db_result = self.db.select('content_type', self._page.url.page_type, 'where id = ' + self._page.url.page_id).fetchone()
-        if not db_result:
-            return None
-        else:
-            return db_result[0]
+    def get_page_information(self):
+        db_result = self.db.select(('content_type', 'title'), self._page.url.page_type, 'where id = ' + self._page.url.page_id).fetchone()
+        if db_result:
+            (self.content_type, self.page_title) = db_result
+            return True
+        return False
 
     def get_fields(self):
-        db_result = self.db.select(('field_name', 'handler_module', 'weight'), 'page_fields', 'where content_type = ' + self.get_content_type())
+        db_result = self.db.select(('field_name', 'handler_module', 'weight'), 'page_fields', 'where content_type = ' + self.content_type)
         if not db_result:
             return False
         acc = list(db_result).sort(lambda a: a[2])
@@ -54,6 +56,9 @@ class FieldBasedContentHandler(ContentHandler):
         return True
 
     def compile(self):
+        # executing step by step since any failing will fail all subsequent steps
+        if not self.get_page_information():
+            return 404
         if not self.get_fields():
             return 404
         if not self.handle_fields():
