@@ -9,3 +9,15 @@ Requirements
 ---
 * Mysql Database
 * Python > v 3.4
+
+Roadmap
+---
+* Finish basic features
+    * common elements (menus/blocks)
+    * text content
+    * authentication
+    * file access
+    * theme based styling
+    * configuration and editing via web interface
+    * module based handling of editing and content
+* SQLite integration

@@ -66,7 +66,6 @@ class ContentHandler:
         else:
             return None
 
-
     def compile(self):
         self._is_compiled = True
         return True
