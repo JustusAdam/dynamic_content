@@ -30,13 +30,16 @@ class Url:
 
         self.page_id = None
         self.page_type = None
+        self.page_modifier = None
         if len(self.path) > 0:
             self.page_type = self.path[0]
             self.page_id = 0
         if len(self.path) > 1:
             if self.path[1].isdigit():
                 self.page_id = int(self.path[1])
-        if len(self.path) > 2:
+            elif self.path[1].isalpha():
+                self.page_modifier = self.path[1]
+        if len(self.path) > 2 and not self.page_modifier:
             self.page_modifier = self.path[2]
 
 
