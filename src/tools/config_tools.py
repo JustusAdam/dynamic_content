@@ -10,6 +10,10 @@ def read_config(path, file_type='json'):
 
 
 def write_config(config, path, file_type='json'):
+    if path.endswith('.' + file_type):
+        endign = ''
+    else:
+        ending = '.' + file_type
     import json
-    with open(path + '.' + file_type, mode='w') as file:
+    with open(path + endign, mode='w') as file:
         json.dump(config, file, indent=4)

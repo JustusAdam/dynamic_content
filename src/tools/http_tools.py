@@ -154,7 +154,10 @@ class UrlLocation:
         self._location = value
 
     def __str__(self):
-        return '#' + self.location
+        if self._location:
+            return '#' + self.location
+        else:
+            return ''
 
     def __bool__(self):
         return bool(self.location)
@@ -174,10 +177,13 @@ class UrlQuery:
         elif isinstance(value, dict):
             self._query = value
         elif isinstance(value, str):
-            self._query = dict(tuple(b.split('=') for b in value.split('?')))
+            self._query = dict(tuple(b.split('=') for b in value.split('&')))
 
     def __str__(self):
-        return '?' + '?'.join(tuple(a + '=' + self.query[a] for a in self.query.keys()))
+        if self._query:
+            return '&'.join(tuple(a + '=' + self.query[a] for a in self.query.keys()))
+        else:
+            return ''
 
     def __getitem__(self, item):
         return self.query[item]
@@ -193,3 +199,6 @@ class UrlQuery:
 
     def __bool__(self):
         return bool(self.query)
+
+    def keys(self):
+        return self._query.keys()

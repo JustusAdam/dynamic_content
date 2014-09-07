@@ -27,6 +27,7 @@ class PageHandler:
             return ''
 
     def compile(self):
+        self._has_document = True
         return self.response
 
     def process_post(self, post_request):

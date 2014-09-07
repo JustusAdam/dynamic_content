@@ -84,16 +84,17 @@ class BasicPageHandler(PageHandler):
     def get_theme_handler(self):
         return self.modules['aphrodite'].theme_handler
 
-
     def compile(self):
         content_handler = self.get_content_handler()(self._url, self.db, self.modules)
-        if not content_handler.compile():
-            self.response = 404
-            return 404
+        response = content_handler.compile()
+        if response != 200:
+            self.response = response
+            return response
         page = content_handler.page
         theme_handler = self.get_theme_handler()(page)
         if not theme_handler.compile():
-            self.response = 404
-            return 404
+            self.response = response
+            return response
         self._document = theme_handler.document
+        self._has_document = True
         return self.response

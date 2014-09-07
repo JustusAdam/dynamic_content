@@ -44,7 +44,6 @@ class Database:
     def get_my_folder(self):
         return str(Path(__file__).parent)
 
-
     def select(self, columns, from_table, query_tail=';'):
         if isinstance(columns, (list, tuple)):
             # SQL fucking sucks since this vvv seems to be wrong syntax
@@ -91,7 +90,7 @@ class Database:
                 else:
                     return '(' + ', '.join(a) + ')'
             else:
-                return a
+                return '(' + a + ')'
 
         into_cols = unwrap_values(into_cols)
         values = unwrap_values(values)

@@ -42,13 +42,14 @@ class EditBaseFieldHandler(BaseFieldHandler):
         return Input(value=self.get_content(), name=self.field_name)
 
     def get_post_query_keys(self):
-        return tuple(self.field_name)
+        return [self.field_name]
 
     def get_get_query_keys(self):
         return []
 
     def process_post(self, query):
-        pass
+        if self.field_name in query.keys():
+            self.db.replace(self.field_name, ('content', 'page_id'), (query[self.field_name], self.page_id))
 
     def process_get(self, query):
         pass

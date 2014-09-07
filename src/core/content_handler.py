@@ -38,12 +38,17 @@ class FieldBasedContentHandler(ContentHandler):
         return True
 
     def handle_queries(self):
+        success = True
         if self._url.post_query:
             for field_handler in self.field_handlers:
-                self.handle_single_field_post(field_handler)
+                success = success and self.handle_single_field_post(field_handler)
         if self._url.get_query:
             for field_handler in self.field_handlers:
-                self.handle_single_field_get(field_handler)
+                success = success and self.handle_single_field_get(field_handler)
+        if success and 'destination' in self._url.get_query:
+            return 301
+        else:
+            return 200
 
     def handle_single_field_post(self, field_handler):
         query_keys = field_handler.get_post_query_keys()
@@ -66,13 +71,13 @@ class FieldBasedContentHandler(ContentHandler):
                 field_handler.process_get(UrlQuery(vals))
 
     def get_fields(self):
-        if not self.get_field_info():
+        if not self.field_info:
             return False
         for name in self.field_info:
             self.field_handlers.append(self.get_field_handler(name[0], name[1]))
+        return True
 
     def handle_fields(self):
-        self.handle_queries()
         for field in self.field_handlers:
             if not field.compile():
                 return False
@@ -111,12 +116,18 @@ class FieldBasedContentHandler(ContentHandler):
             self._page.used_theme = self.theme
         if not self.get_field_info():
             return 404
+        if not self.get_fields():
+            return 404
+        response = self.handle_queries()
+        if response != 200:
+            return response
         if not self.handle_fields():
             return 404
         if not self.assign_content():
             return 404
         self._is_compiled = True
-        return True
+        return 200
+
 
 class EditFieldBasedContentHandler(FieldBasedContentHandler):
     def get_field_handler(self, name, module):
@@ -127,4 +138,8 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
         for field in self.field_values:
             content.append((field.title, field.content))
         table = TableElement(*content)
-        return str(FormElement(table, action=str(self._url)))
+        if 'destination' in self._url.get_query:
+            dest = '?destination=' + self._url.get_query['destination']
+        else:
+            dest = ''
+        return str(FormElement(table, action=str(self._url.path) + dest))
