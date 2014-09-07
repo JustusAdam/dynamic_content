@@ -80,11 +80,12 @@ footer {
 }
 #wrapper-footer {
 }
-#pagetitle {
+#pagetitle, #pagetitle a {
 	float: left;
 	color: white;
     font-size: 25px;
     text-shadow: 1px 1px 5px #666;
+    text-decoration: none;
 }
 #pagelogo {
 	float: left;

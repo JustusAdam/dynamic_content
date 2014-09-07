@@ -16,7 +16,7 @@ class generalIrisTesting(unittest.TestCase):
         #     'table_name': 'body',
         #     'columns': [
         #         'id int unsigned not null auto_increment unique primary key',
-        #         'page_id int unsigned unique',
+        #         'page_id int unsigned not null unique',
         #         'content text'
         #     ]
         # }

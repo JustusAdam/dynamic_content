@@ -1,9 +1,63 @@
 {
+    "insert": [
+        {
+            "values": [
+                "1",
+                "iris",
+                "<div><h3>Welcome to your python_cms installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you'll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div>"
+            ],
+            "into_cols": [
+                "page_id",
+                "path_prefix",
+                "content"
+            ],
+            "into_table": "body"
+        },
+        {
+            "values": [
+                "body",
+                "start_type",
+                "iris",
+                "1"
+            ],
+            "into_cols": [
+                "field_name",
+                "content_type",
+                "handler_module",
+                "weight"
+            ],
+            "into_table": "page_fields"
+        },
+        {
+            "values": [
+                "start_type",
+                "Welcome to python_cms",
+                "1",
+                "1"
+            ],
+            "into_cols": [
+                "content_type",
+                "page_title",
+                "creator",
+                "published"
+            ],
+            "into_table": "iris"
+        },
+        {
+            "values": [
+                "start_type",
+                "iris"
+            ],
+            "into_cols": [
+                "content_type_name",
+                "content_handler"
+            ],
+            "into_table": "content_types"
+        }
+    ],
     "name": "iris",
-    "role": "page_handler",
     "required_tables": [
         {
-            "table_name": "iris",
             "columns": [
                 "id int unsigned not null auto_increment unique primary key",
                 "content_type varchar(500) not null",
@@ -12,7 +66,20 @@
                 "creator int unsigned not null",
                 "date_created timestamp default current_timestamp",
                 "date_changed timestamp default current_timestamp on update current_timestamp"
-            ]
+            ],
+            "table_name": "iris"
+        },
+        {
+            "columns": [
+                "id int unsigned not null auto_increment unique primary key",
+                "page_id int unsigned not null",
+                "path_prefix varchar(100) not null",
+                "content longtext",
+                "date_created timestamp default current_timestamp",
+                "date_changed timestamp default current_timestamp on update current_timestamp"
+            ],
+            "table_name": "body"
         }
-    ]
+    ],
+    "role": "page_handler"
 }
