@@ -44,13 +44,16 @@ class FileHandler(PageHandler):
                     content_types = {
                         '.css': 'text/css',
                         '.mp3': 'audio/mp3',
-                        '.ogg': 'audio/ogg'
+                        '.ogg': 'audio/ogg',
+                        '.png': 'img/png'
                     }
                     suffix = filepath.suffix
                     if not suffix is None:
                         if suffix == '.ogg':
                             print('yes]]')
                             self.encoding = 'ogg/vorbis'
+                        if suffix == '.png':
+                            self.encoding = 'png'
                         if suffix in content_types:
                             self.content_type = content_types[suffix]
                     self._document = filepath.open('rb').read()
@@ -79,14 +82,11 @@ class BasicPageHandler(PageHandler):
         return handler
 
     def get_theme_handler(self):
-        return self.modules[self.get_theme_name()].theme_handler
+        return self.modules['aphrodite'].theme_handler
 
-    def get_theme_name(self):
-        return 'aphrodite'
 
     def compile(self):
-        page = Page(self._url)
-        content_handler = self.get_content_handler()(page, self.db, self.modules)
+        content_handler = self.get_content_handler()(self._url, self.db, self.modules)
         if not content_handler.compile():
             self.response = 404
             return 404

@@ -1,4 +1,5 @@
 from core.base_handlers import FieldHandler
+from core.database import escape
 from core.page import Component
 
 __author__ = 'justusadam'
@@ -21,4 +22,8 @@ class BaseFieldHandler(FieldHandler):
         return True
 
     def get_content(self):
-        return self.db.select('content' ,self.field_name, 'where page_id=' + self.page_id).fetchone()
+        db_result = self.db.select('content' ,self.field_name, 'where page_id=' + escape(self.page_id)).fetchone()
+        if db_result:
+            return db_result[0]
+        else:
+            return ''

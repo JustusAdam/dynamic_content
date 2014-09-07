@@ -1,4 +1,6 @@
 {
     "template_directory": "template",
-    "stylesheet_directory": "css"
+    "stylesheet_directory": "css",
+    "stylesheets": ["style.css"],
+    "show_powered_by": true
 }

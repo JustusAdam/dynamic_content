@@ -63,8 +63,8 @@ def register_content_handler(module_conf, db):
     else:
         path_prefix = module_conf['name']
     try:
-        db.replace('content_handlers', ['handler_module', 'handler_name', 'path_prefix'],
-                       [get_module_id(module_conf['name'], db), module_conf['name'], path_prefix])
+        db.replace('content_handlers', ('handler_module', 'handler_name', 'path_prefix'),
+                   (module_conf['name'], module_conf['name'], path_prefix))
     except DatabaseError:
         print('Failed to register page handler ' + module_conf['name'])
 
@@ -80,12 +80,14 @@ def create_required_tables(tables, db):
     def create_table(t):
         try:
             db.create_table(**t)
-        except DatabaseError:
+        except DatabaseError as err:
             for column in t['columns']:
+                print(err)
                 # RFE it would be nice to check beforehand instead of catching errors
                 try:
                     db.alter_table(t['table_name'], add=column)
-                except DatabaseError:
+                except DatabaseError as error:
+                    print(error)
                     # TODO this might be dangerous, check if this breaks things (badly)
                     db.alter_table(t['table_name'], alter={column.split(' ', 1)[0]: column})
 
@@ -178,7 +180,6 @@ def check_info(info):
 
 
 def load_active_modules(db):
-    print('hello')
     db_result = db.select(('module_name', 'module_path'), 'modules', 'where enabled=' + escape(1))
     item = db_result.fetchone()
     modules = {}
@@ -186,4 +187,5 @@ def load_active_modules(db):
         print('loading module ' + item[0])
         modules[item[0]] = import_module(item[1].replace('/', '.'))
         item = db_result.fetchone()
-    return Modules(modules)
+    a = Modules(modules)
+    return a

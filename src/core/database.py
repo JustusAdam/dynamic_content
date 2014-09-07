@@ -1,3 +1,5 @@
+from pathlib import Path
+
 __author__ = 'justusadam'
 
 from pymysql import DatabaseError, connect
@@ -9,7 +11,7 @@ from includes import bootstrap
 
 class Database:
     def __init__(self):
-        config = read_config('config')
+        config = read_config(str(self.get_my_folder()) + '/../config')
         self._connection = connect(**config['database_connection_arguments'])
 
     def __del__(self):
@@ -32,11 +34,15 @@ class Database:
         #     self.replace('created_tables', ('created_table', 'source_module_id', 'source_module_name'),
         #                 (table_name, module_id, module_name))
         cursor.execute('create table ' + ' '.join([table_name, columns]) + ';')
+        print('created table ' + table_name)
         cursor.close()
 
     def get_module_id(self, module_name):
         cursor = self._connection.cursor()
         return cursor.execute('select id from modules where module_name = ' + module_name + ';')[0]
+
+    def get_my_folder(self):
+        return str(Path(__file__).parent)
 
 
     def select(self, columns, from_table, query_tail=';'):

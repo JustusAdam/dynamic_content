@@ -51,8 +51,9 @@ class FieldHandler:
 
 
 class ContentHandler:
-    def __init__(self, page, db, modules):
-        self._page = page
+    def __init__(self, url, db, modules):
+        self._page = None
+        self._url = url
         self._is_compiled = False
         self.db = db
         self.modules = modules

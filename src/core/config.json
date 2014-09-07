@@ -7,7 +7,7 @@
             "table_name": "content_handlers",
             "columns": [
                 "id int unsigned not null auto_increment unique primary key comment 'primary key used for identification'",
-                "handler_module int not null comment 'identifier for the module providing the handler'",
+                "handler_module varchar(500) not null comment 'identifier for the module providing the handler'",
                 "handler_name varchar(500) comment 'human readable name of the page handler'",
                 "path_prefix varchar(500) not null unique comment 'path prefix identifying this page handler' "
             ]
@@ -27,7 +27,8 @@
             "columns": [
                 "id int unsigned not null auto_increment unique primary key comment 'primary key used for identification'",
                 "content_type_name varchar(500) not null unique comment 'name of the content type'",
-                "page_handler int not null comment 'id of the associated page handler type'",
+                "content_handler varchar(500) not null comment 'name of the associated content handler type'",
+                "theme varchar(100) not null default 'active'",
                 "description text comment 'human readable content type description'"
             ]
         },
@@ -35,18 +36,11 @@
             "table_name": "page_fields",
             "columns": [
                 "id int unsigned not null auto_increment unique primary key comment 'primary id for machine convenience'",
-                "field_name varchar(500) not null",
-                "content_type int not null comment 'id of associated content type'",
-                "handler_module int not null",
+                "field_name varchar(500) not null unique",
+                "content_type varchar(500) not null comment 'name of associated content type'",
+                "handler_module varchar(500) not null",
+                "weight int not null",
                 "description text comment 'human readable field type description'"
-            ]
-        },
-        {
-            "table_name": "page_fields_instances",
-            "columns": [
-                "id int unsigned not null auto_increment unique primary key comment 'primary id used to identify fields'",
-                "field_type int not null comment 'id of associated field type'",
-                "field_contents longtext not null comment 'contents of the field'"
             ]
         },
         {
@@ -56,23 +50,6 @@
                 "source_id int not null comment 'page id of the source page'",
                 "alias varchar(500) not null unique comment 'page alias'"
             ]
-        }
-    ],
-    "insert": [
-        {
-            "into_cols": [
-                "id",
-                "module_name",
-                "module_path",
-                "module_role"
-            ],
-            "values": [
-                "1",
-                "core",
-                "core",
-                "core"
-            ],
-            "into_table": "modules"
         }
     ]
 }

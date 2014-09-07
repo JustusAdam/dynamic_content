@@ -31,6 +31,10 @@ class Url:
         self.page_id = None
         self.page_type = None
         self.page_modifier = None
+        self.parse_path()
+
+
+    def parse_path(self):
         if len(self.path) > 0:
             self.page_type = self.path[0]
             self.page_id = 0
@@ -42,7 +46,6 @@ class Url:
         if len(self.path) > 2 and not self.page_modifier:
             self.page_modifier = self.path[2]
 
-
     @property
     def path(self):
         return self._path
@@ -53,6 +56,7 @@ class Url:
             self._path = value
         else:
             self._path = UrlPath(value)
+            self.parse_path()
 
     @property
     def location(self):

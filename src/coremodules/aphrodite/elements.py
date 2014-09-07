@@ -51,7 +51,7 @@ class ClassContainer:
 
 class BaseElement:
 
-    def __init__(self, html_type, additionals):
+    def __init__(self, html_type, additionals={}):
         self.html_type = html_type
         if isinstance(additionals, str):
             additionals = [additionals]
@@ -122,6 +122,9 @@ class BaseClassIdElement(BaseElement):
             frame += self.render_customs()
         return ' '.join(frame)
 
+    def __str__(self):
+        return '<' + self.render_head() + '>'
+
 
 class ContainerElement(BaseClassIdElement):
 
@@ -154,7 +157,6 @@ class LinkElement(BaseElement):
         self._customs['href'] = href
 
 
-
 class Stylesheet(BaseElement):
 
     def __init__(self, href, media='all', typedec='text/css', rel='stylesheet', additionals={}):
@@ -173,6 +175,13 @@ class Stylesheet(BaseElement):
             'href="' + self.href + '"'
         ]
         return '<' + ' '.join(elements + self.render_additionals() + self.render_customs()) + '>'
+
+
+class Script(BaseElement):
+    def __init__(self, src, prop_type='text/javascript', additionals=[]):
+        super().__init__('script', additionals)
+        self._customs['type'] = prop_type
+        self._customs['src'] = src
 
 
 class List(ContainerElement):

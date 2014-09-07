@@ -10,4 +10,4 @@ role = 'core'
 
 
 def load_modules(db):
-    load_active_modules(db)
+    return load_active_modules(db)

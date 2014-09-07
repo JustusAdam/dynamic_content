@@ -8,3 +8,7 @@ class Modules:
 
     def __getitem__(self, item):
         return self._modules[item]
+
+
+    def __str__(self):
+        return str(self._modules)

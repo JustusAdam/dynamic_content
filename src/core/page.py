@@ -11,7 +11,9 @@ class Component:
 
 
 class Page(Component):
-    def __init__(self, url, title='', content='', stylesheets=set(), metatags=set(), scripts=set()):
+    def __init__(self, url, title='', content='', stylesheets=set(), metatags=set(), scripts=set(), show_title=True):
         super().__init__(content, stylesheets, metatags, scripts)
         self._url = url
         self.title = title
+        self.show_title = show_title
+        self.used_theme = 'active'
