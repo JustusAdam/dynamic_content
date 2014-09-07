@@ -29,6 +29,9 @@ class PageHandler:
     def compile(self):
         return self.response
 
+    def process_post(self, post_request):
+        return 200
+
 
 class FieldHandler:
     def __init__(self, db):

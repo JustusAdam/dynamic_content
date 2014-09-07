@@ -20,7 +20,6 @@ def main():
         db = Database()
         core.register_installed_modules(db)
         modules = core.load_modules(db)
-        print(modules)
         request_handler.hello = modules
     except DatabaseError as error:
         print('Failed to register installed modules, continuing.')

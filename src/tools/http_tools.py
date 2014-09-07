@@ -26,7 +26,7 @@ class Url:
         self._path = UrlPath(path)
         self._location = UrlLocation(location)
         self._get_query = UrlQuery(query)
-        self._post_query = UrlQuery(post_query)
+        self.post_query = post_query
 
         self.page_id = None
         self.page_type = None
@@ -80,8 +80,19 @@ class Url:
         else:
             self._get_query = UrlQuery(value)
 
+    @property
+    def post_query(self):
+        return self._post_query
+
+    @post_query.setter
+    def post_query(self, value):
+        if isinstance(value, UrlQuery):
+            self._post_query = value
+        else:
+            self._post_query = UrlQuery(value)
+
     def __str__(self):
-        return str(self._path) + str(self._location) + self._get_query
+        return str(self._path) + str(self._location) + str(self._get_query)
 
     def __bool__(self):
         return bool(self._path)
@@ -159,7 +170,7 @@ class UrlQuery:
     @query.setter
     def query(self, value):
         if not value:
-            self._query = None
+            self._query = {}
         elif isinstance(value, dict):
             self._query = value
         elif isinstance(value, str):

@@ -21,29 +21,23 @@ class RequestHandler(BaseHTTPRequestHandler):
         if not self.check_path():
             return 0
 
-        get_handler_response = self.get_handler()
-        if get_handler_response != 0:
-            self.send_error(get_handler_response, *self.responses[get_handler_response])
+        self._url.post_query = self.rfile.read(int(self.headers['Content-Length'])).decode()
+
+        handler_response = self.get_handler()
+        if handler_response != 0:
+            self.send_error(handler_response, *self.responses[handler_response])
             return 0
 
-        post_request = self.rfile.read(int(self.headers['Content-Length'])).decode()
-
-        if self.page_handler.process_post(post_request):
-            self.send_response(302, *self.responses[302])
-            self.send_header("Location", self.get_post_target())
-            self.end_headers()
-        else:
-            self.send_document()
+        self.send_document()
         return 0
 
     def do_GET(self):
-        print(hello)
         if not self.check_path():
             return 0
 
-        get_handler_response = self.get_handler()
-        if get_handler_response != 0:
-            self.send_error(get_handler_response, *self.responses[get_handler_response])
+        handler_response = self.get_handler()
+        if handler_response != 0:
+            self.send_error(handler_response, *self.responses[handler_response])
             return 0
 
         self.send_document()

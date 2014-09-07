@@ -1,6 +1,8 @@
 from core.base_handlers import ContentHandler
 from core.database import escape
 from core.page import Page
+from coremodules.aphrodite import FormElement, TableElement
+from tools.http_tools import UrlQuery
 
 __author__ = 'justusadam'
 
@@ -9,11 +11,13 @@ class FieldBasedContentHandler(ContentHandler):
 
     def __init__(self, url, db, modules):
         super().__init__(url, db, modules)
-        self.fields = []
-        self.field_contents = []
+        self.field_info = []
+        self.field_values = []
         self.page_title = ''
         self.content_type = ''
         self.theme = ''
+        self.field_handlers = []
+
 
     def get_page_information(self):
         db_result = self.db.select(('content_type', 'page_title'), self._url.page_type, 'where id = ' + escape(self._url.page_id)).fetchone()
@@ -25,27 +29,60 @@ class FieldBasedContentHandler(ContentHandler):
             self.theme = db_result[0]
         return True
 
-
-    def get_fields(self):
+    def get_field_info(self):
         db_result = self.db.select(('field_name', 'handler_module', 'weight'), 'page_fields', 'where content_type = ' + escape(self.content_type)).fetchall()
         if db_result is None:
             return False
         acc = sorted(db_result, key=lambda a: a[2])
-        self.fields = acc
+        self.field_info = acc
         return True
 
+    def handle_queries(self):
+        if self._url.post_query:
+            for field_handler in self.field_handlers:
+                self.handle_single_field_post(field_handler)
+        if self._url.get_query:
+            for field_handler in self.field_handlers:
+                self.handle_single_field_get(field_handler)
+
+    def handle_single_field_post(self, field_handler):
+        query_keys = field_handler.get_post_query_keys()
+        if query_keys:
+            vals = {}
+            for key in query_keys:
+                if key in self._url.post_query.keys():
+                    vals[key] = self._url.post_query[key]
+            if vals:
+                field_handler.process_post(UrlQuery(vals))
+
+    def handle_single_field_get(self, field_handler):
+        query_keys = field_handler.get_post_query_keys()
+        if query_keys:
+            vals = {}
+            for key in query_keys:
+                if key in self._url.get_query.keys():
+                    vals[key] = self._url.post_query[key]
+            if vals:
+                field_handler.process_get(UrlQuery(vals))
+
+    def get_fields(self):
+        if not self.get_field_info():
+            return False
+        for name in self.field_info:
+            self.field_handlers.append(self.get_field_handler(name[0], name[1]))
+
     def handle_fields(self):
-        if not self.fields:
-            if not self.get_fields():
+        self.handle_queries()
+        for field in self.field_handlers:
+            if not field.compile():
                 return False
-        for name in self.fields:
-            field_handler = self.modules[name[1]].field_handler(name[0], self.db, self._url.page_id)
-            if not field_handler.compile():
-                return False
-            field = field_handler.field
-            self.field_contents.append(field.content)
-            self.integrate(field)
+            field_value = field.field
+            self.field_values.append(field_value)
+            self.integrate(field_value)
         return True
+
+    def get_field_handler(self, name, module):
+        return self.modules[module].field_handler(name, self.db, self._url.page_id)
 
     def integrate(self, component):
         for stylesheet in component.stylesheets:
@@ -57,9 +94,12 @@ class FieldBasedContentHandler(ContentHandler):
 
     def concatenate_content(self):
         content = ''
-        for field in self.field_contents:
-            content += str(field)
-        self._page.content = content
+        for field in self.field_values:
+            content += str(field.content)
+        return content
+
+    def assign_content(self):
+        self._page.content = self.concatenate_content()
         return True
 
     def compile(self):
@@ -69,11 +109,22 @@ class FieldBasedContentHandler(ContentHandler):
         self._page = Page(self._url, self.page_title)
         if self.theme:
             self._page.used_theme = self.theme
-        if not self.get_fields():
+        if not self.get_field_info():
             return 404
         if not self.handle_fields():
             return 404
-        if not self.concatenate_content():
+        if not self.assign_content():
             return 404
         self._is_compiled = True
         return True
+
+class EditFieldBasedContentHandler(FieldBasedContentHandler):
+    def get_field_handler(self, name, module):
+        return self.modules[module].edit_field_handler(name, self.db, self._url.page_id)
+
+    def concatenate_content(self):
+        content = []
+        for field in self.field_values:
+            content.append((field.title, field.content))
+        table = TableElement(*content)
+        return str(FormElement(table, action=str(self._url)))
