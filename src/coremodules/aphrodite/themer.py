@@ -1,6 +1,6 @@
 from pathlib import Path
 from tools.config_tools import read_config
-from .elements import ContainerElement, Stylesheet, Script
+from .elements import ContainerElement, Stylesheet, Script, LinkElement
 
 __author__ = 'justusadam'
 
@@ -10,11 +10,13 @@ class ThemeHandler:
     def __init__(self, page):
         self.page = page
         self.module_config = read_config(self.get_my_folder() + '/config.json')
+        self.used_theme = self.get_used_theme()
         self.theme_path = self.get_theme_path()
         self.theme_config = read_config(self.theme_path + '/config.json')
         self._is_compiled = False
         self._document = None
         self._pattern = {}
+
 
     @property
     def document(self):
@@ -25,18 +27,22 @@ class ThemeHandler:
         else:
             return None
 
-    def get_theme_path(self):
+    def get_used_theme(self):
         if self.page.used_theme == 'active':
-            return 'themes/' + self.module_config['active_theme']
+            return self.module_config['active_theme']
         elif self.page.used_theme == 'default':
-            return 'themes/' + self.module_config['default_theme']
+            return self.module_config['default_theme']
         else:
-            return 'themes/' + self.page.used_theme
+            return self.page.used_theme
+
+    def get_theme_path(self):
+        return 'themes/' + self.used_theme
+
 
     def get_my_folder(self):
         return str(Path(__file__).parent)
 
-    def process_stylesheets(self):
+    def compile_stylesheets(self):
         s = list(str(a) for a in self.page.stylesheets)
         if 'stylesheets' in self.theme_config:
 
@@ -44,14 +50,14 @@ class ThemeHandler:
         self._pattern['stylesheets'] = ''.join(s)
         return True
 
-    def process_scripts(self):
+    def compile_scripts(self):
         s = list(str(a) for a in self.page.scripts)
         if 'scripts' in self.theme_config:
             s += list(str(Script(self.module_config['active_theme_path'] + '/' + self.theme_config['script_directory'] + '/' + a)) for a in self.theme_config['scripts'])
         self._pattern['scripts'] = ''.join(s)
         return True
 
-    def process_footer(self):
+    def compile_footer(self):
         self._pattern['footer'] = str(ContainerElement('Python CMS 2014', element_id='powered_by'))
         return True
 
@@ -63,15 +69,22 @@ class ThemeHandler:
             path += '/' + 'templates'
         return path + '/'
 
+    def compile_meta(self):
+        if 'favicon' in self.theme_config:
+            favicon = self.theme_config['favicon']
+        else:
+            favicon = 'favicon.icon'
+        self._pattern['meta'] = LinkElement('/theme/'+ self.used_theme + '/' + favicon, rel='shortcut icon')
+
     def compile(self):
-        self.process_scripts()
-        self.process_stylesheets()
-        self._pattern['meta'] = ''
+        self.compile_scripts()
+        self.compile_stylesheets()
+        self.compile_meta()
         self._pattern['header'] = ''
-        self.process_footer()
+        self.compile_footer()
         self._pattern['title'] = self.page.title
         self._pattern['content'] = str(self.page.content)
-        self._pattern['pagetitle'] = 'Test'
+        self._pattern['pagetitle'] = ContainerElement('Test', html_type='a', additionals='href="/"')
 
         template = open(self.get_template_directory() + 'page.html').read()
         self._document = template.format(**self._pattern)
