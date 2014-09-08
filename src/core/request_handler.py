@@ -117,7 +117,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         return 0
 
     def translate_alias(self, alias, db):
-        query_result = db.select('source_id', 'alias', 'where alias = ' + escape(alias)).fetchone()
+        query_result = db.select('source_url', 'alias', 'where alias = ' + escape(alias)).fetchone()
         if query_result is None:
             query_result = alias
         else:

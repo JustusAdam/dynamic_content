@@ -6,8 +6,6 @@ from pymysql import DatabaseError, connect
 
 from tools.config_tools import read_config
 
-from includes import bootstrap
-
 
 class Database:
     def __init__(self):
@@ -22,17 +20,7 @@ class Database:
         if isinstance(columns, (list, tuple)):
             columns = '(' + ', '.join(columns) + ')'
 
-        # module_id = self.get_module_id(module_name)
-        #
         cursor = self._connection.cursor()
-        # try:
-        #     self.replace('created_tables', ('created_table', 'source_module_id', 'source_module_name'),
-        #                 (table_name, module_id, module_name))
-        # except pymysql.DatabaseError:
-        #     config = read_config('includes/bootstrap')
-        #     cursor.execute(config['TRACKER_TABLE_CREATION_QUERY'])
-        #     self.replace('created_tables', ('created_table', 'source_module_id', 'source_module_name'),
-        #                 (table_name, module_id, module_name))
         cursor.execute('create table ' + ' '.join([table_name, columns]) + ';')
         print('created table ' + table_name)
         cursor.close()
@@ -46,14 +34,11 @@ class Database:
 
     def select(self, columns, from_table, query_tail=';'):
         if isinstance(columns, (list, tuple)):
-            # SQL fucking sucks since this vvv seems to be wrong syntax
-            #columns = '(' + ', '.join(columns) + ')'
             columns = ', '.join(columns)
         if not query_tail.endswith(';'):
             query_tail += ';'
         cursor = self._connection.cursor()
         query = 'select ' + columns + ' from ' + from_table + ' ' + query_tail
-        print(query)
         cursor.execute(query)
         return cursor
 

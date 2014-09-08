@@ -16,7 +16,6 @@ class PageHandler:
 
     @property
     def encoded_document(self):
-        print('using encoding ' + self.encoding)
         return self._document.encode(self.encoding)
 
     @property

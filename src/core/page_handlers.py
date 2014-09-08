@@ -50,7 +50,6 @@ class FileHandler(PageHandler):
                     suffix = filepath.suffix
                     if not suffix is None:
                         if suffix == '.ogg':
-                            print('yes]]')
                             self.encoding = 'ogg/vorbis'
                         if suffix == '.png':
                             self.encoding = 'png'

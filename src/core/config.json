@@ -47,7 +47,7 @@
             "table_name": "alias",
             "columns": [
                 "id int unsigned not null auto_increment unique primary key comment 'unique identifier'",
-                "source_id int not null comment 'page id of the source page'",
+                "source_url varchar(500) not null comment 'the source page'",
                 "alias varchar(500) not null unique comment 'page alias'"
             ]
         }
