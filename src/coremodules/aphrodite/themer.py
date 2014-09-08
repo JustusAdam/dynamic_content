@@ -1,6 +1,8 @@
 from pathlib import Path
-from tools.config_tools import read_config
-from .elements import ContainerElement, Stylesheet, Script, LinkElement
+
+from framework.config_tools import read_config
+from framework.html_elements import ContainerElement, Stylesheet, Script, LinkElement
+
 
 __author__ = 'justusadam'
 

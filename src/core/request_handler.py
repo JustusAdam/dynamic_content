@@ -5,8 +5,8 @@ from pathlib import Path
 
 from core.database import DatabaseError, Database, escape
 from .page_handlers import FileHandler, BasicPageHandler
-from tools.http_tools import Url
-from tools.config_tools import read_config
+from framework.url_tools import Url
+from framework.config_tools import read_config
 
 
 __author__ = 'justusadam'

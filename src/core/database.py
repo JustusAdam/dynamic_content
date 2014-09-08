@@ -4,7 +4,7 @@ __author__ = 'justusadam'
 
 from pymysql import DatabaseError, connect
 
-from tools.config_tools import read_config
+from framework.config_tools import read_config
 
 
 class Database:

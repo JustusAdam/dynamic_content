@@ -1,8 +1,8 @@
 from core.base_handlers import ContentHandler
 from core.database import escape
 from core.page import Page
-from coremodules.aphrodite import FormElement, TableElement
-from tools.http_tools import UrlQuery
+from framework.html_elements import FormElement, TableElement
+from framework.url_tools import UrlQuery
 
 __author__ = 'justusadam'
 

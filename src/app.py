@@ -5,7 +5,7 @@ from pathlib import Path
 from pymysql import DatabaseError
 from core.database import Database
 
-from tools.config_tools import read_config
+from framework.config_tools import read_config
 from includes import bootstrap
 import core
 from core import request_handler

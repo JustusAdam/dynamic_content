@@ -1,6 +1,6 @@
 from importlib import import_module
 from pathlib import Path
-from tools.config_tools import read_config
+from framework.config_tools import read_config
 from core.database import escape, DatabaseError
 from includes import bootstrap
 from .modules import Modules
