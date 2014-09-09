@@ -1,5 +1,5 @@
 from core.content_handler import FieldBasedContentHandler, EditFieldBasedContentHandler, AddFieldBasedContentHandler
-from core.field_handler import BaseFieldHandler, EditBaseFieldHandler, AddBaseFieldHandler
+from .field_handler import BaseFieldHandler, EditBaseFieldHandler, AddBaseFieldHandler
 
 __author__ = 'justusadam'
 

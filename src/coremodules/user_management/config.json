@@ -1,5 +1,5 @@
 {
-    "name": "hera",
+    "name": "user_management",
     "role": "user_management",
     "required_tables": [
         {

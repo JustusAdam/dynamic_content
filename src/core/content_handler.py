@@ -119,8 +119,11 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
     def get_field_handler(self, name, module):
         return self.modules[module].edit_field_handler(name, self.db, self._url.page_id)
 
+    def title_input(self):
+        return ['Title', Input(name='title', value=self.page_title)]
+
     def concatenate_content(self):
-        content = [('Title', Input(name='title', value=self.page_title))]
+        content = [self.title_input()]
         for field in self.field_values:
             content.append((field.title, field.content))
         content.append(('Published', Input(input_type='radio', value='1', name='publish')))
@@ -195,6 +198,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
         if not 'ct' in self._url.get_query:
             raise ValueError
         self.content_type = self._url.get_query['ct']
+        self.page_title = 'Add new ' + self._url.page_type + ' page'
 
     def create_page(self):
         self.page_title = self._url.post_query['title']
@@ -209,3 +213,6 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
         self.validate_inputs()
         self.create_page()
         self.process_query()
+
+    def title_input(self):
+        return ['Title', Input(name='title')]

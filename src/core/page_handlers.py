@@ -81,7 +81,7 @@ class BasicPageHandler(PageHandler):
         return handler
 
     def get_theme_handler(self):
-        return self.modules['aphrodite'].theme_handler
+        return self.modules['theme_engine'].theme_handler
 
     def compile(self):
         content_handler = self.get_content_handler()(self._url, self.db, self.modules)

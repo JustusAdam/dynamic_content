@@ -213,7 +213,7 @@ class SetupHandler(PageHandler):
                             'You may delete all existing tables that should be created by clicking reset',
                             html_type='p'),
                 ContainerElement('Reset', html_type='a', classes='button',
-                                 additionals=['href="/setup/{this}?reset=True"']))),
+                                 additionals=['href="{this}?reset=True"']))),
                 'target': '/setup',
                 'link': 'Restart'
             }

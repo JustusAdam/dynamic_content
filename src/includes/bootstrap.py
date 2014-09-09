@@ -2,11 +2,11 @@ __author__ = 'justusadam'
 
 
 DEFAULT_MODULES = [
-    'zeus',
-    'aphrodite',
+    'admin_pages',
+    'theme_engine',
     'iris',
-    'dionysus',
-    'hera'
+    'commons_engine',
+    'user_management'
 ]
 TRACKER_TABLE_CREATION_QUERY = 'create table created_tables (id int unsigned not null auto_increment unique primary key, created_table varchar(500) not null unique, source_module_name varchar(500) not null, source_module_id int unsigned not null);'
 FILE_DIRECTORIES = {
