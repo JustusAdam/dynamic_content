@@ -1,5 +1,5 @@
 from core.content_handler import FieldBasedContentHandler, EditFieldBasedContentHandler, AddFieldBasedContentHandler
-from core.field_handler import BaseFieldHandler, EditBaseFieldHandler
+from core.field_handler import BaseFieldHandler, EditBaseFieldHandler, AddBaseFieldHandler
 
 __author__ = 'justusadam'
 
@@ -20,5 +20,8 @@ def field_handler(field_name, db, page_id):
     return BaseFieldHandler(db, page_id, field_name)
 
 
-def edit_field_handler(field_name, db, page_id, modifier):
-    return EditBaseFieldHandler(db, page_id, field_name, modifier)
+def edit_field_handler(field_name, db, page_id):
+    return EditBaseFieldHandler(db, page_id, field_name)
+
+def add_field_handler(field_name, db, page_id):
+    return AddBaseFieldHandler(field_name, db, page_id)

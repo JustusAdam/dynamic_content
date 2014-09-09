@@ -20,6 +20,7 @@ def join_path(path, location, query):
         query = '?' + query
     return path + location + query
 
+
 class Url:
     def __init__(self, url, post_query=None):
         (path, location, query) = split_path(url)
@@ -32,7 +33,6 @@ class Url:
         self.page_type = None
         self.page_modifier = None
         self.parse_path()
-
 
     def parse_path(self):
         if len(self.path) > 0:
@@ -181,7 +181,7 @@ class UrlQuery:
 
     def __str__(self):
         if self._query:
-            return '&'.join(tuple(a + '=' + self.query[a] for a in self.query.keys()))
+            return '?' + '&'.join(tuple(a + '=' + self.query[a] for a in self.query.keys()))
         else:
             return ''
 

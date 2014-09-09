@@ -21,13 +21,6 @@ class AutoIncrTest(unittest.TestCase):
         except DatabaseError:
             pass
 
-
-    def test(self):
-        id_value = self.db.retr_auto_incr_val('testtable')
-        self.db.insert('testtable', 'title', 'testtitle')
-        db_result = self.db.select('id', 'testtable', 'where title=' + escape('testtitle')).fetchone()[0]
-        self.assertEqual(id_value, db_result)
-
     def tearDown(self):
         del self.db
 

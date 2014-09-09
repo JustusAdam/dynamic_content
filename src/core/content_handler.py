@@ -114,27 +114,24 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
     def __init__(self, url, db, modules):
         super().__init__(url, db, modules)
         self.user = '1'
+        self._is_post = bool(self._url.post_query)
 
     def get_field_handler(self, name, module):
-        return self.modules[module].edit_field_handler(name, self.db, self._url.page_id )
+        return self.modules[module].edit_field_handler(name, self.db, self._url.page_id)
 
     def concatenate_content(self):
         content = [('Title', Input(name='title', value=self.page_title))]
         for field in self.field_values:
             content.append((field.title, field.content))
+        content.append(('Published', Input(input_type='radio', value='1', name='publish')))
         table = TableElement(*content)
         if 'destination' in self._url.get_query:
             dest = '?destination=' + self._url.get_query['destination']
         else:
             dest = ''
-        return str(FormElement(table, action=str(self._url.path) + dest))
+        return str(FormElement(table, action=str(self._url) + dest))
 
     def handle_fields(self):
-        if self._url.post_query:
-            self.assign_inputs()
-            self.validate_inputs()
-            if self.process_query():
-                return 301
         for field in self.field_handlers:
             field_value = field.field
             self.field_values.append(field_value)
@@ -144,7 +141,6 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
     def process_query(self):
         for field in self.field_handlers:
             field.process_post()
-        return True
 
     def validate_inputs(self):
         for field in self.field_handlers:
@@ -165,25 +161,51 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
             self._page.used_theme = self.theme
         self.get_field_info()
         self.get_fields()
+        if self._is_post:
+            self.process_post()
         self.handle_fields()
         self.assign_content()
         self._is_compiled = True
         return 200
 
+    def process_post(self):
+        self.assign_inputs()
+        self.validate_inputs()
+        self.alter_page()
+        self.process_query()
+
+    def alter_page(self):
+        if not 'title' in self._url.post_query.keys():
+            raise ValueError
+        if self._url.post_query['title'] != self.page_title:
+            self.page_title = self._url.post_query['title']
+        if 'publish' in self._url.post_query.keys():
+            published = '1'
+        else:
+            published = '0'
+        self.db.update(self._url.page_type, {'page_title': self.page_title, 'published': published})
+
+
 
 class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
 
-    def handle_fields(self):
+    def get_page_information(self):
+        new_id = self.db.largest_id(self._url.page_type) + 1
+        self._url.page_id = new_id
+        if not 'ct' in self._url.get_query:
+            raise ValueError
+        self.content_type = self._url.get_query['ct']
+
+    def create_page(self):
+        self.page_title = self._url.post_query['title']
+        if 'publish' in self._url.post_query.keys():
+            published = '1'
+        else:
+            published = '0'
+        self.db.insert(self._url.page_type, ('id', 'content_type', 'page_title', 'creator', 'published'), (self._url.page_id, self.content_type, self.page_title, self.user, published))
+
+    def process_post(self):
         self.assign_inputs()
         self.validate_inputs()
         self.create_page()
-        if self.process_query():
-            return 301
-        for field in self.field_handlers:
-            field_value = field.field
-            self.field_values.append(field_value)
-            self.integrate(field_value)
-        return True
-
-    def create_page(self):
-        self.db.insert(self._url.page_type, ('content_type', 'page_title', 'creator'), (self.content_type, self.page_title, self.user))
+        self.process_query()

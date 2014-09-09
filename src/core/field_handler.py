@@ -60,6 +60,7 @@ class EditBaseFieldHandler(BaseFieldHandler):
     def validate_inputs(self):
         return isinstance(self.query[self.field_name], str)
 
+
 class AddBaseFieldHandler(EditBaseFieldHandler):
     def process_post(self):
         self.db.insert(self.field_name, ('content', 'page_id'), (self.query[self.field_name], self.page_id))
