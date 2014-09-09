@@ -1,7 +1,7 @@
 from core.base_handlers import FieldHandler
 from core.database import escape
 from core.page import Component
-from coremodules.aphrodite import Input
+from framework.html_elements import Input
 
 __author__ = 'justusadam'
 
@@ -36,20 +36,30 @@ class BaseFieldHandler(FieldHandler):
         else:
             return ''
 
+    def get_get_query_keys(self):
+        return []
+
+    def get_post_query_keys(self):
+        return []
+
 
 class EditBaseFieldHandler(BaseFieldHandler):
+    def __init__(self, db, page_id, field_name):
+        super().__init__(db, page_id, field_name)
+        self.query = {}
+
     def process_content(self):
         return Input(value=self.get_content(), name=self.field_name)
 
     def get_post_query_keys(self):
         return [self.field_name]
 
-    def get_get_query_keys(self):
-        return []
+    def process_post(self):
+        self.db.update(self.field_name, {'content': self.query[self.field_name]}, 'page_id =' + escape(self.page_id))
 
-    def process_post(self, query):
-        if self.field_name in query.keys():
-            self.db.replace(self.field_name, ('content', 'page_id'), (query[self.field_name], self.page_id))
+    def validate_inputs(self):
+        return isinstance(self.query[self.field_name], str)
 
-    def process_get(self, query):
-        pass
+class AddBaseFieldHandler(EditBaseFieldHandler):
+    def process_post(self):
+        self.db.insert(self.field_name, ('content', 'page_id'), (self.query[self.field_name], self.page_id))

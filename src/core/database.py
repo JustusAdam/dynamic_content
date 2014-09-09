@@ -8,6 +8,7 @@ from framework.config_tools import read_config
 
 
 class Database:
+
     def __init__(self):
         config = read_config(str(self.get_my_folder()) + '/../config')
         self._connection = connect(**config['database_connection_arguments'])
@@ -53,7 +54,7 @@ class Database:
                 else:
                     return '(' + ', '.join(a) + ')'
             else:
-                return a
+                return '(' + a + ')'
 
         into_cols = unwrap_values(into_cols)
         values = unwrap_values(values)
@@ -98,13 +99,25 @@ class Database:
         set_clause = ''
         for key in pairing.keys():
             set_clause += key + '=' + escape(pairing[key])
-        if where_condition:
-            where_condition = 'where ' + where_condition
+        if where_condition and not where_condition.startswith('where '):
+            where_condition = 'where ' + where_condition + ';'
+        else:
+            where_condition += ';'
         cursor = self._connection.cursor()
         cursor.execute(' '.join(['update', table, 'set', set_clause, where_condition]))
 
-    def alter_table(self, table, add=None, alter={}):
+    def alter_table(self, table, add=None, alter=None):
         pass
+
+    def remove(self, from_table, where_condition):
+        if where_condition:
+            if not where_condition.startswith('where '):
+                where_condition = 'where ' + where_condition
+            if not where_condition.endswith(';'):
+                where_condition += ';'
+        query = 'delete from ' + from_table + ' ' + where_condition
+        cursor = self._connection.cursor()
+        return cursor.execute(query)
 
     def check_connection(self):
         """
