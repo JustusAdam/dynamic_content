@@ -7,7 +7,7 @@ Content Management System for web application.
 
 Requirements
 ---
-* Mysql Database
+* Mysql database and pymysql library for database connection
 * Python > v 3.4
 
 Roadmap
