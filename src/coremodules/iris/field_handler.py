@@ -36,9 +36,6 @@ class BaseFieldHandler(FieldHandler):
         else:
             return ''
 
-    def get_get_query_keys(self):
-        return []
-
     def get_post_query_keys(self):
         return []
 

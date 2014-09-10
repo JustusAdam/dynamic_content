@@ -11,7 +11,6 @@ class FieldBasedContentHandler(ContentHandler):
 
     def __init__(self, url, db, modules):
         super().__init__(url, db, modules)
-        self.field_info = []
         self.field_values = []
         self.page_title = ''
         self.content_type = ''
@@ -36,8 +35,7 @@ class FieldBasedContentHandler(ContentHandler):
             # TODO specify this Exception
             raise Exception
         acc = sorted(db_result, key=lambda a: a[2])
-        self.field_info = acc
-        return True
+        return acc
 
     def handle_single_field_post(self, field_handler):
         query_keys = field_handler.get_post_query_keys()
@@ -60,9 +58,8 @@ class FieldBasedContentHandler(ContentHandler):
                 field_handler.process_get(UrlQuery(vals))
 
     def get_fields(self):
-        if not self.field_info:
-            return False
-        for name in self.field_info:
+        field_info = self.get_field_info()
+        for name in field_info:
             self.field_handlers.append(self.get_field_handler(name[0], name[1]))
         return True
 
@@ -102,7 +99,6 @@ class FieldBasedContentHandler(ContentHandler):
         self._page = Page(self._url, self.page_title)
         if self.theme:
             self._page.used_theme = self.theme
-        self.get_field_info()
         self.get_fields()
         self.handle_fields()
         self.assign_content()
@@ -162,7 +158,6 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
         self._page = Page(self._url, self.page_title)
         if self.theme:
             self._page.used_theme = self.theme
-        self.get_field_info()
         self.get_fields()
         if self._is_post:
             self.process_post()
@@ -187,7 +182,6 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
         else:
             published = '0'
         self.db.update(self._url.page_type, {'page_title': self.page_title, 'published': published})
-
 
 
 class AddFieldBasedContentHandler(EditFieldBasedContentHandler):

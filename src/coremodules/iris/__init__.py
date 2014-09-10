@@ -1,4 +1,4 @@
-from core.content_handler import FieldBasedContentHandler, EditFieldBasedContentHandler, AddFieldBasedContentHandler
+from .content_handler import FieldBasedContentHandler, EditFieldBasedContentHandler, AddFieldBasedContentHandler
 from .field_handler import BaseFieldHandler, EditBaseFieldHandler, AddBaseFieldHandler
 
 __author__ = 'justusadam'

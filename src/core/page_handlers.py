@@ -85,15 +85,12 @@ class BasicPageHandler(PageHandler):
 
     def compile(self):
         content_handler = self.get_content_handler()(self._url, self.db, self.modules)
-        response = content_handler.compile()
-        if response != 200:
-            self.response = response
-            return response
+
+        content_handler.compile()
         page = content_handler.page
         theme_handler = self.get_theme_handler()(page)
-        if not theme_handler.compile():
-            self.response = response
-            return response
+        theme_handler.compile()
+
         self._document = theme_handler.document
         self._has_document = True
         return self.response
