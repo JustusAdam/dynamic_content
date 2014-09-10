@@ -1,4 +1,4 @@
-PYTHON_CMS (working title)
+\_JAIDE
 ====
 
 Content Management System for web application.
