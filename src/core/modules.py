@@ -1,6 +1,9 @@
+from framework.singleton import singleton
+
 __author__ = 'justusadam'
 
 
+@singleton
 class Modules:
 
     def __init__(self, modules):

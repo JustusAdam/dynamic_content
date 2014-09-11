@@ -1,12 +1,12 @@
-from core.database import escape_item
+from core.database import escape_item, Database
 
 __author__ = 'justusadam'
 
 
 class MenuHandler:
 
-    def __init__(self, name, db):
-        self.db = db
+    def __init__(self, name):
+        self.db = Database()
         self.name = name
 
     def get_items(self):

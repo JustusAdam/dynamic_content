@@ -1,16 +1,17 @@
 from core.base_handlers import FieldHandler
 from core.page import Component
-from core.database import escape_item, escape
+from core.database import escape_item, escape, Database
 from framework.html_elements import Textarea
 
 __author__ = 'justusadam'
 
 
 class BaseFieldHandler(FieldHandler):
-    def __init__(self, db, page_id, machine_name):
-        super().__init__(db)
+    def __init__(self, page_id, machine_name):
+        super().__init__()
         self.page_id = page_id
         self.machine_name = machine_name
+        self.db = Database()
 
     def compile(self):
         content = self.process_content()
@@ -41,8 +42,8 @@ class BaseFieldHandler(FieldHandler):
 
 
 class EditBaseFieldHandler(BaseFieldHandler):
-    def __init__(self, db, page_id, machine_name):
-        super().__init__(db, page_id, machine_name)
+    def __init__(self, page_id, machine_name):
+        super().__init__(page_id, machine_name)
         self.query = {}
 
     def process_content(self):

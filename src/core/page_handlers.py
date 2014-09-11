@@ -1,21 +1,23 @@
 from pathlib import Path
 
 from core.base_handlers import PageHandler
+from includes.bootstrap import Bootstrap
 
 from .page import Page
-from core.database import escape
+from core.database import escape, Database
 
 
 __author__ = 'justusadam'
 
+bootstrap = Bootstrap()
+
 
 class FileHandler(PageHandler):
 
-    def __init__(self, url, bootstrap):
+    def __init__(self, url):
         super().__init__(url)
         self.page_type = 'file'
         self._document = ''
-        self.bootstrap = bootstrap
 
     def compile(self):
         return self.parse_path()
@@ -27,7 +29,7 @@ class FileHandler(PageHandler):
     def parse_path(self):
         if len(self._url.path) < 2:
             return 403
-        basedirs = self.bootstrap.FILE_DIRECTORIES[self._url.path[0]]
+        basedirs = bootstrap.FILE_DIRECTORIES[self._url.path[0]]
         if isinstance(basedirs, str):
             basedirs = (basedirs,)
         for basedir in basedirs:
@@ -64,11 +66,11 @@ class FileHandler(PageHandler):
 
 
 class BasicPageHandler(PageHandler):
-    def __init__(self, url, db, modules):
+    def __init__(self, url, modules):
         super().__init__(url)
         self._page = Page(url)
-        self.db = db
         self.modules = modules
+        self.db = Database()
 
     def get_content_handler(self):
         db_result = self.db.select('handler_module', 'content_handlers', 'where path_prefix = ' +
@@ -84,7 +86,7 @@ class BasicPageHandler(PageHandler):
         return self.modules['theme_engine'].theme_handler
 
     def compile(self):
-        content_handler = self.get_content_handler()(self._url, self.db, self.modules)
+        content_handler = self.get_content_handler()(self._url)
 
         content_handler.compile()
         page = content_handler.page

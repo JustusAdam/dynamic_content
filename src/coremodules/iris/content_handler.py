@@ -1,5 +1,6 @@
 from core.base_handlers import ContentHandler
-from core.database import escape_item
+from core.database import escape_item, Database
+from core.modules import Modules
 from core.page import Page
 from framework.html_elements import FormElement, TableElement, Input, Label
 from framework.url_tools import UrlQuery
@@ -10,13 +11,15 @@ __author__ = 'justusadam'
 
 class FieldBasedContentHandler(ContentHandler):
 
-    def __init__(self, url, db, modules):
-        super().__init__(url, db, modules)
+    def __init__(self, url):
+        super().__init__(url)
         self.field_values = []
         self.page_title = ''
         self.content_type = ''
         self.theme = ''
         self.field_handlers = []
+        self.db = Database()
+        self.modules = Modules({})
 
 
     def get_page_information(self):
@@ -108,8 +111,8 @@ class FieldBasedContentHandler(ContentHandler):
 
 
 class EditFieldBasedContentHandler(FieldBasedContentHandler):
-    def __init__(self, url, db, modules):
-        super().__init__(url, db, modules)
+    def __init__(self, url):
+        super().__init__(url)
         self.user = '1'
         self._is_post = bool(self._url.post_query)
         self.modifier = 'edit'
@@ -230,4 +233,4 @@ class FieldInfo:
         self.machine_name = machine_name
 
     def get_handler(self, module_name):
-        self.modules[module_name].field_handler(self.field_name, db, page_id, modifier)
+        self.modules[module_name].field_handler(self.field_name, page_id, modifier)

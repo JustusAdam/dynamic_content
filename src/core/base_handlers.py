@@ -1,5 +1,6 @@
 import sys
 
+
 __author__ = 'justusadam'
 
 
@@ -34,9 +35,8 @@ class PageHandler:
 
 
 class FieldHandler:
-    def __init__(self, db):
+    def __init__(self):
         self._field = None
-        self.db = db
         self._is_compiled = False
 
     @property
@@ -54,12 +54,10 @@ class FieldHandler:
 
 
 class ContentHandler:
-    def __init__(self, url, db, modules):
+    def __init__(self, url):
         self._page = None
         self._url = url
         self._is_compiled = False
-        self.db = db
-        self.modules = modules
 
     @property
     def page(self):

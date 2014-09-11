@@ -6,8 +6,10 @@ from pymysql import DatabaseError, connect
 from pymysql.converters import escape_item
 
 from framework.config_tools import read_config
+from framework.singleton import singleton
 
 
+@singleton
 class Database:
 
     def __init__(self):

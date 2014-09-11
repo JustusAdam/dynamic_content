@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 
 from core.database import DatabaseError, Database, escape
+from includes.bootstrap import Bootstrap
 from .page_handlers import FileHandler, BasicPageHandler
 from framework.url_tools import Url
 from framework.config_tools import read_config
@@ -11,8 +12,7 @@ from framework.config_tools import read_config
 
 __author__ = 'justusadam'
 
-hello = None
-bootstrap = None
+bootstrap = Bootstrap()
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -97,7 +97,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         if self._url.page_type == 'setup':
             return self.start_setup()
         elif self._url.page_type in bootstrap.FILE_DIRECTORIES.keys():
-            self.page_handler = FileHandler(self._url.path, bootstrap)
+            self.page_handler = FileHandler(self._url.path)
             return 0
         try:
             db = Database()
@@ -110,7 +110,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         if len(self._url.path) == 0:
             return 404
 
-        self.page_handler = BasicPageHandler(self._url, db, hello)
+        self.page_handler = BasicPageHandler(self._url)
         db = None
         return 0
 

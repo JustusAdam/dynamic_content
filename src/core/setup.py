@@ -3,6 +3,7 @@ from .database import DatabaseError, Database
 from . import module_operations
 from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, FormElement, Input, LinkElement
 from framework.config_tools import read_config
+from includes.bootstrap import Bootstrap
 
 
 __author__ = 'justusadam'
@@ -27,9 +28,9 @@ def try_database_connection():
 
 
 class SetupHandler(PageHandler):
-    def __init__(self, url, bootstrap):
+    def __init__(self, url):
         super().__init__(url)
-        self.bootstrap = bootstrap
+        self.bootstrap = Bootstrap()
 
     def compile(self):
         config = read_config('config')
@@ -163,21 +164,21 @@ class SetupHandler(PageHandler):
             if self._url.get_query['reset'][0].lower() == 'true':
                 try:
                     # HACK dropping core tables separately
-                    module_operations.drop_module_tables(core_config, db)
+                    module_operations.drop_module_tables(core_config)
 
                     moduleconf = module_operations.discover_modules()
                     for module in moduleconf:
                         if module['name'] in self.bootstrap.DEFAULT_MODULES:
-                            module_operations.drop_module_tables(module, db)
+                            module_operations.drop_module_tables(module)
                 except DatabaseError as error:
                     print('Database Error in setup: ' + str(error.args))
         try:
             # HACK separately registering and activating core
-            module_operations._activate_module(core_config, db)
+            module_operations._activate_module(core_config)
 
-            module_operations.register_installed_modules(db)
+            module_operations.register_installed_modules()
             for module in self.bootstrap.DEFAULT_MODULES:
-                if not module_operations.activate_module(module, db):
+                if not module_operations.activate_module(module):
                     print('Could not activate module ' + module)
                     return False
             return True

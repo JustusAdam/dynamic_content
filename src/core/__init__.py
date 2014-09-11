@@ -9,5 +9,5 @@ role = 'core'
 # TODO refactor everything to get core module and move it here
 
 
-def load_modules(db):
-    return load_active_modules(db)
+def load_modules():
+    return load_active_modules()
