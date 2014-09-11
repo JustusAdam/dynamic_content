@@ -1,16 +1,16 @@
 from core.base_handlers import FieldHandler
 from core.page import Component
-from core.database import escape_item
+from core.database import escape_item, escape
 from framework.html_elements import Textarea
 
 __author__ = 'justusadam'
 
 
 class BaseFieldHandler(FieldHandler):
-    def __init__(self, db, page_id, field_name):
+    def __init__(self, db, page_id, machine_name):
         super().__init__(db)
         self.page_id = page_id
-        self.field_name = field_name
+        self.machine_name = machine_name
 
     def compile(self):
         content = self.process_content()
@@ -22,7 +22,7 @@ class BaseFieldHandler(FieldHandler):
         return True
 
     def get_field_title(self):
-        return self.field_name
+        return self.machine_name
 
     def process_content(self):
         return self.get_content()
@@ -30,7 +30,7 @@ class BaseFieldHandler(FieldHandler):
     def get_content(self):
         if not self.page_id:
             return ''
-        db_result = self.db.select('content', self.field_name, 'where page_id=' + escape_item(self.page_id, 'utf-8')).fetchone()
+        db_result = self.db.select('content', self.machine_name, 'where page_id=' + escape_item(self.page_id, 'utf-8')).fetchone()
         if db_result:
             return db_result[0]
         else:
@@ -41,26 +41,26 @@ class BaseFieldHandler(FieldHandler):
 
 
 class EditBaseFieldHandler(BaseFieldHandler):
-    def __init__(self, db, page_id, field_name):
-        super().__init__(db, page_id, field_name)
+    def __init__(self, db, page_id, machine_name):
+        super().__init__(db, page_id, machine_name)
         self.query = {}
 
     def process_content(self):
-        return Textarea(self.get_content(), name=self.field_name, rows=7, cols=50)
+        return Textarea(self.get_content(), name=self.machine_name, rows=7, cols=50)
 
     def get_post_query_keys(self):
-        return [self.field_name]
+        return [self.machine_name]
 
     def process_post(self):
-        self.db.update(self.field_name, {'content': self.query[self.field_name][0]}, 'page_id =' + escape_item(self.page_id, 'utf-8'))
+        self.db.update(self.machine_name, {'content': self.query[self.machine_name][0]}, 'page_id =' + escape_item(self.page_id, 'utf-8'))
 
     def validate_inputs(self):
-        return isinstance(self.query[self.field_name][0], str)
+        return isinstance(self.query[self.machine_name][0], str)
 
 
 class AddBaseFieldHandler(EditBaseFieldHandler):
     def process_content(self):
-        return Textarea(name=self.field_name, rows=7, cols=50)
+        return Textarea(name=self.machine_name, rows=7, cols=50)
 
     def process_post(self):
-        self.db.insert(self.field_name, ('content', 'page_id'), (self.query[self.field_name][0], self.page_id))
+        self.db.insert(self.machine_name, ('content', 'page_id'), (self.query[self.machine_name][0], self.page_id))

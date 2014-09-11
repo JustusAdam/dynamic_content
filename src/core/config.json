@@ -33,17 +33,6 @@
             ]
         },
         {
-            "table_name": "page_fields",
-            "columns": [
-                "id int unsigned not null auto_increment unique primary key comment 'primary id for machine convenience'",
-                "field_name varchar(500) not null unique",
-                "content_type varchar(500) not null comment 'name of associated content type'",
-                "handler_module varchar(500) not null",
-                "weight int not null",
-                "description text comment 'human readable field type description'"
-            ]
-        },
-        {
             "table_name": "alias",
             "columns": [
                 "id int unsigned not null auto_increment unique primary key comment 'unique identifier'",

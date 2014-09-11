@@ -31,7 +31,7 @@ class FieldBasedContentHandler(ContentHandler):
         return True
 
     def get_field_info(self):
-        db_result = self.db.select(('field_name', 'handler_module', 'weight'), 'page_fields', 'where content_type = ' + escape_item(self.content_type, 'utf-8')).fetchall()
+        db_result = self.db.select(('field_name', 'handler_module', 'weight', 'machine_name'), 'page_fields', 'where content_type = ' + escape_item(self.content_type, 'utf-8')).fetchall()
         if db_result is None:
             # TODO specify this Exception
             raise Exception
@@ -205,9 +205,9 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
     def create_page(self):
         self.page_title = parse.unquote_plus(self._url.post_query['title'][0])
         if 'publish' in self._url.post_query.keys():
-            published = 'true'
+            published = True
         else:
-            published = 'false'
+            published = False
         self.db.insert(self._url.page_type, ('id', 'content_type', 'page_title', 'creator', 'published'), (self._url.page_id, self.content_type, self.page_title, self.user, published))
 
     def process_post(self):
@@ -218,3 +218,16 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
 
     def title_input(self):
         return [Label('Title', label_for='edit-title'), Input(element_id='edit-title', name='title', required=True)]
+
+
+class FieldInfo:
+
+    def __init__(self, field_name, handler_module_name, weight, machine_name, modules, modifier='show'):
+        self.modules = modules
+        self.field_name = field_name
+        self.handler_module = self.get_handler(handler_module_name)
+        self.weight = weight
+        self.machine_name = machine_name
+
+    def get_handler(self, module_name):
+        self.modules[module_name].field_handler(self.field_name, db, page_id, modifier)

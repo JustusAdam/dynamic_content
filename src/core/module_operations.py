@@ -65,8 +65,9 @@ def register_content_handler(module_conf, db):
     try:
         db.replace('content_handlers', ('handler_module', 'handler_name', 'path_prefix'),
                    (module_conf['name'], module_conf['name'], path_prefix))
-    except DatabaseError:
+    except DatabaseError as error:
         print('Failed to register page handler ' + module_conf['name'])
+        print(error)
 
 
 def get_module_id(module_name, db):
@@ -162,7 +163,7 @@ def register_modules(r_modules, db):
 
 
 def register_single_module(moduleconf, db):
-    #print('registering module ' + module['name'])
+    print('registering module ' + moduleconf['name'])
     db_result = db.select('module_path', 'modules', 'where module_name=' + escape(moduleconf['name'])).fetchone()
     if db_result is None:
         db.insert('modules', ('module_name', 'module_path', 'module_role'), (moduleconf['name'], moduleconf['path'], moduleconf['role']))

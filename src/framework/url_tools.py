@@ -163,6 +163,7 @@ class UrlLocation:
     def __bool__(self):
         return bool(self.location)
 
+
 class UrlQuery:
     def __init__(self, query):
         self.query = query
@@ -182,7 +183,7 @@ class UrlQuery:
 
     def __str__(self):
         if self._query:
-            return '?' + '&'.join(tuple(parse.quote_plus(a) + '=' + self.query[a] for a in self.query.keys()))
+            return '?' + '&'.join(tuple(a + '=' + '&'.join(self.query[a]) for a in self.query.keys()))
         else:
             return ''
 

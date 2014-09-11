@@ -44,12 +44,12 @@ class RequestHandler(BaseHTTPRequestHandler):
         return 0
 
     def send_document(self):
-        try:
-            handler_response = self.page_handler.compile()
-        except Exception as exception:
-            print(exception)
-            self.send_error(404, *self.responses[404])
-            return 0
+        # try:
+        handler_response = self.page_handler.compile()
+        # except Exception as exception:
+        #     print(exception)
+        #     self.send_error(404, *self.responses[404])
+        #     return 0
         if not handler_response:
             # TODO send some generic error if handler rejects request
             return

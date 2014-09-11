@@ -160,7 +160,7 @@ class SetupHandler(PageHandler):
         core_config['path'] = 'core'
 
         if 'reset' in self._url.get_query:
-            if self._url.get_query['reset'].lower() == 'true':
+            if self._url.get_query['reset'][0].lower() == 'true':
                 try:
                     # HACK dropping core tables separately
                     module_operations.drop_module_tables(core_config, db)

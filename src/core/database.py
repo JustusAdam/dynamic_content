@@ -27,10 +27,10 @@ class Database:
         cursor.execute('create table ' + ' '.join([table_name, columns]) + ';')
         print('created table ' + table_name)
         cursor.close()
-
-    def get_module_id(self, module_name):
-        cursor = self._connection.cursor()
-        return cursor.execute('select id from modules where module_name = ' + module_name + ';')[0]
+    #
+    # def get_module_id(self, module_name):
+    #     cursor = self._connection.cursor()
+    #     return cursor.execute('select id from modules where module_name = ' + module_name + ';')[0]
 
     def get_my_folder(self):
         return str(Path(__file__).parent)
@@ -48,7 +48,11 @@ class Database:
     def insert(self, into_table, into_cols, values, charset=None):
         if not charset:
             charset = self.charset
-        values = escape_item(values, charset)
+
+        if isinstance(values, str):
+            values = '(' + escape(values, charset) + ')'
+        else:
+            values = escape(values, charset)
 
         def unwrap_values(a):
             if isinstance(a, (list, tuple)):
@@ -60,10 +64,10 @@ class Database:
                 return '(' + a + ')'
 
         into_cols = unwrap_values(into_cols)
-        values = unwrap_values(values)
 
         cursor = self._connection.cursor()
         query = 'insert into ' + ' '.join([into_table, into_cols, 'values', values]) + ';'
+        print(query)
         cursor.execute(query)
         cursor.close()
         return
@@ -71,7 +75,11 @@ class Database:
     def replace(self, into_table, into_cols, values, charset=None):
         if not charset:
             charset = self.charset
-        values = escape_item(values, charset)
+
+        if isinstance(values, str):
+            values = '(' + escape(values, charset) + ')'
+        else:
+            values = escape(values, charset)
 
         def unwrap_values(a):
             if isinstance(a, (list, tuple)):
@@ -83,7 +91,6 @@ class Database:
                 return '(' + a + ')'
 
         into_cols = unwrap_values(into_cols)
-        values = unwrap_values(values)
 
         cursor = self._connection.cursor()
         query = 'replace into ' + ' '.join([into_table, into_cols, 'values', values]) + ';'
