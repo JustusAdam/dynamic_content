@@ -96,14 +96,16 @@ class Database:
     def update(self, table, pairing, where_condition=''):
         if not isinstance(pairing, dict):
             return False
-        set_clause = ''
+        set_clause = []
         for key in pairing.keys():
-            set_clause += key + '=' + escape(pairing[key])
+            set_clause.append(key + '=' + escape(pairing[key]))
+        set_clause = ' '.join(set_clause)
         if where_condition and not where_condition.startswith('where '):
             where_condition = 'where ' + where_condition + ';'
         else:
             where_condition += ';'
         cursor = self._connection.cursor()
+        print(' '.join(['update', table, 'set', set_clause, where_condition]))
         cursor.execute(' '.join(['update', table, 'set', set_clause, where_condition]))
 
     def alter_table(self, table, add=None, alter=None):
@@ -141,7 +143,15 @@ def escape(value):
         return tuple((escape(element) for element in value))
     elif isinstance(value, list):
         return list([escape(element) for element in value])
+    elif isinstance(value, bool):
+        if value:
+            return 'true'
+        else:
+            return 'false'
+    elif isinstance(value, (int, float)):
+        return str(value)
     elif isinstance(value, str):
-        return '\'' + value.replace('\'', '\\\'') + '\''
+        value = value.replace('\'', '\\\'')
+        return '\'' + value + '\''
     else:
         return escape(str(value))

@@ -1,6 +1,6 @@
 __author__ = 'justusadam'
 
 
-name = 'hera'
+name = 'user_management'
 
 role = 'user_management'

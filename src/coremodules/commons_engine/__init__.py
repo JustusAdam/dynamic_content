@@ -1,6 +1,7 @@
 __author__ = 'justusadam'
 
 
-name = 'dionysus'
+name = 'commons_engine'
 
 role = 'block_manager'
+

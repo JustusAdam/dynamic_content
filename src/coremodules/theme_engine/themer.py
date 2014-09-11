@@ -40,7 +40,6 @@ class ThemeHandler:
     def get_theme_path(self):
         return 'themes/' + self.used_theme
 
-
     def get_my_folder(self):
         return str(Path(__file__).parent)
 

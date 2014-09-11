@@ -4,4 +4,17 @@
     "active_theme_path": "themes/default_theme",
     "active_theme": "default_theme",
     "default_theme": "default_theme"
+    "required_tables": [
+        {
+            "table_name": "commons_config",
+            "columns": [
+                "id int unsigned unique not null primary key",
+                "element_name varchar(200) not null unique",
+                "element_type varchar(200) not null",
+                "handler_module varchar(200) not null",
+                "region varchar(200)",
+                "weight int"
+            ]
+        }
+    ]
 }

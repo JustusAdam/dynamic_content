@@ -1,6 +1,6 @@
 __author__ = 'justusadam'
 
-name = 'aphrodite'
+name = 'theme_engine'
 
 role = 'theming_engine'
 

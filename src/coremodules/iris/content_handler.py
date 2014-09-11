@@ -181,9 +181,9 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
         if self._url.post_query['title'] != self.page_title:
             self.page_title = self._url.post_query['title']
         if 'publish' in self._url.post_query.keys():
-            published = '1'
+            published = True
         else:
-            published = '0'
+            published = False
         self.db.update(self._url.page_type, {'page_title': self.page_title, 'published': published})
 
 
@@ -204,9 +204,9 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
     def create_page(self):
         self.page_title = self._url.post_query['title']
         if 'publish' in self._url.post_query.keys():
-            published = '1'
+            published = 'true'
         else:
-            published = '0'
+            published = 'false'
         self.db.insert(self._url.page_type, ('id', 'content_type', 'page_title', 'creator', 'published'), (self._url.page_id, self.content_type, self.page_title, self.user, published))
 
     def process_post(self):

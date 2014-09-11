@@ -1,3 +1,4 @@
+from urllib import parse
 __author__ = 'justusadam'
 
 
@@ -164,7 +165,7 @@ class UrlLocation:
 
 class UrlQuery:
     def __init__(self, query):
-        self.query = query
+        self.query = parse.urlparse(query).query
 
     @property
     def query(self):
@@ -181,15 +182,15 @@ class UrlQuery:
 
     def __str__(self):
         if self._query:
-            return '?' + '&'.join(tuple(a + '=' + self.query[a] for a in self.query.keys()))
+            return '?' + '&'.join(tuple(parse.quote_from_bytes(a) + '=' + self.query[a] for a in self.query.keys()))
         else:
             return ''
 
     def __getitem__(self, item):
-        return self.query[item]
+        return parse.unquote_plus(self.query[item])
 
     def __setitem__(self, key, value):
-        self._query[key] = value
+        self._query[key] = parse.quote_plus(value)
 
     def __contains__(self, item):
         if self.query:

@@ -1,4 +1,28 @@
 {
     "name": "commons_engine",
     "role": "common_page_element_manager"
+    "required_tables":[
+        {
+            "table_name": "menu_items",
+            "columns":[
+                "id int unsigned not null unique primary key",
+                "item_name varchar(200) not null",
+                "display_name varchar(200) not null",
+                "item_path varchar(200) not null",
+                "menu varchar(200) not null",
+                "enabled boolean default false",
+                "tooltip text"
+            ]
+        },
+        {
+            "table_name": "menus",
+            "columns":[
+                "id int unsigned not null unique primary key",
+                "machine_name varchar(200) not null",
+                "menu_name varchar(200) not null",
+                "enabled boolean default false",
+                "handler_module varchar(200) not null default 'commons_engine'"
+            ]
+        }
+    ]
 }
