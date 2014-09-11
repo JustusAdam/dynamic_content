@@ -1,8 +1,9 @@
 from core.base_handlers import ContentHandler
-from core.database import escape
+from core.database import escape_item
 from core.page import Page
 from framework.html_elements import FormElement, TableElement, Input, Label
 from framework.url_tools import UrlQuery
+from urllib import parse
 
 __author__ = 'justusadam'
 
@@ -19,18 +20,18 @@ class FieldBasedContentHandler(ContentHandler):
 
 
     def get_page_information(self):
-        db_result = self.db.select(('content_type', 'page_title'), self._url.page_type, 'where id = ' + escape(self._url.page_id)).fetchone()
+        db_result = self.db.select(('content_type', 'page_title'), self._url.page_type, 'where id = ' + escape_item(self._url.page_id, 'utf-8')).fetchone()
         if not db_result:
             # TODO specify this exception
             raise Exception
         (self.content_type, self.page_title) = db_result
-        db_result = self.db.select('theme', 'content_types', 'where content_type_name=' + escape(self.content_type)).fetchone()
+        db_result = self.db.select('theme', 'content_types', 'where content_type_name=' + escape_item(self.content_type, 'utf-8')).fetchone()
         if db_result:
             self.theme = db_result[0]
         return True
 
     def get_field_info(self):
-        db_result = self.db.select(('field_name', 'handler_module', 'weight'), 'page_fields', 'where content_type = ' + escape(self.content_type)).fetchall()
+        db_result = self.db.select(('field_name', 'handler_module', 'weight'), 'page_fields', 'where content_type = ' + escape_item(self.content_type, 'utf-8')).fetchall()
         if db_result is None:
             # TODO specify this Exception
             raise Exception
@@ -128,7 +129,7 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
         content.append((Label('Published', label_for='toggle-published'), Input(element_id='toggle-published',input_type='radio', value='1', name='publish')))
         table = TableElement(*content)
         if 'destination' in self._url.get_query:
-            dest = '?destination=' + self._url.get_query['destination']
+            dest = '?destination=' + self._url.get_query['destination'][0]
         else:
             dest = ''
         return str(FormElement(table, action=str(self._url) + dest))
@@ -154,7 +155,7 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
             for key in field.get_post_query_keys():
                 if not key in self._url.post_query:
                     raise KeyError
-                field.query[key] = self._url.post_query[key]
+                field.query[key] = [parse.unquote_plus(a) for a in self._url.post_query[key]]
 
     def compile(self):
         self.get_page_information()
@@ -179,7 +180,7 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
         if not 'title' in self._url.post_query.keys():
             raise ValueError
         if self._url.post_query['title'] != self.page_title:
-            self.page_title = self._url.post_query['title']
+            self.page_title = parse.unquote_plus(self._url.post_query['title'][0])
         if 'publish' in self._url.post_query.keys():
             published = True
         else:
@@ -202,7 +203,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
         self.page_title = 'Add new ' + self._url.page_type + ' page'
 
     def create_page(self):
-        self.page_title = self._url.post_query['title']
+        self.page_title = parse.unquote_plus(self._url.post_query['title'][0])
         if 'publish' in self._url.post_query.keys():
             published = 'true'
         else:

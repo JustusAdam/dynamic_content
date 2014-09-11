@@ -1,7 +1,7 @@
 __author__ = 'justusadam'
 
 import unittest
-from src.coremodules.olymp.basic_page_handlers import FileHandler
+from src.core.page_handlers import FileHandler
 
 
 class MyTestCase(unittest.TestCase):

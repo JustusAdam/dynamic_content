@@ -3,6 +3,7 @@ from pathlib import Path
 __author__ = 'justusadam'
 
 from pymysql import DatabaseError, connect
+from pymysql.converters import escape_item
 
 from framework.config_tools import read_config
 
@@ -12,6 +13,7 @@ class Database:
     def __init__(self):
         config = read_config(str(self.get_my_folder()) + '/../config')
         self._connection = connect(**config['database_connection_arguments'])
+        self.charset = 'utf-8'
 
     def __del__(self):
         self._connection.commit()
@@ -43,9 +45,10 @@ class Database:
         cursor.execute(query)
         return cursor
 
-    def insert(self, into_table, into_cols, values):
-
-        values = escape(values)
+    def insert(self, into_table, into_cols, values, charset=None):
+        if not charset:
+            charset = self.charset
+        values = escape_item(values, charset)
 
         def unwrap_values(a):
             if isinstance(a, (list, tuple)):
@@ -65,9 +68,10 @@ class Database:
         cursor.close()
         return
 
-    def replace(self, into_table, into_cols, values):
-
-        values = escape(values)
+    def replace(self, into_table, into_cols, values, charset=None):
+        if not charset:
+            charset = self.charset
+        values = escape_item(values, charset)
 
         def unwrap_values(a):
             if isinstance(a, (list, tuple)):
@@ -93,19 +97,21 @@ class Database:
         cursor = self._connection.cursor()
         cursor.execute('drop table ' + tables + ';')
 
-    def update(self, table, pairing, where_condition=''):
+    def update(self, table, pairing, where_condition='', charset=None):
+        if not charset:
+            charset = self.charset
         if not isinstance(pairing, dict):
             return False
         set_clause = []
         for key in pairing.keys():
-            set_clause.append(key + '=' + escape(pairing[key]))
-        set_clause = ' '.join(set_clause)
+            set_clause.append(key + '=' + escape_item(pairing[key], charset))
+        set_clause = ', '.join(set_clause)
         if where_condition and not where_condition.startswith('where '):
             where_condition = 'where ' + where_condition + ';'
         else:
             where_condition += ';'
         cursor = self._connection.cursor()
-        print(' '.join(['update', table, 'set', set_clause, where_condition]))
+        # print(' '.join(['update', table, 'set', set_clause, where_condition]))
         cursor.execute(' '.join(['update', table, 'set', set_clause, where_condition]))
 
     def alter_table(self, table, add=None, alter=None):
@@ -137,21 +143,5 @@ class Database:
         cursor = self._connection.cursor()
         return cursor.execute('select id from ' + table + ';')
 
-
-def escape(value):
-    if isinstance(value, tuple):
-        return tuple((escape(element) for element in value))
-    elif isinstance(value, list):
-        return list([escape(element) for element in value])
-    elif isinstance(value, bool):
-        if value:
-            return 'true'
-        else:
-            return 'false'
-    elif isinstance(value, (int, float)):
-        return str(value)
-    elif isinstance(value, str):
-        value = value.replace('\'', '\\\'')
-        return '\'' + value + '\''
-    else:
-        return escape(str(value))
+def escape(item, charset='utf-8'):
+    return escape_item(item, charset)

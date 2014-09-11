@@ -38,12 +38,12 @@ class SetupHandler(PageHandler):
                 'title': 'Setup of your CMS Installation',
                 'content': str(
                     ContainerElement(
-                        ContainerElement('Welcome to the setup process of your python_cms content management system.',
+                        ContainerElement('Welcome to the setup process of your _jaide content management system.',
                         html_type='p'),
-                        ContainerElement('These pages will guide you trough the necessary steps and tests that need to be taken to ensure python_cms will function properly for you.', html_type='p'),
+                        ContainerElement('These pages will guide you trough the necessary steps and tests that need to be taken to ensure _jaide will function properly for you.', html_type='p'),
                         ContainerElement('During this process you will be required to enter and confirm sensible data to your installation as well as set a password for the administration user. It is therefore recommended that you perform this setup directly on the server or ahead of deployment or utilizing a secure and encrypted connection.', html_type='p'),
                         ContainerElement(
-                        'I hope that you will enjoy and be pleased with python_cms.', html_type='p'),
+                        'I hope that you will enjoy and be pleased with _jaide.', html_type='p'),
                         ContainerElement('Continue', html_type='a', classes=['continue', 'button'],
                                                                  additionals=['href="/setup/{next_page}"'])
                     )
@@ -88,10 +88,10 @@ class SetupHandler(PageHandler):
                 'content': str(
                     ContainerElement(
                         ContainerElement(
-                            'The following step will execute the initial queries to the database requred for python_cms to function. This will create new tables and fill them according to the installation specifications provided sufficient access to the database has been granted.',html_type='p'),
+                            'The following step will execute the initial queries to the database requred for _jaide to function. This will create new tables and fill them according to the installation specifications provided sufficient access to the database has been granted.',html_type='p'),
                         ContainerElement('This step is required to proceed', html_type='p'),
                         ContainerElement(
-                            'If you are certain, that the database has been properly configured to allow sufficient access to python_cms and are content with this software making changes to your database please click \'Continue\'', html_type='p'),
+                            'If you are certain, that the database has been properly configured to allow sufficient access to _jaide and are content with this software making changes to your database please click \'Continue\'', html_type='p'),
                         ContainerElement('Continue', html_type='a', classes=['button', 'continue'],
                                                      additionals='href="/setup/{next_page}"')
                     )

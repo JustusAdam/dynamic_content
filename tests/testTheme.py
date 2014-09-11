@@ -1,7 +1,5 @@
 import os
 
-from core.page import Page
-
 
 
 __author__ = 'justusadam'

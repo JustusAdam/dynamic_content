@@ -1,6 +1,6 @@
 {
     "name": "commons_engine",
-    "role": "common_page_element_manager"
+    "role": "common_page_element_manager",
     "required_tables":[
         {
             "table_name": "menu_items",
@@ -20,8 +20,7 @@
                 "id int unsigned not null unique primary key",
                 "machine_name varchar(200) not null",
                 "menu_name varchar(200) not null",
-                "enabled boolean default false",
-                "handler_module varchar(200) not null default 'commons_engine'"
+                "enabled boolean default false"
             ]
         }
     ]
