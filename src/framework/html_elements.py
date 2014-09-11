@@ -80,7 +80,7 @@ class BaseElement:
             acc = []
             for k, v in self._customs.items():
                 if v:
-                    acc += [k + '="' + v + '"']
+                    acc += [k + '="' + str(v) + '"']
             return acc
 
     def __add__(self, other):
@@ -228,15 +228,46 @@ class TableElement(ContainerElement):
 
 class Input(BaseClassIdElement):
 
-    def __init__(self, classes=[], element_id='', input_type='text', name='', form='', value='', additionals={}):
+    def __init__(self, classes=[], element_id='', input_type='text', name='', form='', value='', required=False, additionals={}):
         super().__init__('input', classes=classes, element_id=element_id, additionals=additionals)
         self._customs['name'] = name
         self._customs['type'] = input_type
         self._customs['form'] = form
         self._customs['value'] = value
+        self.required = required
+
+    def render_head(self):
+        head = super().render_head()
+        if self.required:
+            return head + ' required'
+        else:
+            return head
 
     def __str__(self):
         return '<' + self.render_head() + ' />'
+
+
+class Textarea(ContainerElement):
+    def __init__(self, *contents, classes=[], element_id='', name='', form='', required=False, rows=0, cols=0, additionals={}):
+        super().__init__(*contents, html_type='textarea', classes=classes, element_id=element_id, additionals=additionals)
+        self._customs['name'] = name
+        self._customs['form'] = form
+        self._customs['rows'] = rows
+        self._customs['cols'] = cols
+        self.required = required
+
+    def render_head(self):
+        head = super().render_head()
+        if self.required:
+            return head + ' required'
+        else:
+            return head
+
+
+class Label(ContainerElement):
+    def __init__(self, *contents, label_for='', classes=[], element_id='', additionals={}):
+        super().__init__(*contents, html_type='label', classes=classes, element_id=element_id, additionals=additionals)
+        self._customs['label'] = label_for
 
 
 class SubmitButton(Input):

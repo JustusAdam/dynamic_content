@@ -1,7 +1,7 @@
 from core.base_handlers import ContentHandler
 from core.database import escape
 from core.page import Page
-from framework.html_elements import FormElement, TableElement, Input
+from framework.html_elements import FormElement, TableElement, Input, Label
 from framework.url_tools import UrlQuery
 
 __author__ = 'justusadam'
@@ -111,18 +111,21 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
         super().__init__(url, db, modules)
         self.user = '1'
         self._is_post = bool(self._url.post_query)
+        self.modifier = 'edit'
 
     def get_field_handler(self, name, module):
         return self.modules[module].edit_field_handler(name, self.db, self._url.page_id)
 
     def title_input(self):
-        return ['Title', Input(name='title', value=self.page_title)]
+        return [Label('Title', label_for='edit-title'), Input(element_id='edit-title',name='title', value=self.page_title, required=True)]
 
     def concatenate_content(self):
         content = [self.title_input()]
         for field in self.field_values:
-            content.append((field.title, field.content))
-        content.append(('Published', Input(input_type='radio', value='1', name='publish')))
+            identifier = self.modifier + '-' + field.title
+            field.content.element_id = identifier
+            content.append((Label(field.title, label_for=identifier), field.content))
+        content.append((Label('Published', label_for='toggle-published'), Input(element_id='toggle-published',input_type='radio', value='1', name='publish')))
         table = TableElement(*content)
         if 'destination' in self._url.get_query:
             dest = '?destination=' + self._url.get_query['destination']
@@ -186,6 +189,10 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
 
 class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
 
+    def __init__(self, url, db, modules):
+        super().__init__(url, db, modules)
+        self.modifier = 'add'
+
     def get_page_information(self):
         new_id = self.db.largest_id(self._url.page_type) + 1
         self._url.page_id = new_id
@@ -209,4 +216,4 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
         self.process_query()
 
     def title_input(self):
-        return ['Title', Input(name='title')]
+        return [Label('Title', label_for='edit-title'), Input(element_id='edit-title', name='title', required=True)]

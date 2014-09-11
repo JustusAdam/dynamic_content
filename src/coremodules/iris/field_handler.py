@@ -1,7 +1,7 @@
 from core.base_handlers import FieldHandler
 from core.page import Component
 from core.database import escape
-from framework.html_elements import Input
+from framework.html_elements import Input, Textarea
 
 __author__ = 'justusadam'
 
@@ -46,7 +46,7 @@ class EditBaseFieldHandler(BaseFieldHandler):
         self.query = {}
 
     def process_content(self):
-        return Input(value=self.get_content(), name=self.field_name)
+        return Textarea(self.get_content(), name=self.field_name, rows=7, cols=50)
 
     def get_post_query_keys(self):
         return [self.field_name]
@@ -60,7 +60,7 @@ class EditBaseFieldHandler(BaseFieldHandler):
 
 class AddBaseFieldHandler(EditBaseFieldHandler):
     def process_content(self):
-        return Input(name=self.field_name)
+        return Textarea(name=self.field_name, rows=7, cols=50)
 
     def process_post(self):
         self.db.insert(self.field_name, ('content', 'page_id'), (self.query[self.field_name], self.page_id))
