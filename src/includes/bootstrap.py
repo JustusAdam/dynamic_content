@@ -1,3 +1,10 @@
+"""
+The implementation of the singleton Bootstrap object which is to consist of the very fundamental,
+non-changing, as in not changing within this version of the software, values required to make _jaide functional.
+
+Might need to be expanded.
+"""
+
 from framework.singleton import singleton
 
 __author__ = 'justusadam'

@@ -1,3 +1,7 @@
+"""
+Framework for rendering HTML elements *incomplete*
+"""
+
 __author__ = 'justusadam'
 
 

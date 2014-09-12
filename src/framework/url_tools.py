@@ -1,3 +1,10 @@
+"""
+Implementation of custom, object oriented tools for url parsing.
+
+In part uses the standard library to parse and escape/unescape queries. Implementation might be subject to change in
+the future, incorporate more of the standard library.
+"""
+
 from urllib import parse
 __author__ = 'justusadam'
 

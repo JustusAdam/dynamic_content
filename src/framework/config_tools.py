@@ -1,3 +1,7 @@
+"""
+Tool for convenient standard (json) config reading and writing
+"""
+
 __author__ = 'justusadam'
 
 
