@@ -1,5 +1,4 @@
 from core.base_handlers import ContentHandler
-from core.database import escape_item, Database
 from core.modules import Modules
 from core.page import Page
 from framework.html_elements import FormElement, TableElement, Input, Label
@@ -18,7 +17,7 @@ class FieldBasedContentHandler(ContentHandler):
         self.page_title = ''
         self.content_type = ''
         self.theme = ''
-        self.db = Database()
+        #self.db = Database()
         self.modules = Modules({})
         self.modifier = 'show'
 
@@ -176,7 +175,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
         self.modifier = 'add'
 
     def get_page_information(self):
-        new_id = self.db.largest_id(self._url.page_type) + 1
+        new_id = database_operations.ContentTypes().get_largest_id(self._url.page_type) + 1
         self._url.page_id = new_id
         if not 'ct' in self._url.get_query:
             raise ValueError

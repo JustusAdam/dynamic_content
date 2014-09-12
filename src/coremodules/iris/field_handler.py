@@ -1,6 +1,6 @@
+from . import database_operations
 from core.base_handlers import FieldHandler
 from core.page import Component
-from core.database import escape_item, escape, Database
 from framework.html_elements import Textarea
 
 __author__ = 'justusadam'
@@ -11,7 +11,6 @@ class BaseFieldHandler(FieldHandler):
         super().__init__()
         self.page_id = page_id
         self.machine_name = machine_name
-        self.db = Database()
 
     def compile(self):
         content = self.process_content()
@@ -29,11 +28,8 @@ class BaseFieldHandler(FieldHandler):
     def get_content(self):
         if not self.page_id:
             return ''
-        db_result = self.db.select('content', self.machine_name, 'where page_id=' + escape_item(self.page_id, 'utf-8')).fetchone()
-        if db_result:
-            return db_result[0]
-        else:
-            return ''
+
+        return database_operations.Fields().get_content(self.machine_name, self.page_id)
 
     def get_post_query_keys(self):
         return []
@@ -51,7 +47,7 @@ class EditBaseFieldHandler(BaseFieldHandler):
         return [self.machine_name]
 
     def process_post(self):
-        self.db.update(self.machine_name, {'content': self.query[self.machine_name][0]}, 'page_id =' + escape_item(self.page_id, 'utf-8'))
+        database_operations.Fields().alter_content(self.machine_name, self.page_id, self.query[self.machine_name][0])
 
     def validate_inputs(self):
         return isinstance(self.query[self.machine_name][0], str)
@@ -62,4 +58,4 @@ class AddBaseFieldHandler(EditBaseFieldHandler):
         return Textarea(name=self.machine_name, rows=7, cols=50)
 
     def process_post(self):
-        self.db.insert(self.machine_name, ('content', 'page_id'), (self.query[self.machine_name][0], self.page_id))
+        database_operations.Fields().add_field(self.machine_name, self.page_id, self.query[self.machine_name][0])

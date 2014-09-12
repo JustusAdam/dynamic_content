@@ -162,9 +162,6 @@ class Database:
         except DatabaseError:
             return False
 
-    def largest_id(self, table):
-        cursor = self._connection.cursor()
-        return cursor.execute('select id from ' + table + ';')
 
 def escape(item, charset='utf-8'):
     return escape_item(item, charset)
