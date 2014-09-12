@@ -4,7 +4,7 @@
             "values": [
                 "1",
                 "iris",
-                "<div><h3>Welcome to your python_cms installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you'll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div>"
+                "<div><h3>Welcome to your _jaide installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you'll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div>"
             ],
             "into_cols": [
                 "page_id",
@@ -33,7 +33,7 @@
         {
             "values": [
                 "start_type",
-                "Welcome to python_cms",
+                "Welcome to _jaide",
                 "1",
                 "1"
             ],
