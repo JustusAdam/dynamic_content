@@ -17,6 +17,7 @@ class Database:
         self._connection = None
         self.connect()
         self.charset = 'utf-8'
+        self.db_type = self.config['database_type']
 
     def __del__(self):
         self._connection.commit()

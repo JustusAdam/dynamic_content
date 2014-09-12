@@ -5,6 +5,7 @@ from core.page import Page
 from framework.html_elements import FormElement, TableElement, Input, Label
 from framework.url_tools import UrlQuery
 from urllib import parse
+from . import database_operations
 
 __author__ = 'justusadam'
 
@@ -23,21 +24,12 @@ class FieldBasedContentHandler(ContentHandler):
 
 
     def get_page_information(self):
-        db_result = self.db.select(('content_type', 'page_title'), self._url.page_type, 'where id = ' + escape_item(self._url.page_id, 'utf-8')).fetchone()
-        if not db_result:
-            # TODO specify this exception
-            raise Exception
-        (self.content_type, self.page_title) = db_result
-        db_result = self.db.select('theme', 'content_types', 'where content_type_name=' + escape_item(self.content_type, 'utf-8')).fetchone()
-        if db_result:
-            self.theme = db_result[0]
-        return True
+        ops = database_operations.ContentTypes()
+        (self.content_type, self.page_title) = ops.get_page_information(self._url.page_type, self._url.page_id)
+        self.theme = ops.get_theme(content_type=self.content_type)
 
     def get_fields(self):
-        db_result = self.db.select(('field_name', 'weight', 'machine_name', 'handler_module'), 'page_fields', 'where content_type = ' + escape_item(self.content_type, 'utf-8')).fetchall()
-        if db_result is None:
-            # TODO specify this Exception
-            raise Exception
+        db_result = database_operations.ContentTypes().get_fields(self.content_type)
 
         fields = []
 
@@ -174,7 +166,7 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
             published = True
         else:
             published = False
-        self.db.update(self._url.page_type, {'page_title': self.page_title, 'published': published})
+        database_operations.ContentTypes().edit_page(self._url.page_type, self.page_title, published)
 
 
 class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
@@ -197,7 +189,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
             published = True
         else:
             published = False
-        self.db.insert(self._url.page_type, ('id', 'content_type', 'page_title', 'creator', 'published'), (self._url.page_id, self.content_type, self.page_title, self.user, published))
+        database_operations.ContentTypes().add_page(self._url.page_type, self._url.page_id, self.content_type, self.page_title, self.user, published)
 
     def process_post(self):
         self.assign_inputs()
