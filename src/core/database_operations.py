@@ -1,10 +1,14 @@
+"""
+Implementation of the objects holding the operations executable on the database by handlers and modules.
+Used for convenience and readability as well as adaptability for different database types.
+
+This is currently the recommended method for accessing the database to ensure convenient overview of queries.
+"""
+
 from core import database
 from core.database import escape
 
 __author__ = 'justusadam'
-
-
-charset = 'utf-8'
 
 
 class Operations:
@@ -14,6 +18,10 @@ class Operations:
         self.cursor = self.db.cursor()
 
     def __del__(self):
+        """
+        Ensures queries are committed
+        :return:
+        """
         self.db.commit()
 
     _queries = {}

@@ -1,3 +1,8 @@
+"""
+Implementation for file access and page creation. Latter may become dynamic in the future allowing pages to use their
+own page handlers.
+"""
+
 from pathlib import Path
 
 from core import database_operations

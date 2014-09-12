@@ -1,3 +1,10 @@
+"""
+Implementation of the setup routine.
+
+Currently uses the framework to dynamically create elements, once the basic site functionality has been implemented
+and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
+"""
+
 from core.base_handlers import PageHandler
 from .database import DatabaseError, Database
 from . import module_operations

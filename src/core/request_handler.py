@@ -1,3 +1,10 @@
+"""
+Implementation of the request handler.
+
+This class is being instantiated by the HTTP server when a request is received. This file should not be changed by
+non-core developers as it *should* not need altering.
+"""
+
 from http.server import BaseHTTPRequestHandler
 from io import BytesIO
 import shutil
@@ -47,6 +54,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         return 0
 
     def send_document(self):
+        # Eventually this try/catch will send errors and redirects based on exceptions thrown by the handler
         # try:
         document = self.page_handler.compile()
         # except Exception as exception:
@@ -66,7 +74,6 @@ class RequestHandler(BaseHTTPRequestHandler):
             shutil.copyfileobj(stream, self.wfile)
         finally:
             stream.close()
-
 
     def get_post_target(self):
         if self._url.get_query:

@@ -1,3 +1,7 @@
+"""
+Defines structures used to hold data that is being transmitted between modules and handlers.
+"""
+
 __author__ = 'justusadam'
 
 

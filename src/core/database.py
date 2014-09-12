@@ -1,3 +1,15 @@
+"""
+This file holds the adapter used to connect to the database(s). It will be expanded in the future to allow for
+compatibility with more database types.
+
+The API for accessing the database has changed and it is no longer recommended to use the insert(), select() etc,
+functions and instead use a custom Operations class, for which a base class can be found in database_operations and
+execute queries custom to the database type like the ones defined there.
+
+It is recommended to escape all values but not table and column names using the escape() function provided here since
+thus the escaping will be custom to the database type.
+"""
+
 from pathlib import Path
 
 __author__ = 'justusadam'
@@ -164,4 +176,13 @@ class Database:
 
 
 def escape(item, charset='utf-8'):
+    """
+    Escapes a value so that it can be used in a Query. The actual escape function invoked will depend on the type of
+    database.
+
+    This function can escape structures but does return a representation of them, not just the elements.
+    :param item:
+    :param charset: optional, specify the charset of your input
+    :return:
+    """
     return escape_item(item, charset)

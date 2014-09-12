@@ -1,3 +1,12 @@
+"""
+This file implements the basis for important default handler types.
+
+It used to describe more functionality but has been refactored to be simpler and cleaner.
+
+What remains are base classes that may be altered in the future but currently only serve as a launching point.
+
+Eventually basic functions that the core demands these classes to implement may be added as empty functions
+"""
 import sys
 
 
