@@ -1,13 +1,10 @@
 from core import database
+from core.database import escape
 
 __author__ = 'justusadam'
 
 
 charset = 'utf-8'
-
-
-def escape_item(item, c=charset):
-    return database.escape_item(item, c)
 
 
 class Operations:
@@ -19,34 +16,52 @@ class Operations:
     def __del__(self):
         self.db.commit()
 
+    _queries = {}
+
+    @property
+    def queries(self):
+        return self._queries[self.db.db_type.lower()]
+
+    def execute(self, query_name, *format_args, **format_kwargs):
+        query = self.queries[query_name].format(*format_args, **format_kwargs)
+        self.cursor.execute(query)
+
 
 class ContentHandlers(Operations):
 
-    queries = {
-        'add_new': 'replace into content_handlers (handler_module, handler_name, path_prefix) values ({handler_module}, {handler_name}, {path_prefix});',
-        'get_by_prefix': 'select handler_module from content_handlers where path_prefix={path_prefix};'
+    _queries = {
+        'mysql' : {
+            'add_new': 'replace into content_handlers (handler_module, handler_name, path_prefix) values ({handler_module}, {handler_name}, {path_prefix});',
+            'get_by_prefix': 'select handler_module from content_handlers where path_prefix={path_prefix};'
+        }
     }
 
+
     def add_new(self, handler_name, handler_module, path_prefix):
-        query = self.queries['add_new'].format(handler_module=escape_item(handler_module), handler_name=escape_item(handler_name), path_prefix=escape_item(path_prefix))
-        self.cursor.execute(query)
+        self.execute('add_new', handler_module=escape(handler_module), handler_name=escape(handler_name), path_prefix=escape(path_prefix))
         self.db.commit()
 
     def get_by_prefix(self, prefix):
-        query = self.queries['get_by_prefix'].format(path_prefix=escape_item(prefix))
-        self.cursor.execute(query)
+        self.execute('get_by_prefix', path_prefix=escape(prefix))
         return self.cursor.fetchone()[0]
 
 
 class Modules(Operations):
 
-    queries = {
-        'get_id': 'select id from modules where module_name={module_name};'
+    _queries = {
+        'mysql': {
+            'get_id': 'select id from modules where module_name={module_name};',
+            'get_path': 'select module_path from modules where module_name={module_name};',
+            'set_active': 'update modules set enabled=1 where module_name={module_name};',
+            'add_module': 'insert into modules (module_name, module_path, module_role) values ({module_name},{module_path},{module_role});',
+            'update_path': 'update modules set module_path={module_path} where module_name={module_name};',
+            'ask_active': 'select enabled from modules where module_name={module_name};',
+            'get_enabled': 'select module_name, module_path from modules where enabled=1;'
+        }
     }
 
     def get_id(self, module_name):
-        query = self.queries['get_id'].format(module_name=escape_item(module_name))
-        self.cursor.execute(query)
+        self.execute('get_id', module_name=escape(module_name))
         return self.cursor.fetchone()[0]
 
     def create_multiple_tables(self, *tables):
@@ -67,32 +82,43 @@ class Modules(Operations):
             self.db.insert(**value)
 
     def get_path(self, module):
-        return self.db.select('module_path', 'modules', 'where module_name = ' + escape_item(module)).fetchone()[0]
+        self.execute('get_path', module_name=escape(module))
+        return self.cursor.fetchone()[0]
 
     def set_active(self, module):
-        self.db.update('modules', {'enabled': '1'}, 'module_name = ' + escape_item(module))
+        self.execute('set_active', module_name=escape(module))
 
     def add_module(self, module_name, module_path, module_role):
-        self.db.insert('modules', ('module_name', 'module_path', 'module_role'), (module_name, module_path, module_role))
+        self.execute('add_module', module_name=escape(module_name), module_path=escape(module_path), module_role=escape(module_role))
 
     def update_path(self, module_name, path):
-        self.db.update('modules', {'module_path': path}, 'module_name = ' + escape_item(module_name))
+        self.execute('update_path', module_path=escape(path), module_name=escape(module_name))
 
     def ask_active(self, module):
-        return self.db.select('enabled', 'modules', 'where module_name = ' + escape_item(module)).fetchone()[0]
+        self.execute('update_path', module_name=escape(module))
+        return self.cursor.fetchone()[0]
 
     def get_enabled(self):
-        results =  self.db.select(('module_name', 'module_path'), 'modules', 'where enabled=' + escape_item(1)).fetchall()
+        self.execute('get_enabled')
         acc = []
-        for module in results:
+        for module in self.cursor.fetchall():
             acc.append({'name':module[0], 'path': module[1]})
         return acc
 
 
 class Alias(Operations):
 
+    _queries = {
+        'mysql': {
+            'by_alias': 'select source_url from alias where alias={alias};',
+            'by_source': 'select alias from alias where source_url={source};'
+        }
+    }
+
     def get_by_alias(self, alias):
-        return self.db.select('source_url', 'alias', 'where alias = ' + escape_item(alias)).fetchone()[0]
+        self.execute('by_alias', alias=escape(alias))
+        return self.cursor.fetchone()[0]
 
     def get_by_source(self, source):
-        return self.db.select('alias', 'alias', 'where source_url = ' + escape_item(source)).fetchone()[0]
+        self.execute('by_source', source=escape(source))
+        return [a[0] for a in self.cursor.fetchall()]

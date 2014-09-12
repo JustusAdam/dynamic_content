@@ -1,11 +1,11 @@
 from pathlib import Path
 
+from core import database_operations
+
 from core.base_handlers import PageHandler
 from core.modules import Modules
 from includes.bootstrap import Bootstrap
-
 from .page import Page
-from . import database_operations
 
 
 __author__ = 'justusadam'

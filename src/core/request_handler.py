@@ -3,12 +3,13 @@ from io import BytesIO
 import shutil
 from pathlib import Path
 
+from core import database_operations
+
 from core.database import DatabaseError, Database
 from includes.bootstrap import Bootstrap
 from .page_handlers import FileHandler, BasicPageHandler
 from framework.url_tools import Url
 from framework.config_tools import read_config
-from . import database_operations
 
 
 __author__ = 'justusadam'
