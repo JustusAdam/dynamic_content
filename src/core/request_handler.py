@@ -47,31 +47,25 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def send_document(self):
         # try:
-        handler_response = self.page_handler.compile()
+        document = self.page_handler.compile()
         # except Exception as exception:
         #     print(exception)
         #     self.send_error(404, *self.responses[404])
         #     return 0
-        if not handler_response:
-            # TODO send some generic error if handler rejects request
-            return
-        if handler_response == 200 or handler_response is True:
-            document = self.page_handler.encoded_document
-            self.send_response(200)
-            self.send_header("Content-type", "{content_type}; charset={encoding}".format(
-                content_type=self.page_handler.content_type, encoding=self.page_handler.encoding))
-            self.send_header("Content-Length", str(len(document)))
-            self.end_headers()
-            stream = BytesIO()
-            stream.write(document)
-            stream.seek(0)
-            try:
-                shutil.copyfileobj(stream, self.wfile)
-            finally:
-                stream.close()
-        else:
-            self.send_error(handler_response, *self.responses[handler_response])
-            return
+
+        self.send_response(200)
+        self.send_header("Content-type", "{content_type}; charset={encoding}".format(
+            content_type=self.page_handler.content_type, encoding=self.page_handler.encoding))
+        self.send_header("Content-Length", str(len(document)))
+        self.end_headers()
+        stream = BytesIO()
+        stream.write(document)
+        stream.seek(0)
+        try:
+            shutil.copyfileobj(stream, self.wfile)
+        finally:
+            stream.close()
+
 
     def get_post_target(self):
         if self._url.get_query:
@@ -103,6 +97,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             return 0
         try:
             db = Database()
+            db.connect()
         except DatabaseError:
             # TODO figure out which error to raise if database unreachable, currently 'internal server error'
             return 500

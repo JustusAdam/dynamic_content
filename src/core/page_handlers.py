@@ -58,9 +58,7 @@ class FileHandler(PageHandler):
                             self.encoding = 'png'
                         if suffix in content_types:
                             self.content_type = content_types[suffix]
-                    self._document = filepath.open('rb').read()
-                    self._has_document = True
-                    return self.response
+                    return filepath.open('rb').read()
             except FileNotFoundError:
                 pass
         return 404
@@ -86,8 +84,5 @@ class BasicPageHandler(PageHandler):
 
         page = content_handler.compile()
         theme_handler = self.get_theme_handler()(page)
-        theme_handler.compile()
-
-        self._document = theme_handler.document
-        self._has_document = True
-        return self.response
+        document = theme_handler.compile()
+        return document.encode(self.encoding)

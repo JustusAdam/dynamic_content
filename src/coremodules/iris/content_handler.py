@@ -83,11 +83,11 @@ class FieldBasedContentHandler(ContentHandler):
 
     def integrate(self, component):
         for stylesheet in component.stylesheets:
-            self._page.stylesheets.add(stylesheet)
+            self.page.stylesheets.add(stylesheet)
         for metatag in component.metatags:
-            self._page.metatags.add(metatag)
+            self.page.metatags.add(metatag)
         for script in component.scripts:
-            self._page.scripts.add(script)
+            self.page.scripts.add(script)
 
     def concatenate_content(self):
         content = ''
@@ -98,13 +98,13 @@ class FieldBasedContentHandler(ContentHandler):
     def compile(self):
         # executing step by step since any failing will fail all subsequent steps
         self.get_page_information()
-        page = Page(self._url, self.page_title)
+        self.page = Page(self._url, self.page_title)
         if self.theme:
-            page.used_theme = self.theme
+            self.page.used_theme = self.theme
         self.get_fields()
         self.handle_fields()
-        page.content = self.concatenate_content()
-        return page
+        self.page.content = self.concatenate_content()
+        return self.page
 
 
 class EditFieldBasedContentHandler(FieldBasedContentHandler):
@@ -149,16 +149,15 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
 
     def compile(self):
         self.get_page_information()
-        self._page = Page(self._url, self.page_title)
+        self.page = Page(self._url, self.page_title)
         if self.theme:
-            self._page.used_theme = self.theme
+            self.page.used_theme = self.theme
         self.get_fields()
         if self._is_post:
             self.process_post()
         self.handle_fields()
-        self.assign_content()
-        self._is_compiled = True
-        return 200
+        self.page.content = self.concatenate_content()
+        return self.page
 
     def process_post(self):
         self.assign_inputs()

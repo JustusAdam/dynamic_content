@@ -15,19 +15,7 @@ class ThemeHandler:
         self.used_theme = self.get_used_theme()
         self.theme_path = self.get_theme_path()
         self.theme_config = read_config(self.theme_path + '/config.json')
-        self._is_compiled = False
-        self._document = None
         self._pattern = {}
-
-
-    @property
-    def document(self):
-        if self._is_compiled:
-            return self._document
-        elif self.compile():
-            return self._document
-        else:
-            return None
 
     def get_used_theme(self):
         if self.page.used_theme == 'active':
@@ -88,7 +76,4 @@ class ThemeHandler:
         self._pattern['pagetitle'] = ContainerElement('Test', html_type='a', additionals='href="/"')
 
         template = open(self.get_template_directory() + 'page.html').read()
-        self._document = template.format(**self._pattern)
-
-        self._is_compiled = True
-        return True
+        return template.format(**self._pattern)
