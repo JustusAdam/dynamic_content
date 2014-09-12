@@ -155,10 +155,11 @@ class ContainerElement(BaseClassIdElement):
 
 
 class LinkElement(BaseElement):
-    def __init__(self, href, rel, additionals={}):
+    def __init__(self, href, rel, element_type='', additionals={}):
         super().__init__('link', additionals)
         self._customs['rel'] = rel
         self._customs['href'] = href
+        self._customs['type'] = element_type
 
 
 class Stylesheet(BaseElement):

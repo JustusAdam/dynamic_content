@@ -56,7 +56,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     def send_document(self):
         # Eventually this try/catch will send errors and redirects based on exceptions thrown by the handler
         # try:
-        document = self.page_handler.compile()
+        document = self.page_handler.encoded
         # except Exception as exception:
         #     print(exception)
         #     self.send_error(404, *self.responses[404])

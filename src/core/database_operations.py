@@ -103,7 +103,7 @@ class Modules(Operations):
         self.execute('update_path', module_path=escape(path), module_name=escape(module_name))
 
     def ask_active(self, module):
-        self.execute('update_path', module_name=escape(module))
+        self.execute('ask_active', module_name=escape(module))
         return self.cursor.fetchone()[0]
 
     def get_enabled(self):

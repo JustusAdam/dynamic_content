@@ -18,9 +18,17 @@ class PageHandler:
         self.page_type = None
         self._url = url
         self.content_type = 'text/html'
-        self.response = 200
         self.encoding = sys.getfilesystemencoding()
         self._page = None
+
+    @property
+    def encoded(self):
+        return self.compiled.encode(self.encoding)
+
+
+    @property
+    def compiled(self):
+        return self.compile()
 
     def compile(self):
         return ''

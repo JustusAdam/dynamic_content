@@ -29,8 +29,8 @@ class FileHandler(PageHandler):
         return self.parse_path()
 
     @property
-    def encoded_document(self):
-        return self._document
+    def encoded(self):
+        return self.compile()
 
     def parse_path(self):
         if len(self._url.path) < 2:
@@ -90,4 +90,4 @@ class BasicPageHandler(PageHandler):
         page = content_handler.compile()
         theme_handler = self.get_theme_handler()(page)
         document = theme_handler.compile()
-        return document.encode(self.encoding)
+        return document

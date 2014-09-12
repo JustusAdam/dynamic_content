@@ -138,7 +138,7 @@ class SetupHandler(PageHandler):
             'header': '',#BaseClassIdElement('img', element_id='pagelogo', additionals=['src="/theme/default_theme/logo_medium.png"', 'height="100px"', 'width="100px"']),
             'footer': str(ContainerElement('Python CMS 2014', element_id='')),
             'pagetitle': 'Setting up your CMS installation',
-            'meta': str(LinkElement('/theme/default_theme/favicon.png', 'shortcut icon'))
+            'meta': str(LinkElement('/theme/default_theme/favicon.png', 'shortcut icon', element_type='image/png'))
         }
         replacement_pattern = setup_pages[self._url.page_id]
 
@@ -153,16 +153,12 @@ class SetupHandler(PageHandler):
             page = page.format(this=self._url.path, next_page=self._url.page_id + 1)
         else:
             page = page.format(this=self._url.path, next_page=self._url.page_id + 1)
-        self._document = page
-        self._has_document = True
-        return 200
+        return page
 
     def process_post(self, post_query):
         return self._url.page_id == 3
 
     def setup(self):
-
-        db = Database()
 
         core_config = read_config('core/config')
         core_config['path'] = 'core'
