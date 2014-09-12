@@ -9,18 +9,18 @@ name = 'iris'
 role = 'page_handler'
 
 
-def content_handler(url, db, modules):
+def content_handler(url):
     if url.page_modifier == 'edit':
-        return EditFieldBasedContentHandler(url, db, modules)
+        return EditFieldBasedContentHandler(url)
     elif url.page_modifier == 'add':
-        return AddFieldBasedContentHandler(url, db, modules)
-    return FieldBasedContentHandler(url, db, modules)
+        return AddFieldBasedContentHandler(url)
+    return FieldBasedContentHandler(url)
 
-handlers = {
+field_handlers = {
     'show': BaseFieldHandler,
     'add': AddBaseFieldHandler,
     'edit': EditBaseFieldHandler
 }
 
-def field_handler(field_name, db, page_id, modifier):
-    return handlers[modifier](db, page_id, field_name)
+def field_handler(field_name, page_id, modifier):
+    return field_handlers[modifier](page_id, field_name)

@@ -1,10 +1,10 @@
 from importlib import import_module
 from pathlib import Path
 from framework.config_tools import read_config
-from core.database import escape, DatabaseError
+from core.database import DatabaseError
 from includes.bootstrap import Bootstrap
 from .modules import Modules
-from .database import Database
+from . import database_operations
 
 
 __author__ = 'justusadam'
@@ -66,72 +66,48 @@ def register_content_handler(module_conf):
     else:
         path_prefix = module_conf['name']
     try:
-        Database().replace('content_handlers', ('handler_module', 'handler_name', 'path_prefix'),
-                   (module_conf['name'], module_conf['name'], path_prefix))
+        database_operations.ContentHandlers().add_new(module_conf['name'], module_conf['name'], path_prefix)
     except DatabaseError as error:
         print('Failed to register page handler ' + module_conf['name'])
         print(error)
 
 
 def get_module_id(module_name):
-    db_result = Database().select('id', 'modules', 'where module_name = ' + escape(module_name)).fetchone()
-    if not db_result is None:
-        return db_result[0]
-    raise ModuleNotFoundError
+    return database_operations.Modules().get_id(module_name)
 
 
 def create_required_tables(tables):
-    def create_table(t):
-        try:
-            Database().create_table(**t)
-        except DatabaseError as err:
-            for column in t['columns']:
-                print(err)
-                # RFE it would be nice to check beforehand instead of catching errors
-                try:
-                    Database().alter_table(t['table_name'], add=column)
-                except DatabaseError as error:
-                    print(error)
-                    # TODO this might be dangerous, check if this breaks things (badly)
-                    Database().alter_table(t['table_name'], alter={column.split(' ', 1)[0]: column})
-
-    if not isinstance(tables, (list, tuple)):
-        tables = (tables,)
-    for table in tables:
-        create_table(table)
+    if isinstance(tables, (list, tuple)):
+        database_operations.Modules().create_multiple_tables(*tables)
+    else:
+        database_operations.Modules().create_multiple_tables(tables)
 
 
 def drop_module_tables(moduleconf):
     if 'required_tables' in moduleconf:
         print('dropping tables for ' + moduleconf['name'])
         try:
-            Database().drop_tables(tuple(a['table_name'] for a in moduleconf['required_tables']))
+            database_operations.Modules().drop_tables(tuple(a['table_name'] for a in moduleconf['required_tables']))
         except DatabaseError as newerror:
             print('Could not drop table for ' + moduleconf['name'] + ' due to error: ' + str(
                 newerror.args))
 
 
 def fill_tables(values):
-    if not isinstance(values, (tuple, list)):
-        values = (values,)
-    for value in values:
-        Database().insert(**value)
+    database_operations.Modules().insert_into_tables(values)
 
 
 def get_module_path(module):
-    query_result = Database().select('module_path', 'modules', 'where module_name = ' + escape(module)).fetchone()
-    if query_result is None:
-        return None
-    return query_result[0]
+    return database_operations.Modules().get_path(module)
 
 
 def _set_module_active(module_name):
-    Database().update('modules', {'enabled': '1'}, 'module_name = ' + escape(module_name))
+    database_operations.Modules().set_active(module_name)
 
 
 def is_active(module_name):
     try:
-        result = Database().select('enabled', 'modules', 'where module_name = ' + escape(module_name)).fetchone()
+        result = database_operations.Modules().ask_active(module_name)
     except DatabaseError:
         return False
     return result == 1
@@ -167,11 +143,13 @@ def register_modules(r_modules):
 
 def register_single_module(moduleconf):
     print('registering module ' + moduleconf['name'])
-    db_result = Database().select('module_path', 'modules', 'where module_name=' + escape(moduleconf['name'])).fetchone()
-    if db_result is None:
-        Database().insert('modules', ('module_name', 'module_path', 'module_role'), (moduleconf['name'], moduleconf['path'], moduleconf['role']))
-    elif db_result[0] != moduleconf['path']:
-        Database().update('modules', {'module_path': moduleconf['path']}, 'module_name = ' + escape(moduleconf['name']))
+    db_op = database_operations.Modules()
+    try:
+        path = db_op.get_path(moduleconf['name'])
+        if path[0] != moduleconf['path']:
+            db_op.update_path(moduleconf['name'], moduleconf['path'])
+    except (DatabaseError, TypeError):
+        db_op.add_module(moduleconf['name'], moduleconf['path'], moduleconf['role'])
 
 
 def check_info(info):
@@ -184,12 +162,10 @@ def check_info(info):
 
 
 def load_active_modules():
-    db_result = Database().select(('module_name', 'module_path'), 'modules', 'where enabled=' + escape(1))
-    item = db_result.fetchone()
     modules = {}
-    while item:
-        print('loading module ' + item[0])
-        modules[item[0]] = import_module(item[1].replace('/', '.'))
-        item = db_result.fetchone()
+    for item in database_operations.Modules().get_enabled():
+        print('loading module ' + item['name'])
+        modules[item['name']] = import_module(item['path'].replace('/', '.'))
+
     a = Modules(modules)
     return a

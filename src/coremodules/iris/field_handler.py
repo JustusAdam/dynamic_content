@@ -18,9 +18,7 @@ class BaseFieldHandler(FieldHandler):
         if not content:
             return False
         field = Component(self.get_field_title(), content=content)
-        self._field = field
-        self._is_compiled = True
-        return True
+        return field
 
     def get_field_title(self):
         return self.machine_name

@@ -13,13 +13,26 @@ from framework.singleton import singleton
 class Database:
 
     def __init__(self):
-        config = read_config(str(self.get_my_folder()) + '/../config')
-        self._connection = connect(**config['database_connection_arguments'])
+        self.config = read_config(str(self.get_my_folder()) + '/../config')
+        self._connection = None
+        self.connect()
         self.charset = 'utf-8'
 
     def __del__(self):
         self._connection.commit()
         self._connection.close()
+
+    def cursor(self):
+        return self._connection.cursor()
+
+    def commit(self):
+        self._connection.commit()
+
+    def close(self):
+        self._connection.close()
+
+    def connect(self):
+        self._connection = connect(**self.config['database_connection_arguments'])
 
     def create_table(self, table_name, columns):
         if isinstance(columns, (list, tuple)):

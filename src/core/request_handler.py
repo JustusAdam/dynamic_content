@@ -3,14 +3,16 @@ from io import BytesIO
 import shutil
 from pathlib import Path
 
-from core.database import DatabaseError, Database, escape
+from core.database import DatabaseError, Database
 from includes.bootstrap import Bootstrap
 from .page_handlers import FileHandler, BasicPageHandler
 from framework.url_tools import Url
 from framework.config_tools import read_config
+from . import database_operations
 
 
 __author__ = 'justusadam'
+
 
 bootstrap = Bootstrap()
 
@@ -105,26 +107,24 @@ class RequestHandler(BaseHTTPRequestHandler):
             # TODO figure out which error to raise if database unreachable, currently 'internal server error'
             return 500
 
-        self._url.path = self.translate_alias(str(self._url.path), db)
+        self._url.path = self.translate_alias(str(self._url.path))
 
         if len(self._url.path) == 0:
             return 404
 
         self.page_handler = BasicPageHandler(self._url)
-        db = None
         return 0
 
     def start_setup(self):
         if not read_config(str(Path(__file__).parent / 'config.json'))['setup']:
             return 404
         from .setup import SetupHandler
-        self.page_handler = SetupHandler(self._url, bootstrap)
+        self.page_handler = SetupHandler(self._url)
         return 0
 
-    def translate_alias(self, alias, db):
-        query_result = db.select('source_url', 'alias', 'where alias = ' + escape(alias)).fetchone()
-        if query_result is None:
-            query_result = alias
-        else:
-            query_result = query_result[0]
-        return query_result
+    def translate_alias(self, alias):
+        try:
+            query_result = database_operations.Alias().get_by_alias(alias)
+            return query_result
+        except (DatabaseError, TypeError):
+            return alias

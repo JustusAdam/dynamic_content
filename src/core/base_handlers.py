@@ -35,39 +35,9 @@ class PageHandler:
 
 
 class FieldHandler:
-    def __init__(self):
-        self._field = None
-        self._is_compiled = False
-
-    @property
-    def field(self):
-        if self._is_compiled:
-            return self._field
-        elif self.compile():
-            return self._field
-        else:
-            return None
-
-    def compile(self):
-        self._is_compiled = True
-        return True
+    pass
 
 
 class ContentHandler:
     def __init__(self, url):
-        self._page = None
         self._url = url
-        self._is_compiled = False
-
-    @property
-    def page(self):
-        if self._is_compiled:
-            return self._page
-        elif self.compile():
-            return self._page
-        else:
-            return None
-
-    def compile(self):
-        self._is_compiled = True
-        return True

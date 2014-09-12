@@ -16,11 +16,13 @@
         {
             "values": [
                 "body",
+                "Body",
                 "start_type",
                 "iris",
                 "1"
             ],
             "into_cols": [
+                "machine_name",
                 "field_name",
                 "content_type",
                 "handler_module",
@@ -85,7 +87,7 @@
             "columns": [
                 "id int unsigned not null auto_increment unique primary key comment 'primary id for machine convenience'",
                 "machine_name varchar(200) not null unique comment 'machine readable name'",
-                "field_name varchar(200) not null comment 'human readable name'"
+                "field_name varchar(200) not null comment 'human readable name'",
                 "content_type varchar(500) not null comment 'name of associated content type'",
                 "handler_module varchar(500) not null",
                 "weight int not null",

@@ -13,13 +13,13 @@ class FieldBasedContentHandler(ContentHandler):
 
     def __init__(self, url):
         super().__init__(url)
-        self.field_values = []
+        self.fields = []
         self.page_title = ''
         self.content_type = ''
         self.theme = ''
-        self.field_handlers = []
         self.db = Database()
         self.modules = Modules({})
+        self.modifier = 'show'
 
 
     def get_page_information(self):
@@ -33,13 +33,23 @@ class FieldBasedContentHandler(ContentHandler):
             self.theme = db_result[0]
         return True
 
-    def get_field_info(self):
-        db_result = self.db.select(('field_name', 'handler_module', 'weight', 'machine_name'), 'page_fields', 'where content_type = ' + escape_item(self.content_type, 'utf-8')).fetchall()
+    def get_fields(self):
+        db_result = self.db.select(('field_name', 'weight', 'machine_name', 'handler_module'), 'page_fields', 'where content_type = ' + escape_item(self.content_type, 'utf-8')).fetchall()
         if db_result is None:
             # TODO specify this Exception
             raise Exception
-        acc = sorted(db_result, key=lambda a: a[2])
-        return acc
+
+        fields = []
+
+        for result in db_result:
+            field = FieldInfo(*result[:-1])
+            field.handler = self.get_field_handler(field.field_name, result[-1])
+            fields.append(field)
+
+        fields.sort(key=lambda a: a.weight)
+        self.fields = fields
+
+        return
 
     def handle_single_field_post(self, field_handler):
         query_keys = field_handler.get_post_query_keys()
@@ -61,23 +71,15 @@ class FieldBasedContentHandler(ContentHandler):
             if vals:
                 field_handler.process_get(UrlQuery(vals))
 
-    def get_fields(self):
-        field_info = self.get_field_info()
-        for name in field_info:
-            self.field_handlers.append(self.get_field_handler(name[0], name[1]))
-        return True
-
     def handle_fields(self):
-        for field in self.field_handlers:
-            if not field.compile():
-                return False
-            field_value = field.field
-            self.field_values.append(field_value)
+        for field in self.fields:
+            field_value = field.handler.compile()
+            field.value = field_value
             self.integrate(field_value)
         return True
 
     def get_field_handler(self, name, module):
-        return self.modules[module].field_handler(name, self.db, self._url.page_id)
+        return self.modules[module].field_handler(name, self._url.page_id, self.modifier)
 
     def integrate(self, component):
         for stylesheet in component.stylesheets:
@@ -89,25 +91,20 @@ class FieldBasedContentHandler(ContentHandler):
 
     def concatenate_content(self):
         content = ''
-        for field in self.field_values:
-            content += str(field.content)
+        for field in self.fields:
+            content += str(field.value.content)
         return content
-
-    def assign_content(self):
-        self._page.content = self.concatenate_content()
-        return True
 
     def compile(self):
         # executing step by step since any failing will fail all subsequent steps
         self.get_page_information()
-        self._page = Page(self._url, self.page_title)
+        page = Page(self._url, self.page_title)
         if self.theme:
-            self._page.used_theme = self.theme
+            page.used_theme = self.theme
         self.get_fields()
         self.handle_fields()
-        self.assign_content()
-        self._is_compiled = True
-        return 200
+        page.content = self.concatenate_content()
+        return page
 
 
 class EditFieldBasedContentHandler(FieldBasedContentHandler):
@@ -117,18 +114,15 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
         self._is_post = bool(self._url.post_query)
         self.modifier = 'edit'
 
-    def get_field_handler(self, name, module):
-        return self.modules[module].edit_field_handler(name, self.db, self._url.page_id)
-
     def title_input(self):
         return [Label('Title', label_for='edit-title'), Input(element_id='edit-title',name='title', value=self.page_title, required=True)]
 
     def concatenate_content(self):
         content = [self.title_input()]
-        for field in self.field_values:
-            identifier = self.modifier + '-' + field.title
-            field.content.element_id = identifier
-            content.append((Label(field.title, label_for=identifier), field.content))
+        for field in self.fields:
+            identifier = self.modifier + '-' + field.value.title
+            field.value.content.element_id = identifier
+            content.append((Label(field.title, label_for=identifier), field.value.content))
         content.append((Label('Published', label_for='toggle-published'), Input(element_id='toggle-published',input_type='radio', value='1', name='publish')))
         table = TableElement(*content)
         if 'destination' in self._url.get_query:
@@ -137,28 +131,21 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
             dest = ''
         return str(FormElement(table, action=str(self._url) + dest))
 
-    def handle_fields(self):
-        for field in self.field_handlers:
-            field_value = field.field
-            self.field_values.append(field_value)
-            self.integrate(field_value)
-        return True
-
     def process_query(self):
-        for field in self.field_handlers:
-            field.process_post()
+        for field in self.fields:
+            field.handler.process_post()
 
     def validate_inputs(self):
-        for field in self.field_handlers:
-            if not field.validate_inputs():
+        for field in self.fields:
+            if not field.handler.validate_inputs():
                 raise ValueError
 
     def assign_inputs(self):
-        for field in self.field_handlers:
-            for key in field.get_post_query_keys():
+        for field in self.fields:
+            for key in field.handler.get_post_query_keys():
                 if not key in self._url.post_query:
                     raise KeyError
-                field.query[key] = [parse.unquote_plus(a) for a in self._url.post_query[key]]
+                field.handler.query[key] = [parse.unquote_plus(a) for a in self._url.post_query[key]]
 
     def compile(self):
         self.get_page_information()
@@ -193,8 +180,8 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
 
 class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
 
-    def __init__(self, url, db, modules):
-        super().__init__(url, db, modules)
+    def __init__(self, url):
+        super().__init__(url)
         self.modifier = 'add'
 
     def get_page_information(self):
@@ -225,12 +212,10 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
 
 class FieldInfo:
 
-    def __init__(self, field_name, handler_module_name, weight, machine_name, modules, modifier='show'):
-        self.modules = modules
+    def __init__(self, field_name, weight, machine_name):
         self.field_name = field_name
-        self.handler_module = self.get_handler(handler_module_name)
         self.weight = weight
         self.machine_name = machine_name
+        self.handler = None
+        self.value = None
 
-    def get_handler(self, module_name):
-        self.modules[module_name].field_handler(self.field_name, page_id, modifier)

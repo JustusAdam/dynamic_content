@@ -1,10 +1,11 @@
 from pathlib import Path
 
 from core.base_handlers import PageHandler
+from core.modules import Modules
 from includes.bootstrap import Bootstrap
 
 from .page import Page
-from core.database import escape, Database
+from . import database_operations
 
 
 __author__ = 'justusadam'
@@ -66,19 +67,14 @@ class FileHandler(PageHandler):
 
 
 class BasicPageHandler(PageHandler):
-    def __init__(self, url, modules):
+    def __init__(self, url):
         super().__init__(url)
         self._page = Page(url)
-        self.modules = modules
-        self.db = Database()
+        self.modules = Modules({})
 
     def get_content_handler(self):
-        db_result = self.db.select('handler_module', 'content_handlers', 'where path_prefix = ' +
-                                    escape(self._url.page_type)).fetchone()
-        if db_result:
-            handler_module = db_result[0]
-        else:
-            return None
+        handler_module = database_operations.ContentHandlers().get_by_prefix(self._url.page_type)
+
         handler = self.modules[handler_module].content_handler
         return handler
 
@@ -88,8 +84,7 @@ class BasicPageHandler(PageHandler):
     def compile(self):
         content_handler = self.get_content_handler()(self._url)
 
-        content_handler.compile()
-        page = content_handler.page
+        page = content_handler.compile()
         theme_handler = self.get_theme_handler()(page)
         theme_handler.compile()
 
