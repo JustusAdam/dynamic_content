@@ -21,7 +21,6 @@ class FieldBasedContentHandler(ContentHandler):
         self.modules = Modules({})
         self.modifier = 'show'
 
-
     def get_page_information(self):
         ops = database_operations.ContentTypes()
         (self.content_type, self.page_title) = ops.get_page_information(self._url.page_type, self._url.page_id)
@@ -34,7 +33,7 @@ class FieldBasedContentHandler(ContentHandler):
 
         for result in db_result:
             field = FieldInfo(*result[:-1])
-            field.handler = self.get_field_handler(field.field_name, result[-1])
+            field.handler = self.get_field_handler(field.machine_name, result[-1])
             fields.append(field)
 
         fields.sort(key=lambda a: a.weight)
@@ -70,7 +69,7 @@ class FieldBasedContentHandler(ContentHandler):
         return True
 
     def get_field_handler(self, name, module):
-        return self.modules[module].field_handler(name, self._url.page_id, self.modifier)
+        return self.modules[module].field_handler(name, self._url.page_type, self._url.page_id, self.modifier)
 
     def integrate(self, component):
         for stylesheet in component.stylesheets:
@@ -113,7 +112,7 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
         for field in self.fields:
             identifier = self.modifier + '-' + field.value.title
             field.value.content.element_id = identifier
-            content.append((Label(field.title, label_for=identifier), field.value.content))
+            content.append((Label(field.field_name, label_for=identifier), field.value.content))
         content.append((Label('Published', label_for='toggle-published'), Input(element_id='toggle-published',input_type='radio', value='1', name='publish')))
         table = TableElement(*content)
         if 'destination' in self._url.get_query:
@@ -135,6 +134,7 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
         for field in self.fields:
             for key in field.handler.get_post_query_keys():
                 if not key in self._url.post_query:
+                    print(key)
                     raise KeyError
                 field.handler.query[key] = [parse.unquote_plus(a) for a in self._url.post_query[key]]
 
@@ -188,12 +188,14 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
             published = True
         else:
             published = False
-        database_operations.ContentTypes().add_page(self._url.page_type, self._url.page_id, self.content_type, self.page_title, self.user, published)
+        return database_operations.ContentTypes().add_page(self._url.page_type, self.content_type, self.page_title, self.user, published)
 
     def process_post(self):
         self.assign_inputs()
         self.validate_inputs()
-        self.create_page()
+        new_id = self.create_page()
+        for field in self.fields:
+            field.handler.page_id = new_id
         self.process_query()
 
     def title_input(self):

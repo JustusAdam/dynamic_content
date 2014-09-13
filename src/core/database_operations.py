@@ -32,6 +32,7 @@ class Operations:
 
     def execute(self, query_name, *format_args, **format_kwargs):
         query = self.queries[query_name].format(*format_args, **format_kwargs)
+        print(query)
         self.cursor.execute(query)
 
 

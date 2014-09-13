@@ -22,5 +22,5 @@ field_handlers = {
     'edit': EditBaseFieldHandler
 }
 
-def field_handler(field_name, page_id, modifier):
-    return field_handlers[modifier](page_id, field_name)
+def field_handler(field_name, path_prefix, page_id, modifier):
+    return field_handlers[modifier](path_prefix, page_id, field_name)

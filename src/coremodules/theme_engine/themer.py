@@ -47,7 +47,7 @@ class ThemeHandler:
         return True
 
     def compile_footer(self):
-        self._pattern['footer'] = str(ContainerElement('Python CMS 2014', element_id='powered_by'))
+        self._pattern['footer'] = str(ContainerElement('_jaide CMS - &copy; Justus Adam 2014', element_id='powered_by'))
         return True
 
     def get_template_directory(self):
