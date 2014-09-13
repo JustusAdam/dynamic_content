@@ -17,7 +17,6 @@ class FieldBasedContentHandler(ContentHandler):
         self.page_title = ''
         self.content_type = ''
         self.theme = ''
-        #self.db = Database()
         self.modules = Modules({})
         self.modifier = 'show'
 

@@ -1,17 +1,19 @@
-from core.database import escape_item, Database
+from . import database_operations
 
 __author__ = 'justusadam'
 
 
-class MenuHandler:
+class CommonsHandler:
 
-    def __init__(self, name):
-        self.db = Database()
-        self.name = name
+    def __init__(self, machine_name, title):
+        self.name = machine_name
+        self.title = title
+
+
+class MenuHandler(CommonsHandler):
+
+    def __init__(self, machine_name, title):
+        super().__init__(machine_name, title)
 
     def get_items(self):
-        db_result = self.db.select('menu_items', ('display_name', 'item_path'), 'where enabled=true and menu=' + escape_item(self.name, 'utf-8'))
-        if not db_result:
-            return False
-        else:
-            return db_result.fetchall()
+        return database_operations.MenuOperations().get_items(self.name)
