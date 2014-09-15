@@ -1,5 +1,6 @@
 from importlib import import_module
 from pathlib import Path
+import os
 
 from core import database_operations
 from framework.config_tools import read_config
@@ -11,6 +12,8 @@ __author__ = 'justusadam'
 
 
 bootstrap = Bootstrap()
+basedir = str(Path(__file__).parent.parent.resolve())
+
 
 class ModuleError(Exception):
     def __init__(self, module_name):
@@ -162,9 +165,12 @@ def check_info(info):
 
 
 def get_active_modules():
+    curr_dir = os.getcwd()
+    os.chdir(basedir)
     modules = {}
     for item in database_operations.Modules().get_enabled():
         print('loading module ' + item['name'])
         modules[item['name']] = import_module(item['path'].replace('/', '.'))
+    os.chdir(curr_dir)
 
     return modules
