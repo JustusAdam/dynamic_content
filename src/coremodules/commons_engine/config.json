@@ -24,11 +24,12 @@
             ]
         },
         {
-            "table_name": "region_content",
+            "table_name": "regions",
             "columns": [
                 "id int unsigned not null unique auto_increment primary key",
                 "item_name varchar(200) not null",
-                "region varchar(200) not null"
+                "region varchar(200) not null",
+                "weight int not null"
             ]
         },
         {
