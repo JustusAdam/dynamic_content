@@ -1,9 +1,9 @@
 from importlib import import_module
 from pathlib import Path
-import os
 
 from core import database_operations
 from framework.config_tools import read_config
+from framework.misc_decorators import requiredir
 from core.database import DatabaseError
 from includes.bootstrap import Bootstrap
 
@@ -164,13 +164,12 @@ def check_info(info):
     return True
 
 
+@requiredir(basedir)
 def get_active_modules():
-    curr_dir = os.getcwd()
-    os.chdir(basedir)
+
     modules = {}
     for item in database_operations.Modules().get_enabled():
         print('loading module ' + item['name'])
         modules[item['name']] = import_module(item['path'].replace('/', '.'))
-    os.chdir(curr_dir)
 
     return modules
