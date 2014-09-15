@@ -35,7 +35,6 @@ class FieldBasedContentHandler(ContentHandler):
             field.handler = self.get_field_handler(field.machine_name, result[-1])
             fields.append(field)
 
-        fields.sort(key=lambda a: a.weight)
         self.fields = fields
 
         return
@@ -203,9 +202,8 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
 
 class FieldInfo:
 
-    def __init__(self, field_name, weight, machine_name):
+    def __init__(self, field_name, machine_name):
         self.field_name = field_name
-        self.weight = weight
         self.machine_name = machine_name
         self.handler = None
         self.value = None
