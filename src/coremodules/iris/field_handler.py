@@ -13,7 +13,8 @@ class BaseFieldHandler(FieldHandler):
         self.machine_name = machine_name
         self.path_prefix = path_prefix
 
-    def compile(self):
+    @property
+    def compiled(self):
         content = self.process_content()
         if not content:
             return False

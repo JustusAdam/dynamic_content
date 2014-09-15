@@ -34,7 +34,10 @@ class PageHandler:
 
 
 class FieldHandler:
-    pass
+
+    @property
+    def compiled(self):
+        return ''
 
 
 class ContentHandler:

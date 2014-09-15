@@ -61,7 +61,7 @@ class FieldBasedContentHandler(ContentHandler):
 
     def handle_fields(self):
         for field in self.fields:
-            field_value = field.handler.compiled()
+            field_value = field.handler.compiled
             field.value = field_value
             self.integrate(field_value)
         return True
