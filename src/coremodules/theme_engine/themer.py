@@ -65,7 +65,8 @@ class ThemeHandler:
             favicon = 'favicon.icon'
         self._pattern['meta'] = LinkElement('/theme/'+ self.used_theme + '/' + favicon, rel='shortcut icon', element_type='image/png')
 
-    def compile(self):
+    @property
+    def compiled(self):
         self.compile_scripts()
         self.compile_stylesheets()
         self.compile_meta()

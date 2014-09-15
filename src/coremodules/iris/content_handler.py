@@ -61,7 +61,7 @@ class FieldBasedContentHandler(ContentHandler):
 
     def handle_fields(self):
         for field in self.fields:
-            field_value = field.handler.compile()
+            field_value = field.handler.compiled()
             field.value = field_value
             self.integrate(field_value)
         return True
@@ -83,7 +83,8 @@ class FieldBasedContentHandler(ContentHandler):
             content += str(field.value.content)
         return content
 
-    def compile(self):
+    @property
+    def compiled(self):
         # executing step by step since any failing will fail all subsequent steps
         self.get_page_information()
         self.page = Page(self._url, self.page_title)
@@ -102,22 +103,30 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
         self._is_post = bool(self._url.post_query)
         self.modifier = 'edit'
 
-    def title_input(self):
+    @property
+    def title_options(self):
         return [Label('Title', label_for='edit-title'), Input(element_id='edit-title',name='title', value=self.page_title, required=True)]
 
     def concatenate_content(self):
-        content = [self.title_input()]
+        content = [self.title_options]
         for field in self.fields:
-            identifier = self.modifier + '-' + field.value.title
+            identifier = self.make_field_identifier(field)
             field.value.content.element_id = identifier
             content.append((Label(field.field_name, label_for=identifier), field.value.content))
-        content.append((Label('Published', label_for='toggle-published'), Input(element_id='toggle-published',input_type='radio', value='1', name='publish')))
+        content.append(self.admin_options)
         table = TableElement(*content)
         if 'destination' in self._url.get_query:
             dest = '?destination=' + self._url.get_query['destination'][0]
         else:
             dest = ''
         return str(FormElement(table, action=str(self._url) + dest))
+
+    def make_field_identifier(self, field):
+        return self.modifier + '-' + field.value.title
+
+    @property
+    def admin_options(self):
+        return Label('Published', label_for='toggle-published'), Input(element_id='toggle-published',input_type='radio', value='1', name='publish')
 
     def process_query(self):
         for field in self.fields:
@@ -136,9 +145,11 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
                     raise KeyError
                 field.handler.query[key] = [parse.unquote_plus(a) for a in self._url.post_query[key]]
 
-    def compile(self):
+
+    @property
+    def compiled(self):
         self.get_page_information()
-        self.page = Page(self._url, self.page_title)
+        page = Page(self._url, self.page_title)
         if self.theme:
             self.page.used_theme = self.theme
         self.get_fields()
@@ -146,7 +157,7 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
             self.process_post()
         self.handle_fields()
         self.page.content = self.concatenate_content()
-        return self.page
+        return page
 
     def process_post(self):
         self.assign_inputs()
@@ -196,7 +207,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
             field.handler.page_id = new_id
         self.process_query()
 
-    def title_input(self):
+    def title_options(self):
         return [Label('Title', label_for='edit-title'), Input(element_id='edit-title', name='title', required=True)]
 
 

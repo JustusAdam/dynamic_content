@@ -25,12 +25,13 @@ class FileHandler(PageHandler):
         self.page_type = 'file'
         self._document = ''
 
-    def compile(self):
+    @property
+    def compiled(self):
         return self.parse_path()
 
     @property
     def encoded(self):
-        return self.compile()
+        return self.compiled
 
     def parse_path(self):
         if len(self._url.path) < 2:
@@ -84,10 +85,11 @@ class BasicPageHandler(PageHandler):
     def get_theme_handler(self):
         return self.modules['theme_engine'].theme_handler
 
-    def compile(self):
+    @property
+    def compiled(self):
         content_handler = self.get_content_handler()(self._url)
 
-        page = content_handler.compile()
+        page = content_handler.compiled
         theme_handler = self.get_theme_handler()(page)
-        document = theme_handler.compile()
+        document = theme_handler.compiled
         return document

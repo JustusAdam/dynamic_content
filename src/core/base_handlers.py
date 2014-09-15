@@ -25,12 +25,8 @@ class PageHandler:
     def encoded(self):
         return self.compiled.encode(self.encoding)
 
-
     @property
     def compiled(self):
-        return self.compile()
-
-    def compile(self):
         return ''
 
     def process_post(self, post_request):
@@ -44,3 +40,7 @@ class FieldHandler:
 class ContentHandler:
     def __init__(self, url):
         self._url = url
+
+    @property
+    def compiled(self):
+        return ''
