@@ -11,17 +11,18 @@ __author__ = 'justusadam'
 
 class FieldBasedContentHandler(ContentHandler):
 
+    modifier = 'show'
+
     def __init__(self, url):
         super().__init__(url)
-        self.fields = []
-        (self.page_title, self.content_type, self.theme) = self.get_page_information()
         self.modules = Modules({})
-        self.modifier = 'show'
+        (self.page_title, self.content_type, self.theme) = self.get_page_information()
+        self.fields = self.get_fields()
 
     def get_page_information(self):
         ops = database_operations.ContentTypes()
         (content_type, title) = ops.get_page_information(self._url.page_type, self._url.page_id)
-        theme = ops.get_theme(content_type=self.content_type)
+        theme = ops.get_theme(content_type=content_type)
         return title, content_type, theme
 
     def get_fields(self):
@@ -29,14 +30,12 @@ class FieldBasedContentHandler(ContentHandler):
 
         fields = []
 
-        for result in db_result:
-            field = FieldInfo(*result[:-1])
-            field.handler = self.get_field_handler(field.machine_name, result[-1])
+        for (field_name, machine_name, handler_module) in db_result:
+            handler = self.get_field_handler(machine_name, handler_module)
+            field = FieldInfo(field_name, machine_name, handler)
             fields.append(field)
 
-        self.fields = fields
-
-        return
+        return fields
 
     def handle_single_field_post(self, field_handler):
         query_keys = field_handler.get_post_query_keys()
@@ -60,9 +59,8 @@ class FieldBasedContentHandler(ContentHandler):
 
     def handle_fields(self):
         for field in self.fields:
-            field_value = field.handler.compiled
-            field.value = field_value
-            self.integrate(field_value)
+            field.value = field.handler.compiled
+            self.integrate(field.value)
         return True
 
     def get_field_handler(self, name, module):
@@ -96,11 +94,13 @@ class FieldBasedContentHandler(ContentHandler):
 
 
 class EditFieldBasedContentHandler(FieldBasedContentHandler):
+
+    modifier = 'edit'
+
     def __init__(self, url):
         super().__init__(url)
         self.user = '1'
         self._is_post = bool(self._url.post_query)
-        self.modifier = 'edit'
 
     @property
     def title_options(self):
@@ -125,30 +125,27 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
 
     @property
     def admin_options(self):
-        return Label('Published', label_for='toggle-published'), Input(element_id='toggle-published',input_type='radio', value='1', name='publish')
+        return Label('Published', label_for='toggle-published'), Input(element_id='toggle-published', input_type='radio', value='1', name='publish')
 
     def process_query(self):
         for field in self.fields:
             field.handler.process_post()
 
-    def validate_inputs(self):
-        for field in self.fields:
-            if not field.handler.validate_inputs():
-                raise ValueError
-
     def assign_inputs(self):
         for field in self.fields:
+            mapping = {}
             for key in field.handler.get_post_query_keys():
                 if not key in self._url.post_query:
                     print(key)
                     raise KeyError
-                field.handler.query[key] = [parse.unquote_plus(a) for a in self._url.post_query[key]]
+                mapping[key] = [parse.unquote_plus(a) for a in self._url.post_query[key]]
+            field.handler.query = mapping
 
 
     @property
     def compiled(self):
         self.get_page_information()
-        page = Page(self._url, self.page_title)
+        self.page = Page(self._url, self.page_title)
         if self.theme:
             self.page.used_theme = self.theme
         self.get_fields()
@@ -156,11 +153,10 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
             self.process_post()
         self.handle_fields()
         self.page.content = self.concatenate_content()
-        return page
+        return self.page
 
     def process_post(self):
         self.assign_inputs()
-        self.validate_inputs()
         self.alter_page()
         self.process_query()
 
@@ -178,9 +174,10 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
 
 class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
 
+    modifier = 'add'
+
     def __init__(self, url):
         super().__init__(url)
-        self.modifier = 'add'
 
     def get_page_information(self):
         ops = database_operations.ContentTypes()
@@ -201,7 +198,6 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
 
     def process_post(self):
         self.assign_inputs()
-        self.validate_inputs()
         new_id = self.create_page()
         for field in self.fields:
             field.handler.page_id = new_id
@@ -213,9 +209,9 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
 
 class FieldInfo:
 
-    def __init__(self, field_name, machine_name):
+    def __init__(self, field_name, machine_name, handler=None):
         self.field_name = field_name
         self.machine_name = machine_name
-        self.handler = None
+        self.handler = handler
         self.value = None
 

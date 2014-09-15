@@ -7,6 +7,7 @@ __author__ = 'justusadam'
 
 
 class BaseFieldHandler(FieldHandler):
+
     def __init__(self, path_prefix, page_id, machine_name):
         super().__init__()
         self.page_id = page_id
@@ -40,7 +41,18 @@ class BaseFieldHandler(FieldHandler):
 class EditBaseFieldHandler(BaseFieldHandler):
     def __init__(self, path_prefix, page_id, machine_name):
         super().__init__(path_prefix, page_id, machine_name)
-        self.query = {}
+        self._query = {}
+
+    @property
+    def query(self):
+        return {}
+
+    @query.setter
+    def query(self, value):
+        for key in value:
+            if not isinstance(key, str):
+                raise ValueError
+        self._query = value
 
     def process_content(self):
         return Textarea(self.get_content(), name=self.machine_name, rows=7, cols=50)
@@ -50,9 +62,6 @@ class EditBaseFieldHandler(BaseFieldHandler):
 
     def process_post(self):
         database_operations.Fields().alter_content(self.machine_name, self.path_prefix, self.page_id, self.query[self.machine_name][0])
-
-    def validate_inputs(self):
-        return isinstance(self.query[self.machine_name][0], str)
 
 
 class AddBaseFieldHandler(EditBaseFieldHandler):
