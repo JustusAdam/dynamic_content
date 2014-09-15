@@ -165,7 +165,7 @@ def check_info(info):
     return True
 
 
-@requiredir(basedir)
+#@requiredir(basedir)
 def get_active_modules():
 
     modules = {}

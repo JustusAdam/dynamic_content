@@ -37,9 +37,9 @@ class Url:
         self._get_query = UrlQuery(query)
         self.post_query = post_query
 
-        self.page_id = None
+        self.page_id = 1
         self.page_type = None
-        self.page_modifier = None
+        self.page_modifier = 'show'
         self.parse_path()
 
     def parse_path(self):
@@ -51,7 +51,7 @@ class Url:
                 self.page_id = int(self.path[1])
             elif self.path[1].isalpha():
                 self.page_modifier = self.path[1]
-        if len(self.path) > 2 and not self.page_modifier:
+        if len(self.path) > 2:
             self.page_modifier = self.path[2]
 
     @property
