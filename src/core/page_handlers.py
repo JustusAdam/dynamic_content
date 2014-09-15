@@ -39,34 +39,36 @@ class FileHandler(PageHandler):
         if isinstance(basedirs, str):
             basedirs = (basedirs,)
         for basedir in basedirs:
-            try:
-                filepath = basedir + '/'.join([''] + self._url.path[1:])
-                basedir = Path(basedir).resolve()
-                filepath = Path(filepath).resolve()
-                if filepath.exists():
-                    if basedir not in filepath.parents:
-                        return 403
-                    if filepath.is_dir():
-                        return 403
-                    # RFE figure out what content types can occur and how to identify them here with a dict()
-                    content_types = {
-                        '.css': 'text/css',
-                        '.mp3': 'audio/mp3',
-                        '.ogg': 'audio/ogg',
-                        '.png': 'img/png'
-                    }
-                    suffix = filepath.suffix
-                    if not suffix is None:
-                        if suffix == '.ogg':
-                            self.encoding = 'ogg/vorbis'
-                        if suffix == '.png':
-                            self.encoding = 'png'
-                        if suffix in content_types:
-                            self.content_type = content_types[suffix]
-                    return filepath.open('rb').read()
-            except FileNotFoundError:
-                pass
-        return 404
+            filepath = basedir + '/'.join([''] + self._url.path[1:])
+            basedir = Path(basedir).resolve()
+            filepath = Path(filepath).resolve()
+
+            if not bootstrap.ALLOW_HIDDEN_FILES and filepath.name.startswith('.'):
+                raise FileNotFoundError
+
+            if filepath.exists():
+                if basedir not in filepath.parents:
+                    return 403
+                if filepath.is_dir():
+                    return 403
+                # RFE figure out what content types can occur and how to identify them here with a dict()
+                content_types = {
+                    '.css': 'text/css',
+                    '.mp3': 'audio/mp3',
+                    '.ogg': 'audio/ogg',
+                    '.png': 'img/png'
+                }
+                suffix = filepath.suffix
+                if not suffix is None:
+                    if suffix == '.ogg':
+                        self.encoding = 'ogg/vorbis'
+                    if suffix == '.png':
+                        self.encoding = 'png'
+                    if suffix in content_types:
+                        self.content_type = content_types[suffix]
+                return filepath.open('rb').read()
+        raise FileNotFoundError
+
 
 
 class BasicPageHandler(PageHandler):
