@@ -1,6 +1,7 @@
 __author__ = 'justusadam'
 
-from .module_operations import register_installed_modules, load_active_modules
+from .module_operations import register_installed_modules
+from .modules import Modules
 
 name = 'olymp'
 
@@ -10,4 +11,4 @@ role = 'core'
 
 
 def load_modules():
-    return load_active_modules()
+    return Modules()

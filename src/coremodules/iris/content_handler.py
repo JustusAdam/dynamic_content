@@ -15,7 +15,7 @@ class FieldBasedContentHandler(ContentHandler):
 
     def __init__(self, url):
         super().__init__(url)
-        self.modules = Modules({})
+        self.modules = Modules()
         (self.page_title, self.content_type, self.theme) = self.get_page_information()
         self.fields = self.get_fields()
 
@@ -185,7 +185,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
             raise ValueError
         content_type = self._url.get_query['ct']
         title = 'Add new ' + self._url.page_type + ' page'
-        theme = ops.get_theme(content_type=self.content_type)
+        theme = ops.get_theme(content_type=content_type)
         return title, content_type, theme
 
     def create_page(self):
@@ -203,6 +203,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
             field.handler.page_id = new_id
         self.process_query()
 
+    @property
     def title_options(self):
         return [Label('Title', label_for='edit-title'), Input(element_id='edit-title', name='title', required=True)]
 

@@ -11,6 +11,7 @@ needed is loaded immediately at server start.
 """
 
 from framework.singleton import singleton
+from .module_operations import get_active_modules
 
 __author__ = 'justusadam'
 
@@ -18,12 +19,16 @@ __author__ = 'justusadam'
 @singleton
 class Modules:
 
-    def __init__(self, modules):
-        self._modules = modules
+    _modules = {}
+
+    def __init__(self):
+        self.reload()
+
+    def reload(self):
+        self._modules = get_active_modules()
 
     def __getitem__(self, item):
         return self._modules[item]
-
 
     def __str__(self):
         return str(self._modules)

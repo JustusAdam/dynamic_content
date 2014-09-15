@@ -5,7 +5,6 @@ from core import database_operations
 from framework.config_tools import read_config
 from core.database import DatabaseError
 from includes.bootstrap import Bootstrap
-from .modules import Modules
 
 
 __author__ = 'justusadam'
@@ -162,11 +161,10 @@ def check_info(info):
     return True
 
 
-def load_active_modules():
+def get_active_modules():
     modules = {}
     for item in database_operations.Modules().get_enabled():
         print('loading module ' + item['name'])
         modules[item['name']] = import_module(item['path'].replace('/', '.'))
 
-    a = Modules(modules)
-    return a
+    return modules

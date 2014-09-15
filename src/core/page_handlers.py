@@ -74,7 +74,7 @@ class BasicPageHandler(PageHandler):
     def __init__(self, url):
         super().__init__(url)
         self._page = Page(url)
-        self.modules = Modules({})
+        self.modules = Modules()
 
     def get_content_handler(self):
         handler_module = database_operations.ContentHandlers().get_by_prefix(self._url.page_type)

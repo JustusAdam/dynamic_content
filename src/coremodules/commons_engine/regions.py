@@ -6,7 +6,7 @@ __author__ = 'justusadam'
 
 class RegionHandler:
 
-    modules = Modules({})
+    modules = Modules()
 
     operations = database_operations.RegionOperations()
 
