@@ -14,16 +14,15 @@ class FieldBasedContentHandler(ContentHandler):
     def __init__(self, url):
         super().__init__(url)
         self.fields = []
-        self.page_title = ''
-        self.content_type = ''
-        self.theme = ''
+        (self.page_title, self.content_type, self.theme) = self.get_page_information()
         self.modules = Modules({})
         self.modifier = 'show'
 
     def get_page_information(self):
         ops = database_operations.ContentTypes()
-        (self.content_type, self.page_title) = ops.get_page_information(self._url.page_type, self._url.page_id)
-        self.theme = ops.get_theme(content_type=self.content_type)
+        (content_type, title) = ops.get_page_information(self._url.page_type, self._url.page_id)
+        theme = ops.get_theme(content_type=self.content_type)
+        return title, content_type, theme
 
     def get_fields(self):
         db_result = database_operations.ContentTypes().get_fields(self.content_type)
@@ -184,12 +183,13 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
         self.modifier = 'add'
 
     def get_page_information(self):
-        new_id = database_operations.ContentTypes().get_largest_id(self._url.page_type) + 1
-        self._url.page_id = new_id
+        ops = database_operations.ContentTypes()
         if not 'ct' in self._url.get_query:
             raise ValueError
-        self.content_type = self._url.get_query['ct']
-        self.page_title = 'Add new ' + self._url.page_type + ' page'
+        content_type = self._url.get_query['ct']
+        title = 'Add new ' + self._url.page_type + ' page'
+        theme = ops.get_theme(content_type=self.content_type)
+        return title, content_type, theme
 
     def create_page(self):
         self.page_title = parse.unquote_plus(self._url.post_query['title'][0])

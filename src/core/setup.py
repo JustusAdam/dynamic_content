@@ -39,6 +39,7 @@ class SetupHandler(PageHandler):
         super().__init__(url)
         self.bootstrap = Bootstrap()
 
+    @property
     def compiled(self):
         config = read_config('config')
         setup_pages = {
