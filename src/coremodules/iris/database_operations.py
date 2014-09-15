@@ -10,7 +10,7 @@ class ContentTypes(Operations):
         'mysql': {
             'get_page_information': 'select content_type, page_title from {page_type} where id={page_id};',
             'get_theme': 'select theme from content_types where content_type_name={content_type};',
-            'get_fields': 'select field_name, weight, machine_name, handler_module from page_fields where content_type={content_type};',
+            'get_fields': 'select field_name, machine_name, handler_module from page_fields where content_type={content_type} order by weight;',
             'edit_page': 'update {page_type} set page_title={page_title}, published={published};',
             'add_page': 'insert into {page_type} (content_type, page_title, creator, published) values ({content_type}, {page_title}, {creator}, {published}); ',
             'get_new_id': 'select id from {page_type} where content_type={content_type} and page_title={page_title} and creator={creator} and published={published} order by id desc limit 1;',
