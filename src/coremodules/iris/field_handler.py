@@ -1,6 +1,6 @@
 from . import database_operations
-from core.base_handlers import FieldHandler
-from core.page import Component
+from framework.base_handlers import FieldHandler
+from framework.page import Component
 from framework.html_elements import Textarea
 
 __author__ = 'justusadam'

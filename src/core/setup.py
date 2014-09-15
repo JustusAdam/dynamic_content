@@ -5,7 +5,7 @@ Currently uses the framework to dynamically create elements, once the basic site
 and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
 """
 
-from core.base_handlers import PageHandler
+from framework.base_handlers import PageHandler
 from .database import DatabaseError, Database
 from . import module_operations
 from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, FormElement, Input, LinkElement

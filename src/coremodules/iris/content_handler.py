@@ -1,10 +1,12 @@
-from core.base_handlers import ContentHandler
+from urllib import parse
+
+from framework.base_handlers import ContentHandler
 from core.modules import Modules
-from core.page import Page
+from framework.page import Page
 from framework.html_elements import FormElement, TableElement, Input, Label
 from framework.url_tools import UrlQuery
-from urllib import parse
 from . import database_operations
+
 
 __author__ = 'justusadam'
 
