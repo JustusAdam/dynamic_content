@@ -10,17 +10,18 @@ role = 'page_handler'
 
 
 def content_handler(url):
-    if url.page_modifier == 'edit':
-        return EditFieldBasedContentHandler(url)
-    elif url.page_modifier == 'add':
-        return AddFieldBasedContentHandler(url)
-    return FieldBasedContentHandler(url)
+    handlers = {
+        'edit': EditFieldBasedContentHandler,
+        'show': FieldBasedContentHandler,
+        'add': AddFieldBasedContentHandler
+    }
+    return handlers[url.page_modifier](url)
 
-field_handlers = {
-    'show': BaseFieldHandler,
-    'add': AddBaseFieldHandler,
-    'edit': EditBaseFieldHandler
-}
 
 def field_handler(field_name, path_prefix, page_id, modifier):
-    return field_handlers[modifier](path_prefix, page_id, field_name)
+    handlers = {
+        'show': BaseFieldHandler,
+        'add': AddBaseFieldHandler,
+        'edit': EditBaseFieldHandler
+    }
+    return handlers[modifier](path_prefix, page_id, field_name)
