@@ -3,7 +3,7 @@ from pathlib import Path
 
 from core import database_operations
 from framework.config_tools import read_config
-from framework.misc_decorators import requiredir
+#from framework.misc_decorators import requiredir
 from core.database import DatabaseError
 from includes.bootstrap import Bootstrap
 
@@ -138,7 +138,6 @@ def discover_modules():
 
 def register_modules(r_modules):
     if isinstance(r_modules, (list, tuple)):
-        #print(','.join(list(a['name'] for a in r_modules)))
         for module in r_modules:
             register_single_module(module)
     else:
