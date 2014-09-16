@@ -54,6 +54,10 @@ __author__ = 'justusadam'
 
 
 class BaseElement:
+    """
+    Please note: '_customs' is not to be modified from outside the class, it is purely an easy way for subclasses to add
+    custom properties without having to change the render function(s).
+    """
 
     def __init__(self, html_type, additionals={}):
         self.html_type = html_type
@@ -95,10 +99,6 @@ class BaseElement:
 
 
 class BaseClassIdElement(BaseElement):
-    """
-    Please note: '_customs' is not to be modified from outside the class, it is purely an easy way for subclasses to add
-    custom properties without having to change the render function(s).
-    """
 
     _classes = None
 
