@@ -62,7 +62,6 @@ class FieldBasedContentHandler(ContentHandler):
     def handle_fields(self):
         for field in self.fields:
             field.value = field.handler.compiled
-            self.integrate(field.value)
         return True
 
     def get_field_handler(self, name, module):

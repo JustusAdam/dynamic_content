@@ -1,5 +1,6 @@
 from . import database_operations
 from core.modules import Modules
+from framework.page import Component
 
 __author__ = 'justusadam'
 
@@ -30,7 +31,12 @@ class RegionHandler:
         return Common(item_name, handler, item_type)
 
     def compile(self):
-        pass
+        page = Component(self.name)
+        compiled = [item.compile() for item in self.commons]
+        for item in compiled:
+            page += item
+
+        return page
 
 
 class Common:

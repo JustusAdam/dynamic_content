@@ -4,53 +4,53 @@ Framework for rendering HTML elements *incomplete*
 
 __author__ = 'justusadam'
 
-
-class ClassContainer:
-    def __init__(self, *classes):
-        self._classes = []
-        for value in classes:
-            if isinstance(value, str):
-                self._classes += [value]
-            if isinstance(value, list):
-                self._classes += value
-            if isinstance(value, tuple):
-                self._classes += list(value)
-
-    @property
-    def classes(self):
-        return self._classes
-
-    @classes.setter
-    def classes(self, value):
-        if isinstance(value, str):
-            self._classes = [value]
-        if isinstance(value, list):
-            self._classes = value
-        if isinstance(value, tuple):
-            self._classes = list(value)
-
-    def __add__(self, other):
-        if isinstance(other, str):
-            self._classes += [other]
-        if isinstance(other, list):
-            self._classes += other
-        if isinstance(other, tuple):
-            self._classes += list(other)
-        if isinstance(other, ClassContainer):
-            self._classes += other.classes
-        return self
-
-    def __bool__(self):
-        return bool(self._classes)
-
-    def __len__(self):
-        return len(self._classes)
-
-    def __str__(self):
-        return ' '.join(self._classes)
-
-    def __getitem__(self, item):
-        return self._classes[item]
+#
+# class ClassContainer:
+#     def __init__(self, *classes):
+#         self._classes = []
+#         for value in classes:
+#             if isinstance(value, str):
+#                 self._classes += [value]
+#             if isinstance(value, list):
+#                 self._classes += value
+#             if isinstance(value, tuple):
+#                 self._classes += list(value)
+#
+#     @property
+#     def classes(self):
+#         return self._classes
+#
+#     @classes.setter
+#     def classes(self, value):
+#         if isinstance(value, str):
+#             self._classes = [value]
+#         if isinstance(value, list):
+#             self._classes = value
+#         if isinstance(value, tuple):
+#             self._classes = list(value)
+#
+#     def __add__(self, other):
+#         if isinstance(other, str):
+#             self._classes += [other]
+#         if isinstance(other, list):
+#             self._classes += other
+#         if isinstance(other, tuple):
+#             self._classes += list(other)
+#         if isinstance(other, ClassContainer):
+#             self._classes += other.classes
+#         return self
+#
+#     def __bool__(self):
+#         return bool(self._classes)
+#
+#     def __len__(self):
+#         return len(self._classes)
+#
+#     def __str__(self):
+#         return ' '.join(self._classes)
+#
+#     def __getitem__(self, item):
+#         return self._classes[item]
 
 
 class BaseElement:
@@ -100,24 +100,29 @@ class BaseClassIdElement(BaseElement):
     custom properties without having to change the render function(s).
     """
 
-    def __init__(self, html_type, classes=[], element_id='', additionals={}):
+    def __init__(self, html_type, classes=set(), element_id='', additionals={}):
         super().__init__(html_type, additionals)
         self._classes = ClassContainer(classes)
         self.element_id = element_id
 
     @property
     def classes(self):
-        return self._classes.classes
+        return self._classes
 
     @classes.setter
     def classes(self, value):
-        self._classes.classes = [value]
+        if isinstance(value, set):
+            self._classes = value
+        elif isinstance(value, (list,tuple)):
+            self._classes = set(value)
+        elif isinstance(value, str):
+            self._classes = set([value])
 
 
     def render_head(self):
         frame = [self.html_type]
         if self.classes:
-            frame += ['class="' + str(self._classes) + '"']
+            frame += ['class="' + ' '.join(self._classes) + '"']
         if self.element_id:
             frame += ['id="' + self.element_id + '"']
         if self.additionals:
@@ -132,7 +137,7 @@ class BaseClassIdElement(BaseElement):
 
 class ContainerElement(BaseClassIdElement):
 
-    def __init__(self, *contents, html_type='div', classes=[], element_id='', additionals={}):
+    def __init__(self, *contents, html_type='div', classes=set(), element_id='', additionals={}):
         super().__init__(html_type, classes, element_id, additionals)
         self._content = contents
 
@@ -152,6 +157,58 @@ class ContainerElement(BaseClassIdElement):
 
     def __str__(self):
         return '<' + self.render_head() + '>' + self.render_content() + '</' + self.html_type + '>'
+
+
+class HTMLPage(ContainerElement):
+
+    _stylesheets = None
+    _metatags = None
+    _scripts = None
+
+    def __init__(self, title, *contents, classes=set(), element_id='', additionals={}, metatags=set(), stylesheets=set(), scripts=set()):
+        super().__init__(title, *contents, html_type='html', classes=classes, element_id=element_id, additionals=additionals)
+        self.stylesheets = stylesheets
+        self.metatags = metatags
+        self.scripts = scripts
+
+    @property
+    def stylesheets(self):
+        return self._stylesheets
+
+    @stylesheets.setter
+    def stylesheets(self, val):
+        if isinstance(val, set):
+            self._stylesheets = val
+        elif isinstance(val, (list, tuple)):
+            self._stylesheets = set(val)
+        elif isinstance(val, str):
+            self._stylesheets = {val}
+
+    @property
+    def metatags(self):
+        return self._metatags
+
+    @metatags.setter
+    def metatags(self, val):
+        if isinstance(val, set):
+            self._metatags = val
+        elif isinstance(val, (list, tuple)):
+            self._metatags = set(val)
+        elif isinstance(val, str):
+            self._metatags = {val}
+
+    @property
+    def scripts(self):
+        return self._scripts
+
+    @scripts.setter
+    def scripts(self, val):
+        if isinstance(val, set):
+            self._scripts = val
+        elif isinstance(val, (list, tuple)):
+            self._scripts = set(val)
+        elif isinstance(val, str):
+            self._scripts = {val}
 
 
 class LinkElement(BaseElement):
