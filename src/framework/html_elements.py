@@ -4,6 +4,8 @@ Framework for rendering HTML elements *incomplete*
 
 __author__ = 'justusadam'
 
+# I want to remove the necessity of this container by instead using a slightly more complicated attribute setter and
+# the builtin 'set' type.
 #
 # class ClassContainer:
 #     def __init__(self, *classes):
@@ -57,6 +59,8 @@ class BaseElement:
     """
     Please note: '_customs' is not to be modified from outside the class, it is purely an easy way for subclasses to add
     custom properties without having to change the render function(s).
+    Rule of thumb is that _customs should be used for any additional, visible properties mentioned in the constructor of
+    your inheriting class, unless you require a more complex setter
     """
 
     def __init__(self, html_type, additionals={}):
@@ -84,12 +88,19 @@ class BaseElement:
             return self._additionals
 
     def render_customs(self):
-        if isinstance(self._customs, dict):
-            acc = []
-            for k, v in self._customs.items():
-                if v:
-                    acc += [k + '="' + str(v) + '"']
-            return acc
+        def render(item):
+            if isinstance(item, str):
+                return item
+            elif hasattr(item, '__iter__'):
+                return ' '.join(list(str(a) for a in item))
+            else:
+                return str(item)
+
+        acc = []
+        for k, v in self._customs.items():
+            if v:
+                acc += [k + '="' + render(v) + '"']
+        return acc
 
     def __add__(self, other):
         return str(self) + str(other)
