@@ -7,7 +7,7 @@ The goal is to create a fast and easily expandable, modular CMS for every use im
 
 Currently there is no documentation and few comments and docstrings and it is by no means feature complete. Pull requests, contributions and feedback is very much welcome.
 
-100% Python
+100% Python ... not anymore. There's quite a bit of json in there and I plan to integrate a hash function for hashing user passwords written in C and yes, I know writing your own crypto is bad, but I want to and I might use a library if I find one I like.
 
 Requirements
 ---
