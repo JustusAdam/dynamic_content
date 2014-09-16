@@ -100,9 +100,11 @@ class BaseClassIdElement(BaseElement):
     custom properties without having to change the render function(s).
     """
 
+    _classes = None
+
     def __init__(self, html_type, classes=set(), element_id='', additionals={}):
         super().__init__(html_type, additionals)
-        self._classes = ClassContainer(classes)
+        self.classes = classes
         self.element_id = element_id
 
     @property
@@ -116,7 +118,7 @@ class BaseClassIdElement(BaseElement):
         elif isinstance(value, (list,tuple)):
             self._classes = set(value)
         elif isinstance(value, str):
-            self._classes = set([value])
+            self._classes = {value}
 
 
     def render_head(self):
