@@ -12,11 +12,13 @@ class ContentTypes(Operations):
             'get_theme': 'select theme from content_types where content_type_name={content_type};',
             'get_fields': 'select field_name, machine_name, handler_module from page_fields where content_type={content_type} order by weight;',
             'edit_page': 'update {page_type} set page_title={page_title}, published={published};',
-            'add_page': 'insert into {page_type} (content_type, page_title, creator, published) values ({content_type}, {page_title}, {creator}, {published}); ',
+            'add_page': 'insert into {page_type} (content_type, page_title, creator, published, date_created) values ({content_type}, {page_title}, {creator}, {published}, utc_timestamp()); ',
             'get_new_id': 'select id from {page_type} where content_type={content_type} and page_title={page_title} and creator={creator} and published={published} order by id desc limit 1;',
             'largest_id': 'select id from {table} order by id desc limit 1;'
         }
     }
+
+    _tables = {'content_types', 'iris'}
 
     def get_page_information(self, page_type, page_id):
         self.execute('get_page_information', page_type=page_type, page_id=escape(page_id))
@@ -53,6 +55,10 @@ class Fields(Operations):
             'add_field': 'insert into {table} (page_id, content, path_prefix) values ({page_id}, {content}, {path_prefix});'
         }
     }
+
+    _tables = {'body', 'page_fields'}
+
+    _start_field = 'body'
 
     def get_content(self, table, path_prefix, page_id):
         self.execute('get_content', table=table, page_id=escape(page_id), path_prefix=escape(path_prefix))

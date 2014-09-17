@@ -150,16 +150,16 @@ class BaseClassIdElement(BaseElement):
 
 class ContainerElement(BaseClassIdElement):
 
-    def __init__(self, *contents, html_type='div', classes=set(), element_id='', additionals={}):
+    def __init__(self, *content, html_type='div', classes=set(), element_id='', additionals={}):
         super().__init__(html_type, classes, element_id, additionals)
-        self._content = contents
+        self._content = content
 
     @property
-    def contents(self):
+    def content(self):
         return self._content
 
-    @contents.setter
-    def contents(self, value):
+    @content.setter
+    def content(self, value):
         if isinstance(value, str):
             self._content = [value]
         else:
@@ -178,8 +178,8 @@ class HTMLPage(ContainerElement):
     _metatags = None
     _scripts = None
 
-    def __init__(self, title, *contents, classes=set(), element_id='', additionals={}, metatags=set(), stylesheets=set(), scripts=set()):
-        super().__init__(title, *contents, html_type='html', classes=classes, element_id=element_id, additionals=additionals)
+    def __init__(self, title, *content, classes=set(), element_id='', additionals={}, metatags=set(), stylesheets=set(), scripts=set()):
+        super().__init__(title, *content, html_type='html', classes=classes, element_id=element_id, additionals=additionals)
         self.stylesheets = stylesheets
         self.metatags = metatags
         self.scripts = scripts
@@ -222,6 +222,12 @@ class HTMLPage(ContainerElement):
             self._scripts = set(val)
         elif isinstance(val, str):
             self._scripts = {val}
+    
+    def add(self, other):
+        self._stylesheets |= other.stylesheets
+        self._metatags |= other.metatags
+        self._scripts |= other.scripts
+        self.content += other.content
 
 
 class LinkElement(BaseElement):
@@ -253,7 +259,7 @@ class Stylesheet(BaseElement):
 
 
 class Script(BaseElement):
-    def __init__(self, src, prop_type='text/javascript', additionals=[]):
+    def __init__(self, src, prop_type='text/javascript', additionals={}):
         super().__init__('script', additionals)
         self._customs['type'] = prop_type
         self._customs['src'] = src
@@ -261,9 +267,9 @@ class Script(BaseElement):
 
 class List(ContainerElement):
 
-    def __init__(self, *contents, list_type='ul', classes=[], element_id='', additionals={}, item_classes=[],
+    def __init__(self, *content, list_type='ul', classes=set(), element_id='', additionals={}, item_classes=set(),
                  item_additional_properties={}):
-        super().__init__(*contents, html_type=list_type, classes=classes, element_id=element_id, additionals=additionals)
+        super().__init__(*content, html_type=list_type, classes=classes, element_id=element_id, additionals=additionals)
         self.item_classes = item_classes
         self.item_additionals = item_additional_properties
 
@@ -276,12 +282,12 @@ class List(ContainerElement):
                                         additionals=self.item_additionals))
 
     def render_content(self):
-        return ''.join(tuple(self.render_list_element(element) for element in self.contents))
+        return ''.join(tuple(self.render_list_element(element) for element in self.content))
 
 
 class TableElement(ContainerElement):
-    def __init__(self, *contents, classes=[], element_id='', additionals={}):
-        super().__init__(*contents, html_type='table', classes=classes, element_id=element_id, additionals=additionals)
+    def __init__(self, *content, classes=set(), element_id='', additionals={}):
+        super().__init__(*content, html_type='table', classes=classes, element_id=element_id, additionals=additionals)
 
     def render_table_row(self, row):
         if isinstance(row, ContainerElement):
@@ -298,12 +304,12 @@ class TableElement(ContainerElement):
         return '<td>' + str(data) + '</td>'
 
     def render_content(self):
-        return ''.join(tuple(self.render_table_row(element) for element in self.contents))
+        return ''.join(tuple(self.render_table_row(element) for element in self.content))
 
 
 class Input(BaseClassIdElement):
 
-    def __init__(self, classes=[], element_id='', input_type='text', name='', form='', value='', required=False, additionals={}):
+    def __init__(self, classes=set(), element_id='', input_type='text', name='', form='', value='', required=False, additionals={}):
         super().__init__('input', classes=classes, element_id=element_id, additionals=additionals)
         self._customs['name'] = name
         self._customs['type'] = input_type
@@ -323,8 +329,8 @@ class Input(BaseClassIdElement):
 
 
 class Textarea(ContainerElement):
-    def __init__(self, *contents, classes=[], element_id='', name='', form='', required=False, rows=0, cols=0, additionals={}):
-        super().__init__(*contents, html_type='textarea', classes=classes, element_id=element_id, additionals=additionals)
+    def __init__(self, *content, classes=set(), element_id='', name='', form='', required=False, rows=0, cols=0, additionals={}):
+        super().__init__(*content, html_type='textarea', classes=classes, element_id=element_id, additionals=additionals)
         self._customs['name'] = name
         self._customs['form'] = form
         self._customs['rows'] = rows
@@ -340,14 +346,14 @@ class Textarea(ContainerElement):
 
 
 class Label(ContainerElement):
-    def __init__(self, *contents, label_for='', classes=[], element_id='', additionals={}):
-        super().__init__(*contents, html_type='label', classes=classes, element_id=element_id, additionals=additionals)
+    def __init__(self, *content, label_for='', classes=set(), element_id='', additionals={}):
+        super().__init__(*content, html_type='label', classes=classes, element_id=element_id, additionals=additionals)
         self._customs['label'] = label_for
 
 
 class SubmitButton(Input):
 
-    def __init__(self, value='Submit', classes=[], element_id='', name='submit', end_line=False, form='',
+    def __init__(self, value='Submit', classes=set(), element_id='', name='submit', end_line=False, form='',
                  additionals={}):
         super().__init__(value=value, classes=classes, element_id=element_id, name=name, input_type='submit', form=form,
                          additionals=additionals)
@@ -355,9 +361,9 @@ class SubmitButton(Input):
 
 class FormElement(ContainerElement):
 
-    def __init__(self, *contents, action='{this}',classes=[], element_id='', method='post', charset='UTF-8',
+    def __init__(self, *content, action='{this}',classes=set(), element_id='', method='post', charset='UTF-8',
                  submit=SubmitButton(), target='', additionals={}):
-        super().__init__(*contents, html_type='form', classes=classes, element_id=element_id, additionals=additionals)
+        super().__init__(*content, html_type='form', classes=classes, element_id=element_id, additionals=additionals)
         self._customs['method'] = method
         self._customs['charset'] = charset
         self._customs['target'] = target

@@ -2,43 +2,24 @@
     "name": "core",
     "role": "core",
     "setup": true,
-    "required_tables": [
-        {
-            "table_name": "content_handlers",
-            "columns": [
-                "id int unsigned not null auto_increment unique primary key comment 'primary key used for identification'",
-                "handler_module varchar(500) not null comment 'identifier for the module providing the handler'",
-                "handler_name varchar(500) comment 'human readable name of the page handler'",
-                "path_prefix varchar(500) not null unique comment 'path prefix identifying this page handler' "
-            ]
-        },
-        {
-            "table_name": "modules",
-            "columns": [
-                "id int unsigned not null auto_increment unique primary key comment 'primary key used for identification'",
-                "module_name varchar(500) not null unique comment 'machine readable name for the module'",
-                "module_path varchar(500) comment 'name of the module'",
-                "enabled boolean not null default false",
-                "module_role varchar(500) not null"
-            ]
-        },
-        {
-            "table_name": "content_types",
-            "columns": [
-                "id int unsigned not null auto_increment unique primary key comment 'primary key used for identification'",
-                "content_type_name varchar(500) not null unique comment 'name of the content type'",
-                "content_handler varchar(500) not null comment 'name of the associated content handler type'",
-                "theme varchar(100) not null default 'active'",
-                "description text comment 'human readable content type description'"
-            ]
-        },
-        {
-            "table_name": "alias",
-            "columns": [
-                "id int unsigned not null auto_increment unique primary key comment 'unique identifier'",
-                "source_url varchar(500) not null comment 'the source page'",
-                "alias varchar(500) not null unique comment 'page alias'"
-            ]
-        }
-    ]
+    "tables": {
+        "content_handlers": [
+            "id int unsigned not null auto_increment unique primary key comment 'primary key used for identification'",
+            "handler_module varchar(500) not null comment 'identifier for the module providing the handler'",
+            "handler_name varchar(500) comment 'human readable name of the page handler'",
+            "path_prefix varchar(500) not null unique comment 'path prefix identifying this page handler' "
+        ],
+        "modules": [
+            "id int unsigned not null auto_increment unique primary key comment 'primary key used for identification'",
+            "module_name varchar(500) not null unique comment 'machine readable name for the module'",
+            "module_path varchar(500) comment 'name of the module'",
+            "enabled boolean not null default false",
+            "module_role varchar(500) not null"
+        ],
+        "alias": [
+            "id int unsigned not null auto_increment unique primary key comment 'unique identifier'",
+            "source_url varchar(500) not null comment 'the source page'",
+            "alias varchar(500) not null unique comment 'page alias'"
+        ]
+    }
 }

@@ -3,7 +3,6 @@ from pathlib import Path
 
 from core import database_operations
 from framework.config_tools import read_config
-#from framework.misc_decorators import requiredir
 from core.database import DatabaseError
 from includes.bootstrap import Bootstrap
 
@@ -38,6 +37,7 @@ def activate_module(module_name):
         print('Module ' + module_name + ' could not be activated')
         return False
     module_conf = read_config(path + '/config.json')
+    module_conf['path'] = path
 
     return _activate_module(module_conf)
 
@@ -45,19 +45,9 @@ def activate_module(module_name):
 def _activate_module(module_conf):
 
     try:
-        if 'required_tables' in module_conf:
-            create_required_tables(module_conf['required_tables'])
-        if 'insert' in module_conf:
-            fill_tables(module_conf['insert'])
+        init_module(module_conf['path'])
     except DatabaseError:
         return False
-
-    known_roles = {
-        'page_handler': register_content_handler
-    }
-
-    if module_conf['role'] in known_roles:
-        known_roles[module_conf['role']](module_conf)
 
     _set_module_active(module_conf['name'])
     return True
@@ -80,11 +70,9 @@ def get_module_id(module_name):
     return database_operations.Modules().get_id(module_name)
 
 
-def create_required_tables(tables):
-    if isinstance(tables, (list, tuple)):
-        database_operations.Modules().create_multiple_tables(*tables)
-    else:
-        database_operations.Modules().create_multiple_tables(tables)
+def init_module(module_path):
+    module = import_module(module_path.replace('/', '.'))
+    module.prepare()
 
 
 def drop_module_tables(moduleconf):
@@ -95,11 +83,6 @@ def drop_module_tables(moduleconf):
         except DatabaseError as newerror:
             print('Could not drop table for ' + moduleconf['name'] + ' due to error: ' + str(
                 newerror.args))
-
-
-def fill_tables(values):
-    database_operations.Modules().insert_into_tables(values)
-
 
 def get_module_path(module):
     return database_operations.Modules().get_path(module)

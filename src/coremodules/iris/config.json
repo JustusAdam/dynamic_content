@@ -1,99 +1,46 @@
 {
-    "insert": [
-        {
-            "values": [
-                "1",
-                "iris",
-                "<div><h3>Welcome to your _jaide installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you'll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div>"
-            ],
-            "into_cols": [
-                "page_id",
-                "path_prefix",
-                "content"
-            ],
-            "into_table": "body"
-        },
-        {
-            "values": [
-                "body",
-                "Body",
-                "start_type",
-                "iris",
-                "1"
-            ],
-            "into_cols": [
-                "machine_name",
-                "field_name",
-                "content_type",
-                "handler_module",
-                "weight"
-            ],
-            "into_table": "page_fields"
-        },
-        {
-            "values": [
-                "start_type",
-                "Welcome to _jaide",
-                "1",
-                "1"
-            ],
-            "into_cols": [
-                "content_type",
-                "page_title",
-                "creator",
-                "published"
-            ],
-            "into_table": "iris"
-        },
-        {
-            "values": [
-                "start_type",
-                "iris"
-            ],
-            "into_cols": [
-                "content_type_name",
-                "content_handler"
-            ],
-            "into_table": "content_types"
-        }
-    ],
+    "startpage": {
+        "content_type": "start_type",
+        "creator": "1",
+        "page_title": "Welcome to _jaide",
+        "page_type": "iris",
+        "published": true,
+        "body": "<div><h3>Welcome to your _jaide installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you'll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div>"
+    },
     "name": "iris",
-    "required_tables": [
-        {
-            "columns": [
-                "id int unsigned not null auto_increment unique primary key",
-                "content_type varchar(500) not null",
-                "page_title varchar(500) not null",
-                "published boolean default '0'",
-                "creator int unsigned not null",
-                "date_created timestamp default current_timestamp",
-                "date_changed timestamp default current_timestamp on update current_timestamp"
-            ],
-            "table_name": "iris"
-        },
-        {
-            "columns": [
-                "id int unsigned not null auto_increment unique primary key",
-                "page_id int unsigned not null",
-                "path_prefix varchar(100) not null",
-                "content longtext",
-                "date_created timestamp default current_timestamp",
-                "date_changed timestamp default current_timestamp on update current_timestamp"
-            ],
-            "table_name": "body"
-        },
-        {
-            "table_name": "page_fields",
-            "columns": [
-                "id int unsigned not null auto_increment unique primary key comment 'primary id for machine convenience'",
-                "machine_name varchar(200) not null unique comment 'machine readable name'",
-                "field_name varchar(200) not null comment 'human readable name'",
-                "content_type varchar(500) not null comment 'name of associated content type'",
-                "handler_module varchar(500) not null",
-                "weight int not null",
-                "description text comment 'human readable field type description'"
-            ]
-        }
-    ],
+    "tables": {
+        "iris": [
+            "id int unsigned not null auto_increment unique primary key",
+            "content_type varchar(500) not null",
+            "page_title varchar(500) not null",
+            "published boolean default '0'",
+            "creator int unsigned not null",
+            "date_created datetime not null",
+            "date_changed timestamp default current_timestamp on update current_timestamp"
+        ],
+        "body": [
+            "id int unsigned not null auto_increment unique primary key",
+            "page_id int unsigned not null",
+            "path_prefix varchar(100) not null",
+            "content longtext",
+            "date_changed timestamp default current_timestamp on update current_timestamp"
+        ],
+        "page_fields": [
+            "id int unsigned not null auto_increment unique primary key comment 'primary id for machine convenience'",
+            "machine_name varchar(200) not null unique comment 'machine readable name'",
+            "field_name varchar(200) not null comment 'human readable name'",
+            "content_type varchar(500) not null comment 'name of associated content type'",
+            "handler_module varchar(500) not null",
+            "weight int not null",
+            "description text comment 'human readable field type description'"
+        ],
+        "content_types": [
+            "id int unsigned not null auto_increment unique primary key comment 'primary key used for identification'",
+            "content_type_name varchar(500) not null unique comment 'name of the content type'",
+            "content_handler varchar(500) not null comment 'name of the associated content handler type'",
+            "theme varchar(100) not null default 'active'",
+            "description text comment 'human readable content type description'"
+        ]
+    },
     "role": "page_handler"
 }

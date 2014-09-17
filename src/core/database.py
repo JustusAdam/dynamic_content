@@ -49,10 +49,10 @@ class Database:
 
     def create_table(self, table_name, columns):
         if isinstance(columns, (list, tuple)):
-            columns = '(' + ', '.join(columns) + ')'
+            columns = ', '.join(columns)
 
         cursor = self._connection.cursor()
-        cursor.execute('create table ' + ' '.join([table_name, columns]) + ';')
+        cursor.execute('create table ' + ' '.join([table_name, '(' + columns + ')']) + ';')
         print('created table ' + table_name)
         cursor.close()
     #

@@ -11,6 +11,8 @@ class MenuOperations(Operations):
         }
     }
 
+    _tables = {'menu_items', 'menus'}
+
     def get_items(self, name):
         self.execute('get_items', menu_name=escape(name))
         return self.cursor.fetchall()
@@ -24,6 +26,8 @@ class RegionOperations(Operations):
             'get_item_info': 'select handler_module, item_type from common_elements where item_name={item_name};'
         }
     }
+
+    _tables = {'common_elements', 'regions'}
 
     def get_commons(self, region_name):
         self.execute('get_commons', region=region_name)

@@ -7,11 +7,16 @@ This is currently the recommended method for accessing the database to ensure co
 
 from core import database
 from core.database import escape
+from framework.config_tools import read_config
+from pathlib import Path
 
 __author__ = 'justusadam'
 
 
 class Operations:
+
+    _config_name = 'config.json'
+
     def __init__(self):
         self.db = database.Database()
         self.charset = 'utf-8'
@@ -26,6 +31,13 @@ class Operations:
 
     _queries = {}
 
+    _tables = {}
+
+    @property
+    def tables(self):
+        t = self.config['tables']
+        return {k: t[k] for k in self._tables}
+
     @property
     def queries(self):
         return self._queries[self.db.db_type.lower()]
@@ -34,6 +46,25 @@ class Operations:
         query = self.queries[query_name].format(*format_args, **format_kwargs)
         print(query)
         self.cursor.execute(query)
+
+    def create_table(self, table, columns):
+        self.db.create_table(table, columns)
+
+    def create_all_tables(self):
+        for table in self.tables:
+            self.create_table(table, self.tables[table])
+
+    def fill_tables(self):
+        pass
+
+    def init_tables(self):
+        self.create_all_tables()
+        self.fill_tables()
+
+    @property
+    def config(self):
+        path = str(Path(__file__).parent / self._config_name)
+        return read_config(path)
 
 
 class ContentHandlers(Operations):
@@ -45,6 +76,7 @@ class ContentHandlers(Operations):
         }
     }
 
+    _tables = {'content_handlers'}
 
     def add_new(self, handler_name, handler_module, path_prefix):
         self.execute('add_new', handler_module=escape(handler_module), handler_name=escape(handler_name), path_prefix=escape(path_prefix))
@@ -68,6 +100,11 @@ class Modules(Operations):
             'get_enabled': 'select module_name, module_path from modules where enabled=1;'
         }
     }
+
+    _tables = {'modules'}
+
+    def fill_tables(self):
+        self.execute('add_module', module_name='core', module_path='core', module_role='core')
 
     def get_id(self, module_name):
         self.execute('get_id', module_name=escape(module_name))
@@ -123,6 +160,8 @@ class Alias(Operations):
             'by_source': 'select alias from alias where source_url={source};'
         }
     }
+
+    _tables = {'alias'}
 
     def get_by_alias(self, alias):
         self.execute('by_alias', alias=escape(alias))
