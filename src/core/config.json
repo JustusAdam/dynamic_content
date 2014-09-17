@@ -20,6 +20,13 @@
             "id int unsigned not null auto_increment unique primary key comment 'unique identifier'",
             "source_url varchar(500) not null comment 'the source page'",
             "alias varchar(500) not null unique comment 'page alias'"
+        ],
+        "content_types": [
+            "id int unsigned not null auto_increment unique primary key comment 'primary key used for identification'",
+            "content_type_name varchar(500) not null unique comment 'name of the content type'",
+            "content_handler varchar(500) not null comment 'name of the associated content handler type'",
+            "theme varchar(100) not null default 'active'",
+            "description text comment 'human readable content type description'"
         ]
     }
 }

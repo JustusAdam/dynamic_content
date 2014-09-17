@@ -6,3 +6,7 @@ name = 'admin_pages'
 
 def page_handler_factory():
     pass
+
+
+def prepare():
+    pass

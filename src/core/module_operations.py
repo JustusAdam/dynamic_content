@@ -46,7 +46,8 @@ def _activate_module(module_conf):
 
     try:
         init_module(module_conf['path'])
-    except DatabaseError:
+    except DatabaseError as error:
+        print(error)
         return False
 
     _set_module_active(module_conf['name'])
@@ -72,14 +73,18 @@ def get_module_id(module_name):
 
 def init_module(module_path):
     module = import_module(module_path.replace('/', '.'))
-    module.prepare()
+    try:
+        module.prepare()
+    except ModuleError as error:
+        print(error)
+        print('it seems no prepare() method could be found')
 
 
 def drop_module_tables(moduleconf):
     if 'required_tables' in moduleconf:
         print('dropping tables for ' + moduleconf['name'])
         try:
-            database_operations.Modules().drop_tables(tuple(a['table_name'] for a in moduleconf['required_tables']))
+            database_operations.Modules().drop_tables(*(a['table_name'] for a in moduleconf['required_tables']))
         except DatabaseError as newerror:
             print('Could not drop table for ' + moduleconf['name'] + ' due to error: ' + str(
                 newerror.args))

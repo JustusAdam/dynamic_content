@@ -4,6 +4,7 @@ Used for convenience and readability as well as adaptability for different datab
 
 This is currently the recommended method for accessing the database to ensure convenient overview of queries.
 """
+import sys
 
 from core import database
 from core.database import escape
@@ -54,16 +55,28 @@ class Operations:
         for table in self.tables:
             self.create_table(table, self.tables[table])
 
+    def drop_tables(self, *tables):
+        self.db.drop_tables(*tables)
+
     def fill_tables(self):
         pass
 
+    def drop_all_tables(self):
+        for table in self.tables:
+            try:
+                self.drop_tables(table)
+            except:
+                print('Could not drop table ' + table)
+
     def init_tables(self):
+        self.drop_all_tables()
         self.create_all_tables()
         self.fill_tables()
 
     @property
     def config(self):
-        path = str(Path(__file__).parent / self._config_name)
+        # I am not sure this is the most efficient way of determining the config path, but it appears to be the only one
+        path = str(Path(sys.modules[self.__class__.__module__].__file__).parent / self._config_name)
         return read_config(path)
 
 
@@ -118,9 +131,6 @@ class Modules(Operations):
                 print('Error in Database Module Operations (create_table)')
                 print(error)
 
-    def drop_tables(self, names):
-        self.db.drop_tables(names)
-
     def insert_into_tables(self, values):
         if not isinstance(values, (tuple, list)):
             values = (values,)
@@ -148,7 +158,7 @@ class Modules(Operations):
         self.execute('get_enabled')
         acc = []
         for module in self.cursor.fetchall():
-            acc.append({'name':module[0], 'path': module[1]})
+            acc.append({'name': module[0], 'path': module[1]})
         return acc
 
 
@@ -170,3 +180,22 @@ class Alias(Operations):
     def get_by_source(self, source):
         self.execute('by_source', source=escape(source))
         return [a[0] for a in self.cursor.fetchall()]
+
+
+class ContentTypes(Operations):
+
+    _tables = {'content_types'}
+
+    _queries = {
+        'mysql': {
+            'add': 'insert into content_types (content_type_name, content_handler, theme, description) values ({content_type_name}, {content_handler}, {theme}, {description});',
+            'get_theme': 'select theme from content_types where content_type_name={content_type};'
+        }
+    }
+
+    def add(self, content_type_name, content_handler, theme, description=''):
+        self.execute('add', content_type_name=escape(content_type_name), content_handler=escape(content_handler), theme=escape(theme), description=escape(description))
+
+    def get_theme(self, content_type):
+        self.execute('get_theme', content_type=escape(content_type))
+        return self.cursor.fetchone()[0]

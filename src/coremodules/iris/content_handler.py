@@ -22,13 +22,13 @@ class FieldBasedContentHandler(ContentHandler):
         self.fields = self.get_fields()
 
     def get_page_information(self):
-        ops = database_operations.ContentTypes()
+        ops = database_operations.Pages()
         (content_type, title) = ops.get_page_information(self._url.page_type, self._url.page_id)
         theme = ops.get_theme(content_type=content_type)
         return title, content_type, theme
 
     def get_fields(self):
-        db_result = database_operations.ContentTypes().get_fields(self.content_type)
+        db_result = database_operations.Pages().get_fields(self.content_type)
 
         fields = []
 
@@ -170,7 +170,7 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
             published = True
         else:
             published = False
-        database_operations.ContentTypes().edit_page(self._url.page_type, self.page_title, published)
+        database_operations.Pages().edit_page(self._url.page_type, self.page_title, published)
 
 
 class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
@@ -181,7 +181,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
         super().__init__(url)
 
     def get_page_information(self):
-        ops = database_operations.ContentTypes()
+        ops = database_operations.Pages()
         if not 'ct' in self._url.get_query:
             raise ValueError
         content_type = self._url.get_query['ct']
@@ -195,7 +195,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
             published = True
         else:
             published = False
-        return database_operations.ContentTypes().add_page(self._url.page_type, self.content_type, self.page_title, self.user, published)
+        return database_operations.Pages().add_page(self._url.page_type, self.content_type, self.page_title, self.user, published)
 
     def process_post(self):
         self.assign_inputs()

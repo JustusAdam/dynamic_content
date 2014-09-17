@@ -1,15 +1,14 @@
-from core.database_operations import Operations
+from core.database_operations import Operations, ContentTypes
 from core.database import escape
 
 __author__ = 'justusadam'
 
 
-class ContentTypes(Operations):
+class Pages(Operations):
 
     _queries = {
         'mysql': {
             'get_page_information': 'select content_type, page_title from {page_type} where id={page_id};',
-            'get_theme': 'select theme from content_types where content_type_name={content_type};',
             'get_fields': 'select field_name, machine_name, handler_module from page_fields where content_type={content_type} order by weight;',
             'edit_page': 'update {page_type} set page_title={page_title}, published={published};',
             'add_page': 'insert into {page_type} (content_type, page_title, creator, published, date_created) values ({content_type}, {page_title}, {creator}, {published}, utc_timestamp()); ',
@@ -18,15 +17,14 @@ class ContentTypes(Operations):
         }
     }
 
-    _tables = {'content_types', 'iris'}
+    _tables = {'iris'}
 
     def get_page_information(self, page_type, page_id):
         self.execute('get_page_information', page_type=page_type, page_id=escape(page_id))
         return self.cursor.fetchone()
 
     def get_theme(self, content_type):
-        self.execute('get_theme', content_type=escape(content_type))
-        return self.cursor.fetchone()[0]
+        return ContentTypes().get_theme(content_type)
 
     def get_fields(self, content_type):
         self.execute('get_fields', content_type=escape(content_type))
@@ -52,7 +50,8 @@ class Fields(Operations):
         'mysql': {
             'get_content': 'select content from {table} where page_id={page_id} and path_prefix={path_prefix};',
             'alter_content': 'update {table} set content={content} where page_id={page_id} and path_prefix={path_prefix};',
-            'add_field': 'insert into {table} (page_id, content, path_prefix) values ({page_id}, {content}, {path_prefix});'
+            'add_field': 'insert into {table} (page_id, content, path_prefix) values ({page_id}, {content}, {path_prefix});',
+            'add_field_type': ''
         }
     }
 
@@ -69,3 +68,6 @@ class Fields(Operations):
 
     def add_field(self, table, path_prefix, page_id, content):
         self.execute('add_field', table=table, page_id=escape(page_id), content=escape(content), path_prefix=escape(path_prefix))
+
+    def add_field_type(self, machine_name, field_name, content_type, handler_module, weight, description):
+        pass

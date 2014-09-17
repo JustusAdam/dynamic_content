@@ -126,11 +126,9 @@ class Database:
         cursor.close()
         return
 
-    def drop_tables(self, tables):
-        if isinstance(tables, (list, tuple)):
-            tables = ', '.join(tables)
+    def drop_tables(self, *tables):
         cursor = self._connection.cursor()
-        cursor.execute('drop table ' + tables + ';')
+        cursor.execute('drop table ' + ', '.join(tables) + ';')
 
     def update(self, table, pairing, where_condition='', charset=None):
         if not charset:
