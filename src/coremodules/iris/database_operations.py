@@ -51,7 +51,7 @@ class Fields(Operations):
             'get_content': 'select content from {table} where page_id={page_id} and path_prefix={path_prefix};',
             'alter_content': 'update {table} set content={content} where page_id={page_id} and path_prefix={path_prefix};',
             'add_field': 'insert into {table} (page_id, content, path_prefix) values ({page_id}, {content}, {path_prefix});',
-            'add_field_type': ''
+            'add_field_type': 'insert into page_fields (machine_name, field_name, content_type, handler_module, weight, description) values ({machine_name}, {field_name}, {content_type}, {handler_module}, 1, {description});'
         }
     }
 
@@ -69,5 +69,5 @@ class Fields(Operations):
     def add_field(self, table, path_prefix, page_id, content):
         self.execute('add_field', table=table, page_id=escape(page_id), content=escape(content), path_prefix=escape(path_prefix))
 
-    def add_field_type(self, machine_name, field_name, content_type, handler_module, weight, description):
-        pass
+    def add_field_type(self, machine_name, field_name, content_type, handler_module, description=''):
+        self.execute('add_field_type', machine_name=escape(machine_name), field_name=escape(field_name), content_type=escape(content_type), handler_module=escape(handler_module), description=escape(description))

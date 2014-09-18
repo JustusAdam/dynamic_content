@@ -42,3 +42,4 @@ def prepare():
     f.add_field(table='body', page_id=page_id, path_prefix=conf['startpage']['page_type'], content=conf['startpage']['body'])
     ContentHandlers().add_new('iris', name, path_prefix)
     ContentTypes().add('start_type', 'iris', 'active')
+    f.add_field_type('body', 'Body', 'start_type', 'iris')

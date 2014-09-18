@@ -21,6 +21,19 @@ from framework.config_tools import read_config
 from framework.singleton import singleton
 
 
+def unwrap_pairing(pairing, charset):
+    into_cols = []
+    values = []
+    for item in pairing:
+        into_cols.append(item)
+        values.append(escape(pairing[item], charset))
+
+    def tstr(val):
+        return '(' + ' ,'.join(val) + ')'
+
+    return tstr(into_cols), tstr(values)
+
+
 @singleton
 class Database:
 
@@ -73,25 +86,11 @@ class Database:
         cursor.execute(query)
         return cursor
 
-    def insert(self, into_table, into_cols, values, charset=None):
+    def insert(self, into_table, pairing, charset=None):
         if not charset:
             charset = self.charset
 
-        if isinstance(values, str):
-            values = '(' + escape(values, charset) + ')'
-        else:
-            values = escape(values, charset)
-
-        def unwrap_values(a):
-            if isinstance(a, (list, tuple)):
-                if isinstance(a[0], (list, tuple)):
-                    return ', '.join((unwrap_values(b) for b in a))
-                else:
-                    return '(' + ', '.join(a) + ')'
-            else:
-                return '(' + a + ')'
-
-        into_cols = unwrap_values(into_cols)
+        into_cols, values = unwrap_pairing(pairing, charset)
 
         cursor = self._connection.cursor()
         query = 'insert into ' + ' '.join([into_table, into_cols, 'values', values]) + ';'
@@ -100,25 +99,11 @@ class Database:
         cursor.close()
         return
 
-    def replace(self, into_table, into_cols, values, charset=None):
+    def replace(self, into_table, pairing, charset=None):
         if not charset:
             charset = self.charset
 
-        if isinstance(values, str):
-            values = '(' + escape(values, charset) + ')'
-        else:
-            values = escape(values, charset)
-
-        def unwrap_values(a):
-            if isinstance(a, (list, tuple)):
-                if isinstance(a[0], (list, tuple)):
-                    return ', '.join((unwrap_values(b) for b in a))
-                else:
-                    return '(' + ', '.join(a) + ')'
-            else:
-                return '(' + a + ')'
-
-        into_cols = unwrap_values(into_cols)
+        into_cols, values = unwrap_pairing(pairing,charset)
 
         cursor = self._connection.cursor()
         query = 'replace into ' + ' '.join([into_table, into_cols, 'values', values]) + ';'
@@ -127,6 +112,7 @@ class Database:
         return
 
     def drop_tables(self, *tables):
+        print('dropping' + str(tables))
         cursor = self._connection.cursor()
         cursor.execute('drop table ' + ', '.join(tables) + ';')
 

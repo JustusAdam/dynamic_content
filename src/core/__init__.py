@@ -19,3 +19,4 @@ def prepare():
     dbo.ContentHandlers().init_tables()
     dbo.Alias().init_tables()
     dbo.Modules().init_tables()
+    dbo.ContentTypes().init_tables()

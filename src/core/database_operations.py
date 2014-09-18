@@ -62,7 +62,7 @@ class Operations:
         pass
 
     def drop_all_tables(self):
-        for table in self.tables:
+        for table in self._tables:
             try:
                 self.drop_tables(table)
             except:
@@ -117,7 +117,7 @@ class Modules(Operations):
     _tables = {'modules'}
 
     def fill_tables(self):
-        self.execute('add_module', module_name='core', module_path='core', module_role='core')
+        self.add_module('core', 'core', 'core')
 
     def get_id(self, module_name):
         self.execute('get_id', module_name=escape(module_name))
@@ -130,12 +130,6 @@ class Modules(Operations):
             except database.DatabaseError as error:
                 print('Error in Database Module Operations (create_table)')
                 print(error)
-
-    def insert_into_tables(self, values):
-        if not isinstance(values, (tuple, list)):
-            values = (values,)
-        for value in values:
-            self.db.insert(**value)
 
     def get_path(self, module):
         self.execute('get_path', module_name=escape(module))
