@@ -9,6 +9,8 @@ from http.server import BaseHTTPRequestHandler
 from io import BytesIO
 import shutil
 from pathlib import Path
+from urllib.error import HTTPError
+import sys
 
 from core import database_operations
 
@@ -17,6 +19,7 @@ from includes.bootstrap import Bootstrap
 from .page_handlers import FileHandler, BasicPageHandler
 from framework.url_tools import Url
 from framework.config_tools import read_config
+from includes import log
 
 
 __author__ = 'justusadam'
@@ -27,36 +30,40 @@ bootstrap = Bootstrap()
 
 class RequestHandler(BaseHTTPRequestHandler):
 
+    _url = None
+
     def do_POST(self):
         if not self.check_path():
             return 0
 
         self._url.post_query = self.rfile.read(int(self.headers['Content-Length'])).decode()
 
-        handler_response = self.get_handler()
-        if handler_response != 0:
-            self.send_error(handler_response, *self.responses[handler_response])
-            return 0
-
-        self.send_document()
-        return 0
+        return self.do_any()
 
     def do_GET(self):
         if not self.check_path():
             return 0
+        return self.do_any()
 
-        handler_response = self.get_handler()
-        if handler_response != 0:
-            self.send_error(handler_response, *self.responses[handler_response])
-            return 0
+    def do_any(self):
+        try:
+            page_handler = self.get_handler()
+            self.send_document(page_handler)
+        except HTTPError as error:
+            # TODO handle errors that can be handled
+            print(error)
+        except Exception as exce:
+            print("Unexpected error:", sys.exc_info()[0])
+            print(exce)
+            log.write_error('Request Handler', function='do_any', message='Unexpected error ' + str(exce))
+            self.send_error(500, *self.responses[500])
 
-        self.send_document()
         return 0
 
-    def send_document(self):
+    def send_document(self, page_handler):
         # Eventually this try/catch will send errors and redirects based on exceptions thrown by the handler
         # try:
-        document = self.page_handler.encoded
+        document = page_handler.encoded
         # except Exception as exception:
         #     print(exception)
         #     self.send_error(404, *self.responses[404])
@@ -64,7 +71,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         self.send_response(200)
         self.send_header("Content-type", "{content_type}; charset={encoding}".format(
-            content_type=self.page_handler.content_type, encoding=self.page_handler.encoding))
+            content_type=page_handler.content_type, encoding=page_handler.encoding))
         self.send_header("Content-Length", str(len(document)))
         self.end_headers()
         stream = BytesIO()
@@ -96,13 +103,10 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def get_handler(self):
 
-        self.page_handler = None
-
         if self._url.page_type == 'setup':
             return self.start_setup()
         elif self._url.page_type in bootstrap.FILE_DIRECTORIES.keys():
-            self.page_handler = FileHandler(self._url.path)
-            return 0
+            return FileHandler(self._url.path)
         try:
             db = Database()
             db.connect()
@@ -115,15 +119,13 @@ class RequestHandler(BaseHTTPRequestHandler):
         if len(self._url.path) == 0:
             return 404
 
-        self.page_handler = BasicPageHandler(self._url)
-        return 0
+        return BasicPageHandler(self._url)
 
     def start_setup(self):
         if not read_config(str(Path(__file__).parent / 'config.json'))['setup']:
             return 404
         from .setup import SetupHandler
-        self.page_handler = SetupHandler(self._url)
-        return 0
+        return SetupHandler(self._url)
 
     def translate_alias(self, alias):
         try:
