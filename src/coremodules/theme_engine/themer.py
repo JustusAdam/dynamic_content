@@ -63,7 +63,7 @@ class ThemeHandler:
             favicon = self.theme_config['favicon']
         else:
             favicon = 'favicon.icon'
-        self._pattern['meta'] = LinkElement('/theme/'+ self.used_theme + '/' + favicon, rel='shortcut icon', element_type='image/png')
+        self._pattern['meta'] = LinkElement('/theme/' + self.used_theme + '/' + favicon, rel='shortcut icon', element_type='image/png')
 
     @property
     def compiled(self):

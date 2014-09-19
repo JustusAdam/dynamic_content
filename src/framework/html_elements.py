@@ -114,11 +114,13 @@ class ContainerElement(BaseClassIdElement):
     def content(self, value):
         if isinstance(value, str):
             self._content = [value]
+        elif hasattr(value, '__iter__'):
+            self._content = list(value)
         else:
             self._content = value
 
     def render_content(self):
-        return ''.join(list(a.render() for a in self._content))
+        return ''.join(list(str(a) for a in self._content))
 
     def render(self):
         return '<' + self.render_head() + '>' + self.render_content() + '</' + self.html_type + '>'
