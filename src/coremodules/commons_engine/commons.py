@@ -17,6 +17,10 @@ class MenuHandler(CommonsHandler):
 
 
     def get_items(self):
+        """
+        Calls the database operation obtaining data about the menu items and casts them onto MenuItems for convenience
+        :return:
+        """
         db_result = self.mo.get_items(self.name)
         return [MenuItem(*a) for a in db_result]
 
@@ -24,8 +28,28 @@ class MenuHandler(CommonsHandler):
         self.mo.get_menu_info(self.name)
 
     def order_items(self, items):
-        parents = set([a.parent_item for a in items])
-        root = MenuItem('<root>', 'NONE', '/', None, 0)
+        """
+        Takes a list of MenuItems and constructs a tree of parent items and child items.
+        Child item lists are sored by weight
+        :param items: List of MenuItems
+        :return: Tree of MenuItems
+        """
+        mapping = {}
+        for item in items:
+            if item.parent_item in mapping:
+                mapping[item.parent_item].append(item)
+            else:
+                mapping[item.parent_item] = [item]
+
+        root = MenuItem('<root>', None, '/', None, 0)
+        items.append(root)
+
+        for item in items:
+            if item.item_name in mapping:
+                item.children = sorted(mapping[item.item_name], key=lambda s:s.weight)
+
+        return root
+
 
 class MenuItem:
 
