@@ -11,6 +11,7 @@ from core import database
 from core.database import escape
 from framework.config_tools import read_config
 
+
 __author__ = 'justusadam'
 
 
@@ -182,14 +183,24 @@ class ContentTypes(Operations):
 
     _queries = {
         'mysql': {
-            'add': 'insert into content_types (content_type_name, content_handler, theme, description) values ({content_type_name}, {content_handler}, {theme}, {description});',
-            'get_theme': 'select theme from content_types where content_type_name={content_type};'
+            'add': 'insert into content_types (content_type_name, display_name, content_handler, theme, description) values ({content_type_name}, {display_name}, {content_handler}, {theme}, {description});',
+            'get_theme': 'select theme from content_types where content_type_name={content_type};',
+            'get_content_types': 'select content_type_name, display_name from content_types;',
+            'get_display_name': 'select display_name from content_types where content_type_name={content_type_name};'
         }
     }
 
-    def add(self, content_type_name, content_handler, theme, description=''):
-        self.execute('add', content_type_name=escape(content_type_name), content_handler=escape(content_handler), theme=escape(theme), description=escape(description))
+    def add(self, content_type_name, display_name, content_handler, theme, description=''):
+        self.execute('add', display_name=escape(display_name), content_type_name=escape(content_type_name), content_handler=escape(content_handler), theme=escape(theme), description=escape(description))
 
     def get_theme(self, content_type):
         self.execute('get_theme', content_type=escape(content_type))
+        return self.cursor.fetchone()[0]
+
+    def get_content_types(self):
+        self.execute('get_content_types')
+        return self.cursor.fetchall()
+
+    def get_ct_display_name(self, ct_name):
+        self.execute('get_display_name', content_type_name=escape(ct_name))
         return self.cursor.fetchone()[0]
