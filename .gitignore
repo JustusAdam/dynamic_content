@@ -60,3 +60,4 @@ target/
 *.iml
 *.ogg
 *.png
+src/config.json
