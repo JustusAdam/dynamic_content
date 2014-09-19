@@ -6,6 +6,7 @@ from framework.page import Page
 from framework.html_elements import FormElement, TableElement, Input, Label
 from framework.url_tools import UrlQuery
 from . import database_operations
+from core.database_operations import ContentTypes
 
 
 __author__ = 'justusadam'
@@ -185,9 +186,11 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
         if not 'ct' in self._url.get_query:
             raise ValueError
         content_type = self._url.get_query['ct']
-        title = 'Add new ' + self._url.page_type + ' page'
+        display_name = ContentTypes().get_ct_display_name(content_type)
+        title = 'Add new ' + display_name + ' page'
         theme = ops.get_theme(content_type=content_type)
         return title, content_type, theme
+
 
     def create_page(self):
         self.page_title = parse.unquote_plus(self._url.post_query['title'][0])
