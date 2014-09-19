@@ -5,11 +5,11 @@ Used for convenience and readability as well as adaptability for different datab
 This is currently the recommended method for accessing the database to ensure convenient overview of queries.
 """
 import sys
+from pathlib import Path
 
 from core import database
 from core.database import escape
 from framework.config_tools import read_config
-from pathlib import Path
 
 __author__ = 'justusadam'
 
@@ -45,7 +45,7 @@ class Operations:
 
     def execute(self, query_name, *format_args, **format_kwargs):
         query = self.queries[query_name].format(*format_args, **format_kwargs)
-        print(query)
+        # print(query)
         self.cursor.execute(query)
 
     def create_table(self, table, columns):
