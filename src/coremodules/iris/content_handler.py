@@ -3,7 +3,7 @@ from urllib import parse
 from framework.base_handlers import ContentHandler
 from core.modules import Modules
 from framework.page import Page
-from framework.html_elements import FormElement, TableElement, Input, Label
+from framework.html_elements import FormElement, TableElement, Input, Label, ContainerElement
 from framework.url_tools import UrlQuery
 from . import database_operations
 from core.database_operations import ContentTypes
@@ -77,10 +77,10 @@ class FieldBasedContentHandler(ContentHandler):
             self.page.scripts.add(script)
 
     def concatenate_content(self):
-        content = ''
+        content = []
         for field in self.fields:
-            content += str(field.value.content)
-        return content
+            content.append(field.value.content)
+        return ContainerElement(*content)
 
     @property
     def compiled(self):
@@ -113,7 +113,7 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
         for field in self.fields:
             identifier = self.make_field_identifier(field)
             field.value.content.element_id = identifier
-            content.append((Label(field.field_name, label_for=identifier), field.value.content))
+            content.append((Label(field.field_name, label_for=identifier), str(field.value.content)))
         content.append(self.admin_options)
         table = TableElement(*content)
         if 'destination' in self._url.get_query:

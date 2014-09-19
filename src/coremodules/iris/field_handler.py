@@ -1,7 +1,7 @@
 from . import database_operations
 from framework.base_handlers import FieldHandler
 from framework.page import Component
-from framework.html_elements import Textarea
+from framework.html_elements import Textarea, ContainerElement
 
 __author__ = 'justusadam'
 
@@ -16,7 +16,7 @@ class BaseFieldHandler(FieldHandler):
 
     @property
     def compiled(self):
-        content = self.process_content()
+        content = ContainerElement(self.process_content(), element_id='field-' + self.machine_name, classes={'field'})
         if not content:
             return False
         field = Component(self.get_field_title(), content=content)

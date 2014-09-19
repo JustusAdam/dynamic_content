@@ -40,7 +40,7 @@ class BaseElement:
         def render(item):
             if isinstance(item, str):
                 return item
-            elif hasattr(item, '__iter__'):
+            elif isinstance(item, (list, tuple, set)):
                 return ' '.join(list(str(a) for a in item))
             else:
                 return str(item)
@@ -118,7 +118,7 @@ class ContainerElement(BaseClassIdElement):
             self._content = value
 
     def render_content(self):
-        return ''.join(list(str(a) for a in self._content))
+        return ''.join(list(a.render() for a in self._content))
 
     def render(self):
         return '<' + self.render_head() + '>' + self.render_content() + '</' + self.html_type + '>'

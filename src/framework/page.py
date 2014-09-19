@@ -22,10 +22,14 @@ class Component:
 
     @content.setter
     def content(self, value):
-        if hasattr(value, '__iter__'):
+        if not value:
+            self._content = []
+        elif isinstance(value, (tuple, set)):
             self._content = list(value)
+        elif isinstance(value, list):
+            self._content = value
         else:
-            self._content = [value]
+            self._content = [value, ]
 
     @property
     def stylesheets(self):
@@ -75,7 +79,7 @@ class Component:
 
 
 class Page(Component):
-    def __init__(self, url, title='', content='', stylesheets=set(), metatags=set(), scripts=set(), show_title=True):
+    def __init__(self, url, title='', content=None, stylesheets=set(), metatags=set(), scripts=set(), show_title=True):
         super().__init__(title, content, stylesheets, metatags, scripts)
         self._url = url
         self.show_title = show_title
