@@ -4,6 +4,7 @@ Implementation of the setup routine.
 Currently uses the framework to dynamically create elements, once the basic site functionality has been implemented
 and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
 """
+from core import Modules
 
 from framework.base_handlers import PageHandler
 from .database import DatabaseError, Database
@@ -185,6 +186,7 @@ class SetupHandler(PageHandler):
                 if not module_operations.activate_module(module):
                     print('Could not activate module ' + module)
                     return False
+            Modules().reload()
             return True
         except DatabaseError as err:
             print(err)
