@@ -11,8 +11,9 @@ Currently there is no documentation and few comments and docstrings and it is by
 
 Requirements
 ---
-* Mysql database and pymysql library for database connection
-* Python > v 3.4
+* Mysql database, tested for >= v. 5.5 (sqlite integration planned)
+* PyMySQL library for database connection https://github.com/PyMySQL/PyMySQL
+* Python > v 3.4 http://python.org
 
 Roadmap
 ---
