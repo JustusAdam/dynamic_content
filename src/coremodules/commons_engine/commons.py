@@ -1,4 +1,5 @@
 from . import database_operations
+from framework.html_elements import List, ContainerElement
 
 __author__ = 'justusadam'
 
@@ -77,6 +78,8 @@ class MenuHandler(CommonsHandler):
 
         return order()
 
+    def compile(self):
+        return self.order_items(self.get_items()).render(0)
 
 
 class MenuItem:
@@ -88,3 +91,18 @@ class MenuItem:
         self.parent_item = parent_item
         self.weight = int(weight)
         self.children = []
+
+    def render(self, depth=0):
+        return self.render_self(depth), self.render_children()
+
+    def render_self(self, depth):
+        if self.item_path:
+            return ContainerElement(self.display_name, html_type='a', classes={'layer-' + str(depth), 'menu'}, element_id=self.item_name, additionals={'href':self.item_path})
+        else:
+            return ContainerElement(self.display_name, html_type='span', classes={'layer-' + str(depth), 'menu'}, element_id=self.item_name)
+
+    def render_children(self, depth=0):
+        return List(*[a.render(depth + 1) for a in self.children], list_type='ul', item_classes='layer-' + str(depth + 1), classes=['layer-' + str(depth), 'menu'])
+
+    def __str__(self):
+        return str(self.render(0))

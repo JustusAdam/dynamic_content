@@ -9,6 +9,7 @@ import core
 from core import request_handler
 from framework.misc_decorators import requiredir
 
+
 basedir = str(Path(__file__).parent.resolve())
 
 

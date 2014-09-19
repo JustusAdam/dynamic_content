@@ -4,57 +4,6 @@ Framework for rendering HTML elements *incomplete*
 
 __author__ = 'justusadam'
 
-# I want to remove the necessity of this container by instead using a slightly more complicated attribute setter and
-# the builtin 'set' type.
-#
-# class ClassContainer:
-#     def __init__(self, *classes):
-#         self._classes = []
-#         for value in classes:
-#             if isinstance(value, str):
-#                 self._classes += [value]
-#             if isinstance(value, list):
-#                 self._classes += value
-#             if isinstance(value, tuple):
-#                 self._classes += list(value)
-#
-#     @property
-#     def classes(self):
-#         return self._classes
-#
-#     @classes.setter
-#     def classes(self, value):
-#         if isinstance(value, str):
-#             self._classes = [value]
-#         if isinstance(value, list):
-#             self._classes = value
-#         if isinstance(value, tuple):
-#             self._classes = list(value)
-#
-#     def __add__(self, other):
-#         if isinstance(other, str):
-#             self._classes += [other]
-#         if isinstance(other, list):
-#             self._classes += other
-#         if isinstance(other, tuple):
-#             self._classes += list(other)
-#         if isinstance(other, ClassContainer):
-#             self._classes += other.classes
-#         return self
-#
-#     def __bool__(self):
-#         return bool(self._classes)
-#
-#     def __len__(self):
-#         return len(self._classes)
-#
-#     def __str__(self):
-#         return ' '.join(self._classes)
-#
-#     def __getitem__(self, item):
-#         return self._classes[item]
-
-
 class BaseElement:
     """
     Please note: '_customs' is not to be modified from outside the class, it is purely an easy way for subclasses to add
@@ -105,8 +54,11 @@ class BaseElement:
     def __add__(self, other):
         return str(self) + str(other)
 
-    def __str__(self):
+    def render(self):
         return '<' + ' '.join([self.html_type] + self.render_customs() + self.render_additionals()) + '>'
+
+    def __str__(self):
+        return self.render()
 
 
 class BaseClassIdElement(BaseElement):
@@ -144,7 +96,7 @@ class BaseClassIdElement(BaseElement):
             frame += self.render_customs()
         return ' '.join(frame)
 
-    def __str__(self):
+    def render(self):
         return '<' + self.render_head() + '>'
 
 
@@ -168,7 +120,7 @@ class ContainerElement(BaseClassIdElement):
     def render_content(self):
         return ''.join(list(str(a) for a in self._content))
 
-    def __str__(self):
+    def render(self):
         return '<' + self.render_head() + '>' + self.render_content() + '</' + self.html_type + '>'
 
 
@@ -247,7 +199,7 @@ class Stylesheet(BaseElement):
         self.typedec = typedec
         self.rel = rel
 
-    def __str__(self):
+    def render(self):
         elements = [
             self.html_type,
             'rel="' + self.rel + '"',
@@ -324,7 +276,7 @@ class Input(BaseClassIdElement):
         else:
             return head
 
-    def __str__(self):
+    def render(self):
         return '<' + self.render_head() + ' />'
 
 
