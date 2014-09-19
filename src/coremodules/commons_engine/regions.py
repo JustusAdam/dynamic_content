@@ -31,12 +31,12 @@ class RegionHandler:
         return Common(item_name, handler, item_type)
 
     def compile(self):
-        page = Component(self.name)
+        region = Component(self.name)
         compiled = [item.compile() for item in self.commons]
         for item in compiled:
-            page += item
+            region += item
 
-        return page
+        return region
 
 
 class Common:

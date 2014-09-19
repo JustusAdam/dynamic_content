@@ -7,12 +7,25 @@ __author__ = 'justusadam'
 
 class Component:
 
-    def __init__(self, title, content='', stylesheets=set(), metatags=set(), scripts=set()):
+    _content = None
+
+    def __init__(self, title, content=None, stylesheets=set(), metatags=set(), scripts=set()):
         self.content = content
         self._stylesheets = stylesheets
         self._metatags = metatags
         self._scripts = scripts
         self.title = title
+
+    @property
+    def content(self):
+        return self._content
+
+    @content.setter
+    def content(self, value):
+        if hasattr(value, '__iter__'):
+            self._content = list(value)
+        else:
+            self._content = [value]
 
     @property
     def stylesheets(self):
@@ -57,7 +70,7 @@ class Component:
         self._stylesheets |= other.stylesheets
         self._metatags |= other.metatags
         self._scripts |= other.scripts
-        self.content += other.content
+        self.content.append(other.content)
         return self
 
 
