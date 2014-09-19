@@ -14,6 +14,7 @@ class MenuHandler(CommonsHandler):
     def __init__(self, machine_name):
         self.mo = database_operations.MenuOperations()
         super().__init__(machine_name)
+        self.menu_name = self.get_menu_info()
 
 
     def get_items(self):
@@ -25,30 +26,57 @@ class MenuHandler(CommonsHandler):
         return [MenuItem(*a) for a in db_result]
 
     def get_menu_info(self):
-        self.mo.get_menu_info(self.name)
+        return self.mo.get_menu_info(self.name)
 
     def order_items(self, items):
         """
         Takes a list of MenuItems and constructs a tree of parent items and child items.
         Child item lists are sored by weight
         :param items: List of MenuItems
-        :return: Tree of MenuItems
+        :return: Root for menu tree
         """
         mapping = {}
-        for item in items:
-            if item.parent_item in mapping:
-                mapping[item.parent_item].append(item)
-            else:
-                mapping[item.parent_item] = [item]
+        root = MenuItem('<root>', self.menu_name, '/', None, 0)
 
-        root = MenuItem('<root>', None, '/', None, 0)
-        items.append(root)
+        def order():
+            """
+            Implementation of the tree construction. Uses two loops. Child item lists are sorted
+            :return:
+            """
+            for item in items:
+                if item.parent_item in mapping:
+                    mapping[item.parent_item].append(item)
+                else:
+                    mapping[item.parent_item] = [item]
 
-        for item in items:
-            if item.item_name in mapping:
-                item.children = sorted(mapping[item.item_name], key=lambda s:s.weight)
 
-        return root
+            items.append(root)
+
+            for item in items:
+                if item.item_name in mapping:
+                    item.children = sorted(mapping[item.item_name], key=lambda s:s.weight)
+            return root
+
+        def alt_order():
+            """
+            Alternative implementation of the tree construction, uses only one loop, relies heavily on references.
+            Child items lists are unsorted.
+            :return:
+            """
+            for item in items:
+                if item.item_name in mapping:
+                    item.children = mapping[item.item_name]
+                else:
+                    mapping[item.item_name] = []
+                if item.parent_item and item.parent_item in mapping:
+                    mapping[item.parent_item].append(item)
+                else:
+                    mapping[item.parent_item] = [item]
+
+            return root
+
+        return order()
+
 
 
 class MenuItem:
