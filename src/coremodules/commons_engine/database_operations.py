@@ -7,7 +7,8 @@ class MenuOperations(Operations):
 
     _queries = {
         'mysql': {
-            'get_items': 'select display_name, item_path from menu_items where enabled=true and menu={menu_name};'
+            'get_items': 'select item_name, display_name, item_path, parent_item, weight from menu_items where enabled=true and menu={menu_name};',
+            'get_menu_info': 'select menu_name from menus where machine_name={machine_name};'
         }
     }
 
@@ -16,6 +17,10 @@ class MenuOperations(Operations):
     def get_items(self, name):
         self.execute('get_items', menu_name=escape(name))
         return self.cursor.fetchall()
+
+    def get_menu_info(self, name):
+        self.execute('get_menu_info',machine_name=escape(name))
+        return self.cursor.fetchone()[0]
 
 
 class RegionOperations(Operations):
