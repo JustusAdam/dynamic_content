@@ -10,7 +10,7 @@ class Pages(Operations):
         'mysql': {
             'get_page_information': 'select content_type, page_title from {page_type} where id={page_id};',
             'get_fields': 'select field_name, machine_name, handler_module from page_fields where content_type={content_type} order by weight;',
-            'edit_page': 'update {page_type} set page_title={page_title}, published={published};',
+            'edit_page': 'update {page_type} set page_title={page_title}, published={published} where id={page_id};',
             'add_page': 'insert into {page_type} (content_type, page_title, creator, published, date_created) values ({content_type}, {page_title}, {creator}, {published}, utc_timestamp()); ',
             'get_new_id': 'select id from {page_type} where content_type={content_type} and page_title={page_title} and creator={creator} and published={published} order by id desc limit 1;',
             'largest_id': 'select id from {table} order by id desc limit 1;'
@@ -30,8 +30,8 @@ class Pages(Operations):
         self.execute('get_fields', content_type=escape(content_type))
         return self.cursor.fetchall()
 
-    def edit_page(self, page_type, page_title, published):
-        self.execute('edit_page', page_type=page_type, page_title=escape(page_title), published=escape(published))
+    def edit_page(self, page_type, page_title, published, page_id):
+        self.execute('edit_page', page_type=page_type, page_title=escape(page_title), published=escape(published), page_id=escape(page_id))
 
     def add_page(self, page_type, content_type, page_title, creator, published):
         values = dict(page_type=page_type, content_type=escape(content_type), page_title=escape(page_title), creator=escape(creator), published=escape(published))

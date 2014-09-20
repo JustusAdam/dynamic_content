@@ -85,7 +85,6 @@ class FieldBasedContentHandler(ContentHandler):
     @property
     def compiled(self):
         # executing step by step since any failing will fail all subsequent steps
-        self.get_page_information()
         self.page = Page(self._url, self.page_title)
         if self.theme:
             self.page.used_theme = self.theme
@@ -146,13 +145,12 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
 
     @property
     def compiled(self):
-        self.get_page_information()
+        if self._is_post:
+            self.process_post()
         self.page = Page(self._url, self.page_title)
         if self.theme:
             self.page.used_theme = self.theme
         self.get_fields()
-        if self._is_post:
-            self.process_post()
         self.handle_fields()
         self.page.content = self.concatenate_content()
         return self.page
@@ -171,7 +169,7 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
             published = True
         else:
             published = False
-        database_operations.Pages().edit_page(self._url.page_type, self.page_title, published)
+        database_operations.Pages().edit_page(self._url.page_type, self.page_title, published, self._url.page_id)
 
 
 class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
