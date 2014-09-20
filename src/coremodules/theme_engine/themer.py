@@ -82,7 +82,7 @@ class ThemeHandler:
         self.compile_footer()
         self._pattern['title'] = self.page.title
         self._pattern['content'] = str(self.page.content)
-        self._pattern['pagetitle'] = ContainerElement('Test', html_type='a', additionals='href="/"')
+        self._pattern['pagetitle'] = ContainerElement('msaw - my super awesome website', html_type='a', additionals='href="/"')
         for region in self.regions:
             self._pattern[region.name] = str(region.compiled())
 
