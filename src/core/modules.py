@@ -19,13 +19,13 @@ __author__ = 'justusadam'
 @singleton
 class Modules:
 
-    _modules = {}
-
-    def __init__(self):
-        self.reload()
+    _modules = None
 
     def reload(self):
-        self._modules = get_active_modules()
+        self._modules = self.load()
+
+    def load(self):
+        return get_active_modules()
 
     def __getitem__(self, item):
         return self._modules[item]

@@ -12,7 +12,9 @@ role = 'core'
 
 
 def load_modules():
-    return Modules()
+    m = Modules()
+    m.reload()
+    return m
 
 
 def prepare():
