@@ -129,7 +129,7 @@ class UrlPath:
         acc += '/'.join(self.path)
         if self.trailing_slash:
             acc += '/'
-        return acc
+        return parse.quote(acc)
 
     def __getitem__(self, item):
         return self.path[item]
@@ -159,11 +159,11 @@ class UrlLocation:
     def location(self, value):
         if value.startswith('#'):
             value = value[1:]
-        self._location = value
+        self._location = parse.unquote(value)
 
     def __str__(self):
         if self._location:
-            return '#' + self.location
+            return '#' + parse.quote(self.location)
         else:
             return ''
 
@@ -190,7 +190,7 @@ class UrlQuery:
 
     def __str__(self):
         if self._query:
-            return '?' + '&'.join(tuple(a + '=' + '&'.join(self.query[a]) for a in self.query.keys()))
+            return '?' + parse.quote('&'.join(tuple(a + '=' + '&'.join(self.query[a]) for a in self.query.keys())))
         else:
             return ''
 
