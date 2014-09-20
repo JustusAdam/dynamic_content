@@ -22,7 +22,7 @@ li {
     border-width: 0 1px;
     padding: 10px 0;
 }
-.page-wrapper, nav {
+.page-wrapper {
 	width: 960px;
 	margin-left: auto;
 	margin-right: auto;
@@ -131,7 +131,7 @@ ul.menu li a, ul.menu li span {
 #test_menu li.layer-1 {
 	float: left;
 }
-#test_menu li.layer-1 a, #test_menu li.layer-1 span{
+#test_menu li a, #test_menu li span{
 	background-color: #9abb6f;
 	color: white;
 	text-shadow: 1px 1px 2px #666;
@@ -146,4 +146,7 @@ ul.menu li a, ul.menu li span {
 }
 #test_menu ul.layer-2 {
 	display: none;
+}
+#test_menu li.layer-1 a:hover ul.layer-2, #test_menu li.layer-3:hover {
+	display: block;
 }
