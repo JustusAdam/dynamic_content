@@ -128,8 +128,7 @@ class SetupHandler(PageHandler):
                                 ('Username', Input(name='username')),
                                 ('Password', Input(name='password')),
                                 ('Confirm Password', Input(name='confirm-password'))
-
-                            ), action='{this}?destination=/', element_id='admin_form')
+                            ), action='{this}?destination=/welcome', element_id='admin_form')
                     )
                 )
             }

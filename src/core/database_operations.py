@@ -162,7 +162,8 @@ class Alias(Operations):
     _queries = {
         'mysql': {
             'by_alias': 'select source_url from alias where alias={alias};',
-            'by_source': 'select alias from alias where source_url={source};'
+            'by_source': 'select alias from alias where source_url={source};',
+            'add_alias': 'insert into alias (alias, source_url) values ({alias}, {source});'
         }
     }
 
@@ -175,6 +176,9 @@ class Alias(Operations):
     def get_by_source(self, source):
         self.execute('by_source', source=escape(source))
         return [a[0] for a in self.cursor.fetchall()]
+
+    def add_alias(self, source, alias):
+        self.execute('add_alias', source=escape(source), alias=escape(alias))
 
 
 class ContentTypes(Operations):
