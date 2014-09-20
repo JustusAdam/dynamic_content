@@ -58,13 +58,14 @@ class FileHandler(PageHandler):
                 '.css': 'text/css',
                 '.mp3': 'audio/mp3',
                 '.ogg': 'audio/ogg',
-                '.png': 'img/png'
+                '.png': 'img/png',
+                '.ttf': 'font/ttf'
             }
             suffix = filepath.suffix
             if not suffix is None:
                 if suffix == '.ogg':
                     self.encoding = 'ogg/vorbis'
-                if suffix == '.png':
+                elif suffix == '.png':
                     self.encoding = 'png'
                 if suffix in content_types:
                     self.content_type = content_types[suffix]
