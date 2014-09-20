@@ -109,6 +109,7 @@ nav {
 ul.menu {
 	list-style: none outside none;
 	display: block;
+	padding: 0;
 }
 ul.menu li a, ul.menu li span{
 	margin-left: 7px;
@@ -118,35 +119,65 @@ ul.menu li {
 	margin: 0;
 }
 ul.menu li a, ul.menu li span {
-	padding: 10px;
+	padding: 14px;
 	text-decoration: none;
 }
 #test_menu {
-    height: 42px;
+    overflow: hidden;
     padding: 0;
-}
-#test_menu {
 	margin: 0;
 }
-#test_menu li.layer-1 {
+#test_menu li.layer-0 {
 	float: left;
 }
-#test_menu li a, #test_menu li span{
+#test_menu a.layer-0, #test_menu span.layer-0 {
+	font-size: 15px;
+}
+#test_menu li.layer-0 a, #test_menu li.layer-0 span {
 	background-color: #9abb6f;
 	color: white;
 	text-shadow: 1px 1px 2px #666;
-    border-radius: 0 0 10px 10px;
     display: block;
-    transition: padding-top 300ms ease 0ms;
 }
-#test_menu li.layer-1 a:hover {
-	padding-top: 15px;
+#test_menu li a.layer-0, #test_menu li span.layer-0 {
+    transition-delay:0ms;
+    transition-duration:300ms;
+    transition-timing-function:ease;
+    transition-property:padding-top, padding-bottom;
+}
+#test_menu li a.layer-0:hover, #test_menu li span.layer-0:hover {
+	padding-top: 19px;
+	padding-bottom: 9px;
     position: relative;
-    transition: padding-top 300ms ease 0ms;
+    transition-delay:0ms;
+    transition-duration:300ms;
+    transition-timing-function:ease;
+    transition-property:padding-top, padding-bottom;
+}
+#test_menu ul.layer-1 {
+	display: none;
+	position:absolute;
+}
+#test_menu li.layer-0:hover ul.layer-1, #test_menu li.layer-3:hover {
+	display: block;
+}
+#test_menu a.layer-1 {
+	width: 160px;
+}
+#test_menu li a.layer-1, #test_menu li span.layer-1 {
+	transition-delay:0ms;
+    transition-duration:300ms;
+    transition-timing-function:ease;
+    transition-property:padding-left, padding-right;
+}
+#test_menu li a.layer-1:hover, #test_menu li span.layer-1:hover {
+	padding-left: 19px;
+	padding-right: 9px;
+	transition-delay:0ms;
+    transition-duration:300ms;
+    transition-timing-function:ease;
+    transition-property:padding-left, padding-right;
 }
 #test_menu ul.layer-2 {
 	display: none;
-}
-#test_menu li.layer-1 a:hover ul.layer-2, #test_menu li.layer-3:hover {
-	display: block;
 }

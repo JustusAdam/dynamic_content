@@ -110,7 +110,9 @@ class MenuItem:
             return ContainerElement(self.display_name, html_type='span', classes={'layer-' + str(depth), 'menu'}, element_id=self.item_name)
 
     def render_children(self, depth=0):
-        return List(*[a.render(depth + 1) for a in self.children], list_type='ul', item_classes='layer-' + str(depth + 1), classes=['layer-' + str(depth), 'menu'])
+        if not self.children:
+            return ''
+        return List(*[a.render(depth) for a in self.children], list_type='ul', item_classes='layer-' + str(depth), classes=['layer-' + str(depth), 'menu'])
 
     def __str__(self):
         return ''.join(str(a) for a in self.render(0))
