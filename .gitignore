@@ -61,3 +61,6 @@ target/
 *.ogg
 *.png
 src/config.json
+
+# fonts
+*.ttf
