@@ -47,4 +47,4 @@ def prepare():
     f.add_field(table='body', page_id=page_id, path_prefix=conf['startpage']['page_type'], content=conf['startpage']['body'])
 
     page_id = ct.add_page('iris', 'article', 'Wuhuuu', 1, True)
-    f.add_field('body', 'iris', page_id, '<p>More content is good</p><iframe src="http://www.xkcd.com" height="600px" width="600px" seamless></iframe>')
+    f.add_field('body', 'iris', page_id, '<p>More content is good</p><iframe src="http://www.xkcd.com" height="840px" width="600px" seamless></iframe>')
