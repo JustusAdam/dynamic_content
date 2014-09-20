@@ -7,29 +7,12 @@ __author__ = 'justusadam'
 
 class Component:
 
-    _content = None
-
     def __init__(self, title, content=None, stylesheets=set(), metatags=set(), scripts=set()):
         self.content = content
         self._stylesheets = stylesheets
         self._metatags = metatags
         self._scripts = scripts
         self.title = title
-
-    @property
-    def content(self):
-        return self._content
-
-    @content.setter
-    def content(self, value):
-        if not value:
-            self._content = []
-        elif isinstance(value, (tuple, set)):
-            self._content = list(value)
-        elif isinstance(value, list):
-            self._content = value
-        else:
-            self._content = [value, ]
 
     @property
     def stylesheets(self):

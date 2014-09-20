@@ -79,7 +79,7 @@ class FieldBasedContentHandler(ContentHandler):
     def concatenate_content(self):
         content = []
         for field in self.fields:
-            content += field.value.content
+            content.append(field.value.content)
         return ContainerElement(*content)
 
     @property

@@ -73,7 +73,7 @@ class ThemeHandler:
         self._pattern['header'] = ''
         self.compile_footer()
         self._pattern['title'] = self.page.title
-        self._pattern['content'] = ''.join(str(a) for a in self.page.content)
+        self._pattern['content'] =  str(self.page.content)
         self._pattern['pagetitle'] = ContainerElement('Test', html_type='a', additionals='href="/"')
 
         template = open(self.get_template_directory() + 'page.html').read()
