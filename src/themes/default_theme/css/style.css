@@ -146,8 +146,8 @@ ul.menu li a, ul.menu li span {
     transition-property:padding-top, padding-bottom;
 }
 #start_menu li a.layer-0:hover, #start_menu li span.layer-0:hover {
-	padding-top: 19px;
-	padding-bottom: 9px;
+	padding-top: 17px;
+	padding-bottom: 11px;
     position: relative;
     transition-delay:0ms;
     transition-duration:300ms;
