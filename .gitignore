@@ -61,6 +61,7 @@ target/
 *.ogg
 *.png
 src/config.json
+Apache License.txt
 
 # fonts
 *.ttf
