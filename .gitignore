@@ -56,12 +56,19 @@ target/
 
 
 # custom additions
+Apache License.txt
+
+# the individual config camde from example.config.json
+src/config.json
+
+# intellij project configs
 .idea/
 *.iml
-*.ogg
-*.png
-src/config.json
-Apache License.txt
 
 # fonts
 *.ttf
+
+# large media file only intended for testing
+*.png
+*.ogg
+*.mp3
