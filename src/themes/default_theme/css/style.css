@@ -122,30 +122,30 @@ ul.menu li a, ul.menu li span {
 	padding: 14px;
 	text-decoration: none;
 }
-#test_menu {
+#start_menu {
     overflow: hidden;
     padding: 0;
 	margin: 0;
 }
-#test_menu li.layer-0 {
+#start_menu li.layer-0 {
 	float: left;
 }
-#test_menu a.layer-0, #test_menu span.layer-0 {
+#start_menu a.layer-0, #start_menu span.layer-0 {
 	font-size: 15px;
 }
-#test_menu li.layer-0 a, #test_menu li.layer-0 span {
+#start_menu li.layer-0 a, #start_menu li.layer-0 span {
 	background-color: #9abb6f;
 	color: white;
 	text-shadow: 1px 1px 2px #666;
     display: block;
 }
-#test_menu li a.layer-0, #test_menu li span.layer-0 {
+#start_menu li a.layer-0, #start_menu li span.layer-0 {
     transition-delay:0ms;
     transition-duration:300ms;
     transition-timing-function:ease;
     transition-property:padding-top, padding-bottom;
 }
-#test_menu li a.layer-0:hover, #test_menu li span.layer-0:hover {
+#start_menu li a.layer-0:hover, #start_menu li span.layer-0:hover {
 	padding-top: 19px;
 	padding-bottom: 9px;
     position: relative;
@@ -154,23 +154,23 @@ ul.menu li a, ul.menu li span {
     transition-timing-function:ease;
     transition-property:padding-top, padding-bottom;
 }
-#test_menu ul.layer-1 {
+#start_menu ul.layer-1 {
 	display: none;
 	position:absolute;
 }
-#test_menu li.layer-0:hover ul.layer-1, #test_menu li.layer-3:hover {
+#start_menu li.layer-0:hover ul.layer-1, #start_menu li.layer-3:hover {
 	display: block;
 }
-#test_menu a.layer-1 {
+#start_menu a.layer-1 {
 	width: 160px;
 }
-#test_menu li a.layer-1, #test_menu li span.layer-1 {
+#start_menu li a.layer-1, #start_menu li span.layer-1 {
 	transition-delay:0ms;
     transition-duration:300ms;
     transition-timing-function:ease;
     transition-property:padding-left, padding-right;
 }
-#test_menu li a.layer-1:hover, #test_menu li span.layer-1:hover {
+#start_menu li a.layer-1:hover, #start_menu li span.layer-1:hover {
 	padding-left: 19px;
 	padding-right: 9px;
 	transition-delay:0ms;
@@ -178,6 +178,6 @@ ul.menu li a, ul.menu li span {
     transition-timing-function:ease;
     transition-property:padding-left, padding-right;
 }
-#test_menu ul.layer-2 {
+#start_menu ul.layer-2 {
 	display: none;
 }

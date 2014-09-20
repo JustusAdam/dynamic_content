@@ -17,4 +17,9 @@ def common_handler(item_type, item_name):
     return handlers[item_type](item_name)
 
 def prepare():
-    dbo.MenuOperations().init_tables()
+    mo = dbo.MenuOperations()
+    mo.init_tables()
+    mo.add_menu('start_menu', 'Start Menu', True)
+    mo.add_menu_item('welcome', 'Welcome', '/iris/1', 'start_menu', True, '<root>', 1)
+    mo.add_menu_item('testpage', 'Hello World', '/iris/2', 'start_menu', True, '<root>', 2)
+    mo.add_menu_item('setup', 'Restart Setup', '/setup', 'start_menu', True, 'welcome', 1)
