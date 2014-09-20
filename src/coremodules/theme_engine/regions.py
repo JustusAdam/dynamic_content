@@ -20,10 +20,11 @@ class RegionHandler:
 
         acc = []
 
-        info = {a[0]:(a[1],a[2]) for a in self.get_items_info(common_names)}
+        if common_names:
+            info = {a[0]: (a[1], a[2]) for a in self.get_items_info(common_names)}
 
-        for item in common_names:
-            acc.append(self.get_item(item, *info[item]))
+            for item in common_names:
+                acc.append(self.get_item(item, *info[item]))
 
         return acc
 
@@ -37,10 +38,11 @@ class RegionHandler:
     def compiled(self):
         r = Component(self.name)
         cont = []
-        c = [item.handler.compiled for item in self.commons]
-        for comp_item in c:
-            r.integrate(comp_item)
-            cont.append(comp_item.content)
+        if self.commons:
+            c = [item.handler.compiled for item in self.commons]
+            for comp_item in c:
+                r.integrate(comp_item)
+                cont.append(comp_item.content)
         r.content = cont
 
         return r
