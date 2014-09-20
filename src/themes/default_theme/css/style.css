@@ -22,7 +22,7 @@ li {
     border-width: 0 1px;
     padding: 10px 0;
 }
-.page-wrapper {
+.page-wrapper, nav {
 	width: 960px;
 	margin-left: auto;
 	margin-right: auto;
@@ -32,7 +32,7 @@ li {
 }
 h1 {
     color: rgb(66, 124, 247);
-    font-size: 22px;
+    font-size: 25px;
 }
 #content {
 	padding: 20px;
@@ -58,7 +58,7 @@ a.button.continue {
 #main {
 	padding: 20px;
 	float: left;
-	margin: 20px 0 20px 33%;
+	margin: 0 0 20px 33%;
 }
 #left {
 }
@@ -100,4 +100,50 @@ input[type='submit'] {
 	padding: 10px 15px;
 	background-color: rgba(255, 82, 0, 0.3);
 	box-shadow: 0 0 9px #bbb;
+}
+nav {
+	border-color: #ccc;
+    border-style: none solid;
+    border-width: 1px;
+}
+ul.menu {
+	list-style: none outside none;
+	display: block;
+}
+ul.menu li a, ul.menu li span{
+	margin-left: 7px;
+}
+ul.menu li {
+	padding: 0;
+	margin: 0;
+}
+ul.menu li a, ul.menu li span {
+	padding: 10px;
+	text-decoration: none;
+}
+#test_menu {
+    height: 42px;
+    padding: 0;
+}
+#test_menu {
+	margin: 0;
+}
+#test_menu li.layer-1 {
+	float: left;
+}
+#test_menu li.layer-1 a, #test_menu li.layer-1 span{
+	background-color: #9abb6f;
+	color: white;
+	text-shadow: 1px 1px 2px #666;
+    border-radius: 0 0 10px 10px;
+    display: block;
+    transition: padding-top 300ms ease 0ms;
+}
+#test_menu li.layer-1 a:hover {
+	padding-top: 15px;
+    position: relative;
+    transition: padding-top 300ms ease 0ms;
+}
+#test_menu ul.layer-2 {
+	display: none;
 }

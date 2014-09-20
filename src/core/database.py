@@ -45,19 +45,24 @@ class Database:
         self.db_type = self.config['database_type']
 
     def __del__(self):
-        self._connection.commit()
-        self._connection.close()
+        if self._connection:
+            self._connection.commit()
+            self._connection.close()
 
     def cursor(self):
         return self._connection.cursor()
 
     def commit(self):
-        self._connection.commit()
+        if self._connection:
+            self._connection.commit()
 
     def close(self):
-        self._connection.close()
+        if self._connection:
+            self._connection.close()
 
     def connect(self):
+        if self._connection:
+            self._connection.close()
         self._connection = connect(**self.config['database_connection_arguments'])
 
     def create_table(self, table_name, columns):

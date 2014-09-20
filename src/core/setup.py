@@ -140,7 +140,8 @@ class SetupHandler(PageHandler):
             'header': '',#BaseClassIdElement('img', element_id='pagelogo', additionals=['src="/theme/default_theme/logo_medium.png"', 'height="100px"', 'width="100px"']),
             'footer': str(ContainerElement('_jaide CMS - &copy; Justus Adam 2014', element_id='powered_by')),
             'pagetitle': 'Setting up your CMS installation',
-            'meta': str(LinkElement('/theme/default_theme/favicon.png', 'shortcut icon', element_type='image/png'))
+            'meta': str(LinkElement('/theme/default_theme/favicon.png', 'shortcut icon', element_type='image/png')),
+            'navigation': ''
         }
         replacement_pattern = setup_pages[self._url.page_id]
 

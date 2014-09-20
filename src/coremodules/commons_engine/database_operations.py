@@ -41,23 +41,3 @@ class MenuOperations(Operations):
 
     def add_menu(self, machine_name, menu_name, enabled):
         self.execute('add_menu', machine_name=escape(machine_name), menu_name=escape(menu_name), enabled=escape(enabled))
-
-
-class RegionOperations(Operations):
-
-    _queries = {
-        'mysql': {
-            'get_commons': 'select item_name from regions where region={region} order by weight;',
-            'get_item_info': 'select handler_module, item_type from common_elements where item_name={item_name};'
-        }
-    }
-
-    _tables = {'common_elements', 'regions'}
-
-    def get_commons(self, region_name):
-        self.execute('get_commons', region=region_name)
-        return self.cursor.fetchall()
-
-    def get_item_info(self, item_name):
-        self.execute('get_item_info', item_name=item_name)
-        return self.cursor.fetchone()

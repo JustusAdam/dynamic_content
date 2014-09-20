@@ -232,7 +232,7 @@ class List(ContainerElement):
             if element.html_type == 'li':
                 return str(element)
         else:
-            return str(ContainerElement(element, html_type='li', classes=self.item_classes,
+            return str(ContainerElement(*element, html_type='li', classes=self.item_classes,
                                         additionals=self.item_additionals))
 
     def render_content(self):

@@ -12,6 +12,7 @@ from framework.misc_decorators import requiredir
 
 basedir = str(Path(__file__).parent.resolve())
 
+modules = None
 
 os.chdir(basedir)
 __author__ = 'justusadam'
@@ -20,8 +21,8 @@ __author__ = 'justusadam'
 def main():
     try:
         core.register_installed_modules()
+        global modules
         modules = core.load_modules()
-        request_handler.hello = modules
     except DatabaseError as error:
         print('Failed to register installed modules, continuing.')
         print(error)

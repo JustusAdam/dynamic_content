@@ -18,4 +18,3 @@ def common_handler(item_type, item_name):
 
 def prepare():
     dbo.MenuOperations().init_tables()
-    dbo.RegionOperations().init_tables()

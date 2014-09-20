@@ -11,9 +11,9 @@ import shutil
 from pathlib import Path
 from urllib.error import HTTPError
 import sys
+import traceback
 
 from core import database_operations
-
 from core.database import DatabaseError, Database
 from includes.bootstrap import Bootstrap
 from .page_handlers import FileHandler, BasicPageHandler
@@ -53,7 +53,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             # TODO handle errors that can be handled
             print(error)
         except Exception as exce:
-            print("Unexpected error:", sys.exc_info()[0])
+            print("Unexpected error")
+            traceback.print_tb(sys.exc_info()[2])
             print(exce)
             log.write_error('Request Handler', function='do_any', message='Unexpected error ' + str(exce))
             self.send_error(500, *self.responses[500])

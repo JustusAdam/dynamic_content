@@ -53,12 +53,16 @@ class Component:
         elif isinstance(val, str):
             self._scripts = {val}
 
-    def __add__(self, other):
+    def integrate(self, other):
         self._stylesheets |= other.stylesheets
         self._metatags |= other.metatags
         self._scripts |= other.scripts
-        self.content.append(other.content)
         return self
+
+    def __str__(self):
+        if not self.content:
+            return ''
+        return ''.join(str(a) for a in self.content)
 
 
 class Page(Component):

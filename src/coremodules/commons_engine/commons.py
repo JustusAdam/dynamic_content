@@ -1,5 +1,6 @@
 from . import database_operations
 from framework.html_elements import List, ContainerElement
+from framework.page import Component
 
 __author__ = 'justusadam'
 
@@ -8,6 +9,10 @@ class CommonsHandler:
 
     def __init__(self, machine_name):
         self.name = machine_name
+
+    @property
+    def compiled(self):
+        return None
 
 
 class MenuHandler(CommonsHandler):
@@ -78,8 +83,11 @@ class MenuHandler(CommonsHandler):
 
         return order()
 
-    def compile(self):
-        return self.order_items(self.get_items()).render(0)
+    @property
+    def compiled(self):
+        ul_list = self.order_items(self.get_items()).render_children(0)
+        ul_list.element_id = self.name
+        return Component(self.name, ul_list)
 
 
 class MenuItem:
@@ -93,7 +101,7 @@ class MenuItem:
         self.children = []
 
     def render(self, depth=0):
-        return self.render_self(depth), self.render_children()
+        return self.render_self(depth), self.render_children(depth+1)
 
     def render_self(self, depth):
         if self.item_path:
@@ -105,4 +113,4 @@ class MenuItem:
         return List(*[a.render(depth + 1) for a in self.children], list_type='ul', item_classes='layer-' + str(depth + 1), classes=['layer-' + str(depth), 'menu'])
 
     def __str__(self):
-        return str(self.render(0))
+        return ''.join(str(a) for a in self.render(0))
