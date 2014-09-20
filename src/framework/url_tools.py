@@ -120,7 +120,7 @@ class UrlPath:
     def path(self, value):
         self.trailing_slash = value.endswith('/') and len(value) > 1
         self.starting_slash = value.startswith('/')
-        self._path = list(filter(lambda s: s is not '' and s is not None, value.split('/')))
+        self._path = list(filter(lambda s: s is not '' and s is not None, parse.unquote_plus(value).split('/')))
 
     def __str__(self):
         acc = ''

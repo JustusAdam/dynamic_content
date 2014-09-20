@@ -67,6 +67,8 @@ class FileHandler(PageHandler):
                     self.encoding = 'ogg/vorbis'
                 elif suffix == '.png':
                     self.encoding = 'png'
+                elif suffix == '.mp3':
+                    self.encoding = 'mp3'
                 if suffix in content_types:
                     self.content_type = content_types[suffix]
             return filepath.open('rb').read()

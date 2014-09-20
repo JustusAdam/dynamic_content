@@ -10,12 +10,13 @@ from core import request_handler
 from framework.misc_decorators import requiredir
 
 
+__author__ = 'justusadam'
+
 basedir = str(Path(__file__).parent.resolve())
 
 modules = None
 
 os.chdir(basedir)
-__author__ = 'justusadam'
 
 
 def main():
