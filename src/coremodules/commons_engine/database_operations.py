@@ -7,7 +7,7 @@ class MenuOperations(Operations):
 
     _queries = {
         'mysql': {
-            'get_items': 'select item_name, display_name, item_path, parent_item, weight from menu_items where enabled=true and menu={menu_name};',
+            'get_items': 'select item_name, item_path, parent_item, weight from menu_items where enabled=true and menu={menu_name};',
             'get_menu_info': 'select menu_name from menus where machine_name={machine_name};',
             'add_menu_item': 'insert into menu_items (item_name, display_name, item_path, menu, enabled, tooltip, parent_item, weight) values ({item_name}, {display_name}, {item_path}, {menu}, {enabled}, {tooltip}, {parent_item}, {weight});',
             'toggle_enabled': 'update menu_items set enabled={enabled} where item_name={item_name} and menu={menu};',

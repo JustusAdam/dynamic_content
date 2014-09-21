@@ -1,5 +1,5 @@
 from core.database import Database
-from core.database_operations import Alias, Modules, ContentHandlers, ContentTypes
+from core.database_operations import Alias, ModuleOperations, ContentHandlers, ContentTypes
 from coremodules.iris.database_operations import Pages, Fields
 from coremodules.commons_engine.database_operations import MenuOperations
 from coremodules.theme_engine.database_operations import RegionOperations
@@ -15,7 +15,7 @@ info.append('Database: db')
 al_dbo = Alias()
 info.append('Alias editing Object: al_dbo')
 
-mo_dbo = Modules()
+mo_dbo = ModuleOperations()
 info.append('Modules editing object: mo_dbo')
 
 ch_dbo = ContentHandlers()

@@ -101,7 +101,7 @@ class ContentHandlers(Operations):
         return self.cursor.fetchone()[0]
 
 
-class Modules(Operations):
+class ModuleOperations(Operations):
 
     _queries = {
         'mysql': {

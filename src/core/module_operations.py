@@ -68,7 +68,7 @@ def register_content_handler(module_conf):
 
 
 def get_module_id(module_name):
-    return database_operations.Modules().get_id(module_name)
+    return database_operations.ModuleOperations().get_id(module_name)
 
 
 def init_module(module_path):
@@ -84,22 +84,22 @@ def drop_module_tables(moduleconf):
     if 'required_tables' in moduleconf:
         print('dropping tables for ' + moduleconf['name'])
         try:
-            database_operations.Modules().drop_tables(*(a['table_name'] for a in moduleconf['required_tables']))
+            database_operations.ModuleOperations().drop_tables(*(a['table_name'] for a in moduleconf['required_tables']))
         except DatabaseError as newerror:
             print('Could not drop table for ' + moduleconf['name'] + ' due to error: ' + str(
                 newerror.args))
 
 def get_module_path(module):
-    return database_operations.Modules().get_path(module)
+    return database_operations.ModuleOperations().get_path(module)
 
 
 def _set_module_active(module_name):
-    database_operations.Modules().set_active(module_name)
+    database_operations.ModuleOperations().set_active(module_name)
 
 
 def is_active(module_name):
     try:
-        result = database_operations.Modules().ask_active(module_name)
+        result = database_operations.ModuleOperations().ask_active(module_name)
     except DatabaseError:
         return False
     return result == 1
@@ -134,7 +134,7 @@ def register_modules(r_modules):
 
 def register_single_module(moduleconf):
     print('registering module ' + moduleconf['name'])
-    db_op = database_operations.Modules()
+    db_op = database_operations.ModuleOperations()
     try:
         path = db_op.get_path(moduleconf['name'])
         if path[0] != moduleconf['path']:
@@ -156,7 +156,7 @@ def check_info(info):
 def get_active_modules():
 
     modules = {}
-    for item in database_operations.Modules().get_enabled():
+    for item in database_operations.ModuleOperations().get_enabled():
         print('loading module ' + item['name'])
         modules[item['name']] = import_module(item['path'].replace('/', '.'))
 

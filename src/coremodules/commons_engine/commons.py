@@ -1,4 +1,5 @@
 from . import database_operations
+from core import Modules
 from framework.html_elements import List, ContainerElement
 from framework.page import Component
 
@@ -7,8 +8,17 @@ __author__ = 'justusadam'
 
 class CommonsHandler:
 
+    # used to identify items with internationalization
+    source_identifier = 'commons'
+
+    # temporary
+    language = 'english'
+
     def __init__(self, machine_name):
         self.name = machine_name
+
+    def get_display_name(self, item, language='english'):
+        Modules()['translator'].get_display_name(item, self.source_identifier, language)
 
     @property
     def compiled(self):
@@ -29,7 +39,7 @@ class MenuHandler(CommonsHandler):
         :return:
         """
         db_result = self.mo.get_items(self.name)
-        return [MenuItem(*a) for a in db_result]
+        return [MenuItem(a[0], self.get_display_name(a[0], self.language), *a[1:]) for a in db_result]
 
     def get_menu_info(self):
         return self.mo.get_menu_info(self.name)

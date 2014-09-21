@@ -22,5 +22,5 @@ def prepare():
     a = dbo.Alias()
     a.init_tables()
     a.add_alias('/iris/1', '/welcome')
-    dbo.Modules().init_tables()
+    dbo.ModuleOperations().init_tables()
     dbo.ContentTypes().init_tables()
