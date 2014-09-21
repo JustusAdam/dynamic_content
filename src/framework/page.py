@@ -53,12 +53,6 @@ class Component:
         elif isinstance(val, str):
             self._scripts = {val}
 
-    def integrate(self, other):
-        self._stylesheets |= other.stylesheets
-        self._metatags |= other.metatags
-        self._scripts |= other.scripts
-        return self
-
     def __str__(self):
         return str(self.content)
         # if not self.content:
