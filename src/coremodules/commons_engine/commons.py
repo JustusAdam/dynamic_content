@@ -9,7 +9,9 @@ __author__ = 'justusadam'
 class CommonsHandler:
 
     # used to identify items with internationalization
-    source_identifier = 'commons'
+    com_type = 'commons'
+
+    source_table = 'com_' + com_type
 
     # temporary
     language = 'english'
@@ -18,7 +20,7 @@ class CommonsHandler:
         self.name = machine_name
 
     def get_display_name(self, item, language='english'):
-        Modules()['internationalization'].get_display_name(item, self.source_identifier, language)
+        return Modules()['internationalization'].get_display_name(item, self.source_table, language)
 
     @property
     def compiled(self):
@@ -48,6 +50,8 @@ class TextCommonsHandler(CommonsHandler):
 
 class MenuHandler(CommonsHandler):
 
+    source_table = 'menus'
+
     def __init__(self, machine_name):
         self.mo = database_operations.MenuOperations()
         super().__init__(machine_name)
@@ -60,6 +64,7 @@ class MenuHandler(CommonsHandler):
         :return:
         """
         db_result = self.mo.get_items(self.name)
+        print(db_result)
         return [MenuItem(a[0], self.get_display_name(a[0], self.language), *a[1:]) for a in db_result]
 
     def get_menu_info(self):
