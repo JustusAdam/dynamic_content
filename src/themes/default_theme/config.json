@@ -4,5 +4,5 @@
     "stylesheets": ["style.css"],
     "show_powered_by": true,
     "favicon": "favicon.png",
-    "regions": ["navigation"]
+    "regions": ["navigation", "footer"]
 }

@@ -22,10 +22,8 @@ class DisplayNamesOperations(Operations):
     def get_display_name(self, item, source_table, language):
         machine_name=escape(item)
         source_table=escape(source_table)
-        print(machine_name, source_table)
         self.execute('get_display_name', language=language, machine_name=machine_name, source_table=source_table)
         result = self.cursor.fetchone()
-        print(result)
         if result:
             return result[0]
         elif language != baselang:

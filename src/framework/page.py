@@ -60,9 +60,10 @@ class Component:
         return self
 
     def __str__(self):
-        if not self.content:
-            return ''
-        return ''.join(str(a) for a in self.content)
+        return str(self.content)
+        # if not self.content:
+        #     return ''
+        # return ''.join(str(a) for a in self.content)
 
 
 class Page(Component):

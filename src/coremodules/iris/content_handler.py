@@ -137,7 +137,6 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
             mapping = {}
             for key in field.handler.get_post_query_keys():
                 if not key in self._url.post_query:
-                    print(key)
                     raise KeyError
                 mapping[key] = [parse.unquote_plus(a) for a in self._url.post_query[key]]
             field.handler.query = mapping

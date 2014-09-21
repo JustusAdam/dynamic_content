@@ -37,19 +37,13 @@ class ThemeHandler:
         if 'stylesheets' in self.theme_config:
 
             s += list(str(Stylesheet('/theme/' + self.module_config['active_theme'] + '/' + self.theme_config['stylesheet_directory'] + '/' + a)) for a in self.theme_config['stylesheets'])
-        self._pattern['stylesheets'] = ''.join(s)
-        return True
+        return ''.join(s)
 
     def compile_scripts(self):
         s = list(str(a) for a in self.page.scripts)
         if 'scripts' in self.theme_config:
             s += list(str(Script(self.module_config['active_theme_path'] + '/' + self.theme_config['script_directory'] + '/' + a)) for a in self.theme_config['scripts'])
-        self._pattern['scripts'] = ''.join(s)
-        return True
-
-    def compile_footer(self):
-        self._pattern['footer'] = str(ContainerElement('_jaide CMS - &copy; Justus Adam 2014', element_id='powered_by'))
-        return True
+        return ''.join(s)
 
     def get_template_directory(self):
         path = self.module_config['active_theme_path']
@@ -64,7 +58,7 @@ class ThemeHandler:
             favicon = self.theme_config['favicon']
         else:
             favicon = 'favicon.icon'
-        self._pattern['meta'] = LinkElement('/theme/' + self.used_theme + '/' + favicon, rel='shortcut icon', element_type='image/png')
+        return LinkElement('/theme/' + self.used_theme + '/' + favicon, rel='shortcut icon', element_type='image/png')
 
     @property
     def regions(self):
@@ -75,11 +69,10 @@ class ThemeHandler:
 
     @property
     def compiled(self):
-        self.compile_scripts()
-        self.compile_stylesheets()
-        self.compile_meta()
+        self._pattern['scripts'] = self.compile_scripts()
+        self._pattern['stylesheets'] = self.compile_stylesheets()
+        self._pattern['meta'] = self.compile_meta()
         self._pattern['header'] = ''
-        self.compile_footer()
         self._pattern['title'] = self.page.title
         self._pattern['content'] = str(self.page.content)
         self._pattern['pagetitle'] = ContainerElement('msaw - my super awesome website', html_type='a', additionals='href="/"')

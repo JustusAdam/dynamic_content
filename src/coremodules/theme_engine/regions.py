@@ -1,5 +1,6 @@
 from . import database_operations
 from core.modules import Modules
+from framework.html_elements import ContainerElement
 from framework.page import Component
 
 __author__ = 'justusadam'
@@ -35,18 +36,24 @@ class RegionHandler:
     def get_items_info(self, items):
         return self.operations.get_all_items_info(items)
 
+    def wrap(self, value):
+        return ContainerElement(*value, classes={'region', 'region-' + self.name})
+
     @property
     def compiled(self):
-        r = Component(self.name)
+        stylesheets = []
+        meta = []
+        scripts = []
         cont = []
         if self.commons:
             c = [item.handler.compiled for item in self.commons]
             for comp_item in c:
-                r.integrate(comp_item)
+                stylesheets += comp_item.stylesheets
+                meta += comp_item.metatags
+                scripts += comp_item.metatags
                 cont.append(comp_item.content)
-        r.content = cont
 
-        return r
+        return Component(self.name, self.wrap(cont), stylesheets=stylesheets, metatags=meta, scripts=scripts)
 
 
 class Common:
