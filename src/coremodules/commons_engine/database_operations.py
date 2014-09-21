@@ -42,11 +42,25 @@ class MenuOperations(Operations):
     def add_menu(self, machine_name, menu_name, enabled):
         self.execute('add_menu', machine_name=escape(machine_name), menu_name=escape(menu_name), enabled=escape(enabled))
 
+
 class CommonsOperations(Operations):
 
     _queries = {
         'mysql': {
-
+            'add_content': 'insert into com_{com_type} (machine_name, content) values ({machine_name}, {content});',
+            'add_com_table': 'create table com_{com_type} (id int unsigned not null unique auto_increment primary key, machine_name varchar(200) not null unique, content {spec});',
+            'get_content': 'select content from com_{com_type} where machine_name={machine_name};'
         }
     }
 
+    _tables = ['com_text']
+
+    def add_content(self, com_type, element_name, content):
+        self.execute('add_content', com_type=com_type, machine_name=escape(element_name), content=escape(content))
+
+    def add_com_table(self, com_type, spec):
+        self.execute('add_com_table', com_type=com_type, spec=spec)
+
+    def get_content(self, machine_name, com_type):
+        self.execute('get_content', machine_name=escape(machine_name), com_type=com_type)
+        return self.cursor.fetchone()[0]

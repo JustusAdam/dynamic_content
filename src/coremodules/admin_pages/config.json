@@ -1,6 +1,6 @@
 {
     "name": "admin_pages",
-    "role": "administration_pages_handler"
+    "role": "administration_pages_handler",
     "tables": {
         "admin_categories": [
             "id int unsigned not null unique auto_increment primary key",

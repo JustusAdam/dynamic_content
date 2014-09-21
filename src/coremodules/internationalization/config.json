@@ -1,6 +1,6 @@
 {
     "name": "internationalization",
-    "role": "translator"
+    "role": "translator",
     "tables": {
         "display_names": [
             "id int unsigned not null unique auto_increment primary key",

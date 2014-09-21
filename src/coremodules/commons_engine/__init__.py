@@ -12,7 +12,7 @@ role = 'block_manager'
 def common_handler(item_type, item_name):
     handlers = {
         'menu': MenuHandler,
-        'common': CommonsHandler
+        'com_text': CommonsHandler
     }
     return handlers[item_type](item_name)
 

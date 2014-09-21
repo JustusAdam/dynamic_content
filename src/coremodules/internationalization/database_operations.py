@@ -9,9 +9,11 @@ baselang = 'english'
 class DisplayNamesOperations(Operations):
 
     _queries = {
-        'get_display_name': 'select {language} from display_names where machine_name={machine_name} and source={source};',
-        'edit_display_name': 'update display_names set {language}={value} where machine_name={machine_name} and source_table={source_table};',
-        'add_item_il': 'insert into display_names (machine__name, source_table{languages}) values ({machine_name}, {source_table}{display_names});'
+        'mysql': {
+            'get_display_name': 'select {language} from display_names where machine_name={machine_name} and source_table={source_table};',
+            'edit_display_name': 'update display_names set {language}={value} where machine_name={machine_name} and source_table={source_table};',
+            'add_item_il': 'insert into display_names (machine__name, source_table{languages}) values ({machine_name}, {source_table}{display_names});'
+        }
     }
 
     _tables = ['display_names']
@@ -19,7 +21,7 @@ class DisplayNamesOperations(Operations):
     def get_display_name(self, item, source_table, language):
         machine_name=escape(item)
         source_table=escape(source_table)
-        self.execute('get_display_name', language=language, machine_name=machine_name, sourc_tablee=source_table)
+        self.execute('get_display_name', language=language, machine_name=machine_name, source_table=source_table)
         result =  self.cursor.fetchone()
         if result:
             return result[0]

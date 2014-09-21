@@ -1,7 +1,7 @@
 from core.database import Database
 from core.database_operations import Alias, ModuleOperations, ContentHandlers, ContentTypes
 from coremodules.iris.database_operations import Pages, Fields
-from coremodules.commons_engine.database_operations import MenuOperations
+from coremodules.commons_engine.database_operations import MenuOperations, CommonsOperations
 from coremodules.theme_engine.database_operations import RegionOperations
 
 __author__ = 'justusadam'
@@ -35,3 +35,6 @@ info.append('Menu editing object: men_dbo')
 
 ro_dbo = RegionOperations()
 info.append('Region editing object: ro_dbo')
+
+com_dbo = CommonsOperations()
+info.append('Commons editing object: com_dbo')

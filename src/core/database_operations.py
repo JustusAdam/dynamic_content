@@ -19,8 +19,9 @@ class Operations:
 
     _config_name = 'config.json'
 
+    db = database.Database()
+
     def __init__(self):
-        self.db = database.Database()
         self.charset = 'utf-8'
         self.cursor = self.db.cursor()
 

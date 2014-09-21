@@ -18,11 +18,32 @@ class CommonsHandler:
         self.name = machine_name
 
     def get_display_name(self, item, language='english'):
-        Modules()['translator'].get_display_name(item, self.source_identifier, language)
+        Modules()['internationalization'].get_display_name(item, self.source_identifier, language)
 
     @property
     def compiled(self):
         return None
+
+
+class TextCommonsHandler(CommonsHandler):
+
+    com_type = 'text'
+
+    def __init__(self, machine_name):
+        self.co = database_operations.CommonsOperations()
+        super().__init__(machine_name)
+
+    def get_content(self, name):
+        return self.co.get_content(name, self.com_type)
+
+    def content(self):
+        c = self.get_content(self.name)
+        return ContainerElement(c, classes={'common'})
+
+    @property
+    def compiled(self):
+        obj = Component(self.get_display_name(self.name), self.content())
+        return obj
 
 
 class MenuHandler(CommonsHandler):
