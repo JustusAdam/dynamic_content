@@ -41,3 +41,12 @@ class MenuOperations(Operations):
 
     def add_menu(self, machine_name, menu_name, enabled):
         self.execute('add_menu', machine_name=escape(machine_name), menu_name=escape(menu_name), enabled=escape(enabled))
+
+class CommonsOperations(Operations):
+
+    _queries = {
+        'mysql': {
+
+        }
+    }
+
