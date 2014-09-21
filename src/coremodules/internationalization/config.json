@@ -5,7 +5,7 @@
         "display_names": [
             "id int unsigned not null unique auto_increment primary key",
             "machine_name varchar(200) not null",
-            "source varchar(200) not null",
+            "source_table varchar(200) not null",
             "english varchar(200)"
         ]
     }
