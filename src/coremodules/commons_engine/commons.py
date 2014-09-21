@@ -50,21 +50,19 @@ class TextCommonsHandler(CommonsHandler):
 
 class MenuHandler(CommonsHandler):
 
-    source_table = 'menus'
+    source_table = 'menu_items'
 
     def __init__(self, machine_name):
         self.mo = database_operations.MenuOperations()
         super().__init__(machine_name)
         self.menu_name = self.get_menu_info()
 
-
     def get_items(self):
         """
         Calls the database operation obtaining data about the menu items and casts them onto MenuItems for convenience
-        :return:
+        :return: List of MenuItems
         """
         db_result = self.mo.get_items(self.name)
-        print(db_result)
         return [MenuItem(a[0], self.get_display_name(a[0], self.language), *a[1:]) for a in db_result]
 
     def get_menu_info(self):

@@ -1,5 +1,3 @@
-from pymysql import DatabaseError, InterfaceError
-
 from core.database_operations import Operations
 from core.database import escape
 
@@ -24,11 +22,10 @@ class DisplayNamesOperations(Operations):
     def get_display_name(self, item, source_table, language):
         machine_name=escape(item)
         source_table=escape(source_table)
-        try:
-            self.execute('get_display_name', language=language, machine_name=machine_name, source_table=source_table)
-            result = self.cursor.fetchone()
-        except (DatabaseError, InterfaceError):
-            return item
+        print(machine_name, source_table)
+        self.execute('get_display_name', language=language, machine_name=machine_name, source_table=source_table)
+        result = self.cursor.fetchone()
+        print(result)
         if result:
             return result[0]
         elif language != baselang:
