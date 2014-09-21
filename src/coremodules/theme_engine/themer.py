@@ -84,7 +84,7 @@ class ThemeHandler:
         self._pattern['content'] = str(self.page.content)
         self._pattern['pagetitle'] = ContainerElement('msaw - my super awesome website', html_type='a', additionals='href="/"')
         for region in self.regions:
-            self._pattern[region.name] = str(region.compiled())
+            self._pattern[region.name] = str(region.compiled)
 
         template = open(self.get_template_directory() + 'page.html').read()
         return template.format(**self._pattern)

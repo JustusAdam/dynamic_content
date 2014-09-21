@@ -35,6 +35,7 @@ class RegionHandler:
     def get_items_info(self, items):
         return self.operations.get_all_items_info(items)
 
+    @property
     def compiled(self):
         r = Component(self.name)
         cont = []
