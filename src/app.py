@@ -7,7 +7,6 @@ from pymysql import DatabaseError
 from framework.config_tools import read_config
 import core
 from core import request_handler
-from framework.misc_decorators import requiredir
 
 
 __author__ = 'justusadam'
@@ -28,12 +27,11 @@ def main():
         print('Failed to register installed modules, continuing.')
         print(error)
 
-    run_server(handler_class=request_handler.RequestHandler)
+    run_server(server_class=HTTPServer, handler_class=request_handler.RequestHandler)
 
     return 0
 
 
-@requiredir(basedir)
 def run_server(server_class=HTTPServer, handler_class=BaseHTTPRequestHandler):
     config = read_config('config')
     server_address = (config['server_arguments']['host'], config['server_arguments']['port'])
