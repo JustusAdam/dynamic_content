@@ -1,7 +1,6 @@
 from urllib import parse
-from urllib.error import HTTPError
 
-from framework.base_handlers import ContentHandler
+from framework.base_handlers import ContentHandler, RedirectMixIn
 from core.modules import Modules
 from framework.page import Page
 from framework.html_elements import FormElement, TableElement, Input, Label, ContainerElement
@@ -21,7 +20,6 @@ class FieldBasedContentHandler(ContentHandler):
         super().__init__(url)
         self.modules = Modules()
         (self.page_title, self.content_type, self.theme) = self.get_page_information()
-        self.fields = self.get_fields()
 
     def get_page_information(self):
         ops = database_operations.Pages()
@@ -36,8 +34,7 @@ class FieldBasedContentHandler(ContentHandler):
 
         for (field_name, machine_name, handler_module) in db_result:
             handler = self.get_field_handler(machine_name, handler_module)
-            field = FieldInfo(field_name, machine_name, handler)
-            fields.append(field)
+            fields.append(handler)
 
         return fields
 
@@ -61,43 +58,31 @@ class FieldBasedContentHandler(ContentHandler):
             if vals:
                 field_handler.process_get(UrlQuery(vals))
 
-    def handle_fields(self):
-        for field in self.fields:
-            field.value = field.handler.compiled
-        return True
-
     def get_field_handler(self, name, module):
         return self.modules[module].field_handler(name, self._url.page_type, self._url.page_id, self.modifier)
 
-    def integrate(self, component):
-        for stylesheet in component.stylesheets:
-            self.page.stylesheets.add(stylesheet)
-        for metatag in component.metatags:
-            self.page.metatags.add(metatag)
-        for script in component.scripts:
-            self.page.scripts.add(script)
-
-    def concatenate_content(self):
+    def concatenate_content(self, fields):
         content = []
-        for field in self.fields:
-            content.append(field.value.content)
+        for field in fields:
+            content.append(field.compiled)
         return ContainerElement(*content)
 
     @property
     def compiled(self):
         # executing step by step since any failing will fail all subsequent steps
-        self.page = Page(self._url, self.page_title)
+        page = Page(self._url, self.page_title)
         if self.theme:
-            self.page.used_theme = self.theme
-        self.get_fields()
-        self.handle_fields()
-        self.page.content = self.concatenate_content()
-        return self.page
+            page.used_theme = self.theme
+        fields = self.get_fields()
+        page.content = self.concatenate_content(fields)
+        return page
 
 
-class EditFieldBasedContentHandler(FieldBasedContentHandler):
+class EditFieldBasedContentHandler(FieldBasedContentHandler, RedirectMixIn):
 
     modifier = 'edit'
+
+    field_identifier_separator = '-'
 
     def __init__(self, url):
         super().__init__(url)
@@ -108,64 +93,58 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
     def title_options(self):
         return [Label('Title', label_for='edit-title'), Input(element_id='edit-title',name='title', value=self.page_title, required=True)]
 
-    def concatenate_content(self):
+    def concatenate_content(self, fields):
         content = [self.title_options]
-        for field in self.fields:
-            identifier = self.make_field_identifier(field)
-            field.value.content.element_id = identifier
-            content.append((Label(field.field_name, label_for=identifier), str(field.value.content)))
+        for field in fields:
+            identifier = self.make_field_identifier(field.machine_name)
+            c_fragment = field.compiled
+            c_fragment.classes |= self.content_type
+            c_fragment.element_id = identifier
+            content.append((Label(field.machine_name, label_for=identifier), str(c_fragment.content)))
         content.append(self.admin_options)
-        table = TableElement(*content)
+        table = TableElement(*content, classes={'edit', self.content_type, 'edit-form'})
         return str(FormElement(table, action=str(self._url)))
 
-    def make_field_identifier(self, field):
-        return self.modifier + '-' + field.value.title
+    def make_field_identifier(self, name):
+        return self.modifier + self.field_identifier_separator + name
 
     @property
     def admin_options(self):
         return Label('Published', label_for='toggle-published'), Input(element_id='toggle-published', input_type='radio', value='1', name='publish')
 
-    def process_query(self):
-        for field in self.fields:
-            field.handler.process_post()
+    def process_query(self, fields):
+        for field in fields:
+            field.process_post()
 
-    def assign_inputs(self):
-        for field in self.fields:
+    def assign_inputs(self, fields):
+        for field in fields:
             mapping = {}
-            for key in field.handler.get_post_query_keys():
+            for key in field.get_post_query_keys():
                 if not key in self._url.post_query:
                     raise KeyError
                 mapping[key] = [parse.unquote_plus(a) for a in self._url.post_query[key]]
-            field.handler.query = mapping
+            field.query = mapping
 
 
     @property
     def compiled(self):
+        fields = self.get_fields()
         if self._is_post:
-            self.process_post()
-        self.page = Page(self._url, self.page_title)
+            self.process_post(fields)
+        page = Page(self._url, self.page_title)
         if self.theme:
-            self.page.used_theme = self.theme
-        self.get_fields()
-        self.handle_fields()
-        self.page.content = self.concatenate_content()
-        return self.page
+            page.used_theme = self.theme
+        page.content = self.concatenate_content(fields)
+        return page
 
-    def process_post(self):
+    def process_post(self, fields):
         try:
-            self.assign_inputs()
+            self.assign_inputs(fields)
             self.alter_page()
-            self.process_query()
+            self.process_query(fields)
             self.redirect()
         except (KeyError, DBOperationError):
             pass
-
-    def redirect(self, destination=None):
-        if 'destination' in self._url.get_query:
-            destination = self._url.get_query['destination'][0]
-        elif not destination:
-            destination = str(self._url.path.prt_to_str(0,-1))
-        raise HTTPError(str(self._url), 302, 'Redirect', [('Location', destination), ('Connection', 'close')], None)
 
     def alter_page(self):
         if not 'title' in self._url.post_query.keys():
@@ -204,13 +183,13 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
             published = False
         return database_operations.Pages().add_page(self._url.page_type, self.content_type, self.page_title, self.user, published)
 
-    def process_post(self):
+    def process_post(self, fields):
         try:
-            self.assign_inputs()
+            self.assign_inputs(fields)
             new_id = self.create_page()
-            for field in self.fields:
-                field.handler.page_id = new_id
-            self.process_query()
+            for field in fields:
+                field.page_id = new_id
+            self.process_query(fields)
             self.redirect(str(self._url.path.prt_to_str(0,-1)) + '/' + str(new_id))
         except (KeyError, DBOperationError):
             pass
@@ -219,12 +198,4 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
     def title_options(self):
         return [Label('Title', label_for='edit-title'), Input(element_id='edit-title', name='title', required=True)]
 
-
-class FieldInfo:
-
-    def __init__(self, field_name, machine_name, handler=None):
-        self.field_name = field_name
-        self.machine_name = machine_name
-        self.handler = handler
-        self.value = None
 
