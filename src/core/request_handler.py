@@ -52,6 +52,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         except HTTPError as error:
             print(error)
             if error.code >= 400:
+                log.write_error(message='HTTPError, ' + error.reason)
                 self.send_error(error.code, *self.responses[error.code])
                 return 0
             self.send_response(error.code)
@@ -107,6 +108,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     def get_handler(self):
 
         if self._url.page_type == 'setup':
+
             return self.start_setup()
         elif self._url.page_type in bootstrap.FILE_DIRECTORIES.keys():
             return FileHandler(self._url.path)
@@ -125,8 +127,8 @@ class RequestHandler(BaseHTTPRequestHandler):
         return BasicPageHandler(self._url)
 
     def start_setup(self):
-        if not read_config(str(Path(__file__).parent / 'config.json'))['setup']:
-            return 404
+        if not read_config('config.json')['setup']:
+            raise HTTPError(str(self._url), 403, 'Request disabled via server config', None, None)
         from .setup import SetupHandler
         return SetupHandler(self._url)
 

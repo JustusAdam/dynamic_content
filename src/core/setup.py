@@ -10,7 +10,7 @@ from framework.base_handlers import PageHandler
 from .database import DatabaseError, Database
 from . import module_operations
 from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, FormElement, Input, LinkElement
-from framework.config_tools import read_config
+from framework.config_tools import read_config, write_config
 from includes.bootstrap import Bootstrap
 
 
@@ -152,9 +152,10 @@ class SetupHandler(PageHandler):
 
         if self._url.page_id == 4:
             page = page.format(**self.setup_wrapper())
-            page = page.format(this=self._url.path, next_page=self._url.page_id + 1)
-        else:
-            page = page.format(this=self._url.path, next_page=self._url.page_id + 1)
+        elif self._url.page_id == 5:
+            config['setup'] = False
+            write_config(config, 'config.json')
+        page = page.format(this=self._url.path, next_page=self._url.page_id + 1)
         return page
 
     def process_post(self, post_query):

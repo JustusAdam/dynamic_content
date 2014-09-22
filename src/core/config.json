@@ -1,7 +1,6 @@
 {
     "name": "core",
     "role": "core",
-    "setup": true,
     "tables": {
         "content_handlers": [
             "id int unsigned not null auto_increment unique primary key comment 'primary key used for identification'",

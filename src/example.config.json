@@ -20,5 +20,6 @@
         "user": "python_cms",
         "host": "localhost"
     },
+    "setup": true,
     "database_type": "mysql"
 }
