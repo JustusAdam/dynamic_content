@@ -64,7 +64,7 @@ class FieldBasedContentHandler(ContentHandler):
     def concatenate_content(self, fields):
         content = []
         for field in fields:
-            content.append(field.compiled)
+            content.append(field.compiled.content)
         return ContainerElement(*content)
 
     @property
@@ -98,8 +98,8 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler, RedirectMixIn):
         for field in fields:
             identifier = self.make_field_identifier(field.machine_name)
             c_fragment = field.compiled
-            c_fragment.classes |= self.content_type
-            c_fragment.element_id = identifier
+            c_fragment.content.classes.add(self.content_type)
+            c_fragment.content.element_id = identifier
             content.append((Label(field.machine_name, label_for=identifier), str(c_fragment.content)))
         content.append(self.admin_options)
         table = TableElement(*content, classes={'edit', self.content_type, 'edit-form'})

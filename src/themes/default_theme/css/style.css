@@ -216,3 +216,9 @@ ul.menu li a, ul.menu li span {
 .sidebar .region-wrapper {
 	padding: 25px 10px;
 }
+.edit-form {
+	width: 100%;
+}
+textarea.long-text {
+	width: 100%;
+}

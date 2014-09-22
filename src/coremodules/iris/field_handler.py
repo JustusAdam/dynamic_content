@@ -19,8 +19,7 @@ class BaseFieldHandler(FieldHandler):
         content = ContainerElement(self.process_content(), element_id='field-' + self.machine_name, classes={'field'})
         if not content:
             return False
-        field = Component(self.get_field_title(), content=content)
-        return field
+        return Component(self.get_field_title(), content=content)
 
     def get_field_title(self):
         return self.machine_name
@@ -39,6 +38,9 @@ class BaseFieldHandler(FieldHandler):
 
 
 class EditBaseFieldHandler(BaseFieldHandler):
+
+    xtra_classes = {'edit', 'long-text'}
+
     def __init__(self, path_prefix, page_id, machine_name):
         super().__init__(path_prefix, page_id, machine_name)
         self._query = {}
@@ -55,7 +57,7 @@ class EditBaseFieldHandler(BaseFieldHandler):
         self._query = value
 
     def process_content(self):
-        return Textarea(self.get_content(), name=self.machine_name, rows=20, cols=50, classes={self.machine_name, 'edit'})
+        return Textarea(self.get_content(), name=self.machine_name, rows=20, cols=50, classes={self.machine_name} | self.xtra_classes)
 
     def get_post_query_keys(self):
         return [self.machine_name]
@@ -66,7 +68,7 @@ class EditBaseFieldHandler(BaseFieldHandler):
 
 class AddBaseFieldHandler(EditBaseFieldHandler):
     def process_content(self):
-        return Textarea(name=self.machine_name, rows=7, cols=50, classes={self.machine_name, 'edit'})
+        return Textarea(name=self.machine_name, rows=7, cols=50, classes={self.machine_name} | self.xtra_classes)
 
     def process_post(self):
         database_operations.Fields().add_field(self.machine_name, self.path_prefix, self.page_id, self._query[self.machine_name][0])
