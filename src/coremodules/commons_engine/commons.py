@@ -13,6 +13,8 @@ class CommonsHandler:
 
     source_table = 'commons_config'
 
+    dn_ops = None
+
     # temporary
     language = 'english'
 
@@ -21,7 +23,9 @@ class CommonsHandler:
         self.show_title = show_title
 
     def get_display_name(self, item, language='english'):
-        return Modules()['internationalization'].get_display_name(item, self.source_table, language)
+        if not self.dn_ops:
+            self.dn_ops = Modules()['internationalization'].Operations()
+        return self.dn_ops.get_display_name(item, self.source_table, language)
 
     def wrap_content(self, content):
         if self.show_title:

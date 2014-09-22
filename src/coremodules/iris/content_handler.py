@@ -160,10 +160,10 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
         except (KeyError, DBOperationError):
             pass
 
-    def redirect(self):
+    def redirect(self, destination=None):
         if 'destination' in self._url.get_query:
             destination = self._url.get_query['destination'][0]
-        else:
+        elif not destination:
             destination = str(self._url.path.prt_to_str(0,-1))
         raise HTTPError(str(self._url), 302, 'Redirect', [('Location', destination), ('Connection', 'close')], None)
 
@@ -205,11 +205,15 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
         return database_operations.Pages().add_page(self._url.page_type, self.content_type, self.page_title, self.user, published)
 
     def process_post(self):
-        self.assign_inputs()
-        new_id = self.create_page()
-        for field in self.fields:
-            field.handler.page_id = new_id
-        self.process_query()
+        try:
+            self.assign_inputs()
+            new_id = self.create_page()
+            for field in self.fields:
+                field.handler.page_id = new_id
+            self.process_query()
+            self.redirect(str(self._url.path.prt_to_str(0,-1)) + '/' + str(new_id))
+        except (KeyError, DBOperationError):
+            pass
 
     @property
     def title_options(self):

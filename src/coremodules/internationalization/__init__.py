@@ -7,6 +7,9 @@ def prepare():
     DisplayNamesOperations().init_tables()
 
 
+Operations = DisplayNamesOperations
+
+
 def get_display_name(item, source_table, language):
     return DisplayNamesOperations().get_display_name(item, source_table, language)
 
