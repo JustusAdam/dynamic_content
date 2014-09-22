@@ -9,7 +9,8 @@
             "id int unsigned not null unique auto_increment primary key",
             "element_name varchar(200) not null unique",
             "element_type varchar(200) not null",
-            "handler_module varchar(200) not null default 'commons_engine'"
+            "handler_module varchar(200) not null default 'commons_engine'",
+            "show_title boolean not null"
         ],
         "regions": [
             "id int unsigned not null unique auto_increment primary key",

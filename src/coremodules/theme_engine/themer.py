@@ -62,9 +62,10 @@ class ThemeHandler:
 
     @property
     def regions(self):
+        config = self.theme_config['regions']
         r = []
-        for region in self.theme_config['regions']:
-            r.append(RegionHandler(region, self.used_theme))
+        for region in config:
+            r.append(RegionHandler(region, config[region] , self.used_theme))
         return r
 
     @property

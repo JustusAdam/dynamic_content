@@ -8,7 +8,7 @@ class RegionOperations(Operations):
     _queries = {
         'mysql': {
             'get_commons': 'select item_name from regions where region={region} and theme={theme} order by weight asc;',
-            'get_all_items_info': 'select element_name, handler_module, element_type from commons_config where {pred}',
+            'get_all_items_info': 'select element_name, handler_module, element_type, show_title from commons_config where {pred}',
             'add_item_config': 'insert into commons_config (element_name, element_type, handler_module) values ({element_name}, {element_type}, {handler_module});',
             'add_item': 'insert into regions (item_name, region, weight, theme) values ({item_name}, {region}, {weight}, {theme});'
         }

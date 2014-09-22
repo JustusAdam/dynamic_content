@@ -11,16 +11,24 @@ class CommonsHandler:
     # used to identify items with internationalization
     com_type = 'commons'
 
-    source_table = 'com_' + com_type
+    source_table = 'commons_config'
 
     # temporary
     language = 'english'
 
-    def __init__(self, machine_name):
+    def __init__(self, machine_name, show_title):
         self.name = machine_name
+        self.show_title = show_title
 
     def get_display_name(self, item, language='english'):
         return Modules()['internationalization'].get_display_name(item, self.source_table, language)
+
+    def wrap_content(self, content):
+        if self.show_title:
+            title = ContainerElement(self.get_display_name(self.name), html_type='h3')
+        else:
+            title = ''
+        return ContainerElement(title, content, classes={self.name, 'common'})
 
     @property
     def compiled(self):
@@ -31,20 +39,16 @@ class TextCommonsHandler(CommonsHandler):
 
     com_type = 'text'
 
-    def __init__(self, machine_name):
+    def __init__(self, machine_name, show_title):
         self.co = database_operations.CommonsOperations()
-        super().__init__(machine_name)
+        super().__init__(machine_name, show_title)
 
     def get_content(self, name):
         return self.co.get_content(name, self.com_type)
 
-    def content(self):
-        c = self.get_content(self.name)
-        return ContainerElement(c, classes={'common'})
-
     @property
     def compiled(self):
-        obj = Component(self.get_display_name(self.name), self.content())
+        obj = Component(self.name, self.wrap_content(self.get_content(self.name)))
         return obj
 
 
@@ -52,9 +56,9 @@ class MenuHandler(CommonsHandler):
 
     source_table = 'menu_items'
 
-    def __init__(self, machine_name):
+    def __init__(self, machine_name, show_title):
         self.mo = database_operations.MenuOperations()
-        super().__init__(machine_name)
+        super().__init__(machine_name, show_title)
         self.menu_name = self.get_menu_info()
 
     def get_items(self):
@@ -121,7 +125,7 @@ class MenuHandler(CommonsHandler):
     def compiled(self):
         ul_list = self.order_items(self.get_items()).render_children(0)
         ul_list.element_id = self.name
-        return Component(self.name, ul_list)
+        return Component(self.name, self.wrap_content(ul_list))
 
 
 class MenuItem:

@@ -21,7 +21,7 @@ li {
     border-color: #ccc;
     border-style: solid;
     border-width: 0 1px;
-    padding: 10px 0;
+    padding: 0;
 }
 .page-wrapper {
 	width: 960px;
@@ -57,11 +57,14 @@ a.button.continue {
 	float: right;
 }
 #main {
-	padding: 20px;
 	float: left;
-	margin: 40px 20px;
+	width: 700px;
 }
-#left {
+.wrapper.content {
+	margin: 40px 20px;
+	padding: 20px;
+}
+.common {
 }
 td {
     padding: 2px 5px;
@@ -87,6 +90,12 @@ footer {
     font-size: 25px;
     text-shadow: 1px 1px 5px #666;
     text-decoration: none;
+}
+#pagetitle {
+	padding:40px;
+}
+#header-wrapper {
+	padding: 20px 10px;
 }
 #pagelogo {
 	float: left;
@@ -181,4 +190,28 @@ ul.menu li a, ul.menu li span {
 }
 #start_menu ul.layer-2 {
 	display: none;
+}
+.sidebar {
+	width: 260px;
+	float: left;
+}
+.region.sidebar .common {
+	padding: 10px 15px;
+	margin: 10px 15px;
+	background: none repeat scroll 0 0 #CFD3C9;
+    box-shadow: 1px 1px 3px #bbb;
+}
+.region .common h3 {
+	color: rgb(59, 105, 202);
+	margin: 9px 2px;
+}
+.find_me a, .find_me a:visited{
+	color: #333;
+	text-decoration: none;
+}
+.find_me ul {
+	padding-left: 24px;
+}
+.sidebar .region-wrapper {
+	padding: 15px 10px;
 }

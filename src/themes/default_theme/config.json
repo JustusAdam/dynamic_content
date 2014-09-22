@@ -4,5 +4,14 @@
     "stylesheets": ["style.css"],
     "show_powered_by": true,
     "favicon": "favicon.png",
-    "regions": ["navigation", "footer"]
+    "regions": {
+        "navigation": {},
+        "footer": {},
+        "sidebar_left": {
+            "classes": ["sidebar"]
+        },
+        "sidebar_right": {
+            "classes": ["sidebar"]
+        }
+    }
 }
