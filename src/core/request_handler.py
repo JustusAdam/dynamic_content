@@ -71,13 +71,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         return 0
 
     def send_document(self, page_handler):
-        # Eventually this try/catch will send errors and redirects based on exceptions thrown by the handler
-        # try:
         document = page_handler.encoded
-        # except Exception as exception:
-        #     print(exception)
-        #     self.send_error(404, *self.responses[404])
-        #     return 0
 
         self.send_response(200)
         self.send_header("Content-type", "{content_type}; charset={encoding}".format(
@@ -117,7 +111,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             db.connect()
         except DatabaseError:
             # TODO figure out which error to raise if database unreachable, currently 'internal server error'
-            return 500
+            raise HTTPError(str(self._url), 500, 'Database unreachable', None, None)
 
         self._url.path = self.translate_alias(str(self._url.path))
 

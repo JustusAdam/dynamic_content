@@ -1,5 +1,5 @@
+from coremodules.commons_engine import MenuHandler
 from coremodules.commons_engine.database_operations import MenuOperations
-from coremodules.commons_engine.commons import MenuHandler
 from coremodules.theme_engine.database_operations import RegionOperations
 
 __author__ = 'justusadam'

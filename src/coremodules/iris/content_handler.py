@@ -62,10 +62,15 @@ class FieldBasedContentHandler(ContentHandler):
         return self.modules[module].field_handler(name, self._url.page_type, self._url.page_id, self.modifier)
 
     def concatenate_content(self, fields):
+        content = self.field_content(fields)
+        return ContainerElement(*content)
+
+    def field_content(self, fields):
         content = []
         for field in fields:
             content.append(field.compiled.content)
-        return ContainerElement(*content)
+        return content
+
 
     @property
     def compiled(self):
@@ -91,26 +96,33 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler, RedirectMixIn):
 
     @property
     def title_options(self):
-        return [Label('Title', label_for='edit-title'), Input(element_id='edit-title',name='title', value=self.page_title, required=True)]
+        return [Label('Title', label_for='edit-title'),
+                Input(element_id='edit-title', name='title', value=self.page_title, required=True)]
 
     def concatenate_content(self, fields):
         content = [self.title_options]
+        content += self.field_content(fields)
+        content.append(self.admin_options)
+        table = TableElement(*content, classes={'edit', self.content_type, 'edit-form'})
+        return FormElement(table, action=str(self._url))
+
+    def field_content(self, fields):
+        content = []
         for field in fields:
             identifier = self.make_field_identifier(field.machine_name)
             c_fragment = field.compiled
             c_fragment.content.classes.add(self.content_type)
             c_fragment.content.element_id = identifier
             content.append((Label(field.machine_name, label_for=identifier), str(c_fragment.content)))
-        content.append(self.admin_options)
-        table = TableElement(*content, classes={'edit', self.content_type, 'edit-form'})
-        return str(FormElement(table, action=str(self._url)))
+        return content
 
     def make_field_identifier(self, name):
         return self.modifier + self.field_identifier_separator + name
 
     @property
     def admin_options(self):
-        return Label('Published', label_for='toggle-published'), Input(element_id='toggle-published', input_type='radio', value='1', name='publish')
+        return Label('Published', label_for='toggle-published'), \
+            Input(element_id='toggle-published', input_type='radio', value='1', name='publish')
 
     def process_query(self, fields):
         for field in fields:
@@ -124,7 +136,6 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler, RedirectMixIn):
                     raise KeyError
                 mapping[key] = [parse.unquote_plus(a) for a in self._url.post_query[key]]
             field.query = mapping
-
 
     @property
     def compiled(self):
@@ -181,7 +192,8 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
             published = True
         else:
             published = False
-        return database_operations.Pages().add_page(self._url.page_type, self.content_type, self.page_title, self.user, published)
+        return database_operations.Pages().add_page(self._url.page_type, self.content_type,
+                                                    self.page_title, self.user, published)
 
     def process_post(self, fields):
         try:
@@ -190,7 +202,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
             for field in fields:
                 field.page_id = new_id
             self.process_query(fields)
-            self.redirect(str(self._url.path.prt_to_str(0,-1)) + '/' + str(new_id))
+            self.redirect(str(self._url.path.prt_to_str(0, -1)) + '/' + str(new_id))
         except (KeyError, DBOperationError):
             pass
 
