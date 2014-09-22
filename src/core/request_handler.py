@@ -50,8 +50,16 @@ class RequestHandler(BaseHTTPRequestHandler):
             page_handler = self.get_handler()
             self.send_document(page_handler)
         except HTTPError as error:
-            # TODO handle errors that can be handled
             print(error)
+            if error.code >= 400:
+                self.send_error(error.code, *self.responses[error.code])
+                return 0
+            self.send_response(error.code)
+            if error.headers:
+                for header in error.headers:
+                    self.send_header(*header)
+            self.end_headers()
+            return 0
         except Exception as exce:
             print("Unexpected error")
             traceback.print_tb(sys.exc_info()[2])
@@ -82,12 +90,6 @@ class RequestHandler(BaseHTTPRequestHandler):
             shutil.copyfileobj(stream, self.wfile)
         finally:
             stream.close()
-
-    def get_post_target(self):
-        if self._url.get_query:
-            if 'destination' in self._url.get_query:
-                return '/' + self._url.get_query['destination']
-        return '/'
 
     def check_path(self):
 

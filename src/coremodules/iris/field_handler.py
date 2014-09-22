@@ -69,4 +69,4 @@ class AddBaseFieldHandler(EditBaseFieldHandler):
         return Textarea(name=self.machine_name, rows=7, cols=50)
 
     def process_post(self):
-       database_operations.Fields().add_field(self.machine_name, self.path_prefix, self.page_id, self._query[self.machine_name][0])
+        database_operations.Fields().add_field(self.machine_name, self.path_prefix, self.page_id, self._query[self.machine_name][0])

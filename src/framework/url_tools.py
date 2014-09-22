@@ -9,18 +9,6 @@ from urllib import parse
 __author__ = 'justusadam'
 
 
-def split_path(path):
-    if path.find('?') == -1:
-        query = ''
-    else:
-        (path, query) = path.split('?', 1)
-    if path.find('#') == -1:
-        location = ''
-    else:
-        (path, location) = path.split('#', 1)
-    return path, location, query
-
-
 def join_path(path, location, query):
     if location != '':
         location = '#' + location
@@ -31,10 +19,10 @@ def join_path(path, location, query):
 
 class Url:
     def __init__(self, url, post_query=None):
-        (path, location, query) = split_path(url)
-        self._path = UrlPath(path)
-        self._location = UrlLocation(location)
-        self._get_query = UrlQuery(query)
+        parsed = parse.urlsplit(url)
+        self._path = UrlPath(parsed.path)
+        self._location = UrlLocation(parsed.fragment)
+        self._get_query = UrlQuery(parsed.query)
         self.post_query = post_query
 
         self.page_id = 1
@@ -100,12 +88,10 @@ class Url:
             self._post_query = UrlQuery(value)
 
     def __str__(self):
-        return str(self._path) + str(self._location) + str(self._get_query)
+        return  parse.urlunsplit(('', '', str(self._path), str(self._get_query), str(self._location)))
 
     def __bool__(self):
         return bool(self._path)
-
-
 
 
 class UrlPath:
@@ -123,13 +109,21 @@ class UrlPath:
         self._path = list(filter(lambda s: s is not '' and s is not None, parse.unquote_plus(value).split('/')))
 
     def __str__(self):
+        return self.prt_to_str()
+
+    def prt_to_str(self, start=0, stop=0):
+        if stop == 0:
+            slc = self._path[start:]
+        else:
+            slc = self._path[start:stop]
         acc = ''
         if self.starting_slash:
             acc += '/'
-        acc += '/'.join(self.path)
+        acc += '/'.join(slc)
         if self.trailing_slash:
             acc += '/'
         return parse.quote(acc)
+
 
     def __getitem__(self, item):
         return self.path[item]
@@ -190,7 +184,7 @@ class UrlQuery:
 
     def __str__(self):
         if self._query:
-            return '?' + parse.quote('&'.join(tuple(a + '=' + '&'.join(self.query[a]) for a in self.query.keys())))
+            return parse.urlencode(self._query, doseq=True)
         else:
             return ''
 

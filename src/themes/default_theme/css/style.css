@@ -199,7 +199,7 @@ ul.menu li a, ul.menu li span {
 	padding: 10px 15px;
 	margin: 10px 15px;
 	background: none repeat scroll 0 0 #CFD3C9;
-    box-shadow: 1px 1px 3px #bbb;
+    box-shadow: 1px 1px 5px #999;
 }
 .region .common h3 {
 	color: rgb(59, 105, 202);
@@ -211,7 +211,8 @@ ul.menu li a, ul.menu li span {
 }
 .find_me ul {
 	padding-left: 24px;
+	list-style-type: square;
 }
 .sidebar .region-wrapper {
-	padding: 15px 10px;
+	padding: 25px 10px;
 }

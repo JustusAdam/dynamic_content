@@ -7,8 +7,7 @@ This is currently the recommended method for accessing the database to ensure co
 import sys
 from pathlib import Path
 
-from core import database
-from core.database import escape
+from core.database import escape, DatabaseError, InterfaceError, Database
 from framework.config_tools import read_config
 
 
@@ -19,7 +18,7 @@ class Operations:
 
     _config_name = 'config.json'
 
-    db = database.Database()
+    db = Database()
 
     def __init__(self):
         self.charset = 'utf-8'
@@ -47,8 +46,10 @@ class Operations:
 
     def execute(self, query_name, *format_args, **format_kwargs):
         query = self.queries[query_name].format(*format_args, **format_kwargs)
-        # print(query)
-        self.cursor.execute(query)
+        try:
+            self.cursor.execute(query)
+        except (DatabaseError, InterfaceError) as error:
+            raise DBOperationError(query, error)
 
     def create_table(self, table, columns):
         self.db.create_table(table, columns)
@@ -129,7 +130,7 @@ class ModuleOperations(Operations):
         for table in tables:
             try:
                 self.db.create_table(**table)
-            except database.DatabaseError as error:
+            except DatabaseError as error:
                 print('Error in Database Module Operations (create_table)')
                 print(error)
 
@@ -209,3 +210,9 @@ class ContentTypes(Operations):
     def get_ct_display_name(self, ct_name):
         self.execute('get_display_name', content_type_name=escape(ct_name))
         return self.cursor.fetchone()[0]
+
+
+class DBOperationError(Exception):
+    def __init__(self, query, error):
+        self.query = query
+        self.err = error

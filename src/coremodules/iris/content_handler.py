@@ -1,4 +1,5 @@
 from urllib import parse
+from urllib.error import HTTPError
 
 from framework.base_handlers import ContentHandler
 from core.modules import Modules
@@ -6,7 +7,7 @@ from framework.page import Page
 from framework.html_elements import FormElement, TableElement, Input, Label, ContainerElement
 from framework.url_tools import UrlQuery
 from . import database_operations
-from core.database_operations import ContentTypes
+from core.database_operations import ContentTypes, DBOperationError
 
 
 __author__ = 'justusadam'
@@ -115,11 +116,7 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
             content.append((Label(field.field_name, label_for=identifier), str(field.value.content)))
         content.append(self.admin_options)
         table = TableElement(*content)
-        if 'destination' in self._url.get_query:
-            dest = '?destination=' + self._url.get_query['destination'][0]
-        else:
-            dest = ''
-        return str(FormElement(table, action=str(self._url) + dest))
+        return str(FormElement(table, action=str(self._url)))
 
     def make_field_identifier(self, field):
         return self.modifier + '-' + field.value.title
@@ -155,9 +152,20 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler):
         return self.page
 
     def process_post(self):
-        self.assign_inputs()
-        self.alter_page()
-        self.process_query()
+        try:
+            self.assign_inputs()
+            self.alter_page()
+            self.process_query()
+            self.redirect()
+        except (KeyError, DBOperationError):
+            pass
+
+    def redirect(self):
+        if 'destination' in self._url.get_query:
+            destination = self._url.get_query['destination'][0]
+        else:
+            destination = str(self._url.path.prt_to_str(0,-1))
+        raise HTTPError(str(self._url), 302, 'Redirect', [('Location', destination), ('Connection', 'close')], None)
 
     def alter_page(self):
         if not 'title' in self._url.post_query.keys():
@@ -187,7 +195,6 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
         title = 'Add new ' + display_name + ' page'
         theme = ops.get_theme(content_type=content_type)
         return title, content_type, theme
-
 
     def create_page(self):
         self.page_title = parse.unquote_plus(self._url.post_query['title'][0])
