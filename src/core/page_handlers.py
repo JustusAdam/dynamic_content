@@ -66,7 +66,7 @@ class FileHandler(PageHandler):
             filepath = Path(filepath)
 
             if not filepath.exists():
-                raise FileNotFoundError
+                continue
 
             filepath = filepath.resolve()
             basedir = Path(basedir).resolve()
