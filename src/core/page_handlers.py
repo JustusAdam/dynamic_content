@@ -11,6 +11,7 @@ from core.modules import Modules
 from includes.bootstrap import Bootstrap
 from framework.page import Page
 from urllib.error import HTTPError
+from includes import log
 
 
 __author__ = 'justusadam'
@@ -41,10 +42,13 @@ class FileHandler(PageHandler):
         try:
             return self.parse_path()
         except IsADirectoryError:
+            log.write_warning('FileHandler', message='Attempted access to directory ' + str(self._url))
             raise HTTPError(str(self._url), 405, 'Indexing is not allowed', None, None)
         except PermissionError:
+            log.write_warning('FileHandler', message='Attempted access to protected file ' + str(self._url))
             raise HTTPError(str(self._url), 403, 'Access prohibited by server config', None, None)
         except FileNotFoundError:
+            log.write_error('FileHandler', message='Attempted access to non-existent file ' + str(self._url))
             raise HTTPError(str(self._url), 404, 'File does not exist', None, None)
 
     @property
