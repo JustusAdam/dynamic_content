@@ -10,11 +10,23 @@ from framework.base_handlers import PageHandler
 from core.modules import Modules
 from includes.bootstrap import Bootstrap
 from framework.page import Page
+from urllib.error import HTTPError
 
 
 __author__ = 'justusadam'
 
 bootstrap = Bootstrap()
+
+# This list is probably wrong in many places
+# it is supposed to map file endings to the appropriate filetype and encoding as a tuple
+# syntax suffix: (type, encoding)
+FILETYPES = {
+    '.css': ('text/css', 'text/css'),
+    '.mp3': ('audio/mp3', 'audio/mpeg'),
+    '.ogg': ('audio/ogg', 'ogg/vorbis'),
+    '.png': ('img/png', 'img/png'),
+    '.ttf': ('font/ttf', 'font/ttf')
+}
 
 
 class FileHandler(PageHandler):
@@ -26,7 +38,14 @@ class FileHandler(PageHandler):
 
     @property
     def compiled(self):
-        return self.parse_path()
+        try:
+            return self.parse_path()
+        except IsADirectoryError:
+            raise HTTPError(str(self._url), 405, 'Indexing is not allowed', None, None)
+        except PermissionError:
+            raise HTTPError(str(self._url), 403, 'Access prohibited by server config', None, None)
+        except FileNotFoundError:
+            raise HTTPError(str(self._url), 404, 'File does not exist', None, None)
 
     @property
     def encoded(self):
@@ -41,36 +60,25 @@ class FileHandler(PageHandler):
         for basedir in basedirs:
             filepath = basedir + '/'.join([''] + self._url.path[1:])
             filepath = Path(filepath)
+
             if not filepath.exists():
-                continue
+                raise FileNotFoundError
+
             filepath = filepath.resolve()
             basedir = Path(basedir).resolve()
 
             if not bootstrap.ALLOW_HIDDEN_FILES and filepath.name.startswith('.'):
-                raise FileNotFoundError
+                raise PermissionError
 
             if basedir not in filepath.parents:
-                continue
+                raise PermissionError
             if filepath.is_dir():
-                continue
-            # RFE figure out what content types can occur and how to identify them here with a dict()
-            content_types = {
-                '.css': 'text/css',
-                '.mp3': 'audio/mp3',
-                '.ogg': 'audio/ogg',
-                '.png': 'img/png',
-                '.ttf': 'font/ttf'
-            }
+                raise IsADirectoryError
+
             suffix = filepath.suffix
             if not suffix is None:
-                if suffix == '.ogg':
-                    self.encoding = 'ogg/vorbis'
-                elif suffix == '.png':
-                    self.encoding = 'png'
-                elif suffix == '.mp3':
-                    self.encoding = 'mp3'
-                if suffix in content_types:
-                    self.content_type = content_types[suffix]
+                if suffix in FILETYPES:
+                    self.content_type, self.encoding = FILETYPES[suffix]
             return filepath.open('rb').read()
         raise FileNotFoundError
 
