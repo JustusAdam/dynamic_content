@@ -53,13 +53,14 @@ class RequestHandler(BaseHTTPRequestHandler):
             print(error)
             if error.code >= 400:
                 if error.reason:
-                    log.write_error(message='HTTPError, code: ' + error.code + ', message: ' + error.reason)
+                    log.write_error(message='HTTPError, code: ' + str(error.code) + ', message: ' + error.reason)
                     self.send_error(error.code, self.responses[error.code][0], error.reason)
                 else:
-                    log.write_error(message='HTTPError,  code: ' + error.code + ', message: ' + self.responses[error.code][0])
+                    log.write_error(message='HTTPError,  code: ' + str(error.code) + ', message: ' + self.responses[error.code][0])
                     self.send_error(error.code, *self.responses[error.code])
                 return 0
-            self.send_response(error.code)
+            else:
+                self.send_response(error.code)
             if error.headers:
                 for header in error.headers:
                     self.send_header(*header)
