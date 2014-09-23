@@ -58,7 +58,7 @@ target/
 # custom additions
 Apache License.txt
 
-# the individual config camde from example.config.json
+# the individual config made from example.config.json
 src/config.json
 
 # intellij project configs
