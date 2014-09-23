@@ -154,7 +154,7 @@ class SetupHandler(PageHandler):
 
         if self._url.page_id == 4:
             page = page.format(**self.setup_wrapper())
-        elif self._url.page_id == 5:
+        elif self._url.page_id == 5 and self.is_post():
             config['setup'] = False
             write_config(config, 'config.json')
         page = page.format(this=self._url.path, next_page=self._url.page_id + 1)

@@ -110,7 +110,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             return self.start_setup()
         elif self._url.page_type in bootstrap.FILE_DIRECTORIES.keys():
-            return FileHandler(self._url.path)
+            return FileHandler(self._url)
         try:
             db = Database()
             db.connect()

@@ -18,7 +18,8 @@ class Bootstrap:
         'theme_engine',
         'iris',
         'commons_engine',
-        'user_management'
+        'user_management',
+        'internationalization'
     ]
     TRACKER_TABLE_CREATION_QUERY = 'create table created_tables (id int unsigned not null auto_increment unique primary key, created_table varchar(500) not null unique, source_module_name varchar(500) not null, source_module_id int unsigned not null);'
     FILE_DIRECTORIES = {

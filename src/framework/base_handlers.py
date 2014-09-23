@@ -9,6 +9,7 @@ Eventually basic functions that the core demands these classes to implement may 
 """
 import sys
 from urllib.error import HTTPError
+from framework.url_tools import Url
 
 
 __author__ = 'justusadam'
@@ -17,6 +18,7 @@ __author__ = 'justusadam'
 class PageHandler:
     def __init__(self, url):
         self.page_type = None
+        assert isinstance(url, Url)
         self._url = url
         self.content_type = 'text/html'
         self.encoding = sys.getfilesystemencoding()
@@ -32,6 +34,9 @@ class PageHandler:
 
     def process_post(self, post_request):
         return 200
+
+    def is_post(self):
+        return bool(self._url.post_query)
 
 
 class FieldHandler:
