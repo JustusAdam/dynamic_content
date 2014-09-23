@@ -180,7 +180,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
         ops = database_operations.Pages()
         if not 'ct' in self._url.get_query:
             raise ValueError
-        content_type = self._url.get_query['ct']
+        content_type = self._url.get_query['ct'][0]
         display_name = ContentTypes().get_ct_display_name(content_type)
         title = 'Add new ' + display_name + ' page'
         theme = ops.get_theme(content_type=content_type)

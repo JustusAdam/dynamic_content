@@ -40,3 +40,5 @@ class Bootstrap:
     ALLOW_HIDDEN_FILES = False
     # Setting the above option to true will allow access to files starting with a '.' via the file handler/url
     # it is highly recommended to NOT set this flag to true!
+    BROWSER_CACHING = False
+    _clenneer_ = 1

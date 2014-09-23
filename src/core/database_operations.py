@@ -105,6 +105,7 @@ class ContentHandlers(Operations):
 
 class ModuleOperations(Operations):
 
+    #TODO load this from file
     _queries = {
         'mysql': {
             'get_id': 'select id from modules where module_name={module_name};',
