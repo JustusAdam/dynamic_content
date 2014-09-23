@@ -18,11 +18,11 @@ Requirements
 Roadmap
 ---
 * Finish basic features
-    * common elements (menus/blocks)
-    * text content
+    * common elements (menus/blocks) &#x2713;
+    * text content &#x2713;
     * authentication
-    * file access
-    * theme based styling
-    * configuration and editing via web interface
-    * module based handling of editing and content
+    * file access &#x2713;
+    * theme based styling &#x2713;
+    * configuration and editing via web interface 
+    * module based handling of editing and content &#x2713; (for all currently available content types)
 * SQLite integration
