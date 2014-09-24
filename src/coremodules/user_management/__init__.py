@@ -1,4 +1,5 @@
 from .login import LoginHandler
+from . import session
 
 __author__ = 'justusadam'
 

@@ -11,6 +11,7 @@ from http import cookies
 import sys
 from urllib.error import HTTPError
 from framework.url_tools import Url
+from .cli_info import ClientInformation
 
 
 __author__ = 'justusadam'
@@ -52,9 +53,10 @@ class ObjectHandler:
 
 class PageHandler(ObjectHandler):
 
-    def __init__(self, url, headers):
+    def __init__(self, url, client_info):
         super().__init__(url)
-        self.client_headers = headers
+        assert isinstance(client_info, ClientInformation)
+        self.client_info = client_info
         self.page_type = None
         self.content_type = 'text/html'
         self.encoding = sys.getfilesystemencoding()
