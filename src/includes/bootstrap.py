@@ -21,7 +21,6 @@ class Bootstrap:
         'user_management',
         'internationalization'
     ]
-    TRACKER_TABLE_CREATION_QUERY = 'create table created_tables (id int unsigned not null auto_increment unique primary key, created_table varchar(500) not null unique, source_module_name varchar(500) not null, source_module_id int unsigned not null);'
     FILE_DIRECTORIES = {
         'theme': [
             'custom/themes',
@@ -41,4 +40,3 @@ class Bootstrap:
     # Setting the above option to true will allow access to files starting with a '.' via the file handler/url
     # it is highly recommended to NOT set this flag to true!
     BROWSER_CACHING = False
-    _clenneer_ = 1
