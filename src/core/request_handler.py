@@ -50,10 +50,10 @@ class RequestHandler(BaseHTTPRequestHandler):
             print(error)
             if error.code >= 400:
                 if error.reason:
-                    log.write_error(message='HTTPError, code: ' + str(error.code) + ', message: ' + error.reason)
+                    log.write_warning(message='HTTPError, code: ' + str(error.code) + ', message: ' + error.reason)
                     self.send_error(error.code, self.responses[error.code][0], error.reason)
                 else:
-                    log.write_error(message='HTTPError,  code: ' + str(error.code) + ', message: ' + self.responses[error.code][0])
+                    log.write_warning(message='HTTPError,  code: ' + str(error.code) + ', message: ' + self.responses[error.code][0])
                     self.send_error(error.code, *self.responses[error.code])
                 return 0
             else:
