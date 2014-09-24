@@ -41,7 +41,6 @@ class RequestHandler(BaseHTTPRequestHandler):
         # print(self.path)
         url = Url(self.path)
         client_information = ClientInformation(self.headers)
-        print(str(client_information.user))
         url.post_query = post_query
         try:
             self.check_path(url)

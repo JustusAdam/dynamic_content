@@ -4,30 +4,9 @@ import binascii
 __author__ = 'justusadam'
 
 
-# This might not work
-_so = None
-_uo = None
-
-TOKEN_ENCODING = 'ascii'
-
-
-def so():
-    global _so
-    if not _so:
-        _so = SessionOperations()
-    return _so
-
-
-def uo():
-    global _uo
-    if not _uo:
-        _uo = UserOperations()
-    return _uo
-
-
 def start_session(username, password):
-    m = uo()
-    s = so()
+    m = UserOperations()
+    s = SessionOperations()
     assert isinstance(m, UserOperations)
     if not authenticate_user(username, password):
         return None
@@ -45,15 +24,15 @@ def close_session(userid):
         if userid.isalpha():
             userid = int(userid)
         else:
-            userid = uo().get_id(userid)
-    so().close_session(userid)
+            userid = UserOperations().get_id(userid)
+    SessionOperations().close_session(userid)
 
 
 def authenticate_user(username, password):
-    return uo().authenticate_user(username, password)
+    return UserOperations().authenticate_user(username, password)
 
 
 def validate_session(token):
     if not isinstance(token, bytes):
         token = binascii.unhexlify(token)
-    return so().get_user(token)
+    return SessionOperations().get_user(token)
