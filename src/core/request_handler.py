@@ -56,6 +56,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         try:
             self.send_document(page_handler)
         except HTTPError as error:
+            print('ping')
             return self.process_http_error(error, page_handler)
         except Exception as exce:
             print("Unexpected error")
@@ -91,7 +92,6 @@ class RequestHandler(BaseHTTPRequestHandler):
     def process_headers(self, headers):
         for header in headers:
             self.send_header(*header)
-
 
     def send_document(self, page_handler):
         document = page_handler.encoded

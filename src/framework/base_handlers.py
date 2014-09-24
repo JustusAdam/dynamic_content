@@ -24,7 +24,8 @@ class ObjectHandler:
         self._cookies = None
 
     def add_header(self, key, value):
-        assert isinstance((key, value), str)
+        assert isinstance(key, str)
+        assert isinstance(value, str)
         self._headers.add((key, value))
 
     def add_morsel(self, cookie):

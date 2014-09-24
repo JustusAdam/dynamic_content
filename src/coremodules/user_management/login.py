@@ -29,5 +29,5 @@ class LoginHandler(ContentHandler, RedirectMixIn):
         password = self._url.post_query['password'][0]
         token = session.start_session(username, password)
         if token:
-            self.add_morsel(('SESS', token))
-            self.redirect('/')
+            self.add_morsel({'SESS': token})
+            self.redirect('/iris/1')
