@@ -4,13 +4,12 @@ from pathlib import Path
 from core import database_operations
 from framework.config_tools import read_config
 from core.database import DatabaseError
-from includes.bootstrap import Bootstrap
+from includes import bootstrap
 
 
 __author__ = 'justusadam'
 
 
-bootstrap = Bootstrap()
 basedir = str(Path(__file__).parent.parent.resolve())
 
 
@@ -152,7 +151,6 @@ def check_info(info):
     return True
 
 
-#@requiredir(basedir)
 def get_active_modules():
 
     modules = {}

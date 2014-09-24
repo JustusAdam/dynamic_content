@@ -205,11 +205,11 @@ ul.menu li a, ul.menu li span {
 	color: rgb(59, 105, 202);
 	margin: 9px 2px;
 }
-.find_me a, .find_me a:visited{
+.find-me a, .find-me a:visited{
 	color: #333;
 	text-decoration: none;
 }
-.find_me ul {
+.find-me ul {
 	padding-left: 24px;
 	list-style-type: square;
 }

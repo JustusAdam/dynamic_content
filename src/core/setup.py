@@ -11,7 +11,7 @@ from .database import DatabaseError, Database
 from . import module_operations
 from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, FormElement, Input, LinkElement
 from framework.config_tools import read_config, write_config
-from includes.bootstrap import Bootstrap
+from includes import bootstrap
 
 
 __author__ = 'justusadam'
@@ -38,7 +38,6 @@ def try_database_connection():
 class SetupHandler(PageHandler):
     def __init__(self, url):
         super().__init__(url)
-        self.bootstrap = Bootstrap()
 
     @property
     def compiled(self):
@@ -176,7 +175,7 @@ class SetupHandler(PageHandler):
 
                     moduleconf = module_operations.discover_modules()
                     for module in moduleconf:
-                        if module['name'] in self.bootstrap.DEFAULT_MODULES:
+                        if module['name'] in bootstrap.DEFAULT_MODULES:
                             module_operations.drop_module_tables(module)
                 except DatabaseError as error:
                     print('Database Error in setup: ' + str(error.args))
@@ -185,7 +184,7 @@ class SetupHandler(PageHandler):
             module_operations._activate_module(core_config)
 
             module_operations.register_installed_modules()
-            for module in self.bootstrap.DEFAULT_MODULES:
+            for module in bootstrap.DEFAULT_MODULES:
                 if not module_operations.activate_module(module):
                     print('Could not activate module ' + module)
                     return False

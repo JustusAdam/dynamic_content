@@ -14,7 +14,7 @@ import traceback
 
 from core import database_operations
 from core.database import DatabaseError, Database
-from includes.bootstrap import Bootstrap
+from includes import bootstrap
 from .page_handlers import FileHandler, BasicPageHandler
 from framework.url_tools import Url
 from framework.config_tools import read_config
@@ -23,9 +23,6 @@ import copy
 
 
 __author__ = 'justusadam'
-
-
-bootstrap = Bootstrap()
 
 
 class RequestHandler(BaseHTTPRequestHandler):

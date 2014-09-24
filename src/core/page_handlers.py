@@ -8,15 +8,13 @@ from pathlib import Path
 from core import database_operations
 from framework.base_handlers import PageHandler
 from core.modules import Modules
-from includes.bootstrap import Bootstrap
-from framework.page import Page
+from includes import bootstrap
 from urllib.error import HTTPError
 from includes import log
 
 
 __author__ = 'justusadam'
 
-bootstrap = Bootstrap()
 
 # This list is probably wrong in many places
 # it is supposed to map file endings to the appropriate filetype and encoding as a tuple

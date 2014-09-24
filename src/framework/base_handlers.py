@@ -41,11 +41,34 @@ class FieldHandler:
 
 class ContentHandler:
     def __init__(self, url):
+        assert isinstance(url, Url)
         self._url = url
+
+    def process_queries(self):
+        if self.has_url_query():
+            self.process_url_query()
+        if self.is_post():
+            self.process_post_query()
+
+    def process_content(self):
+        pass
+
+    def has_url_query(self):
+        return bool(self._url.get_query)
+
+    def is_post(self):
+        return bool(self._url.post_query)
+
+    def process_url_query(self):
+        pass
+
+    def process_post_query(self):
+        pass
 
     @property
     def compiled(self):
-        return ''
+        self.process_queries()
+        return self.process_content()
 
 
 class RedirectMixIn(ContentHandler):

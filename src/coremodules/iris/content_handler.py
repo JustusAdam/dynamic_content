@@ -72,15 +72,11 @@ class FieldBasedContentHandler(ContentHandler):
             content.append(field.compiled.content)
         return content
 
-
-    @property
-    def compiled(self):
-        # executing step by step since any failing will fail all subsequent steps
+    def process_content(self):
         page = Page(self._url, self.page_title)
         if self.theme:
             page.used_theme = self.theme
-        fields = self.get_fields()
-        page.content = self.concatenate_content(fields)
+        page.content = self.concatenate_content(self.fields)
         return page
 
 
@@ -125,7 +121,7 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler, RedirectMixIn):
         return Label('Published', label_for='toggle-published'), \
             Input(element_id='toggle-published', input_type='radio', value='1', name='publish')
 
-    def process_query(self, fields):
+    def process_fields(self, fields):
         for field in fields:
             field.process_post()
 
@@ -138,22 +134,11 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler, RedirectMixIn):
                 mapping[key] = [parse.unquote_plus(a) for a in self._url.post_query[key]]
             field.query = mapping
 
-    @property
-    def compiled(self):
-        fields = self.get_fields()
-        if self._is_post:
-            self.process_post(fields)
-        page = Page(self._url, self.page_title)
-        if self.theme:
-            page.used_theme = self.theme
-        page.content = self.concatenate_content(fields)
-        return page
-
-    def process_post(self, fields):
+    def process_post_query(self):
         try:
-            self.assign_inputs(fields)
+            self.assign_inputs(self.fields)
             self.alter_page()
-            self.process_query(fields)
+            self.process_fields(self.fields)
             self.redirect()
         except (KeyError, DBOperationError):
             pass
@@ -196,13 +181,13 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
         return database_operations.Pages().add_page(self._url.page_type, self.content_type,
                                                     self.page_title, self.user, published)
 
-    def process_post(self, fields):
+    def process_post_query(self):
         try:
-            self.assign_inputs(fields)
+            self.assign_inputs(self.fields)
             new_id = self.create_page()
-            for field in fields:
+            for field in self.fields:
                 field.page_id = new_id
-            self.process_query(fields)
+            self.process_fields(self.fields)
             self.redirect(str(self._url.path.prt_to_str(0, -1)) + '/' + str(new_id))
         except (KeyError, DBOperationError):
             pass

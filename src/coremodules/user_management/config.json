@@ -11,11 +11,11 @@
             "date_created timestamp default current_timestamp",
             "date_changed timestamp default current_timestamp on update current_timestamp"
         ],
-        "cms_user_authentication": [
+        "cms_user_auth": [
             "id int unsigned not null unique primary key",
-            "user_id int unsigned not null unique",
-            "user_password varchar(500) not null unique",
-            "user_salt varchar(500) not null unique"
+            "user_name varchar(200) unsigned not null unique",
+            "password blob({pass_size}) not null unique",
+            "salt blob({salt_size}) not null unique"
         ]
     }
 }
