@@ -7,6 +7,7 @@ What remains are base classes that may be altered in the future but currently on
 
 Eventually basic functions that the core demands these classes to implement may be added as empty functions
 """
+from http import cookies
 import sys
 from urllib.error import HTTPError
 from framework.url_tools import Url
@@ -16,12 +17,25 @@ __author__ = 'justusadam'
 
 
 class PageHandler:
+
     def __init__(self, url):
         self.page_type = None
         assert isinstance(url, Url)
         self._url = url
         self.content_type = 'text/html'
         self.encoding = sys.getfilesystemencoding()
+        self._headers = set()
+        self._cookies = None
+
+    def add_header(self, header):
+        assert isinstance(header, (tuple, list))
+        self._headers.add(header)
+
+    def add_morsel(self, cookie):
+        if not self._cookies:
+            self._cookies = cookies.SimpleCookie()
+        assert isinstance(cookie, (str, dict, cookies.Morsel))
+        self._cookies.load(cookie)
 
     @property
     def encoded(self):
@@ -30,6 +44,17 @@ class PageHandler:
     @property
     def compiled(self):
         return ''
+
+    @property
+    def headers(self):
+        if self._cookies:
+            # since rendering cookie values with the cookie object returns a string we split it again
+            # to get header and value
+            name, value = self._cookies.output().split(':', 1)
+            # and remove redundant space at the beginning of the value string
+            value = value[1:]
+            self._headers.add(name, value)
+        return self._headers
 
 
 class FieldHandler:

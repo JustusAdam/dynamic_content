@@ -16,5 +16,10 @@ def content_handler(url):
 
 def prepare():
     from core.database_operations import ContentHandlers
+    from .database_operations import UserOperations, SessionOperations
     cho = ContentHandlers()
+    so = SessionOperations()
+    uo = UserOperations()
+    so.init_tables()
+    uo.init_tables()
     cho.add_new('login', 'user_management', login_prefix)

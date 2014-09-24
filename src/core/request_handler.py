@@ -71,11 +71,14 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def send_document(self, page_handler):
         document = page_handler.encoded
+        headers = page_handler.headers
 
         self.send_response(200)
         self.send_header("Content-type", "{content_type}; charset={encoding}".format(
             content_type=page_handler.content_type, encoding=page_handler.encoding))
         self.send_header("Content-Length", str(len(document)))
+        for header in headers:
+            self.send_header(*header)
         if not bootstrap.BROWSER_CACHING:
             self.send_header('Cache-Control', 'no-cache')
         self.end_headers()
