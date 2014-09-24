@@ -37,6 +37,8 @@ def unwrap_pairing(pairing, charset):
 @singleton
 class Database:
 
+    date_time_format = '%Y-%m-%d %H:%M:%S'
+
     def __init__(self):
         self.config = read_config(str(self.get_my_folder()) + '/../config')
         self._connection = None
