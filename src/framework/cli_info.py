@@ -10,8 +10,8 @@ SESSION_TOKEN_IDENTIFIER = 'SESS'
 class ClientInformation:
     def __init__(self, headers):
         self._headers = headers
-        if 'Cookies' in headers:
-            self._cookies = cookies.SimpleCookie(headers['Cookies'])
+        if 'Cookie' in headers:
+            self._cookies = cookies.SimpleCookie(headers['Cookie'])
         else:
             self._cookies = None
         self.auth_module = modules.Modules()['user_management']
@@ -39,5 +39,5 @@ class ClientInformation:
     def auth_user(self):
         if self._cookies:
             if SESSION_TOKEN_IDENTIFIER in self._cookies:
-                return modules.Modules()['user_management'].session.validate_session(self._cookies[SESSION_TOKEN_IDENTIFIER])
+                return modules.Modules()['user_management'].session.validate_session(self._cookies[SESSION_TOKEN_IDENTIFIER].value)
         return -1

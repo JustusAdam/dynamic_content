@@ -18,6 +18,7 @@ from includes import bootstrap
 from .page_handlers import FileHandler, BasicPageHandler
 from framework.url_tools import Url
 from framework.config_tools import read_config
+from framework.cli_info import ClientInformation
 from includes import log
 import copy
 
@@ -39,10 +40,12 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_any(self, post_query=None):
         # print(self.path)
         url = Url(self.path)
+        client_information = ClientInformation(self.headers)
+        print(str(client_information.user))
         url.post_query = post_query
         try:
             self.check_path(url)
-            page_handler = self.get_handler(url, self.headers)
+            page_handler = self.get_handler(url, client_information)
         except HTTPError as error:
             return self.process_http_error(error)
         except Exception as exce:
@@ -120,13 +123,13 @@ class RequestHandler(BaseHTTPRequestHandler):
             new_dest.path.trailing_slash = False
             raise HTTPError(str(url), 301, 'Indexing is prohibited on this server', ("Location", str(new_dest)), None)
 
-    def get_handler(self, url, headers):
+    def get_handler(self, url, client_info):
 
         if url.page_type == 'setup':
 
             return self.start_setup(url)
         elif url.page_type in bootstrap.FILE_DIRECTORIES.keys():
-            return FileHandler(url, headers)
+            return FileHandler(url, client_info)
         try:
             db = Database()
             db.connect()
@@ -138,7 +141,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         if len(url.path) == 0:
             raise HTTPError(str(url), 404, None, None, None)
 
-        return BasicPageHandler(url, headers)
+        return BasicPageHandler(url, client_info)
 
     def start_setup(self, url):
         if not read_config('config.json')['setup']:

@@ -6,6 +6,7 @@ own page handlers.
 from pathlib import Path
 
 from core import database_operations
+from core.database_operations import DBOperationError
 from framework.base_handlers import PageHandler
 from core.modules import Modules
 from includes import bootstrap
@@ -95,7 +96,11 @@ class BasicPageHandler(PageHandler):
         return self.get_content_handler_class()(self._url)
 
     def get_content_handler_class(self):
-        handler_module = database_operations.ContentHandlers().get_by_prefix(self._url.page_type)
+        try:
+            handler_module = database_operations.ContentHandlers().get_by_prefix(self._url.page_type)
+        except DBOperationError as error:
+            print(error)
+            raise HTTPError(self._url, 404, None, None, None)
 
         handler = self.modules[handler_module].content_handler
         return handler
