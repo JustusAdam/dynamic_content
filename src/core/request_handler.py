@@ -70,12 +70,6 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     def process_http_error(self, error, page_handler=None):
         print(error)
-        if page_handler:
-            if page_handler.headers:
-                self.process_headers(page_handler.headers)
-        if error.headers:
-            for header in error.headers:
-                self.send_header(*header)
         if error.code >= 400:
             if error.reason:
                 log.write_warning(message='HTTPError, code: ' + str(error.code) + ', message: ' + error.reason)
@@ -86,6 +80,12 @@ class RequestHandler(BaseHTTPRequestHandler):
             return 0
         else:
             self.send_response(error.code)
+            if page_handler:
+                if page_handler.headers:
+                    self.process_headers(page_handler.headers)
+            if error.headers:
+                for header in error.headers:
+                    self.send_header(*header)
         self.end_headers()
         return 0
 

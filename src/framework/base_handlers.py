@@ -108,4 +108,4 @@ class RedirectMixIn(ObjectHandler):
             destination = self._url.get_query['destination'][0]
         elif not destination:
             destination = str(self._url.path.prt_to_str(0, -1))
-        raise HTTPError(str(self._url), 302, 'Redirect', [('Location', destination), ('Connection', 'close')], None)
+        raise HTTPError(str(self._url), 302, 'Redirect', [('Location', destination), ('Connection', 'close'), ('Content-Type', 'text/html')], None)
