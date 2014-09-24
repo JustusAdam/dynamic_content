@@ -33,7 +33,7 @@ class PageHandler:
         return ''
 
     def process_post(self, post_request):
-        return 200
+        pass
 
     def is_post(self):
         return bool(self._url.post_query)
@@ -54,11 +54,12 @@ class ContentHandler:
     def compiled(self):
         return ''
 
+
 class RedirectMixIn(ContentHandler):
 
     def redirect(self, destination=None):
         if 'destination' in self._url.get_query:
             destination = self._url.get_query['destination'][0]
         elif not destination:
-            destination = str(self._url.path.prt_to_str(0,-1))
+            destination = str(self._url.path.prt_to_str(0, -1))
         raise HTTPError(str(self._url), 302, 'Redirect', [('Location', destination), ('Connection', 'close')], None)
