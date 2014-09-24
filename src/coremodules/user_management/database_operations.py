@@ -31,7 +31,7 @@ class UserOperations(Operations):
         }
     }
 
-    _tables = {'cms_user_auth'}
+    _tables = {'cms_user_auth', 'cms_user'}
 
     @property
     def config(self):
@@ -39,7 +39,7 @@ class UserOperations(Operations):
         con['tables']['cms_user_auth'] = [a.format(salt_size=str(bootstrap.SALT_LENGTH), pass_size=str(bootstrap.HASH_LENGTH)) for a in con['tables']['cms_user_auth']]
         return con
 
-    def add_user(self, username, password):
+    def add_user_auth(self, username, password):
         hashed, salt = hash_and_new_salt(password)
         self.execute('add_user', user_name=escape(username), password=escape(hashed), salt=escape(salt))
 
@@ -61,3 +61,14 @@ class UserOperations(Operations):
     def authenticate_user(self, username, password):
         pass_from_db, salt = self.get_pass_salt(username)
         return check_ident(password, salt, pass_from_db)
+
+
+class SessionOperations(Operations):
+
+    _queries = {
+        'add_session': 'insert into session (user_id, sess_token) values ({user_id}, {sess_token});',
+        'get_user': 'select user_id from session where sess_token={sess_token};'
+    }
+
+    def add_session(self, user_id):
+        self.execute()

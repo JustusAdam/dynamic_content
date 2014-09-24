@@ -16,6 +16,9 @@
             "user_name varchar(200) not null unique",
             "password varbinary({pass_size}) not null unique",
             "salt varbinary({salt_size}) not null unique"
+        ],
+        "session": [
+            "session_id"
         ]
     }
 }
