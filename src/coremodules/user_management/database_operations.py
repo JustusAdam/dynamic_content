@@ -31,9 +31,10 @@ class UserOperations(Operations):
 
     _queries = {
         'mysql': {
-            'add_user': 'insert into cms_user_auth (user_name, salt, password) values ({user_name}, {salt}, {password});',
-            'change_password': 'update cms_user_auth set password={password}, salt={salt} where user_name={user_name};',
-            'get_pass_and_salt': 'select password, salt from cms_user_auth where user_name={user_name};'
+            'add_user_auth': 'insert into cms_user_auth (username, salt, password) values ({username}, {salt}, {password});',
+            'change_password': 'update cms_user_auth set password={password}, salt={salt} where username={username};',
+            'get_pass_and_salt': 'select password, salt from cms_user_auth where username={username};',
+            'get_user_id': 'select id from cms_users where username={username};'
         }
     }
 
@@ -45,16 +46,24 @@ class UserOperations(Operations):
         con['tables']['cms_user_auth'] = [a.format(salt_size=str(bootstrap.SALT_LENGTH), pass_size=str(bootstrap.HASH_LENGTH)) for a in con['tables']['cms_user_auth']]
         return con
 
+    def get_id(self, username):
+        self.execute('get_user_id', username=escape(username))
+
+    def add_user(self, username, password, access_group=1, first_name='', middle_name='', last_name=''):
+        pairing = {'username': username, 'access_group': access_group, 'first_name': first_name, 'middle_name': middle_name, 'last_name': last_name}
+        self.db.insert('cms_users', pairing)
+        self.add_user_auth(username, password)
+
     def add_user_auth(self, username, password):
         hashed, salt = hash_and_new_salt(password)
-        self.execute('add_user', user_name=escape(username), password=escape(hashed), salt=escape(salt))
+        self.execute('add_user_auth', username=escape(username), password=escape(hashed), salt=escape(salt))
 
     def update_password(self,  password, username):
         hashed, salt = hash_and_new_salt(password)
-        self.execute('change_password', password=escape(hashed), user_name=escape(username), salt=escape(salt))
+        self.execute('change_password', password=escape(hashed), username=escape(username), salt=escape(salt))
 
     def get_pass_salt(self, username):
-        self.execute('get_pass_and_salt', user_name=escape((username)))
+        self.execute('get_pass_and_salt', username=escape((username)))
         return self.cursor.fetchone()
 
     def change_password(self, username, old_password, new_password):
@@ -79,7 +88,8 @@ class SessionOperations(Operations):
         'add_session': 'insert into session (user_id, sess_token, exp_date) values ({user_id}, {sess_token}, {exp_date});',
         'get_user': 'select user_id, exp_date from session where sess_token={sess_token};',
         'get_token': 'select token, exp_date from session where user_id={user_id};',
-        'refresh': 'update session set exp_date={exp_date} where user_id={user_id};'
+        'refresh': 'update session set exp_date={exp_date} where user_id={user_id};',
+        'remove_session': 'delete from session where user_id={user_id};'
     }
 
     def check_session(self, token):
@@ -93,9 +103,13 @@ class SessionOperations(Operations):
         token = self.get_token(user_id)
         if token:
             self.refresh(user_id)
-            return token
         else:
-            self.execute('add_session', user_id=escape(user_id), sess_token=escape(new_token()), exp_date=escape(self.new_time()))
+            token = new_token()
+            self.execute('add_session', user_id=escape(user_id), sess_token=escape(token), exp_date=escape(self.new_time()))
+        return token
+
+    def close_session(self, user_id):
+        self.execute('remove_session', user_id=escape(user_id))
 
     def get_token(self, user_id):
         self.execute('get_token', user_id=escape(user_id))

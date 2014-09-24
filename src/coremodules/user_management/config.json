@@ -2,8 +2,9 @@
     "name": "user_management",
     "role": "user_management",
     "tables": {
-            "cms_users": [
+        "cms_users": [
             "id int unsigned not null auto_increment unique primary key",
+            "username varchar(200) not null unique",
             "user_first_name varchar(100)",
             "user_middle_name varchar(200)",
             "user_last_name varchar(100)",
@@ -13,7 +14,7 @@
         ],
         "cms_user_auth": [
             "id int unsigned not null unique auto_increment primary key",
-            "user_name varchar(200) not null unique",
+            "username varchar(200) not null unique",
             "password varbinary({pass_size}) not null unique",
             "salt varbinary({salt_size}) not null unique"
         ],
