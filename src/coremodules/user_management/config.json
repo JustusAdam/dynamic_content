@@ -12,10 +12,10 @@
             "date_changed timestamp default current_timestamp on update current_timestamp"
         ],
         "cms_user_auth": [
-            "id int unsigned not null unique primary key",
-            "user_name varchar(200) unsigned not null unique",
-            "password blob({pass_size}) not null unique",
-            "salt blob({salt_size}) not null unique"
+            "id int unsigned not null unique auto_increment primary key",
+            "user_name varchar(200) not null unique",
+            "password varbinary({pass_size}) not null unique",
+            "salt varbinary({salt_size}) not null unique"
         ]
     }
 }
