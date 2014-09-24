@@ -90,7 +90,6 @@ class FileHandler(PageHandler):
 class BasicPageHandler(PageHandler):
     def __init__(self, url):
         super().__init__(url)
-        self._page = Page(url)
         self.modules = Modules()
 
     def get_content_handler(self):

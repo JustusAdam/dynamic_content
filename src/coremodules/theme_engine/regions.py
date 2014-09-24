@@ -39,7 +39,7 @@ class RegionHandler:
         return self.operations.get_all_items_info(items)
 
     def wrap(self, value):
-        classes = ['region', 'region-' + self.name]
+        classes = ['region', 'region-' + self.name.replace('_', '-')]
         if 'classes' in self.config:
             if isinstance(self.config['classes'], str):
                 classes.append(self.config['classes'])

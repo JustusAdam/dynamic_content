@@ -32,7 +32,7 @@ class CommonsHandler:
             title = ContainerElement(self.get_display_name(self.name), html_type='h3')
         else:
             title = ''
-        return ContainerElement(title, content, classes={self.name, 'common'})
+        return ContainerElement(title, content, classes={self.name.replace('_', '-'), 'common'})
 
     @property
     def compiled(self):

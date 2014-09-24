@@ -160,8 +160,8 @@ class SetupHandler(PageHandler):
         page = page.format(this=self._url.path, next_page=self._url.page_id + 1)
         return page
 
-    def process_post(self, post_query):
-        return self._url.page_id == 3
+    def is_post(self):
+        return bool(self._url.post_query)
 
     def setup(self):
 

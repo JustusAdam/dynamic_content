@@ -20,6 +20,7 @@ class FieldBasedContentHandler(ContentHandler):
         super().__init__(url)
         self.modules = Modules()
         (self.page_title, self.content_type, self.theme) = self.get_page_information()
+        self.fields = self.get_fields()
 
     def get_page_information(self):
         ops = database_operations.Pages()

@@ -22,7 +22,6 @@ class PageHandler:
         self._url = url
         self.content_type = 'text/html'
         self.encoding = sys.getfilesystemencoding()
-        self._page = None
 
     @property
     def encoded(self):
@@ -31,12 +30,6 @@ class PageHandler:
     @property
     def compiled(self):
         return ''
-
-    def process_post(self, post_request):
-        pass
-
-    def is_post(self):
-        return bool(self._url.post_query)
 
 
 class FieldHandler:
