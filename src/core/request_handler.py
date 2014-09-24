@@ -8,7 +8,6 @@ non-core developers as it *should* not need altering.
 from http.server import BaseHTTPRequestHandler
 from io import BytesIO
 import shutil
-from pathlib import Path
 from urllib.error import HTTPError
 import sys
 import traceback
@@ -117,13 +116,12 @@ class RequestHandler(BaseHTTPRequestHandler):
             db = Database()
             db.connect()
         except DatabaseError:
-            # TODO figure out which error to raise if database unreachable, currently 'internal server error'
             raise HTTPError(str(self._url), 500, 'Database unreachable', None, None)
 
         self._url.path = self.translate_alias(str(self._url.path))
 
         if len(self._url.path) == 0:
-            return 404
+            raise HTTPError(str(self._url), 404, None, None, None)
 
         return BasicPageHandler(self._url)
 
