@@ -52,8 +52,9 @@ class ObjectHandler:
 
 class PageHandler(ObjectHandler):
 
-    def __init__(self, url):
+    def __init__(self, url, headers):
         super().__init__(url)
+        self.client_headers = headers
         self.page_type = None
         self.content_type = 'text/html'
         self.encoding = sys.getfilesystemencoding()

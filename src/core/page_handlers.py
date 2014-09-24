@@ -30,8 +30,8 @@ FILETYPES = {
 
 class FileHandler(PageHandler):
 
-    def __init__(self, url):
-        super().__init__(url)
+    def __init__(self, url, headers):
+        super().__init__(url, headers)
         self.page_type = 'file'
         self._document = ''
 
@@ -86,8 +86,8 @@ class FileHandler(PageHandler):
 
 
 class BasicPageHandler(PageHandler):
-    def __init__(self, url):
-        super().__init__(url)
+    def __init__(self, url, headers):
+        super().__init__(url, headers)
         self.modules = Modules()
         self.content_handler = self.get_content_handler()
 
