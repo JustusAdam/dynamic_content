@@ -19,6 +19,7 @@ from .page_handlers import FileHandler, BasicPageHandler
 from framework.url_tools import Url
 from framework.config_tools import read_config
 from includes import log
+import copy
 
 
 __author__ = 'justusadam'
@@ -29,24 +30,21 @@ bootstrap = Bootstrap()
 
 class RequestHandler(BaseHTTPRequestHandler):
 
-    _url = None
-
     def do_POST(self):
-        if not self.check_path():
-            return 0
 
-        self._url.post_query = self.rfile.read(int(self.headers['Content-Length'])).decode()
+        post_query = self.rfile.read(int(self.headers['Content-Length'])).decode()
 
-        return self.do_any()
+        return self.do_any(post_query)
 
     def do_GET(self):
-        if not self.check_path():
-            return 0
         return self.do_any()
 
-    def do_any(self):
+    def do_any(self, post_query=None):
+        url = Url(self.path)
+        url.post_query = post_query
         try:
-            page_handler = self.get_handler()
+            self.check_path(url)
+            page_handler = self.get_handler(url)
             self.send_document(page_handler)
         except HTTPError as error:
             print(error)
@@ -92,44 +90,38 @@ class RequestHandler(BaseHTTPRequestHandler):
         finally:
             stream.close()
 
-    def check_path(self):
+    def check_path(self, url):
 
-        self._url = Url(self.path)
-
-        if self._url.path.trailing_slash:
-            new_dest = Url(str(self._url))
+        if url.path.trailing_slash:
+            new_dest = copy.copy(url)
             new_dest.path.trailing_slash = False
-            self.send_response(301)
-            self.send_header("Location", str(new_dest))
-            self.end_headers()
-            return False
-        return True
+            raise HTTPError(str(url), 301, 'Indexing is prohibited on this server', ("Location", str(new_dest)), None)
 
-    def get_handler(self):
+    def get_handler(self, url):
 
-        if self._url.page_type == 'setup':
+        if url.page_type == 'setup':
 
-            return self.start_setup()
-        elif self._url.page_type in bootstrap.FILE_DIRECTORIES.keys():
-            return FileHandler(self._url)
+            return self.start_setup(url)
+        elif url.page_type in bootstrap.FILE_DIRECTORIES.keys():
+            return FileHandler(url)
         try:
             db = Database()
             db.connect()
         except DatabaseError:
-            raise HTTPError(str(self._url), 500, 'Database unreachable', None, None)
+            raise HTTPError(str(url), 500, 'Database unreachable', None, None)
 
-        self._url.path = self.translate_alias(str(self._url.path))
+        url.path = self.translate_alias(str(url.path))
 
-        if len(self._url.path) == 0:
-            raise HTTPError(str(self._url), 404, None, None, None)
+        if len(url.path) == 0:
+            raise HTTPError(str(url), 404, None, None, None)
 
-        return BasicPageHandler(self._url)
+        return BasicPageHandler(url)
 
-    def start_setup(self):
+    def start_setup(self, url):
         if not read_config('config.json')['setup']:
-            raise HTTPError(str(self._url), 403, 'Request disabled via server config', None, None)
+            raise HTTPError(str(url), 403, 'Request disabled via server config', None, None)
         from .setup import SetupHandler
-        return SetupHandler(self._url)
+        return SetupHandler(url)
 
     def translate_alias(self, alias):
         try:
