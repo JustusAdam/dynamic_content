@@ -2,7 +2,7 @@ from core.database_operations import Operations, escape, DBOperationError
 import hashlib
 from includes import bootstrap
 import os
-import time
+import datetime
 
 __author__ = 'justusadam'
 
@@ -38,7 +38,7 @@ class UserOperations(Operations):
         }
     }
 
-    _tables = {'cms_user_auth', 'cms_user'}
+    _tables = {'cms_user_auth', 'cms_users'}
 
     @property
     def config(self):
@@ -48,9 +48,10 @@ class UserOperations(Operations):
 
     def get_id(self, username):
         self.execute('get_user_id', username=escape(username))
+        return self.cursor.fetchone()[0]
 
     def add_user(self, username, password, access_group=1, first_name='', middle_name='', last_name=''):
-        pairing = {'username': username, 'access_group': access_group, 'first_name': first_name, 'middle_name': middle_name, 'last_name': last_name}
+        pairing = {'username': username, 'access_group': access_group, 'user_first_name': first_name, 'user_middle_name': middle_name, 'user_last_name': last_name}
         self.db.insert('cms_users', pairing)
         self.add_user_auth(username, password)
 
@@ -85,12 +86,23 @@ def new_token():
 class SessionOperations(Operations):
 
     _queries = {
-        'add_session': 'insert into session (user_id, sess_token, exp_date) values ({user_id}, {sess_token}, {exp_date});',
-        'get_user': 'select user_id, exp_date from session where sess_token={sess_token};',
-        'get_token': 'select token, exp_date from session where user_id={user_id};',
-        'refresh': 'update session set exp_date={exp_date} where user_id={user_id};',
-        'remove_session': 'delete from session where user_id={user_id};'
+        'mysql': {
+            'add_session': 'insert into session (user_id, sess_token, exp_date) values ({user_id}, {sess_token}, {exp_date});',
+            'get_user': 'select user_id, exp_date from session where sess_token={sess_token};',
+            'get_token': 'select sess_token, exp_date from session where user_id={user_id};',
+            'refresh': 'update session set exp_date={exp_date} where user_id={user_id};',
+            'remove_session': 'delete from session where user_id={user_id};'
+        }
+
     }
+
+    _tables = {'session'}
+
+    @property
+    def config(self):
+        con = super().config
+        con['tables']['session'] = [a.format(token_length=SESS_TOKEN_LENGTH) for a in con['tables']['session']]
+        return con
 
     def check_session(self, token):
         user_id = self.get_user(token)
@@ -119,6 +131,7 @@ class SessionOperations(Operations):
         token, exp_date = result
         if self.check_exp_time(exp_date):
             return token
+        self.close_session(user_id)
         return None
 
     def get_user(self, token):
@@ -135,16 +148,10 @@ class SessionOperations(Operations):
         # This line circumvents the check if SESSION_TIME is set to a negative number
         if SESSION_LENGTH < 0:
             return True
-        return self.to_py_time(exp_date) > time.gmtime()
-
-    def to_py_time(self, value):
-        time.strptime(value, self.db.date_time_format)
-
-    def to_db_time(self, value):
-        time.strftime(self.db.date_time_format, value)
+        return exp_date > datetime.datetime.utcnow()
 
     def refresh(self, user_id):
         self.execute('refresh', exp_date=escape(self.new_time()), user_id=escape(user_id))
 
     def new_time(self):
-        return self.to_db_time(time.gmtime(time.time() + SESSION_LENGTH))
+        return datetime.datetime.utcnow() + datetime.timedelta(seconds=SESSION_LENGTH)

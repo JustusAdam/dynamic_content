@@ -37,37 +37,61 @@ class RequestHandler(BaseHTTPRequestHandler):
         return self.do_any()
 
     def do_any(self, post_query=None):
+        print(self.path)
         url = Url(self.path)
         url.post_query = post_query
         try:
             self.check_path(url)
             page_handler = self.get_handler(url)
-            self.send_document(page_handler)
         except HTTPError as error:
-            print(error)
-            if error.code >= 400:
-                if error.reason:
-                    log.write_warning(message='HTTPError, code: ' + str(error.code) + ', message: ' + error.reason)
-                    self.send_error(error.code, self.responses[error.code][0], error.reason)
-                else:
-                    log.write_warning(message='HTTPError,  code: ' + str(error.code) + ', message: ' + self.responses[error.code][0])
-                    self.send_error(error.code, *self.responses[error.code])
-                return 0
-            else:
-                self.send_response(error.code)
-            if error.headers:
-                for header in error.headers:
-                    self.send_header(*header)
-            self.end_headers()
-            return 0
+            return self.process_http_error(error)
         except Exception as exce:
             print("Unexpected error")
             traceback.print_tb(sys.exc_info()[2])
             print(exce)
             log.write_error('Request Handler', function='do_any', message='Unexpected error ' + str(exce))
             self.send_error(500, *self.responses[500])
+            return 0
+
+        try:
+            self.send_document(page_handler)
+        except HTTPError as error:
+            return self.process_http_error(error, page_handler)
+        except Exception as exce:
+            print("Unexpected error")
+            traceback.print_tb(sys.exc_info()[2])
+            print(exce)
+            log.write_error('Request Handler', function='do_any', message='Unexpected error ' + str(exce))
+            self.send_error(500, *self.responses[500])
+            return 0
 
         return 0
+
+    def process_http_error(self, error, page_handler=None):
+        print(error)
+        if page_handler:
+            if page_handler.headers:
+                self.process_headers(page_handler.headers)
+        if error.headers:
+            for header in error.headers:
+                self.send_header(*header)
+        if error.code >= 400:
+            if error.reason:
+                log.write_warning(message='HTTPError, code: ' + str(error.code) + ', message: ' + error.reason)
+                self.send_error(error.code, self.responses[error.code][0], error.reason)
+            else:
+                log.write_warning(message='HTTPError,  code: ' + str(error.code) + ', message: ' + self.responses[error.code][0])
+                self.send_error(error.code, *self.responses[error.code])
+            return 0
+        else:
+            self.send_response(error.code)
+        self.end_headers()
+        return 0
+
+    def process_headers(self, headers):
+        for header in headers:
+            self.send_header(*header)
+
 
     def send_document(self, page_handler):
         document = page_handler.encoded
@@ -77,8 +101,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "{content_type}; charset={encoding}".format(
             content_type=page_handler.content_type, encoding=page_handler.encoding))
         self.send_header("Content-Length", str(len(document)))
-        for header in headers:
-            self.send_header(*header)
+        self.process_headers(headers)
         if not bootstrap.BROWSER_CACHING:
             self.send_header('Cache-Control', 'no-cache')
         self.end_headers()

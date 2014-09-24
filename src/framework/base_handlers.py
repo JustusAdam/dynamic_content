@@ -16,30 +16,22 @@ from framework.url_tools import Url
 __author__ = 'justusadam'
 
 
-class PageHandler:
-
+class ObjectHandler:
     def __init__(self, url):
-        self.page_type = None
         assert isinstance(url, Url)
         self._url = url
-        self.content_type = 'text/html'
-        self.encoding = sys.getfilesystemencoding()
         self._headers = set()
         self._cookies = None
 
-    def add_header(self, header):
-        assert isinstance(header, (tuple, list))
-        self._headers.add(header)
+    def add_header(self, key, value):
+        assert isinstance((key, value), str)
+        self._headers.add((key, value))
 
     def add_morsel(self, cookie):
         if not self._cookies:
             self._cookies = cookies.SimpleCookie()
         assert isinstance(cookie, (str, dict, cookies.Morsel))
         self._cookies.load(cookie)
-
-    @property
-    def encoded(self):
-        return self.compiled.encode(self.encoding)
 
     @property
     def compiled(self):
@@ -53,8 +45,21 @@ class PageHandler:
             name, value = self._cookies.output().split(':', 1)
             # and remove redundant space at the beginning of the value string
             value = value[1:]
-            self._headers.add(name, value)
+            self.add_header(name, value)
         return self._headers
+
+
+class PageHandler(ObjectHandler):
+
+    def __init__(self, url):
+        super().__init__(url)
+        self.page_type = None
+        self.content_type = 'text/html'
+        self.encoding = sys.getfilesystemencoding()
+
+    @property
+    def encoded(self):
+        return self.compiled.encode(self.encoding)
 
 
 class FieldHandler:
@@ -64,10 +69,9 @@ class FieldHandler:
         return ''
 
 
-class ContentHandler:
+class ContentHandler(ObjectHandler):
     def __init__(self, url):
-        assert isinstance(url, Url)
-        self._url = url
+        super().__init__(url)
 
     def process_queries(self):
         if self.has_url_query():
@@ -96,7 +100,7 @@ class ContentHandler:
         return self.process_content()
 
 
-class RedirectMixIn(ContentHandler):
+class RedirectMixIn(ObjectHandler):
 
     def redirect(self, destination=None):
         if 'destination' in self._url.get_query:

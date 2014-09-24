@@ -2,12 +2,12 @@ from framework.html_elements import FormElement, TableElement, ContainerElement,
 from framework.base_handlers import ContentHandler, RedirectMixIn
 from framework.page import Page
 
-from .database_operations import UserOperations
+from . import session
 
 __author__ = 'justusadam'
 
 
-class LoginHandler(RedirectMixIn):
+class LoginHandler(ContentHandler, RedirectMixIn):
 
     def process_content(self):
         message = ''
@@ -25,8 +25,9 @@ class LoginHandler(RedirectMixIn):
     def process_post_query(self):
         if not self._url.post_query['username'] or not self._url.post_query['password']:
             raise ValueError
-        username = self._url.post_query['username']
-        password = self._url.post_query['password']
-        ops = UserOperations()
-        if ops.authenticate_user(username, password):
+        username = self._url.post_query['username'][0]
+        password = self._url.post_query['password'][0]
+        token = session.start_session(username, password)
+        if token:
+            self.add_morsel(('SESS', token))
             self.redirect('/')

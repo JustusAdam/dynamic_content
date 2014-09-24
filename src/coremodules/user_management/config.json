@@ -19,7 +19,10 @@
             "salt varbinary({salt_size}) not null unique"
         ],
         "session": [
-            "session_id"
+            "session_id int unsigned not null unique auto_increment primary key",
+            "sess_token varbinary({token_length}) not null unique",
+            "user_id int unsigned not null unique",
+            "exp_date datetime not null"
         ]
     }
 }

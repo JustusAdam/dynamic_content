@@ -89,6 +89,7 @@ class BasicPageHandler(PageHandler):
     def __init__(self, url):
         super().__init__(url)
         self.modules = Modules()
+        self.content_handler = self.get_content_handler()
 
     def get_content_handler(self):
         return self.get_content_handler_class()(self._url)
@@ -108,9 +109,16 @@ class BasicPageHandler(PageHandler):
 
     @property
     def compiled(self):
-        content_handler = self.get_content_handler()
 
-        page = content_handler.compiled
+        page = self.content_handler.compiled
         theme_handler = self.get_theme_handler(page)
         document = theme_handler.compiled
         return document
+
+    @property
+    def headers(self):
+        headers = super().headers
+        if self.content_handler.headers:
+            for header in self.content_handler.headers:
+                headers.add(header)
+        return headers

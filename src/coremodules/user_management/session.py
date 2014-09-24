@@ -1,4 +1,5 @@
 from .database_operations import SessionOperations, UserOperations
+import binascii
 
 __author__ = 'justusadam'
 
@@ -6,6 +7,8 @@ __author__ = 'justusadam'
 # This might not work
 _so = None
 _uo = None
+
+TOKEN_ENCODING = 'ascii'
 
 
 def so():
@@ -29,7 +32,7 @@ def start_session(username, password):
     if not authenticate_user(username, password):
         return None
     uid = m.get_id(username)
-    return s.add_session(uid)
+    return binascii.hexlify(s.add_session(uid)).decode()
 
 
 def close_session(userid):
@@ -51,4 +54,6 @@ def authenticate_user(username, password):
 
 
 def validate_session(token):
+    if not isinstance(token, bytes):
+        token = binascii.unhexlify(token)
     return so().get_user(token)
