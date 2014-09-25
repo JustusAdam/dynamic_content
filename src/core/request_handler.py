@@ -18,7 +18,7 @@ from includes import bootstrap
 from .page_handlers import FileHandler, BasicPageHandler
 from framework.url_tools import Url
 from framework.config_tools import read_config
-from framework.cli_info import ClientInformation
+from .cli_info import ClientInfoImpl
 from includes import log
 import copy
 
@@ -40,7 +40,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_any(self, post_query=None):
         # print(self.path)
         url = Url(self.path)
-        client_information = ClientInformation(self.headers)
+        client_information = ClientInfoImpl(self.headers)
         url.post_query = post_query
         try:
             self.check_path(url)

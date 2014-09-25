@@ -60,3 +60,7 @@ class LoginCommonHandler(CommonsHandler):
 
     def get_content(self, name):
         return LOGIN_COMMON
+
+
+class LogoutHandler(ContentHandler, RedirectMixIn):
+    pass

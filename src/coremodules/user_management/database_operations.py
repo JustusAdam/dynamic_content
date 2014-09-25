@@ -7,7 +7,8 @@ import datetime
 __author__ = 'justusadam'
 
 
-#in seconds
+# both in seconds
+# SESSION_LENGTH > 0 is unlimited session length
 SESSION_LENGTH = -1
 SESS_TOKEN_LENGTH = 16
 
@@ -100,6 +101,18 @@ def new_token():
     return os.urandom(SESS_TOKEN_LENGTH)
 
 
+def check_exp_time(exp_date):
+
+    # This line circumvents the check if SESSION_TIME is set to a negative number
+    if SESSION_LENGTH < 0:
+        return True
+    return exp_date > datetime.datetime.utcnow()
+
+
+def new_time():
+    return datetime.datetime.utcnow() + datetime.timedelta(seconds=SESSION_LENGTH)
+
+
 class SessionOperations(Operations):
 
     _queries = {
@@ -134,7 +147,7 @@ class SessionOperations(Operations):
             self.refresh(user_id)
         else:
             token = new_token()
-            self.execute('add_session', user_id=escape(user_id), sess_token=escape(token), exp_date=escape(self.new_time()))
+            self.execute('add_session', user_id=escape(user_id), sess_token=escape(token), exp_date=escape(new_time()))
         return token
 
     def close_session(self, user_id):
@@ -146,7 +159,7 @@ class SessionOperations(Operations):
         if not result:
             return None
         token, exp_date = result
-        if self.check_exp_time(exp_date):
+        if check_exp_time(exp_date):
             return token
         self.close_session(user_id)
         return None
@@ -156,20 +169,10 @@ class SessionOperations(Operations):
         result = self.cursor.fetchone()
         if result:
             user_id, exp_date = result
-            if self.check_exp_time(exp_date):
+            if check_exp_time(exp_date):
                 return int(user_id)
             self.close_session(user_id)
         return None
 
-    def check_exp_time(self, exp_date):
-
-        # This line circumvents the check if SESSION_TIME is set to a negative number
-        if SESSION_LENGTH < 0:
-            return True
-        return exp_date > datetime.datetime.utcnow()
-
     def refresh(self, user_id):
-        self.execute('refresh', exp_date=escape(self.new_time()), user_id=escape(user_id))
-
-    def new_time(self):
-        return datetime.datetime.utcnow() + datetime.timedelta(seconds=SESSION_LENGTH)
+        self.execute('refresh', exp_date=escape(new_time()), user_id=escape(user_id))

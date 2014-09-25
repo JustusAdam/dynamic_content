@@ -1,4 +1,4 @@
-from .login import LoginHandler, LoginCommonHandler
+from .login import LoginHandler, LoginCommonHandler, LogoutHandler
 from . import session, users
 from .user_information import UserInformationCommon
 
@@ -10,6 +10,7 @@ name = 'user_management'
 role = 'user_management'
 
 login_prefix = 'login'
+logout_prefix = 'logout'
 
 START_REGION = 'sidebar_left'
 
@@ -22,8 +23,9 @@ def content_handler(url, parent_handler):
 
 def common_handler(item_type, item_name, show_title, user, access_group):
     handlers = {
-        'login': LoginCommonHandler,
-        'user_information': UserInformationCommon
+        login_prefix: LoginCommonHandler,
+        'user_information': UserInformationCommon,
+        logout_prefix: LogoutHandler
     }
     return handlers[item_type](item_name, show_title, user, access_group)
 
@@ -43,10 +45,11 @@ def prepare():
 
     # add login page
     cho.add_new('login', 'user_management', login_prefix)
+    cho.add_new('logout', 'user_management', logout_prefix)
 
     # add login common
-    ro.add_item('login', START_REGION, 0, START_THEME, True)
-    ro.add_item_conf('login', 'login', 'user_management')
+    ro.add_item('login', START_REGION, 0, START_THEME)
+    ro.add_item_conf('login', 'login', 'user_management', True)
     dn.add_item('login', 'user_management', {'english': 'User Login'})
 
     # add user information common
