@@ -56,7 +56,7 @@ class LoginHandler(ContentHandler, RedirectMixIn):
 
 class LoginCommonHandler(CommonsHandler):
 
-    source_table = 'login'
+    source_table = 'user_management'
 
     def get_content(self, name):
         return LOGIN_COMMON

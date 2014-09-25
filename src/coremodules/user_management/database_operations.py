@@ -8,7 +8,7 @@ __author__ = 'justusadam'
 
 
 #in seconds
-SESSION_LENGTH = 300
+SESSION_LENGTH = -1
 SESS_TOKEN_LENGTH = 16
 
 

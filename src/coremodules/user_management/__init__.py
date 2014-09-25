@@ -11,6 +11,10 @@ role = 'user_management'
 
 login_prefix = 'login'
 
+START_REGION = 'sidebar_left'
+
+START_THEME = 'default_theme'
+
 
 def content_handler(url, parent_handler):
     return LoginHandler(url, parent_handler)
@@ -37,7 +41,15 @@ def prepare():
     so.init_tables()
     uo.init_tables()
 
+    # add login page
     cho.add_new('login', 'user_management', login_prefix)
-    ro.add_item('login', 'sidebar_left', 0, 'default_theme')
+
+    # add login common
+    ro.add_item('login', START_REGION, 0, START_THEME, True)
     ro.add_item_conf('login', 'login', 'user_management')
-    dn.add_item('login', 'login', {'english': 'User Login'})
+    dn.add_item('login', 'user_management', {'english': 'User Login'})
+
+    # add user information common
+    ro.add_item_conf('user_information', 'user_information', 'user_management', True)
+    ro.add_item('user_information', START_REGION, 1, START_THEME)
+    dn.add_item('user_information', 'user_management', {'english': 'Your Account Information'})
