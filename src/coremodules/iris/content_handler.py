@@ -1,4 +1,5 @@
 from urllib import parse
+from coremodules.iris import database_operations
 
 from framework.base_handlers import ContentHandler, RedirectMixIn
 from core.modules import Modules
@@ -21,12 +22,6 @@ class FieldBasedContentHandler(ContentHandler):
         self.modules = Modules()
         (self.page_title, self.content_type, self.theme) = self.get_page_information()
         self.fields = self.get_fields()
-
-    def get_page_information(self):
-        ops = database_operations.Pages()
-        (content_type, title) = ops.get_page_information(self._url.page_type, self._url.page_id)
-        theme = ops.get_theme(content_type=content_type)
-        return title, content_type, theme
 
     def get_fields(self):
         db_result = database_operations.Pages().get_fields(self.content_type)
@@ -76,6 +71,12 @@ class FieldBasedContentHandler(ContentHandler):
         page = Page(self._url, self.page_title)
         page.content = self.concatenate_content(self.fields)
         return page
+
+    def get_page_information(self):
+        ops = database_operations.Pages()
+        (content_type, title) = ops.get_page_information(self._url.page_type, self._url.page_id)
+        theme = ops.get_theme(content_type=content_type)
+        return title, content_type, theme
 
 
 class EditFieldBasedContentHandler(FieldBasedContentHandler, RedirectMixIn):

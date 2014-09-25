@@ -1,4 +1,4 @@
-from .login import LoginHandler
+from .login import LoginHandler, LoginCommonHandler
 from . import session
 
 __author__ = 'justusadam'
@@ -13,6 +13,13 @@ login_prefix = 'login'
 
 def content_handler(url, parent_handler):
     return LoginHandler(url, parent_handler)
+
+
+def common_handler(item_type, item_name, show_title):
+    handlers = {
+        'login': LoginCommonHandler
+    }
+    return handlers[item_type](item_name, show_title)
 
 
 def prepare():

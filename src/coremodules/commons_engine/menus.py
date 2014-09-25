@@ -122,8 +122,7 @@ class MenuHandler(CommonsHandler):
     def menu(self, item_class=MenuItem):
         return self.order_items(self.get_items(item_class), item_class)
 
-    @property
-    def compiled(self):
+    def get_content(self, name):
         ul_list = self.menu(HTMLMenuItem).render_children(0)
-        ul_list.element_id = self.name
-        return Component(self.name, self.wrap_content(ul_list))
+        ul_list.element_id = name
+        return ul_list

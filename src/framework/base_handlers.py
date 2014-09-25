@@ -10,8 +10,10 @@ Eventually basic functions that the core demands these classes to implement may 
 from http import cookies
 import sys
 from urllib.error import HTTPError
+
 from core import Modules
 from framework.html_elements import ContainerElement
+from framework.page import Component
 from framework.url_tools import Url
 from .cli_info import ClientInformation
 
@@ -76,6 +78,9 @@ class FieldHandler:
 
 
 class ContentHandler(ObjectHandler):
+
+    theme = 'active'
+
     def __init__(self, url, parent_handler):
         super().__init__(url)
         assert isinstance(parent_handler, ObjectHandler)
@@ -146,6 +151,10 @@ class CommonsHandler:
             title = ''
         return ContainerElement(title, content, classes={self.name.replace('_', '-'), 'common'})
 
+    def get_content(self, name):
+        return ''
+
     @property
     def compiled(self):
-        return None
+        obj = Component(self.name, self.wrap_content(self.get_content(self.name)))
+        return obj

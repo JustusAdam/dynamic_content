@@ -1,5 +1,6 @@
+from coremodules.iris import database_operations
 from framework.html_elements import FormElement, TableElement, ContainerElement, Label, Input
-from framework.base_handlers import ContentHandler, RedirectMixIn
+from framework.base_handlers import ContentHandler, RedirectMixIn, CommonsHandler
 from framework.page import Page
 
 from . import session
@@ -7,20 +8,21 @@ from . import session
 __author__ = 'justusadam'
 
 
+LOGIN_FORM = FormElement(
+    TableElement(
+        [Label('Username', label_for='username'), Input(name='username', required=True)],
+        [Label('Password', label_for='password'), Input(input_type='password', required=True, name='password')]
+    )
+    , action='/login', classes={'login-form'})
+
+
 class LoginHandler(ContentHandler, RedirectMixIn):
+    def __init__(self, url, parent_handler):
+        super().__init__(url, parent_handler)
+        self.message = ''
 
     def process_content(self):
-        message = ''
-        if self.is_post():
-            message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
-        return Page(self._url, 'Login', ContainerElement(message,
-            FormElement(
-                TableElement(
-                    [Label('Username', label_for='username'), Input(name='username', required=True)],
-                    [Label('Password', label_for='password'), Input(input_type='password', required=True, name='password')]
-                )
-                , action='/login', classes={'login-form'})
-        ))
+        return Page(self._url, 'Login', ContainerElement(self.message, LOGIN_FORM))
 
     def process_post_query(self):
         if not self._url.post_query['username'] or not self._url.post_query['password']:
@@ -31,3 +33,15 @@ class LoginHandler(ContentHandler, RedirectMixIn):
         if token:
             self.add_morsel({'SESS': token})
             self.redirect('/iris/1')
+        self.message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
+
+    def get_page_information(self):
+        ops = database_operations.Pages()
+        (content_type, title) = ops.get_page_information(self._url.page_type, self._url.page_id)
+        theme = ops.get_theme(content_type=content_type)
+        return title, content_type, theme
+
+
+class LoginCommonHandler(CommonsHandler):
+    def get_content(self, name):
+        return LOGIN_FORM

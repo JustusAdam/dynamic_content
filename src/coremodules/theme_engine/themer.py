@@ -14,7 +14,7 @@ class ThemeHandler:
         self.content_handler = content_handler
         self._pattern = {}
         self.module_config = read_config(self.get_my_folder() + '/config.json')
-        self.theme_path = self.get_theme_path(self.get_used_theme(content_handler))
+        self.theme = self.get_used_theme(content_handler)
         self.theme_config = read_config(self.theme_path + '/config.json')
 
     def get_used_theme(self, handler):
@@ -25,8 +25,9 @@ class ThemeHandler:
         else:
             return handler.theme
 
-    def get_theme_path(self, theme):
-        return 'themes/' + theme
+    @property
+    def theme_path(self):
+        return 'themes/' + self.theme
 
     def get_my_folder(self):
         return str(Path(__file__).parent)
@@ -60,20 +61,19 @@ class ThemeHandler:
         return LinkElement('/theme/' + theme + '/' + favicon, rel='shortcut icon', element_type='image/png')
 
     @property
-    def regions(self, theme):
+    def regions(self):
         config = self.theme_config['regions']
         r = []
         for region in config:
-            r.append(RegionHandler(region, config[region], theme))
+            r.append(RegionHandler(region, config[region], self.theme))
         return r
 
     @property
     def compiled(self):
         page = self.content_handler.compiled
-        theme = self.get_used_theme(page)
         self._pattern['scripts'] = self.compile_scripts(page)
         self._pattern['stylesheets'] = self.compile_stylesheets(page)
-        self._pattern['meta'] = self.compile_meta(theme)
+        self._pattern['meta'] = self.compile_meta(self.theme)
         self._pattern['header'] = ''
         self._pattern['title'] = page.title
         self._pattern['content'] = str(page.content)
