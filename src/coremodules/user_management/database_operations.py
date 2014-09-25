@@ -140,7 +140,7 @@ class SessionOperations(Operations):
         if result:
             user_id, exp_date = result
             if self.check_exp_time(exp_date):
-                return user_id
+                return int(user_id)
             self.close_session(user_id)
         return None
 

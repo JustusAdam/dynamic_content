@@ -93,7 +93,7 @@ class BasicPageHandler(PageHandler):
         self.content_handler = self.get_content_handler()
 
     def get_content_handler(self):
-        return self.get_content_handler_class()(self._url)
+        return self.get_content_handler_class()(self._url, self)
 
     def get_content_handler_class(self):
         try:

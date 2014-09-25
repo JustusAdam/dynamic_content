@@ -74,8 +74,10 @@ class FieldHandler:
 
 
 class ContentHandler(ObjectHandler):
-    def __init__(self, url):
+    def __init__(self, url, parent_handler):
         super().__init__(url)
+        assert isinstance(parent_handler, ObjectHandler)
+        self._parent = parent_handler
 
     def process_queries(self):
         if self.has_url_query():

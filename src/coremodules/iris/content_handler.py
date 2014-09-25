@@ -16,8 +16,8 @@ class FieldBasedContentHandler(ContentHandler):
 
     modifier = 'show'
 
-    def __init__(self, url):
-        super().__init__(url)
+    def __init__(self, url, parent_handler):
+        super().__init__(url, parent_handler)
         self.modules = Modules()
         (self.page_title, self.content_type, self.theme) = self.get_page_information()
         self.fields = self.get_fields()
@@ -86,8 +86,8 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler, RedirectMixIn):
 
     field_identifier_separator = '-'
 
-    def __init__(self, url):
-        super().__init__(url)
+    def __init__(self, url, parent_handler):
+        super().__init__(url, parent_handler)
         self.user = '1'
         self._is_post = bool(self._url.post_query)
 
@@ -158,9 +158,6 @@ class EditFieldBasedContentHandler(FieldBasedContentHandler, RedirectMixIn):
 class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
 
     modifier = 'add'
-
-    def __init__(self, url):
-        super().__init__(url)
 
     def get_page_information(self):
         ops = database_operations.Pages()

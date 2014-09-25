@@ -39,5 +39,7 @@ class ClientInformation:
     def auth_user(self):
         if self._cookies:
             if SESSION_TOKEN_IDENTIFIER in self._cookies:
-                return modules.Modules()['user_management'].session.validate_session(self._cookies[SESSION_TOKEN_IDENTIFIER].value)
+                db_result = modules.Modules()['user_management'].session.validate_session(self._cookies[SESSION_TOKEN_IDENTIFIER].value)
+                if db_result is not None:
+                    return db_result
         return -1
