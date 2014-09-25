@@ -38,7 +38,7 @@ class ObjectHandler:
         assert isinstance(value, str)
         self._headers.add((key, value))
 
-    def add_morsel(self, cookie):
+    def add_morsels(self, cookie):
         if not self._cookies:
             self._cookies = cookies.SimpleCookie()
         assert isinstance(cookie, (str, dict))

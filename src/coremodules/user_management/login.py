@@ -54,7 +54,7 @@ class LoginHandler(ContentHandler, RedirectMixIn):
         password = self._url.post_query['password'][0]
         token = session.start_session(username, password)
         if token:
-            self.add_morsel({'SESS': token})
+            self.add_morsels({'SESS': token})
             self.redirect('/iris/1')
         self.message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
 
@@ -78,6 +78,6 @@ class LogoutHandler(ContentHandler, RedirectMixIn):
         else:
             session.close_session(user)
             time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
-            self.add_morsel({'SESS': ''})
+            self.add_morsels({'SESS': ''})
             self.cookies['SESS']['expires'] = time.strftime(_cookie_time_format)
             self.redirect('/login')
