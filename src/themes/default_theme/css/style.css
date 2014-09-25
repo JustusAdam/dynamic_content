@@ -1,3 +1,9 @@
+/**
+ *  Test CSS Stylesheet for myn cms
+ *  copyright 2014 Justus Adam
+ */
+
+
 @import url('/public/open-sans/opensans.css');
 body {
 	font-family: 'Open Sans', Helvetica, Arial, Verdana, sans-serif;
@@ -198,9 +204,8 @@ ul.menu li a, ul.menu li span {
 }
 .region.sidebar .common {
 	padding: 10px 15px;
-	margin: 10px 15px;
-	background: none repeat scroll 0 0 #CFD3C9;
-    box-shadow: 1px 1px 5px #999;
+	margin: 20px 15px;
+	background: none repeat scroll 0 0 #ECD393;
 }
 .region .common h3 {
 	color: rgb(59, 105, 202);
@@ -215,7 +220,7 @@ ul.menu li a, ul.menu li span {
 	list-style-type: square;
 }
 .sidebar .region-wrapper {
-	padding: 25px 10px;
+	padding: 10px 10px;
 }
 .edit-form {
 	width: 100%;
@@ -224,5 +229,13 @@ textarea.long-text {
 	width: 100%;
 }
 form.login-form {
-	overflow: hidden;
+}
+.login.common input[type="text"], .login.common input[type="password"] {
+	width: 95%;
+	border-radius: 5px;
+	border: none;
+	padding: 3px;
+}
+.login.common form {
+	margin: 3px 8px;
 }
