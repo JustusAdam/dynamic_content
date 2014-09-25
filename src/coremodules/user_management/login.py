@@ -8,12 +8,24 @@ from . import session
 __author__ = 'justusadam'
 
 
+USERNAME_INPUT = Label('Username', label_for='username'), Input(name='username', required=True)
+PASSWORD_INPUT = Label('Password', label_for='password'), Input(input_type='password', required=True, name='password')
+
+
 LOGIN_FORM = FormElement(
     TableElement(
-        [Label('Username', label_for='username'), Input(name='username', required=True)],
-        [Label('Password', label_for='password'), Input(input_type='password', required=True, name='password')]
+        USERNAME_INPUT,
+        PASSWORD_INPUT
     )
-    , action='/login', classes={'login-form'})
+    , action='/login', classes={'login-form'}
+)
+
+LOGIN_COMMON = FormElement(
+    ContainerElement(
+        *USERNAME_INPUT + PASSWORD_INPUT
+    )
+    , action='/login', classes={'login-form'}
+)
 
 
 class LoginHandler(ContentHandler, RedirectMixIn):
@@ -44,4 +56,4 @@ class LoginHandler(ContentHandler, RedirectMixIn):
 
 class LoginCommonHandler(CommonsHandler):
     def get_content(self, name):
-        return LOGIN_FORM
+        return LOGIN_COMMON
