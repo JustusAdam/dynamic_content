@@ -10,6 +10,8 @@ Eventually basic functions that the core demands these classes to implement may 
 from http import cookies
 import sys
 from urllib.error import HTTPError
+from core import Modules
+from framework.html_elements import ContainerElement
 from framework.url_tools import Url
 from .cli_info import ClientInformation
 
@@ -114,3 +116,36 @@ class RedirectMixIn(ObjectHandler):
         elif not destination:
             destination = str(self._url.path.prt_to_str(0, -1))
         raise HTTPError(str(self._url), 302, 'Redirect', [('Location', destination), ('Connection', 'close'), ('Content-Type', 'text/html')], None)
+
+
+class CommonsHandler:
+
+    # used to identify items with internationalization
+    com_type = 'commons'
+
+    source_table = 'commons_config'
+
+    dn_ops = None
+
+    # temporary
+    language = 'english'
+
+    def __init__(self, machine_name, show_title):
+        self.name = machine_name
+        self.show_title = show_title
+
+    def get_display_name(self, item, language='english'):
+        if not self.dn_ops:
+            self.dn_ops = Modules()['internationalization'].Operations()
+        return self.dn_ops.get_display_name(item, self.source_table, language)
+
+    def wrap_content(self, content):
+        if self.show_title:
+            title = ContainerElement(self.get_display_name(self.name), html_type='h3')
+        else:
+            title = ''
+        return ContainerElement(title, content, classes={self.name.replace('_', '-'), 'common'})
+
+    @property
+    def compiled(self):
+        return None

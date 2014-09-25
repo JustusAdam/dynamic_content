@@ -1,4 +1,5 @@
-from coremodules.commons_engine import CommonsHandler, database_operations
+from coremodules.commons_engine import database_operations
+from framework.base_handlers import CommonsHandler
 from framework.html_elements import ContainerElement, List
 from framework.page import Component
 

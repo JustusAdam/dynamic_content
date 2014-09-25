@@ -74,8 +74,6 @@ class FieldBasedContentHandler(ContentHandler):
 
     def process_content(self):
         page = Page(self._url, self.page_title)
-        if self.theme:
-            page.used_theme = self.theme
         page.content = self.concatenate_content(self.fields)
         return page
 
