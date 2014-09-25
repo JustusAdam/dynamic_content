@@ -1,5 +1,5 @@
 from coremodules.iris import database_operations
-from framework.html_elements import FormElement, TableElement, ContainerElement, Label, Input
+from framework.html_elements import FormElement, TableElement, ContainerElement, Label, Input, SubmitButton
 from framework.base_handlers import ContentHandler, RedirectMixIn, CommonsHandler
 from framework.page import Page
 
@@ -17,14 +17,14 @@ LOGIN_FORM = FormElement(
         USERNAME_INPUT,
         PASSWORD_INPUT
     )
-    , action='/login', classes={'login-form'}
+    , action='/login', classes={'login-form'}, submit=SubmitButton(value='Login')
 )
 
 LOGIN_COMMON = FormElement(
     ContainerElement(
         *USERNAME_INPUT + PASSWORD_INPUT
     )
-    , action='/login', classes={'login-form'}
+    , action='/login', classes={'login-form'}, submit=SubmitButton(value='Login')
 )
 
 
@@ -55,5 +55,8 @@ class LoginHandler(ContentHandler, RedirectMixIn):
 
 
 class LoginCommonHandler(CommonsHandler):
+
+    source_table = 'login'
+
     def get_content(self, name):
         return LOGIN_COMMON
