@@ -35,7 +35,8 @@ class UserOperations(Operations):
             'change_password': 'update cms_user_auth set password={password}, salt={salt} where username={username};',
             'get_pass_and_salt': 'select password, salt from cms_user_auth where username={username};',
             'get_user_id': 'select id from cms_users where username={username};',
-            'get_acc_grp': 'select access_group from cms_users where {cond};'
+            'get_acc_grp': 'select access_group from cms_users where {cond};',
+            'get_username': 'select username from cms_users where id={user_id};'
         }
     }
 
@@ -88,6 +89,10 @@ class UserOperations(Operations):
         else:
             cond = 'username=' + escape(uname_or_id)
         self.execute('get_acc_grp', cond=cond)
+        return self.cursor.fetchone()[0]
+
+    def get_username(self, user_id):
+        self.execute('get_username', user_id=escape(user_id))
         return self.cursor.fetchone()[0]
 
 

@@ -56,9 +56,9 @@ class MenuHandler(CommonsHandler):
 
     source_table = 'menu_items'
 
-    def __init__(self, machine_name, show_title):
+    def __init__(self, machine_name, show_title, user, access_group):
         self.mo = database_operations.MenuOperations()
-        super().__init__(machine_name, show_title)
+        super().__init__(machine_name, show_title, user, access_group)
         self.menu_name = self.get_menu_info()
 
     def get_items(self, item_class=MenuItem):

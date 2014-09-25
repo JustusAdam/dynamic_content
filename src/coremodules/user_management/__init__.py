@@ -1,5 +1,6 @@
 from .login import LoginHandler, LoginCommonHandler
 from . import session, users
+from .user_information import UserInformationCommon
 
 __author__ = 'justusadam'
 
@@ -15,11 +16,12 @@ def content_handler(url, parent_handler):
     return LoginHandler(url, parent_handler)
 
 
-def common_handler(item_type, item_name, show_title):
+def common_handler(item_type, item_name, show_title, user, access_group):
     handlers = {
-        'login': LoginCommonHandler
+        'login': LoginCommonHandler,
+        'user_information': UserInformationCommon
     }
-    return handlers[item_type](item_name, show_title)
+    return handlers[item_type](item_name, show_title, user, access_group)
 
 
 def prepare():

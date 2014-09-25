@@ -1,5 +1,6 @@
 from . import database_operations
 from core.modules import Modules
+from framework.base_handlers import CommonsHandler
 from framework.html_elements import ContainerElement
 from framework.page import Component
 
@@ -27,13 +28,14 @@ class RegionHandler:
             info = {a[0]: a[1:] for a in self.get_items_info(region_info)}
 
             for item in region_info:
-                acc.append(self.get_item(item, *info[item]))
+                acc.append(self.get_item(item, *self.user_info + info[item]))
 
         return acc
 
-    def get_item(self, item_name, handler_module, item_type, show_title):
+    def get_item(self, item_name, user, access_group, handler_module, item_type, show_title):
         show_title = show_title == 1
-        handler = self.modules[handler_module].common_handler(item_type, item_name, show_title)
+        handler = self.modules[handler_module].common_handler(item_type, item_name, show_title, user, access_group)
+        assert isinstance(handler, CommonsHandler)
         return Common(item_name, handler, item_type)
 
     def get_items_info(self, items):

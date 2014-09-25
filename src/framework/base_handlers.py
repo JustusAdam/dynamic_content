@@ -135,7 +135,9 @@ class CommonsHandler:
     # temporary
     language = 'english'
 
-    def __init__(self, machine_name, show_title):
+    def __init__(self, machine_name, show_title, user, access_group):
+        self.access_group = access_group
+        self.user = user
         self.name = machine_name
         self.show_title = show_title
 

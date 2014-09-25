@@ -11,12 +11,12 @@ name = 'commons_engine'
 role = 'block_manager'
 
 
-def common_handler(item_type, item_name, show_title):
+def common_handler(item_type, item_name, show_title, user, access_group):
     handlers = {
         'menu': MenuHandler,
         'com_text': TextCommonsHandler
     }
-    return handlers[item_type](item_name, show_title)
+    return handlers[item_type](item_name, show_title, user, access_group)
 
 def prepare():
     mo = dbo.MenuOperations()
