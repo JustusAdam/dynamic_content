@@ -159,6 +159,7 @@ class SessionOperations(Operations):
 
     def close_session(self, user_id):
         self.execute('remove_session', user_id=escape(user_id))
+        self.db.commit()
 
     def get_token(self, user_id):
         self.execute('get_token', user_id=escape(user_id))

@@ -41,8 +41,14 @@ class ObjectHandler:
     def add_morsel(self, cookie):
         if not self._cookies:
             self._cookies = cookies.SimpleCookie()
-        assert isinstance(cookie, (str, dict, cookies.Morsel))
+        assert isinstance(cookie, (str, dict))
         self._cookies.load(cookie)
+
+    @property
+    def cookies(self):
+        if not self._cookies:
+            self._cookies = cookies.SimpleCookie()
+        return self._cookies
 
     @property
     def compiled(self):

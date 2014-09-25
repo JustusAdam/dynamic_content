@@ -15,14 +15,17 @@ START_THEME = 'default_theme'
 
 
 def content_handler(url, parent_handler):
-    return LoginHandler(url, parent_handler)
+    handlers = {
+        login_prefix: LoginHandler,
+        logout_prefix: LogoutHandler
+    }
+    return handlers[url.page_type](url, parent_handler)
 
 
 def common_handler(item_type, item_name, show_title, user, access_group):
     handlers = {
         login_prefix: LoginCommonHandler,
-        'user_information': user_information.UserInformationCommon,
-        logout_prefix: LogoutHandler
+        'user_information': user_information.UserInformationCommon
     }
     return handlers[item_type](item_name, show_title, user, access_group)
 

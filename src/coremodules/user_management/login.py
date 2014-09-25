@@ -15,6 +15,8 @@ login_prefix = 'login'
 logout_prefix = 'logout'
 
 
+_cookie_time_format = '%a, %d %b %Y %H:%M:%S GMT'
+
 USERNAME_INPUT = Label('Username', label_for='username'), Input(name='username', required=True)
 PASSWORD_INPUT = Label('Password', label_for='password'), Input(input_type='password', required=True, name='password')
 
@@ -69,7 +71,7 @@ class LoginCommonHandler(CommonsHandler):
 
 class LogoutHandler(ContentHandler, RedirectMixIn):
     def process_content(self):
-        pass
+        self.logout()
 
     def logout(self):
         user = self._parent.client_info.user
@@ -77,8 +79,7 @@ class LogoutHandler(ContentHandler, RedirectMixIn):
             self.redirect('/login')
         else:
             session.close_session(user)
-            morsel = Morsel()
-            morsel.set('SESS', '', '')
-            morsel['expires'] = datetime.datetime.utcnow() - datetime.timedelta(days=1)
-            self.add_morsel(morsel)
+            time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+            self.add_morsel({'SESS': ''})
+            self.cookies['SESS']['expires'] = time.strftime(_cookie_time_format)
             self.redirect('/login')

@@ -100,7 +100,10 @@ class ContentHandlers(Operations):
 
     def get_by_prefix(self, prefix):
         self.execute('get_by_prefix', path_prefix=escape(prefix))
-        return self.cursor.fetchone()[0]
+        result = self.cursor.fetchone()
+        if result is None:
+            raise DBOperationError('get_by_prefix', 'No Result')
+        return result[0]
 
 
 class ModuleOperations(Operations):
