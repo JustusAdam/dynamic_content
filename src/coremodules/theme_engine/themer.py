@@ -10,8 +10,9 @@ __author__ = 'justusadam'
 
 class ThemeHandler:
 
-    def __init__(self, content_handler):
+    def __init__(self, content_handler, client_info):
         self.content_handler = content_handler
+        self.client_info = client_info
         self._pattern = {}
         self.module_config = read_config(self.get_my_folder() + '/config.json')
         self.theme = self.get_used_theme(content_handler)
@@ -65,7 +66,7 @@ class ThemeHandler:
         config = self.theme_config['regions']
         r = []
         for region in config:
-            r.append(RegionHandler(region, config[region], self.theme))
+            r.append(RegionHandler(region, config[region], self.theme, self.client_info.user, self.client_info.access_group))
         return r
 
     @property

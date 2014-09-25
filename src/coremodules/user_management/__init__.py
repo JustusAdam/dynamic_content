@@ -1,5 +1,5 @@
 from .login import LoginHandler, LoginCommonHandler
-from . import session
+from . import session, users
 
 __author__ = 'justusadam'
 

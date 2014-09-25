@@ -108,13 +108,13 @@ class BasicPageHandler(PageHandler):
     def get_theme_handler_class(self):
         return self.modules['theme_engine'].theme_handler
 
-    def get_theme_handler(self, page):
-        return self.get_theme_handler_class()(page)
+    def get_theme_handler(self, content_handler, client_info):
+        return self.get_theme_handler_class()(content_handler, client_info)
 
 
     @property
     def compiled(self):
-        theme_handler = self.get_theme_handler(self.content_handler)
+        theme_handler = self.get_theme_handler(self.content_handler, self.client_info)
         document = theme_handler.compiled
         return document
 

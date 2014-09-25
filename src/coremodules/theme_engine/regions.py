@@ -10,7 +10,8 @@ class RegionHandler:
 
     modules = Modules()
 
-    def __init__(self, region_name, region_config, theme):
+    def __init__(self, region_name, region_config, theme, user, access_group):
+        self.user_info = (user, access_group)
         self.operations = database_operations.RegionOperations()
         self.name = region_name
         self.theme = theme
@@ -18,14 +19,14 @@ class RegionHandler:
         self.config = region_config
 
     def get_all_commons(self, name, theme):
-        common_names = self.operations.get_commons(name, theme)
+        region_info = self.operations.get_commons(name, theme)
 
         acc = []
 
-        if common_names:
-            info = {a[0]: a[1:] for a in self.get_items_info(common_names)}
+        if region_info:
+            info = {a[0]: a[1:] for a in self.get_items_info(region_info)}
 
-            for item in common_names:
+            for item in region_info:
                 acc.append(self.get_item(item, *info[item]))
 
         return acc

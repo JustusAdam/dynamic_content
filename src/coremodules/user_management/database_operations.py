@@ -34,7 +34,8 @@ class UserOperations(Operations):
             'add_user_auth': 'insert into cms_user_auth (username, salt, password) values ({username}, {salt}, {password});',
             'change_password': 'update cms_user_auth set password={password}, salt={salt} where username={username};',
             'get_pass_and_salt': 'select password, salt from cms_user_auth where username={username};',
-            'get_user_id': 'select id from cms_users where username={username};'
+            'get_user_id': 'select id from cms_users where username={username};',
+            'get_acc_grp': 'select access_group from cms_users where {cond};'
         }
     }
 
@@ -77,6 +78,17 @@ class UserOperations(Operations):
     def authenticate_user(self, username, password):
         pass_from_db, salt = self.get_pass_salt(username)
         return check_ident(password, salt, pass_from_db)
+
+    def get_acc_grp(self, uname_or_id):
+        assert isinstance(uname_or_id, int) or isinstance(uname_or_id, str)
+        if isinstance(uname_or_id, int):
+            cond = 'id=' + escape(str(uname_or_id))
+        elif uname_or_id.isalpha():
+            cond = 'id=' + escape(uname_or_id)
+        else:
+            cond = 'username=' + escape(uname_or_id)
+        self.execute('get_acc_grp', cond=cond)
+        return self.cursor.fetchone()[0]
 
 
 def new_token():
