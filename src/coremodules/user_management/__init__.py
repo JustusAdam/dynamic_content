@@ -1,4 +1,4 @@
-from .login import LoginHandler, LoginCommonHandler, LogoutHandler
+from .login import LoginHandler, LoginCommonHandler, LogoutHandler, login_prefix, logout_prefix
 from . import session, users
 from .user_information import UserInformationCommon
 
@@ -8,9 +8,6 @@ __author__ = 'justusadam'
 name = 'user_management'
 
 role = 'user_management'
-
-login_prefix = 'login'
-logout_prefix = 'logout'
 
 START_REGION = 'sidebar_left'
 
@@ -24,7 +21,7 @@ def content_handler(url, parent_handler):
 def common_handler(item_type, item_name, show_title, user, access_group):
     handlers = {
         login_prefix: LoginCommonHandler,
-        'user_information': UserInformationCommon,
+        'user_information': user_information.UserInformationCommon,
         logout_prefix: LogoutHandler
     }
     return handlers[item_type](item_name, show_title, user, access_group)

@@ -37,7 +37,8 @@ class UserOperations(Operations):
             'get_pass_and_salt': 'select password, salt from cms_user_auth where username={username};',
             'get_user_id': 'select id from cms_users where username={username};',
             'get_acc_grp': 'select access_group from cms_users where {cond};',
-            'get_username': 'select username from cms_users where id={user_id};'
+            'get_username': 'select username from cms_users where id={user_id};',
+            'get_date_joined': 'select date_created from cms_users where {cond};'
         }
     }
 
@@ -82,18 +83,24 @@ class UserOperations(Operations):
         return check_ident(password, salt, pass_from_db)
 
     def get_acc_grp(self, uname_or_id):
-        assert isinstance(uname_or_id, int) or isinstance(uname_or_id, str)
-        if isinstance(uname_or_id, int):
-            cond = 'id=' + escape(str(uname_or_id))
-        elif uname_or_id.isalpha():
-            cond = 'id=' + escape(uname_or_id)
-        else:
-            cond = 'username=' + escape(uname_or_id)
-        self.execute('get_acc_grp', cond=cond)
+        self.execute('get_acc_grp', cond=self.comp_cond(uname_or_id))
         return self.cursor.fetchone()[0]
 
     def get_username(self, user_id):
         self.execute('get_username', user_id=escape(user_id))
+        return self.cursor.fetchone()[0]
+
+    def comp_cond(self, uname_or_id):
+        assert isinstance(uname_or_id, int) or isinstance(uname_or_id, str)
+        if isinstance(uname_or_id, int):
+            return 'id=' + escape(str(uname_or_id))
+        elif uname_or_id.isalpha():
+            return 'id=' + escape(uname_or_id)
+        else:
+            return 'username=' + escape(uname_or_id)
+
+    def get_date_joined(self, uname_or_id):
+        self.execute('get_date_joined', cond=self.comp_cond(uname_or_id))
         return self.cursor.fetchone()[0]
 
 

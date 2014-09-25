@@ -22,11 +22,16 @@ __author__ = 'justusadam'
 
 
 class ObjectHandler:
+
     def __init__(self, url):
         assert isinstance(url, Url)
         self._url = url
         self._headers = set()
         self._cookies = None
+
+    @property
+    def client_info(self):
+        return None
 
     def add_header(self, key, value):
         assert isinstance(key, str)
@@ -60,7 +65,7 @@ class PageHandler(ObjectHandler):
     def __init__(self, url, client_info):
         super().__init__(url)
         assert isinstance(client_info, ClientInformation)
-        self.client_info = client_info
+        self._client_info = client_info
         self.page_type = None
         self.content_type = 'text/html'
         self.encoding = sys.getfilesystemencoding()
@@ -68,6 +73,10 @@ class PageHandler(ObjectHandler):
     @property
     def encoded(self):
         return self.compiled.encode(self.encoding)
+
+    @property
+    def client_info(self):
+        return self._client_info
 
 
 class FieldHandler:
@@ -85,6 +94,10 @@ class ContentHandler(ObjectHandler):
         super().__init__(url)
         assert isinstance(parent_handler, ObjectHandler)
         self._parent = parent_handler
+
+    @property
+    def client_info(self):
+        return self._parent.client_info
 
     def process_queries(self):
         if self.has_url_query():
@@ -151,7 +164,10 @@ class CommonsHandler:
             title = ContainerElement(self.get_display_name(self.name), html_type='h3')
         else:
             title = ''
-        return ContainerElement(title, content, classes={self.name.replace('_', '-'), 'common'})
+        if isinstance(content, (list, tuple, set)):
+            return ContainerElement(title, *content, classes={self.name.replace('_', '-'), 'common'})
+        else:
+            return ContainerElement(title, content, classes={self.name.replace('_', '-'), 'common'})
 
     def get_content(self, name):
         return ''

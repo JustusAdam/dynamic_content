@@ -1,15 +1,26 @@
-from coremodules.iris import database_operations
+from urllib.error import HTTPError
+from http.cookies import Morsel
 from framework.html_elements import FormElement, TableElement, ContainerElement, Label, Input, SubmitButton
 from framework.base_handlers import ContentHandler, RedirectMixIn, CommonsHandler
 from framework.page import Page
+from framework.cli_info import ANONYMOUS
+import datetime
 
 from . import session
 
 __author__ = 'justusadam'
 
 
+login_prefix = 'login'
+logout_prefix = 'logout'
+
+
 USERNAME_INPUT = Label('Username', label_for='username'), Input(name='username', required=True)
 PASSWORD_INPUT = Label('Password', label_for='password'), Input(input_type='password', required=True, name='password')
+
+LOGOUT_TARGET = '/login'
+
+LOGOUT_BUTTON = ContainerElement('Logout', html_type='a', classes={'logout', 'button'}, additionals={'href': '/' + logout_prefix})
 
 
 LOGIN_FORM = FormElement(
@@ -17,14 +28,14 @@ LOGIN_FORM = FormElement(
         USERNAME_INPUT,
         PASSWORD_INPUT
     )
-    , action='/login', classes={'login-form'}, submit=SubmitButton(value='Login')
+    , action='/' + login_prefix, classes={'login-form'}, submit=SubmitButton(value='Login')
 )
 
 LOGIN_COMMON = FormElement(
     ContainerElement(
         *USERNAME_INPUT + PASSWORD_INPUT
     )
-    , action='/login', classes={'login-form'}, submit=SubmitButton(value='Login')
+    , action='/' + login_prefix, classes={'login-form'}, submit=SubmitButton(value='Login')
 )
 
 
@@ -47,12 +58,6 @@ class LoginHandler(ContentHandler, RedirectMixIn):
             self.redirect('/iris/1')
         self.message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
 
-    def get_page_information(self):
-        ops = database_operations.Pages()
-        (content_type, title) = ops.get_page_information(self._url.page_type, self._url.page_id)
-        theme = ops.get_theme(content_type=content_type)
-        return title, content_type, theme
-
 
 class LoginCommonHandler(CommonsHandler):
 
@@ -63,4 +68,17 @@ class LoginCommonHandler(CommonsHandler):
 
 
 class LogoutHandler(ContentHandler, RedirectMixIn):
-    pass
+    def process_content(self):
+        pass
+
+    def logout(self):
+        user = self._parent.client_info.user
+        if user == ANONYMOUS:
+            self.redirect('/login')
+        else:
+            session.close_session(user)
+            morsel = Morsel()
+            morsel.set('SESS', '', '')
+            morsel['expires'] = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+            self.add_morsel(morsel)
+            self.redirect('/login')

@@ -65,6 +65,7 @@ a.button.continue {
 	padding: 20px;
 }
 .common {
+	overflow: hidden;
 }
 td {
     padding: 2px 5px;
