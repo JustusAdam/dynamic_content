@@ -11,8 +11,8 @@ role = 'user_management'
 login_prefix = 'login'
 
 
-def content_handler(url):
-    return LoginHandler(url)
+def content_handler(url, parent_handler):
+    return LoginHandler(url, parent_handler)
 
 
 def prepare():

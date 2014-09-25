@@ -114,9 +114,7 @@ class BasicPageHandler(PageHandler):
 
     @property
     def compiled(self):
-
-        page = self.content_handler.compiled
-        theme_handler = self.get_theme_handler(page)
+        theme_handler = self.get_theme_handler(self.content_handler)
         document = theme_handler.compiled
         return document
 

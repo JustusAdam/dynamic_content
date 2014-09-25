@@ -1,6 +1,7 @@
-from .commons import CommonsHandler, TextCommonsHandler
+from .commons import TextCommonsHandler
 from . import database_operations as dbo
 from coremodules.commons_engine.menus import MenuHandler
+from framework.base_handlers import CommonsHandler
 
 __author__ = 'justusadam'
 

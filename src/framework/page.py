@@ -62,4 +62,3 @@ class Page(Component):
         super().__init__(title, content, stylesheets, metatags, scripts)
         self._url = url
         self.show_title = show_title
-        self.used_theme = 'active'

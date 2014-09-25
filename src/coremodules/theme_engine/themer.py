@@ -10,37 +10,36 @@ __author__ = 'justusadam'
 
 class ThemeHandler:
 
-    def __init__(self, page):
+    def __init__(self, content_handler):
+        self.content_handler = content_handler
         self._pattern = {}
-        self.page = page
         self.module_config = read_config(self.get_my_folder() + '/config.json')
-        self.used_theme = self.get_used_theme()
-        self.theme_path = self.get_theme_path()
+        self.theme_path = self.get_theme_path(self.get_used_theme(content_handler))
         self.theme_config = read_config(self.theme_path + '/config.json')
 
-    def get_used_theme(self):
-        if self.page.used_theme == 'active':
+    def get_used_theme(self, handler):
+        if handler.theme == 'active':
             return self.module_config['active_theme']
-        elif self.page.used_theme == 'default':
+        elif handler.theme == 'default':
             return self.module_config['default_theme']
         else:
-            return self.page.used_theme
+            return handler.theme
 
-    def get_theme_path(self):
-        return 'themes/' + self.used_theme
+    def get_theme_path(self, theme):
+        return 'themes/' + theme
 
     def get_my_folder(self):
         return str(Path(__file__).parent)
 
-    def compile_stylesheets(self):
-        s = list(str(a) for a in self.page.stylesheets)
+    def compile_stylesheets(self, page):
+        s = list(str(a) for a in page.stylesheets)
         if 'stylesheets' in self.theme_config:
 
             s += list(str(Stylesheet('/theme/' + self.module_config['active_theme'] + '/' + self.theme_config['stylesheet_directory'] + '/' + a)) for a in self.theme_config['stylesheets'])
         return ''.join(s)
 
-    def compile_scripts(self):
-        s = list(str(a) for a in self.page.scripts)
+    def compile_scripts(self, page):
+        s = list(str(a) for a in page.scripts)
         if 'scripts' in self.theme_config:
             s += list(str(Script(self.module_config['active_theme_path'] + '/' + self.theme_config['script_directory'] + '/' + a)) for a in self.theme_config['scripts'])
         return ''.join(s)
@@ -53,29 +52,31 @@ class ThemeHandler:
             path += '/' + 'templates'
         return path + '/'
 
-    def compile_meta(self):
+    def compile_meta(self, theme):
         if 'favicon' in self.theme_config:
             favicon = self.theme_config['favicon']
         else:
             favicon = 'favicon.icon'
-        return LinkElement('/theme/' + self.used_theme + '/' + favicon, rel='shortcut icon', element_type='image/png')
+        return LinkElement('/theme/' + theme + '/' + favicon, rel='shortcut icon', element_type='image/png')
 
     @property
-    def regions(self):
+    def regions(self, theme):
         config = self.theme_config['regions']
         r = []
         for region in config:
-            r.append(RegionHandler(region, config[region] , self.used_theme))
+            r.append(RegionHandler(region, config[region], theme))
         return r
 
     @property
     def compiled(self):
-        self._pattern['scripts'] = self.compile_scripts()
-        self._pattern['stylesheets'] = self.compile_stylesheets()
-        self._pattern['meta'] = self.compile_meta()
+        page = self.content_handler.compiled
+        theme = self.get_used_theme(page)
+        self._pattern['scripts'] = self.compile_scripts(page)
+        self._pattern['stylesheets'] = self.compile_stylesheets(page)
+        self._pattern['meta'] = self.compile_meta(theme)
         self._pattern['header'] = ''
-        self._pattern['title'] = self.page.title
-        self._pattern['content'] = str(self.page.content)
+        self._pattern['title'] = page.title
+        self._pattern['content'] = str(page.content)
         self._pattern['pagetitle'] = ContainerElement('msaw - my super awesome website', html_type='a', additionals='href="/"')
         for region in self.regions:
             self._pattern[region.name] = str(region.compiled)
