@@ -1,32 +1,28 @@
-from pathlib import Path
 from urllib.error import HTTPError
+
 from core import Modules, database_operations
 from core.database_operations import DBOperationError
 from coremodules.theme_engine.regions import RegionHandler
-from coremodules.theme_engine.template import Template
-from framework.base_handlers import PageHandler
+from core.base_handlers import PageHandler, TemplateBasedContentHandler
 from framework.config_tools import read_config
 from framework.html_elements import Stylesheet, Script, LinkElement, ContainerElement
+
 
 __author__ = 'justusadam'
 
 
-class ContentHandler:
-    @property
-    def compiled(self):
-        return ''
+class BasicPageHandler(PageHandler, TemplateBasedContentHandler):
 
-
-class TemplateBasedContentHandler(ContentHandler):
+    _theme = None
     
-    _theme = 'active'
+    template_name = 'page'
     
-    template_name = None
-    
-    def __init__(self):
-        self._template = Template(self.get_template_path())
+    def __init__(self, url, client_info):
+        self.modules = Modules()
+        self.content_handler = self.get_content_handler(url)
         self.module_config = read_config(self.get_config_folder() + '/config.json')
         self.theme_config = read_config(self.theme_path + '/config.json')
+        super().__init__(url, client_info)
 
     def get_template_path(self):
         path = self.module_config['active_theme_path']
@@ -36,52 +32,18 @@ class TemplateBasedContentHandler(ContentHandler):
             path += '/' + 'templates'
         return path + '/' + self.template_name + '.html'
 
-    def get_my_folder(self):
-        return str(Path(__file__).parent)
-    
-    def get_config_folder(self):
-        return self.get_my_folder()
-
-    @property
-    def theme(self):
-        return self._theme
-
-    @property
-    def theme_path(self):
-        return 'themes/' + self.theme
-
-    @property
-    def compiled(self):
-        self.fill_template()
-        return str(self._template)
-    
-    def fill_template(self):
-        pass
-    
-
-class BasicPageHandler(PageHandler, TemplateBasedContentHandler):
-    
-    _theme = None
-    
-    template_name = 'page'
-    
-    def __init__(self, url, client_info):
-        self.modules = Modules()
-        self.content_handler = self.get_content_handler()
-        super().__init__(url, client_info)
-        
     @property
     def theme(self):
         if not self._theme:
             self._theme = self.get_used_theme(self.content_handler)
         return self._theme
 
-    def get_content_handler(self):
-        return self.get_content_handler_class()(self._url, self)
+    def get_content_handler(self, url):
+        return self.get_content_handler_class(url)(url, self)
 
-    def get_content_handler_class(self):
+    def get_content_handler_class(self, url):
         try:
-            handler_module = database_operations.ContentHandlers().get_by_prefix(self._url.page_type)
+            handler_module = database_operations.ContentHandlers().get_by_prefix(url.page_type)
         except DBOperationError as error:
             print(error)
             raise HTTPError(self._url, 404, None, None, None)

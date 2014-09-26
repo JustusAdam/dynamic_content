@@ -8,23 +8,35 @@ What remains are base classes that may be altered in the future but currently on
 Eventually basic functions that the core demands these classes to implement may be added as empty functions
 """
 from http import cookies
+from pathlib import Path
 import sys
 from urllib.error import HTTPError
 
 from core import Modules
-from coremodules.theme_engine.content_handler import ContentHandler, TemplateBasedContentHandler
+from core.cli_info import ClientInformation
+from coremodules.theme_engine.template import Template
 from framework.html_elements import ContainerElement
-from framework.page import Component
+from framework.page import Component, Page
 from framework.url_tools import Url
-from .cli_info import ClientInformation
 
 
 __author__ = 'justusadam'
 
 
+class ContentHandler:
+
+    @property
+    def compiled(self):
+        return ''
+
+    def __str__(self):
+        return str(self.compiled)
+
+
 class ObjectHandler(ContentHandler):
 
     def __init__(self, url):
+        super().__init__()
         assert isinstance(url, Url)
         self._url = url
         self._headers = set()
@@ -75,7 +87,7 @@ class PageHandler(ObjectHandler):
 
     @property
     def encoded(self):
-        return self.compiled.encode(self.encoding)
+        return str(self.compiled).encode(self.encoding)
 
     @property
     def client_info(self):
@@ -86,16 +98,54 @@ class FieldHandler(ContentHandler):
     pass
 
 
+class TemplateBasedContentHandler(ContentHandler):
+
+    _theme = 'default_theme'
+
+    template_name = None
+
+    def __init__(self):
+        super().__init__()
+        self._template = Template(self.get_template_path())
+
+    def get_template_path(self):
+        pass
+
+    def get_my_folder(self):
+        return str(Path(sys.modules[self.__class__.__module__].__file__).parent)
+
+    def get_config_folder(self):
+        return self.get_my_folder()
+
+    @property
+    def theme(self):
+        return self._theme
+
+    @property
+    def theme_path(self):
+        return 'themes/' + self.theme
+
+    @property
+    def compiled(self):
+        self.fill_template()
+        page = Component(str(self._template))
+        return page
+
+    def fill_template(self):
+        pass
+
+
 class PageContentHandler(ObjectHandler, TemplateBasedContentHandler):
 
     theme = 'active'
 
-    page_title = 'Dynamic Page'
-
     template_name = 'content'
+
+    page_title = 'Dynamic Page'
 
     def __init__(self, url, parent_handler):
         super().__init__(url)
+        TemplateBasedContentHandler.__init__(self)
         self._parent = parent_handler
 
     @property
@@ -107,6 +157,9 @@ class PageContentHandler(ObjectHandler, TemplateBasedContentHandler):
             self.process_url_query()
         if self.is_post():
             self.process_post_query()
+
+    def get_template_path(self):
+        return 'themes/default_theme/template/' + self.template_name + '.html'
 
     def process_content(self):
         pass
@@ -177,5 +230,5 @@ class CommonsHandler:
 
     @property
     def compiled(self):
-        obj = Component(self.name, self.wrap_content(self.get_content(self.name)))
+        obj = Component(self.wrap_content(self.get_content(self.name)))
         return obj

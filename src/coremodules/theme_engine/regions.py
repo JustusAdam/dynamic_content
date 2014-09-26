@@ -1,6 +1,6 @@
 from . import database_operations
 from core.modules import Modules
-from framework.base_handlers import CommonsHandler
+from core.base_handlers import CommonsHandler
 from framework.html_elements import ContainerElement
 from framework.page import Component
 
@@ -67,7 +67,7 @@ class RegionHandler:
         else:
             content = ''
 
-        return Component(self.name, content, stylesheets=stylesheets, metatags=meta, scripts=scripts)
+        return Component(content, stylesheets=stylesheets, metatags=meta, scripts=scripts)
 
 
 class Common:

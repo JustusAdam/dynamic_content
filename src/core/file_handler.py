@@ -6,7 +6,7 @@ own page handlers.
 from pathlib import Path
 from urllib.error import HTTPError
 
-from framework.base_handlers import PageHandler
+from core.base_handlers import PageHandler
 from includes import bootstrap
 from includes import log
 

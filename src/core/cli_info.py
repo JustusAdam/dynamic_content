@@ -10,8 +10,6 @@ UNKNOWN = -2
 ANONYMOUS = -1
 
 
-
-
 class ClientInformation:
 
     def __init__(self, headers):

@@ -1,6 +1,6 @@
 from urllib import parse
 
-from framework.base_handlers import PageContentHandler, RedirectMixIn
+from core.base_handlers import PageContentHandler, RedirectMixIn
 from core.modules import Modules
 from framework.page import Page
 from framework.html_elements import FormElement, TableElement, Input, Label, ContainerElement
@@ -67,9 +67,7 @@ class FieldBasedPageContentHandler(PageContentHandler):
         return content
 
     def process_content(self):
-        page = Page(self._url, self.page_title)
-        page.content = self.concatenate_content(self.fields)
-        return page
+        return self.concatenate_content(self.fields)
 
     def get_page_information(self):
         ops = database_operations.Pages()

@@ -1,5 +1,5 @@
 from . import database_operations
-from framework.base_handlers import CommonsHandler
+from core.base_handlers import CommonsHandler
 
 __author__ = 'justusadam'
 
