@@ -7,7 +7,7 @@ __author__ = 'justusadam'
 
 class Component:
 
-    def __init__(self,content, stylesheets=set(), metatags=set(), scripts=set()):
+    def __init__(self, content, title='', stylesheets=set(), metatags=set(), scripts=set()):
         self.content = content
         self._stylesheets = stylesheets
         self._metatags = metatags
@@ -57,7 +57,7 @@ class Component:
 
 
 class Page(Component):
-    def __init__(self, url, content='', stylesheets=set(), metatags=set(), scripts=set(), show_title=True):
-        super().__init__(content, stylesheets, metatags, scripts)
+    def __init__(self, url, content='', title='', stylesheets=set(), metatags=set(), scripts=set(), show_title=True):
+        super().__init__(content, title, stylesheets, metatags, scripts)
         self._url = url
         self.show_title = show_title

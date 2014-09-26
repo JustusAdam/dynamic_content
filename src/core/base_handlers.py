@@ -189,6 +189,12 @@ class PageContentHandler(ObjectHandler, TemplateBasedContentHandler):
         self._template['content'] = self.process_content()
         self._template['title'] = self.page_title
 
+    @property
+    def compiled(self):
+        self.fill_template()
+        page = Component(str(self._template), title=self.page_title)
+        return page
+
 
 class RedirectMixIn(ObjectHandler):
 

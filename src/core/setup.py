@@ -134,14 +134,10 @@ class SetupHandler(TemplateBasedPageHandler):
         }
         generic = {
             'stylesheets': str(Stylesheet('/theme/default_theme/css/style.css')),
-            'scripts': '',
-            'header': '',
             'sidebar_left': '<div class="sidebar" style="height: 1px;"></div>',
-            'sidebar_right': '',
             'footer': str(ContainerElement('_jaide CMS - &copy; Justus Adam 2014', element_id='powered_by')),
             'pagetitle': 'Setting up your CMS installation',
-            'meta': str(LinkElement('/theme/default_theme/favicon.png', 'shortcut icon', element_type='image/png')),
-            'navigation': ''
+            'meta': str(LinkElement('/theme/default_theme/favicon.png', 'shortcut icon', element_type='image/png'))
         }
         self._template.update(setup_pages[self._url.page_id])
 
