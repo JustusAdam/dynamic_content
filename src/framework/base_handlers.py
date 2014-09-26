@@ -12,6 +12,7 @@ import sys
 from urllib.error import HTTPError
 
 from core import Modules
+from coremodules.theme_engine.content_handler import ContentHandler, TemplateBasedContentHandler
 from framework.html_elements import ContainerElement
 from framework.page import Component
 from framework.url_tools import Url
@@ -21,7 +22,7 @@ from .cli_info import ClientInformation
 __author__ = 'justusadam'
 
 
-class ObjectHandler:
+class ObjectHandler(ContentHandler):
 
     def __init__(self, url):
         assert isinstance(url, Url)
@@ -49,10 +50,6 @@ class ObjectHandler:
         if not self._cookies:
             self._cookies = cookies.SimpleCookie()
         return self._cookies
-
-    @property
-    def compiled(self):
-        return ''
 
     @property
     def headers(self):
@@ -85,20 +82,20 @@ class PageHandler(ObjectHandler):
         return self._client_info
 
 
-class FieldHandler:
-
-    @property
-    def compiled(self):
-        return ''
+class FieldHandler(ContentHandler):
+    pass
 
 
-class ContentHandler(ObjectHandler):
+class PageContentHandler(ObjectHandler, TemplateBasedContentHandler):
 
     theme = 'active'
 
+    page_title = 'Dynamic Page'
+
+    template_name = 'content'
+
     def __init__(self, url, parent_handler):
         super().__init__(url)
-        assert isinstance(parent_handler, ObjectHandler)
         self._parent = parent_handler
 
     @property
@@ -126,10 +123,10 @@ class ContentHandler(ObjectHandler):
     def process_post_query(self):
         pass
 
-    @property
-    def compiled(self):
+    def fill_template(self):
         self.process_queries()
-        return self.process_content()
+        self._template['content'] = self.process_content()
+        self._template['title'] = self.page_title
 
 
 class RedirectMixIn(ObjectHandler):

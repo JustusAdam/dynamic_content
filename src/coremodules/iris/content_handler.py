@@ -1,7 +1,6 @@
 from urllib import parse
-from coremodules.iris import database_operations
 
-from framework.base_handlers import ContentHandler, RedirectMixIn
+from framework.base_handlers import PageContentHandler, RedirectMixIn
 from core.modules import Modules
 from framework.page import Page
 from framework.html_elements import FormElement, TableElement, Input, Label, ContainerElement
@@ -13,14 +12,14 @@ from core.database_operations import ContentTypes, DBOperationError
 __author__ = 'justusadam'
 
 
-class FieldBasedContentHandler(ContentHandler):
+class FieldBasedPageContentHandler(PageContentHandler):
 
     modifier = 'show'
 
     def __init__(self, url, parent_handler):
         super().__init__(url, parent_handler)
         self.modules = Modules()
-        (self.page_title, self.content_type, self.theme) = self.get_page_information()
+        (self.page_title, self.content_type, self._theme) = self.get_page_information()
         self.fields = self.get_fields()
 
     def get_fields(self):
@@ -79,7 +78,7 @@ class FieldBasedContentHandler(ContentHandler):
         return title, content_type, theme
 
 
-class EditFieldBasedContentHandler(FieldBasedContentHandler, RedirectMixIn):
+class EditFieldBasedContentHandler(FieldBasedPageContentHandler, RedirectMixIn):
 
     modifier = 'edit'
 

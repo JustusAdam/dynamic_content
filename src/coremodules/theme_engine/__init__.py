@@ -6,10 +6,6 @@ name = 'theme_engine'
 
 role = 'theme_engine'
 
-from .themer import ThemeHandler
-
-theme_handler = ThemeHandler
-
 
 def prepare():
     ro = dbo.RegionOperations()

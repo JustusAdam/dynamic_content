@@ -1,4 +1,4 @@
-from .content_handler import FieldBasedContentHandler, EditFieldBasedContentHandler, AddFieldBasedContentHandler
+from .content_handler import FieldBasedPageContentHandler, EditFieldBasedContentHandler, AddFieldBasedContentHandler
 from .field_handler import BaseFieldHandler, EditBaseFieldHandler, AddBaseFieldHandler
 from . import database_operations as dbo
 
@@ -17,7 +17,7 @@ path_prefix = 'iris'
 def content_handler(url, parent_handler):
     handlers = {
         'edit': EditFieldBasedContentHandler,
-        'show': FieldBasedContentHandler,
+        'show': FieldBasedPageContentHandler,
         'add': AddFieldBasedContentHandler
     }
     return handlers[url.page_modifier](url, parent_handler)

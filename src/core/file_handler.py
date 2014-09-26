@@ -4,13 +4,10 @@ own page handlers.
 """
 
 from pathlib import Path
-
-from core import database_operations
-from core.database_operations import DBOperationError
-from framework.base_handlers import PageHandler
-from core.modules import Modules
-from includes import bootstrap
 from urllib.error import HTTPError
+
+from framework.base_handlers import PageHandler
+from includes import bootstrap
 from includes import log
 
 
@@ -84,44 +81,3 @@ class FileHandler(PageHandler):
                     self.content_type, self.encoding = FILETYPES[suffix]
             return filepath.open('rb').read()
         raise FileNotFoundError
-
-
-class BasicPageHandler(PageHandler):
-    def __init__(self, url, client_info):
-        super().__init__(url, client_info)
-        self.modules = Modules()
-        self.content_handler = self.get_content_handler()
-
-    def get_content_handler(self):
-        return self.get_content_handler_class()(self._url, self)
-
-    def get_content_handler_class(self):
-        try:
-            handler_module = database_operations.ContentHandlers().get_by_prefix(self._url.page_type)
-        except DBOperationError as error:
-            print(error)
-            raise HTTPError(self._url, 404, None, None, None)
-
-        handler = self.modules[handler_module].content_handler
-        return handler
-
-    def get_theme_handler_class(self):
-        return self.modules['theme_engine'].theme_handler
-
-    def get_theme_handler(self, content_handler, client_info):
-        return self.get_theme_handler_class()(content_handler, client_info)
-
-
-    @property
-    def compiled(self):
-        theme_handler = self.get_theme_handler(self.content_handler, self.client_info)
-        document = theme_handler.compiled
-        return document
-
-    @property
-    def headers(self):
-        headers = super().headers
-        if self.content_handler.headers:
-            for header in self.content_handler.headers:
-                headers.add(header)
-        return headers

@@ -1,5 +1,5 @@
 from framework.html_elements import FormElement, TableElement, ContainerElement, Label, Input, SubmitButton
-from framework.base_handlers import ContentHandler, RedirectMixIn, CommonsHandler
+from framework.base_handlers import PageContentHandler, RedirectMixIn, CommonsHandler
 from framework.page import Page
 from framework.cli_info import ANONYMOUS
 import datetime
@@ -39,7 +39,7 @@ LOGIN_COMMON = FormElement(
 )
 
 
-class LoginHandler(ContentHandler, RedirectMixIn):
+class LoginHandler(PageContentHandler, RedirectMixIn):
     def __init__(self, url, parent_handler):
         super().__init__(url, parent_handler)
         self.message = ''
@@ -67,7 +67,7 @@ class LoginCommonHandler(CommonsHandler):
         return LOGIN_COMMON
 
 
-class LogoutHandler(ContentHandler, RedirectMixIn):
+class LogoutHandler(PageContentHandler, RedirectMixIn):
     def process_content(self):
         self.logout()
 

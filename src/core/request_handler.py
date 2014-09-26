@@ -14,8 +14,9 @@ import traceback
 
 from core import database_operations
 from core.database import DatabaseError, Database
+from coremodules.theme_engine.content_handler import BasicPageHandler
 from includes import bootstrap
-from .page_handlers import FileHandler, BasicPageHandler
+from .file_handler import FileHandler
 from framework.url_tools import Url
 from framework.config_tools import read_config
 from .cli_info import ClientInfoImpl
