@@ -19,6 +19,7 @@ from .page_handlers import FileHandler, BasicPageHandler
 from framework.url_tools import Url
 from framework.config_tools import read_config
 from .cli_info import ClientInfoImpl
+from framework.cli_info import ClientInformation
 from includes import log
 import copy
 
@@ -126,7 +127,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         if url.page_type == 'setup':
 
-            return self.start_setup(url, client_info)
+            return self.start_setup(url, ClientInformation(self.headers))
         elif url.page_type in bootstrap.FILE_DIRECTORIES.keys():
             return FileHandler(url, client_info)
         try:
