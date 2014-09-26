@@ -21,7 +21,7 @@ Currently there is no documentation and few comments and docstrings and it is by
 * Finish basic features
     * common elements (menus/blocks) &#x2713;
     * text content &#x2713;
-    * authentication &#x2717;
+    * authentication &#x2713;
     * file access &#x2713;
     * theme based styling &#x2713;
     * configuration and editing via web interface &#x2717; 
