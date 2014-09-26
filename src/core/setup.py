@@ -5,8 +5,9 @@ Currently uses the framework to dynamically create elements, once the basic site
 and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
 """
 from core import Modules
+from coremodules.user_management import users
 
-from core.base_handlers import TemplateBasedPageHandler
+from core.base_handlers import TemplateBasedPageHandler, RedirectMixIn
 from .database import DatabaseError, Database
 from . import module_operations
 from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, FormElement, Input, LinkElement
@@ -35,7 +36,7 @@ def try_database_connection():
             'reload this page', html_type='p')
 
 
-class SetupHandler(TemplateBasedPageHandler):
+class SetupHandler(TemplateBasedPageHandler, RedirectMixIn):
 
     def __init__(self, url, client_info):
         super().__init__(url, client_info)
@@ -118,15 +119,15 @@ class SetupHandler(TemplateBasedPageHandler):
                 'title': 'Create an admin account',
                 'content': str(
                     ContainerElement(
-                        ContainerElement(
-                            'This page is a placeholder since the authorization is not yet implemented. Please click submit.', classes='alert'),
+                        '{message}',
                         FormElement(
                             TableElement(
-                                ('Name', Input(name='name')),
-                                ('Firstname', Input(name='firstname')),
+                                ('Name', Input(name='last_name')),
+                                ('Firstname (optional)', Input(name='first_name')),
+                                ('Middle Name (optional)', Input(name='middle_name')),
                                 ('Username', Input(name='username')),
-                                ('Password', Input(name='password')),
-                                ('Confirm Password', Input(name='confirm-password'))
+                                ('Password', Input(name='password', input_type='password')),
+                                ('Confirm Password', Input(name='confirm-password', input_type='password'))
                             ), action='{this}?destination=/welcome', element_id='admin_form')
                     )
                 )
@@ -142,15 +143,23 @@ class SetupHandler(TemplateBasedPageHandler):
         self._template.update(setup_pages[self._url.page_id])
 
         self._template.update(generic)
-
+        message = ''
         if self._url.page_id == 4:
             setup_result = self.setup_wrapper()
             self._template['content'] = self._template['content'].format(**setup_result)
             self._template['title'] = self._template['title'].format(**setup_result)
         elif self._url.page_id == 5 and self.is_post():
-            config['setup'] = False
-            write_config(config, 'config.json')
-        self._template['content'] = self._template['content'].format(this=self._url.path, next_page=self._url.page_id + 1)
+            if self._url.post_query['confirm-password'] == self._url.post_query['password']:
+                args = dict()
+                for key in ['username', 'password', 'last_name', 'first_name', 'middle_name']:
+                    if key in self._url.post_query:
+                        args[key] = self._url.post_query[key][0]
+                users.add_user(**args)
+                config['setup'] = False
+                write_config(config, 'config.json')
+                self.redirect('/iris/1')
+            message = ContainerElement('Your passwords did not match.', classes='alert')
+        self._template['content'] = self._template['content'].format(this=self._url.path, next_page=self._url.page_id + 1, message=message)
 
     def is_post(self):
         return bool(self._url.post_query)

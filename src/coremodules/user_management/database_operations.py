@@ -58,6 +58,7 @@ class UserOperations(Operations):
         pairing = {'username': username, 'access_group': access_group, 'user_first_name': first_name, 'user_middle_name': middle_name, 'user_last_name': last_name, 'date_created': datetime.datetime.utcnow()}
         self.db.insert('cms_users', pairing)
         self.add_user_auth(username, password)
+        self.db.commit()
 
     def add_user_auth(self, username, password):
         hashed, salt = hash_and_new_salt(password)
