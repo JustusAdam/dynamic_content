@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 from pymysql import DatabaseError
+from core.database_operations import DBOperationError
 
 from framework.config_tools import read_config
 import core
@@ -23,7 +24,7 @@ def main():
         core.register_installed_modules()
         global modules
         modules = core.load_modules()
-    except DatabaseError as error:
+    except DBOperationError as error:
         print('Failed to register installed modules, continuing.')
         print(error)
 

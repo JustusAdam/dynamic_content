@@ -13,11 +13,10 @@ import sys
 from urllib.error import HTTPError
 
 from core import Modules
-from core.cli_info import ClientInformation
 from coremodules.theme_engine.template import Template
 from framework.config_tools import read_config
 from framework.html_elements import ContainerElement
-from framework.page import Component, Page
+from framework.page import Component
 from framework.url_tools import Url
 
 
@@ -80,7 +79,6 @@ class PageHandler(ObjectHandler):
 
     def __init__(self, url, client_info):
         super().__init__(url)
-        assert isinstance(client_info, ClientInformation)
         self._client_info = client_info
         self.page_type = None
         self.content_type = 'text/html'
@@ -102,13 +100,22 @@ class FieldHandler(ContentHandler):
 class TemplateBasedContentHandler(ContentHandler):
 
     _theme = 'default_theme'
-
     template_name = None
+    _theme_config = None
+    _template = None
 
-    def __init__(self):
-        super().__init__()
-        self.theme_config = read_config(self.theme_path + '/config.json')
-        self._template = Template(self.get_template_path())
+
+    @property
+    def theme_config(self):
+        if not self.theme_config:
+            self._theme_config = read_config(self.theme_path + '/config.json')
+        return self._theme_config
+
+    @property
+    def template(self):
+        if not self._template:
+            self._template = Template(self.get_template_path())
+        return self._template
 
     def get_template_path(self):
         path = self.theme_path

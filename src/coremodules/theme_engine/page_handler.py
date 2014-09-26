@@ -18,16 +18,11 @@ class BasicPageHandler(TemplateBasedPageHandler):
     template_name = 'page'
     
     def __init__(self, url, client_info):
+        super().__init__(url, client_info)
         self.modules = Modules()
         self.content_handler = self.get_content_handler(url)
         self.module_config = read_config(self.get_config_folder() + '/config.json')
-        super().__init__(url, client_info)
-
-    @property
-    def theme(self):
-        if not self._theme:
-            self._theme = self.get_used_theme(self.content_handler)
-        return self._theme
+        self._theme = self.get_used_theme(self.content_handler)
 
     def get_content_handler(self, url):
         return self.get_content_handler_class(url)(url, self)
