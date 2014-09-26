@@ -89,14 +89,13 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response(error.code)
             if page_handler:
                 if page_handler.headers:
-                    self.process_headers(page_handler.headers)
+                    self.process_headers(*page_handler.headers)
             if error.headers:
-                for header in error.headers:
-                    self.send_header(*header)
+                self.process_headers(*error.headers)
         self.end_headers()
         return 0
 
-    def process_headers(self, headers):
+    def process_headers(self, *headers):
         for header in headers:
             self.send_header(*header)
 
@@ -108,7 +107,8 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "{content_type}; charset={encoding}".format(
             content_type=page_handler.content_type, encoding=page_handler.encoding))
         self.send_header("Content-Length", str(len(document)))
-        self.process_headers(headers)
+        if headers:
+            self.process_headers(*headers)
         if not bootstrap.BROWSER_CACHING:
             self.send_header('Cache-Control', 'no-cache')
         self.end_headers()
@@ -125,7 +125,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         if url.path.trailing_slash:
             new_dest = copy.copy(url)
             new_dest.path.trailing_slash = False
-            raise HTTPError(str(url), 301, 'Indexing is prohibited on this server', ("Location", str(new_dest)), None)
+            raise HTTPError(str(url), 301, 'Indexing is prohibited on this server', [("Location", str(new_dest))], None)
 
     def get_handler(self, url, client_info):
 
