@@ -12,6 +12,7 @@ class Component:
         self._stylesheets = stylesheets
         self._metatags = metatags
         self._scripts = scripts
+        self.title = title
 
     @property
     def stylesheets(self):

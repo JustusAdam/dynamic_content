@@ -94,6 +94,7 @@ class BasicPageHandler(TemplateBasedPageHandler):
 
     def fill_template(self):
         page = self.content_handler.compiled
+        self._template['title'] = page.title
         self._template['scripts'] = self.compile_scripts(page)
         self._template['stylesheets'] = self.compile_stylesheets(page)
         self._template['meta'] = self.compile_meta(self.theme)
