@@ -9,7 +9,6 @@ __author__ = 'justusadam'
 
 
 DEFAULT_MODULES = [
-    'admin_pages',
     'theme_engine',
     'iris',
     'commons_engine',

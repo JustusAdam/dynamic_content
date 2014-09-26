@@ -118,8 +118,6 @@ class SetupHandler(TemplateBasedPageHandler):
                 'title': 'Create an admin account',
                 'content': str(
                     ContainerElement(
-                        ContainerElement(
-                            'This page is a placeholder since the authorization is not yet implemented. Please click submit.', classes='alert'),
                         FormElement(
                             TableElement(
                                 ('Name', Input(name='name')),
@@ -154,6 +152,8 @@ class SetupHandler(TemplateBasedPageHandler):
     def is_post(self):
         return bool(self._url.post_query)
 
+
+
     def setup(self):
 
         core_config = read_config('core/config')
@@ -165,19 +165,19 @@ class SetupHandler(TemplateBasedPageHandler):
                     # HACK dropping core tables separately
                     module_operations.drop_module_tables(core_config)
 
-                    moduleconf = module_operations.discover_modules()
-                    for module in moduleconf:
-                        if module['name'] in bootstrap.DEFAULT_MODULES:
-                            module_operations.drop_module_tables(module)
                 except DatabaseError as error:
                     print('Database Error in setup: ' + str(error.args))
         try:
             # HACK separately registering and activating core
-            module_operations._activate_module(core_config)
+            module_operations._activate_module(core_config, True, True)
 
             module_operations.register_installed_modules()
             for module in bootstrap.DEFAULT_MODULES:
-                if not module_operations.activate_module(module):
+                if not module_operations.activate_module(module, True, False):
+                    print('Could not activate module ' + module)
+                    return False
+            for module in bootstrap.DEFAULT_MODULES:
+                if not module_operations.activate_module(module, False, True):
                     print('Could not activate module ' + module)
                     return False
             Modules().reload()

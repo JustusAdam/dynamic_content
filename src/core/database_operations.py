@@ -71,8 +71,9 @@ class Operations:
             except:
                 print('Could not drop table ' + table)
 
-    def init_tables(self):
-        self.drop_all_tables()
+    def init_tables(self, drop_tables=True):
+        if drop_tables:
+            self.drop_all_tables()
         self.create_all_tables()
         self.fill_tables()
 

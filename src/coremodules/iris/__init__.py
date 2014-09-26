@@ -4,6 +4,8 @@ from . import database_operations as dbo
 
 from core.database_operations import ContentHandlers, ContentTypes
 
+from core import InitMod
+
 __author__ = 'justusadam'
 
 
@@ -32,19 +34,22 @@ def field_handler(field_name, prefix, page_id, modifier):
     return handlers[modifier](prefix, page_id, field_name)
 
 
-def prepare():
-    ct = dbo.Pages()
-    ct.init_tables()
-    f = dbo.Fields()
-    f.init_tables()
-    conf = ct.config
+class InitIris(InitMod):
+    operations = {
+        'ct': dbo.Pages,
+        'field': dbo.Fields
+    }
 
-    ContentHandlers().add_new('iris', name, path_prefix)
-    ContentTypes().add('article', 'Simple Article', 'iris', 'active')
-    f.add_field_type('body', 'Body', 'article', 'iris')
+    def fill_tables(self, ops):
+        conf = ops['ct'].config
+        ContentHandlers().add_new('iris', name, path_prefix)
+        ContentTypes().add('article', 'Simple Article', 'iris', 'active')
+        ops['field'].add_field_type('body', 'Body', 'article', 'iris')
+        page_id = ops['ct'].add_page(**{k:conf['startpage'][k] for k in ['content_type', 'creator', 'page_title', 'published', 'page_type']})
+        ops['field'].add_field(table='body', page_id=page_id, path_prefix=conf['startpage']['page_type'], content=conf['startpage']['body'])
 
-    page_id = ct.add_page(**{k:conf['startpage'][k] for k in ['content_type', 'creator', 'page_title', 'published', 'page_type']})
-    f.add_field(table='body', page_id=page_id, path_prefix=conf['startpage']['page_type'], content=conf['startpage']['body'])
+        page_id = ops['ct'].add_page('iris', 'article', 'Wuhuuu', 1, True)
+        ops['field'].add_field('body', 'iris', page_id, '<p>More content is good</p><iframe src="http://www.xkcd.com" height="840px" width="600px" seamless></iframe>')
 
-    page_id = ct.add_page('iris', 'article', 'Wuhuuu', 1, True)
-    f.add_field('body', 'iris', page_id, '<p>More content is good</p><iframe src="http://www.xkcd.com" height="840px" width="600px" seamless></iframe>')
+
+init_class = InitIris

@@ -25,7 +25,7 @@ class ModuleNotFoundError(ModuleError):
         return 'ModuleNotFoundError, module ' + self.module_name + ' could not be found in the Database'
 
 
-def activate_module(module_name):
+def activate_module(module_name, drop_tables=False, fill_tables=True):
     print('Activating module: ' + module_name)
     if is_active(module_name):
         print('Module ' + module_name + ' is already active.')
@@ -38,13 +38,13 @@ def activate_module(module_name):
     module_conf = read_config(path + '/config.json')
     module_conf['path'] = path
 
-    return _activate_module(module_conf)
+    return _activate_module(module_conf, drop_tables, fill_tables)
 
 
-def _activate_module(module_conf):
+def _activate_module(module_conf, drop_tables, fill_tables):
 
     try:
-        init_module(module_conf['path'])
+        init_module(module_conf['path'], drop_tables, fill_tables)
     except DatabaseError as error:
         print(error)
         return False
@@ -70,10 +70,11 @@ def get_module_id(module_name):
     return database_operations.ModuleOperations().get_id(module_name)
 
 
-def init_module(module_path):
+def init_module(module_path, drop_tables, fill_tables):
     module = import_module(module_path.replace('/', '.'))
     try:
-        module.prepare()
+        init_class = module.init_class()
+        init_class.execute(drop_tables, fill_tables)
     except ModuleError as error:
         print(error)
         print('it seems no prepare() method could be found')

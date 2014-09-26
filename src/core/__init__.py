@@ -17,10 +17,32 @@ def load_modules():
     return m
 
 
-def prepare():
-    dbo.ContentHandlers().init_tables()
-    a = dbo.Alias()
-    a.init_tables()
-    a.add_alias('/iris/1', '/welcome')
-    dbo.ModuleOperations().init_tables()
-    dbo.ContentTypes().init_tables()
+class InitMod:
+
+    operations = {}
+
+    def init_ops(self):
+        return [a() for a in self.operations]
+
+    def execute(self, drop_tables=True, fill_tables=True):
+        ops = self.init_ops()
+        for op in ops:
+            op.init_tables(drop_tables)
+        if fill_tables:
+            self.fill_tables(ops)
+
+    def fill_tables(self, ops):
+        pass
+
+
+class InitCore(InitMod):
+    operations = {
+        'ch': dbo.ContentHandlers,
+        'alias': dbo.Alias
+    }
+
+    def fill_tables(self, ops):
+        ops['alias'].add_alias('/iris/1', '/welcome')
+
+
+init_class = InitCore

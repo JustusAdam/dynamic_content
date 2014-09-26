@@ -1,10 +1,7 @@
 from .database_operations import DisplayNamesOperations
+from core import InitMod
 
 __author__ = 'justusadam'
-
-
-def prepare():
-    DisplayNamesOperations().init_tables()
 
 
 Operations = DisplayNamesOperations
@@ -19,6 +16,15 @@ def edit_display_name(item, source_table, language, value):
 
 
 add_display_name = edit_display_name
+
+
+class InitInt(InitMod):
+    operations = {
+        'dis': DisplayNamesOperations
+    }
+
+
+init_class = InitInt
 
 
 def add_item(item, source_table, translations):
