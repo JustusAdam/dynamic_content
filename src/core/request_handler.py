@@ -41,6 +41,10 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_any(self, post_query=None):
         # print(self.path)
         url = Url(self.path)
+
+        if url.page_type == 'setup':
+            return self.start_setup(url, ClientInformation(self.headers))
+
         client_information = ClientInfoImpl(self.headers)
         url.post_query = post_query
         try:
@@ -124,11 +128,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             raise HTTPError(str(url), 301, 'Indexing is prohibited on this server', ("Location", str(new_dest)), None)
 
     def get_handler(self, url, client_info):
-
-        if url.page_type == 'setup':
-
-            return self.start_setup(url, ClientInformation(self.headers))
-        elif url.page_type in bootstrap.FILE_DIRECTORIES.keys():
+        if url.page_type in bootstrap.FILE_DIRECTORIES.keys():
             return FileHandler(url, client_info)
         try:
             db = Database()
