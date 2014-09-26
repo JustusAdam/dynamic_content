@@ -22,7 +22,7 @@ class InitMod:
     operations = {}
 
     def init_ops(self):
-        return [a() for a in self.operations]
+        return {a: self.operations[a]() for a in self.operations}
 
     def execute(self, drop_tables=True, fill_tables=True):
         ops = self.init_ops()
