@@ -3,7 +3,7 @@ from urllib.error import HTTPError
 from core import Modules, database_operations
 from core.database_operations import DBOperationError
 from coremodules.theme_engine.regions import RegionHandler
-from core.base_handlers import PageHandler, TemplateBasedContentHandler
+from core.base_handlers import TemplateBasedPageHandler
 from framework.config_tools import read_config
 from framework.html_elements import Stylesheet, Script, LinkElement, ContainerElement
 
@@ -11,7 +11,7 @@ from framework.html_elements import Stylesheet, Script, LinkElement, ContainerEl
 __author__ = 'justusadam'
 
 
-class BasicPageHandler(PageHandler, TemplateBasedContentHandler):
+class BasicPageHandler(TemplateBasedPageHandler):
 
     _theme = None
     
@@ -21,16 +21,7 @@ class BasicPageHandler(PageHandler, TemplateBasedContentHandler):
         self.modules = Modules()
         self.content_handler = self.get_content_handler(url)
         self.module_config = read_config(self.get_config_folder() + '/config.json')
-        self.theme_config = read_config(self.theme_path + '/config.json')
         super().__init__(url, client_info)
-
-    def get_template_path(self):
-        path = self.module_config['active_theme_path']
-        if 'template_directory' in self.theme_config:
-            path += '/' + self.theme_config['template_directory']
-        else:
-            path += '/' + 'templates'
-        return path + '/' + self.template_name + '.html'
 
     @property
     def theme(self):

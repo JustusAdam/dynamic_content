@@ -6,7 +6,7 @@ and hardened this should be refactored to remove the framework elements and stor
 """
 from core import Modules
 
-from core.base_handlers import PageHandler
+from core.base_handlers import TemplateBasedPageHandler
 from .database import DatabaseError, Database
 from . import module_operations
 from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, FormElement, Input, LinkElement
@@ -35,12 +35,12 @@ def try_database_connection():
             'reload this page', html_type='p')
 
 
-class SetupHandler(PageHandler):
+class SetupHandler(TemplateBasedPageHandler):
+
     def __init__(self, url, client_info):
         super().__init__(url, client_info)
 
-    @property
-    def compiled(self):
+    def fill_template(self):
         config = read_config('config')
         setup_pages = {
             0: {
@@ -143,21 +143,16 @@ class SetupHandler(PageHandler):
             'meta': str(LinkElement('/theme/default_theme/favicon.png', 'shortcut icon', element_type='image/png')),
             'navigation': ''
         }
-        replacement_pattern = setup_pages[self._url.page_id]
+        self._template.update(setup_pages[self._url.page_id])
 
-        replacement_pattern.update(generic)
-
-        setup_template = open('themes/default_theme/template/page.html')
-        setup_template = setup_template.read()
-        page = setup_template.format(**replacement_pattern)
+        self._template.update(generic)
 
         if self._url.page_id == 4:
-            page = page.format(**self.setup_wrapper())
+            self._template['content'] = self._template['content'].format(**self.setup_wrapper())
         elif self._url.page_id == 5 and self.is_post():
             config['setup'] = False
             write_config(config, 'config.json')
-        page = page.format(this=self._url.path, next_page=self._url.page_id + 1)
-        return page
+        self._template['content'] = self._template['content'].format(this=self._url.path, next_page=self._url.page_id + 1)
 
     def is_post(self):
         return bool(self._url.post_query)

@@ -15,6 +15,7 @@ from urllib.error import HTTPError
 from core import Modules
 from core.cli_info import ClientInformation
 from coremodules.theme_engine.template import Template
+from framework.config_tools import read_config
 from framework.html_elements import ContainerElement
 from framework.page import Component, Page
 from framework.url_tools import Url
@@ -106,10 +107,16 @@ class TemplateBasedContentHandler(ContentHandler):
 
     def __init__(self):
         super().__init__()
+        self.theme_config = read_config(self.theme_path + '/config.json')
         self._template = Template(self.get_template_path())
 
     def get_template_path(self):
-        pass
+        path = self.theme_path
+        if 'template_directory' in self.theme_config:
+            path += '/' + self.theme_config['template_directory']
+        else:
+            path += '/' + 'templates'
+        return path + '/' + self.template_name + '.html'
 
     def get_my_folder(self):
         return str(Path(sys.modules[self.__class__.__module__].__file__).parent)
@@ -135,9 +142,13 @@ class TemplateBasedContentHandler(ContentHandler):
         pass
 
 
+class TemplateBasedPageHandler(PageHandler, TemplateBasedContentHandler):
+    template_name = 'page'
+
+
 class PageContentHandler(ObjectHandler, TemplateBasedContentHandler):
 
-    theme = 'active'
+    theme = 'default_theme'
 
     template_name = 'content'
 
@@ -157,9 +168,6 @@ class PageContentHandler(ObjectHandler, TemplateBasedContentHandler):
             self.process_url_query()
         if self.is_post():
             self.process_post_query()
-
-    def get_template_path(self):
-        return 'themes/default_theme/template/' + self.template_name + '.html'
 
     def process_content(self):
         pass

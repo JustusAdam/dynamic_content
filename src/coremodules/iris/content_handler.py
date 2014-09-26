@@ -2,7 +2,6 @@ from urllib import parse
 
 from core.base_handlers import PageContentHandler, RedirectMixIn
 from core.modules import Modules
-from framework.page import Page
 from framework.html_elements import FormElement, TableElement, Input, Label, ContainerElement
 from framework.url_tools import UrlQuery
 from . import database_operations
