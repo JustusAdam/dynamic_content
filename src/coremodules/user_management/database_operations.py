@@ -55,7 +55,7 @@ class UserOperations(Operations):
         return self.cursor.fetchone()[0]
 
     def add_user(self, username, password, access_group=1, first_name='', middle_name='', last_name=''):
-        pairing = {'username': username, 'access_group': access_group, 'user_first_name': first_name, 'user_middle_name': middle_name, 'user_last_name': last_name}
+        pairing = {'username': username, 'access_group': access_group, 'user_first_name': first_name, 'user_middle_name': middle_name, 'user_last_name': last_name, 'date_created': datetime.datetime.utcnow()}
         self.db.insert('cms_users', pairing)
         self.add_user_auth(username, password)
 
