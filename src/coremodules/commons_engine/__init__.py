@@ -30,8 +30,8 @@ def prepare():
     mo.add_menu_item('setup', 'Restart Setup', '/setup', 'start_menu', True, 'welcome', 1)
     co.add_content('text', 'copyright', '<p>_jaide CMS - © Justus Adam 2014</p>')
 
-    do = DisplayNamesOperations()
+    #do = DisplayNamesOperations()
 
-    do.add_item('welcome', 'menu_items', ('english', 'Welcome'))
-    do.add_item('testpage', 'menu_items', ('english', 'XKCD'))
-    do.add_item('setup', 'menu_items', ('english', 'Restart Setup'))
+    #do.add_item('welcome', 'menu_items', ('english', 'Welcome'))
+    #do.add_item('testpage', 'menu_items', ('english', 'XKCD'))
+    #do.add_item('setup', 'menu_items', ('english', 'Restart Setup'))

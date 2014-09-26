@@ -144,8 +144,9 @@ class SetupHandler(TemplateBasedPageHandler):
         self._template.update(generic)
 
         if self._url.page_id == 4:
-            self._template['content'] = self._template['content'].format(**self.setup_wrapper())
-            self._template['title'] = self._template['content'].format(**self.setup_wrapper())
+            setup_result = self.setup_wrapper()
+            self._template['content'] = self._template['content'].format(**setup_result)
+            self._template['title'] = self._template['title'].format(**setup_result)
         elif self._url.page_id == 5 and self.is_post():
             config['setup'] = False
             write_config(config, 'config.json')
