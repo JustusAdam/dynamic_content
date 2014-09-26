@@ -44,9 +44,10 @@ class LoginHandler(PageContentHandler, RedirectMixIn):
     def __init__(self, url, parent_handler):
         super().__init__(url, parent_handler)
         self.message = ''
+        self.page_title = 'Login'
 
     def process_content(self):
-        return Page(self._url, 'Login', ContainerElement(self.message, LOGIN_FORM))
+        return ContainerElement(self.message, LOGIN_FORM)
 
     def process_post_query(self):
         if not self._url.post_query['username'] or not self._url.post_query['password']:
