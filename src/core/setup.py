@@ -36,7 +36,7 @@ def try_database_connection():
 
 
 class SetupHandler(PageHandler):
-    def __init__(self, url, client_inforation):
+    def __init__(self, url, client_info):
         super().__init__(url, client_info)
 
     @property
