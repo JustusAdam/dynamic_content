@@ -5,7 +5,6 @@ Currently uses the framework to dynamically create elements, once the basic site
 and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
 """
 from core import Modules
-from coremodules.user_management import users
 
 from core.base_handlers import TemplateBasedPageHandler, RedirectMixIn
 from .database import DatabaseError, Database
@@ -13,6 +12,7 @@ from . import module_operations
 from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, FormElement, Input, LinkElement
 from framework.config_tools import read_config, write_config
 from includes import bootstrap
+from coremodules.user_management.admin_actions import CreateUser
 
 
 __author__ = 'justusadam'
@@ -117,21 +117,9 @@ class SetupHandler(TemplateBasedPageHandler, RedirectMixIn):
             },
             5: {
                 'title': 'Create an admin account',
-                'content': str(
-                    ContainerElement(
-                        '{message}',
-                        FormElement(
-                            TableElement(
-                                ('Name', Input(name='last_name')),
-                                ('Firstname (optional)', Input(name='first_name')),
-                                ('Middle Name (optional)', Input(name='middle_name')),
-                                ('Username', Input(name='username')),
-                                ('Password', Input(name='password', input_type='password')),
-                                ('Confirm Password', Input(name='confirm-password', input_type='password'))
-                            ), action='{this}?destination=/welcome', element_id='admin_form')
-                    )
-                )
-            }
+                'content': '{user_form}'
+            },
+            6: {}
         }
         generic = {
             'stylesheets': str(Stylesheet('/theme/default_theme/css/style.css')),
@@ -148,17 +136,15 @@ class SetupHandler(TemplateBasedPageHandler, RedirectMixIn):
             setup_result = self.setup_wrapper()
             self._template['content'] = self._template['content'].format(**setup_result)
             self._template['title'] = self._template['title'].format(**setup_result)
-        elif self._url.page_id == 5 and self.is_post():
-            if self._url.post_query['confirm-password'] == self._url.post_query['password']:
-                args = dict()
-                for key in ['username', 'password', 'last_name', 'first_name', 'middle_name']:
-                    if key in self._url.post_query:
-                        args[key] = self._url.post_query[key][0]
-                users.add_user(**args)
-                config['setup'] = False
-                write_config(config, 'config.json')
-                self.redirect('/iris/1')
-            message = ContainerElement('Your passwords did not match.', classes='alert')
+        elif self._url.page_id == 5:
+            handler = CreateUser(self._url, self)
+            handler.destination = '/setup/6'
+            content = handler.compiled
+            self._template['content'] = self._template['content'].format(user_form=content.content)
+        elif self._url.page_id == 6:
+            config['setup'] = False
+            write_config(config, 'config.json')
+            self.redirect('/iris/1')
         self._template['content'] = self._template['content'].format(this=self._url.path, next_page=self._url.page_id + 1, message=message)
 
     def is_post(self):
