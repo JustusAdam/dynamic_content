@@ -11,6 +11,7 @@ import shutil
 from urllib.error import HTTPError
 import sys
 import traceback
+import copy
 
 from core import database_operations
 from core.database import DatabaseError, Database
@@ -19,9 +20,8 @@ from includes import bootstrap
 from .file_handler import FileHandler
 from framework.url_tools import Url
 from framework.config_tools import read_config
-from .cli_info import ClientInfoImpl
+from coremodules.user_management.cli_info import ClientInfoImpl
 from includes import log
-import copy
 
 
 __author__ = 'justusadam'

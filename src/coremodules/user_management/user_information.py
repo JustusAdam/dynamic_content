@@ -1,7 +1,7 @@
 from core.base_handlers import CommonsHandler
 from framework.html_elements import TableElement, ContainerElement
 from .database_operations import UserOperations
-from core.cli_info import ANONYMOUS
+from coremodules.user_management.cli_info import ANONYMOUS
 from.login import LOGOUT_BUTTON
 
 __author__ = 'justusadam'

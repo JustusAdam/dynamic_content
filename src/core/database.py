@@ -14,7 +14,7 @@ from pathlib import Path
 
 __author__ = 'justusadam'
 
-from pymysql import DatabaseError, connect, InterfaceError
+from pymysql import DatabaseError, connect, ProgrammingError, InterfaceError
 from pymysql.converters import escape_item
 
 from framework.config_tools import read_config

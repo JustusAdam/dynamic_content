@@ -2,7 +2,6 @@ from http.server import *
 import os
 from pathlib import Path
 
-from pymysql import DatabaseError
 
 from framework.config_tools import read_config
 import core
@@ -23,7 +22,7 @@ def main():
         core.register_installed_modules()
         global modules
         modules = core.load_modules()
-    except DatabaseError as error:
+    except core.dbo.DBOperationError as error:
         print('Failed to register installed modules, continuing.')
         print(error)
 

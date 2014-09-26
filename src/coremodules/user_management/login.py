@@ -2,8 +2,7 @@ import datetime
 
 from framework.html_elements import FormElement, TableElement, ContainerElement, Label, Input, SubmitButton
 from core.base_handlers import PageContentHandler, RedirectMixIn, CommonsHandler
-from framework.page import Page
-from core.cli_info import ANONYMOUS
+from coremodules.user_management.cli_info import ANONYMOUS
 from . import session
 
 
