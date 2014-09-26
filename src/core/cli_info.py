@@ -7,7 +7,10 @@ __author__ = 'justusadam'
 class ClientInfoImpl(ClientInformation):
     def __init__(self, headers):
         super().__init__(headers)
-        self.auth_module = modules.Modules()['user_management']
+        try:
+            self.auth_module = modules.Modules()['user_management']
+        except KeyError:
+            self.auth_module = None
 
     def get_acc_grp(self, user):
         if user == ANONYMOUS:

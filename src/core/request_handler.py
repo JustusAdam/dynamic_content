@@ -19,7 +19,6 @@ from .page_handlers import FileHandler, BasicPageHandler
 from framework.url_tools import Url
 from framework.config_tools import read_config
 from .cli_info import ClientInfoImpl
-from framework.cli_info import ClientInformation
 from includes import log
 import copy
 
@@ -39,15 +38,15 @@ class RequestHandler(BaseHTTPRequestHandler):
         return self.do_any()
 
     def do_any(self, post_query=None):
-        # print(self.path)
-        url = Url(self.path)
 
-        if url.page_type == 'setup':
-            return self.start_setup(url, ClientInformation(self.headers))
+        # construct Url object from path for accessibility
+        url = Url(self.path, post_query)
 
+        # construct client information from headers
         client_information = ClientInfoImpl(self.headers)
-        url.post_query = post_query
+
         try:
+            # ensure the request is being redirected, if it has a trailing slash
             self.check_path(url)
             page_handler = self.get_handler(url, client_information)
         except HTTPError as error:
@@ -128,7 +127,11 @@ class RequestHandler(BaseHTTPRequestHandler):
             raise HTTPError(str(url), 301, 'Indexing is prohibited on this server', ("Location", str(new_dest)), None)
 
     def get_handler(self, url, client_info):
-        if url.page_type in bootstrap.FILE_DIRECTORIES.keys():
+
+        if url.page_type == 'setup':
+
+            return self.start_setup(url, client_info)
+        elif url.page_type in bootstrap.FILE_DIRECTORIES.keys():
             return FileHandler(url, client_info)
         try:
             db = Database()
