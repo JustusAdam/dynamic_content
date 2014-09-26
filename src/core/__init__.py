@@ -27,7 +27,7 @@ class InitMod:
     def execute(self, drop_tables=True, fill_tables=True):
         ops = self.init_ops()
         for op in ops:
-            op.init_tables(drop_tables)
+            ops[op].init_tables(drop_tables)
         if fill_tables:
             self.fill_tables(ops)
 
