@@ -23,9 +23,9 @@ add_display_name = edit_display_name
 
 def add_item(item, source_table, translations):
     if not translations:
-        translations = None
+        translations = []
     elif isinstance(translations, dict):
-        translations = [(k,translations[k]) for k in translations]
+        translations = [(k, translations[k]) for k in translations]
     elif isinstance(translations[0], str):
         translations = [translations]
-    DisplayNamesOperations().add_item(item, source_table, translations)
+    DisplayNamesOperations().add_item(item, source_table, *translations)

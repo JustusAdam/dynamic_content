@@ -50,9 +50,9 @@ def prepare():
     # add login common
     ro.add_item('login', START_REGION, 0, START_THEME)
     ro.add_item_conf('login', 'login', 'user_management', True)
-    dn.add_item('login', 'user_management', {'english': 'User Login'})
+    dn.add_item('login', 'user_management', ('english', 'User Login'))
 
     # add user information common
     ro.add_item_conf('user_information', 'user_information', 'user_management', True)
     ro.add_item('user_information', START_REGION, 1, START_THEME)
-    dn.add_item('user_information', 'user_management', {'english': 'Your Account Information'})
+    dn.add_item('user_information', 'user_management', ('english', 'Your Account Information'))

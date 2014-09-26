@@ -36,7 +36,7 @@ class DisplayNamesOperations(Operations):
     def edit_display_name(self, item, source_table, language, value):
         self.execute('edit_display_name', language=language, value=escape(value), machine_name=escape(item), source_table=escape(source_table))
 
-    def add_item(self, item, source_table, translations=None):
+    def add_item(self, item, source_table, *translations):
         languages = ''
         display_names = ''
         if translations:
