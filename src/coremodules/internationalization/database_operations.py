@@ -13,7 +13,7 @@ class DisplayNamesOperations(Operations):
         'mysql': {
             'get_display_name': 'select {language} from display_names where machine_name={machine_name} and source_table={source_table};',
             'edit_display_name': 'update display_names set {language}={value} where machine_name={machine_name} and source_table={source_table};',
-            'add_item_il': 'insert into display_names (machine__name, source_table{languages}) values ({machine_name}, {source_table}{display_names});'
+            'add_item_il': 'insert into display_names (machine_name, source_table{languages}) values ({machine_name}, {source_table}{display_names});'
         }
     }
 
