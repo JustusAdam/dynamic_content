@@ -126,7 +126,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         if url.page_type == 'setup':
 
-            return self.start_setup(url)
+            return self.start_setup(url, client_info)
         elif url.page_type in bootstrap.FILE_DIRECTORIES.keys():
             return FileHandler(url, client_info)
         try:
@@ -142,11 +142,11 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         return BasicPageHandler(url, client_info)
 
-    def start_setup(self, url):
+    def start_setup(self, url, client_info):
         if not read_config('config.json')['setup']:
             raise HTTPError(str(url), 403, 'Request disabled via server config', None, None)
         from .setup import SetupHandler
-        return SetupHandler(url)
+        return SetupHandler(url, client_info)
 
     def translate_alias(self, alias):
         try:
