@@ -14,7 +14,7 @@
             "display_name varchar(200) not null",
             "description varchar(400)",
             "category varchar(200)",
-            ""
+            "weight int"
         ]
     }
 }
