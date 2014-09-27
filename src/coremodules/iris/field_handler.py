@@ -61,15 +61,7 @@ class EditBaseFieldHandler(BaseFieldHandler):
   def get_post_query_keys(self):
     return [self.machine_name]
 
-  def process_post(self):
-    database_operations.Fields().alter_content(self.machine_name, self.path_prefix, self.page_id,
-                                               self._query[self.machine_name][0])
-
 
 class AddBaseFieldHandler(EditBaseFieldHandler):
   def process_content(self):
     return Textarea(name=self.machine_name, rows=7, cols=50, classes={self.machine_name} | self.xtra_classes)
-
-  def process_post(self):
-    database_operations.Fields().add_field(self.machine_name, self.path_prefix, self.page_id,
-                                           self._query[self.machine_name][0])

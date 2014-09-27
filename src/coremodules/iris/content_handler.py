@@ -126,26 +126,17 @@ class EditFieldBasedContentHandler(FieldBasedPageContentHandler, RedirectMixIn):
           raise KeyError
         mapping[key] = [parse.unquote_plus(a) for a in self._url.post_query[key]]
       field.query = mapping
-
-  def process_post_query(self):
-    try:
-      self.assign_inputs(self.fields)
-      self.alter_page()
-      self.process_fields(self.fields)
-      self.redirect()
-    except (KeyError, DBOperationError):
-      pass
-
-  def alter_page(self):
-    if not 'title' in self._url.post_query.keys():
-      raise ValueError
-    if self._url.post_query['title'] != self.page_title:
-      self.page_title = parse.unquote_plus(self._url.post_query['title'][0])
-    if 'publish' in self._url.post_query.keys():
-      published = True
-    else:
-      published = False
-    database_operations.Pages().edit_page(self._url.page_type, self.page_title, published, self._url.page_id)
+  #
+  # def alter_page(self):
+  #   if not 'title' in self._url.post_query.keys():
+  #     raise ValueError
+  #   if self._url.post_query['title'] != self.page_title:
+  #     self.page_title = parse.unquote_plus(self._url.post_query['title'][0])
+  #   if 'publish' in self._url.post_query.keys():
+  #     published = True
+  #   else:
+  #     published = False
+  #   database_operations.Pages().edit_page(self._url.page_type, self.page_title, published, self._url.page_id)
 
 
 class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
@@ -160,26 +151,15 @@ class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
     title = 'Add new ' + display_name + ' page'
     theme = ops.get_theme(content_type=content_type)
     return title, content_type, theme
-
-  def create_page(self):
-    self.page_title = parse.unquote_plus(self._url.post_query['title'][0])
-    if 'publish' in self._url.post_query.keys():
-      published = True
-    else:
-      published = False
-    return database_operations.Pages().add_page(self._url.page_type, self.content_type,
-                                                self.page_title, self.user, published)
-
-  def process_post_query(self):
-    try:
-      self.assign_inputs(self.fields)
-      new_id = self.create_page()
-      for field in self.fields:
-        field.page_id = new_id
-      self.process_fields(self.fields)
-      self.redirect(str(self._url.path.prt_to_str(0, -1)) + '/' + str(new_id))
-    except (KeyError, DBOperationError):
-      pass
+  #
+  # def create_page(self):
+  #   self.page_title = parse.unquote_plus(self._url.post_query['title'][0])
+  #   if 'publish' in self._url.post_query.keys():
+  #     published = True
+  #   else:
+  #     published = False
+  #   return database_operations.Pages().add_page(self._url.page_type, self.content_type,
+  #                                               self.page_title, self.user, published)
 
   @property
   def title_options(self):

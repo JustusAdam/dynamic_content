@@ -153,9 +153,6 @@ class SetupHandler(TemplateBasedPageHandler, RedirectMixIn):
     self._template['content'] = self._template['content'].format(this=self._url.path, next_page=self._url.page_id + 1,
                                                                  message=message)
 
-  def is_post(self):
-    return bool(self._url.post_query)
-
   def setup(self):
 
     core_config = read_config('core/config')

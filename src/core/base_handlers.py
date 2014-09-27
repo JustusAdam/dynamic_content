@@ -156,29 +156,16 @@ class PageContentHandler(ObjectHandler, TemplateBasedContentHandler):
   def client_info(self):
     return self._parent.client_info
 
-  def process_queries(self):
-    if self.has_url_query():
-      self.process_url_query()
-    if self.is_post():
-      self.process_post_query()
-
   def process_content(self):
     pass
 
   def has_url_query(self):
     return bool(self._url.get_query)
 
-  def is_post(self):
-    return self._url.is_post
-
   def process_url_query(self):
     pass
 
-  def process_post_query(self):
-    pass
-
   def fill_template(self):
-    self.process_queries()
     self._template['content'] = self.process_content()
     self._template['title'] = self.page_title
 
