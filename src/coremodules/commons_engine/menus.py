@@ -6,6 +6,15 @@ __author__ = 'justusadam'
 
 
 class MenuItem:
+    """
+    MenuItem base implementation.
+
+    A MenuItem represents a node in a menu and all its children and offers a method to render the menu/node by calling
+    the render method in its children. The __str__ method returns a pure String representation of the rendered menu.
+
+    Please note that the return of this function is flat and is simply a ordered list and child items are not wrapped
+    in a list.
+    """
 
     def __init__(self, item_name, display_name, item_path, parent_item, weight):
         self.item_name = item_name
@@ -35,10 +44,16 @@ class MenuItem:
 
 
 class HTMLMenuItem(MenuItem):
+    """
+    MenuItem implementation that overrides the render methods to render into a HTML Menu.
+
+    Note that the return value of the render method here is a tuple with one element for the title and one element for
+    the list of children. aka. (title, children:List)
+    """
 
     def render_self(self, depth):
         if self.item_path:
-            return ContainerElement(self.display_name, html_type='a', classes={'layer-' + str(depth), 'menu'}, element_id=self.item_name, additionals={'href':self.item_path})
+            return ContainerElement(self.display_name, html_type='a', classes={'layer-' + str(depth), 'menu'}, element_id=self.item_name, additionals={'href': self.item_path})
         else:
             return ContainerElement(self.display_name, html_type='span', classes={'layer-' + str(depth), 'menu'}, element_id=self.item_name)
 
