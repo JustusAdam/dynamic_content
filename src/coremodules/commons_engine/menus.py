@@ -58,7 +58,6 @@ class MenuHandler(CommonsHandler):
     def __init__(self, machine_name, show_title, user, access_group):
         self.mo = database_operations.MenuOperations()
         super().__init__(machine_name, show_title, user, access_group)
-        self.menu_name = self.get_menu_info()
 
     def get_items(self, item_class=MenuItem):
         """
@@ -68,9 +67,6 @@ class MenuHandler(CommonsHandler):
         db_result = self.mo.get_items(self.name)
         return [item_class(a[0], self.get_display_name(a[0], self.language), *a[1:]) for a in db_result]
 
-    def get_menu_info(self):
-        return self.mo.get_menu_info(self.name)
-
     def order_items(self, items, root_class=MenuItem):
         """
         Takes a list of MenuItems and constructs a tree of parent items and child items.
@@ -79,7 +75,7 @@ class MenuHandler(CommonsHandler):
         :return: Root for menu tree
         """
         mapping = {}
-        root = root_class('<root>', self.menu_name, '/', None, 0)
+        root = root_class('<root>', self.get_display_name(self.name), '/', None, 0)
 
         def order():
             """

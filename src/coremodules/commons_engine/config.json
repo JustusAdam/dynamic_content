@@ -5,7 +5,7 @@
         "menu_items": [
             "id int unsigned not null unique auto_increment primary key",
             "item_name varchar(200) not null",
-            "display_name varchar(200) not null",
+            "display_name varchar(200)",
             "item_path varchar(200) not null",
             "menu varchar(200) not null",
             "enabled boolean default false",
@@ -16,12 +16,13 @@
         "menus": [
             "id int unsigned not null unique auto_increment primary key",
             "machine_name varchar(200) not null unique",
-            "menu_name varchar(200) not null",
+            "display_name varchar(200) not null",
             "enabled boolean default false"
         ],
         "com_text": [
             "id int unsigned not null unique auto_increment primary key",
             "machine_name varchar(200) not null unique",
+            "display_name varchar(200) not null",
             "content text not null"
         ]
     }
