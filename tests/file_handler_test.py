@@ -2,12 +2,12 @@ __author__ = 'justusadam'
 
 import unittest
 
-from src.core.page_handlers import FileHandler
+from src.core.file_handler import FileHandler
 
 
 class MyTestCase(unittest.TestCase):
   def setUp(self):
-    self.file_handler = FileHandler(['public', '..', '..'])
+    self.file_handler = FileHandler(['public', '..', '..'], None)
 
   def testFileAccess(self):
     self.assertEqual(self.file_handler.parse_path(), 403)

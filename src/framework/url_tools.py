@@ -19,12 +19,12 @@ def join_path(path, location, query):
 
 
 class Url:
-  def __init__(self, url, post_query=None):
+  def __init__(self, url, is_post=False):
     parsed = parse.urlsplit(url)
     self._path = UrlPath(parsed.path)
     self._location = UrlLocation(parsed.fragment)
     self._get_query = UrlQuery(parsed.query)
-    self.post_query = post_query
+    self.is_post = is_post
 
     self.page_id = 1
     self.page_type = None
@@ -76,17 +76,6 @@ class Url:
       self._get_query = value
     else:
       self._get_query = UrlQuery(value)
-
-  @property
-  def post_query(self):
-    return self._post_query
-
-  @post_query.setter
-  def post_query(self, value):
-    if isinstance(value, UrlQuery):
-      self._post_query = value
-    else:
-      self._post_query = UrlQuery(value)
 
   def __str__(self):
     return parse.urlunsplit(('', '', str(self._path), str(self._get_query), str(self._location)))

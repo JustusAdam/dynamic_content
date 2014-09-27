@@ -1,6 +1,6 @@
 from core.base_handlers import PageContentHandler, RedirectMixIn
 from framework.html_elements import FormElement, TableElement, Input, ContainerElement
-from coremodules.user_management import users
+from core.users import users
 
 __author__ = 'justusadam'
 

@@ -15,13 +15,14 @@ import copy
 
 from core import database_operations
 from core.database import DatabaseError, Database
-from coremodules.theme_engine.page_handler import BasicPageHandler
+from core.comp.page_handler import BasicPageHandler
 from includes import bootstrap
 from .file_handler import FileHandler
 from framework.url_tools import Url
 from framework.config_tools import read_config
-from coremodules.user_management.cli_info import ClientInfoImpl
+from core.users.cli_info import ClientInfoImpl
 from includes import log
+from core import form
 
 
 __author__ = 'justusadam'
@@ -29,19 +30,21 @@ __author__ = 'justusadam'
 
 class RequestHandler(BaseHTTPRequestHandler):
   def do_POST(self):
+    # construct Url object from path for accessibility
+    url = Url(self.path, True)
 
     post_query = self.rfile.read(int(self.headers['Content-Length'])).decode()
 
-    return self.do_any(post_query)
+    form.handle_post(url, post_query)
+
+    return self.do_any(url)
 
   def do_GET(self):
-    return self.do_any()
-
-  def do_any(self, post_query=None):
-
     # construct Url object from path for accessibility
-    url = Url(self.path, post_query)
+    url = Url(self.path, False)
+    return self.do_any(url)
 
+  def do_any(self, url):
     # construct client information from headers
     client_information = ClientInfoImpl(self.headers)
 

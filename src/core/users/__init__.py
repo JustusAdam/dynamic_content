@@ -32,7 +32,7 @@ def common_handler(item_type, item_name, show_title, user, access_group):
 def prepare():
   from core.database_operations import ContentHandlers
   from .database_operations import UserOperations, SessionOperations
-  from coremodules.theme_engine.database_operations import RegionOperations
+  from core.comp.database_operations import RegionOperations
   # from coremodules.internationalization.database_operations import DisplayNamesOperations
   cho = ContentHandlers()
   so = SessionOperations()

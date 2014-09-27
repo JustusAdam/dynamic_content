@@ -9,10 +9,10 @@ from core import Modules
 from core.base_handlers import TemplateBasedPageHandler, RedirectMixIn
 from .database import DatabaseError, Database
 from . import module_operations
-from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, FormElement, Input, LinkElement
+from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, LinkElement
 from framework.config_tools import read_config, write_config
 from includes import bootstrap
-from coremodules.user_management.admin_actions import CreateUser
+from core.users.admin_actions import CreateUser
 
 
 __author__ = 'justusadam'

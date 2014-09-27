@@ -1,9 +1,9 @@
 from core.database import Database
 from core.database_operations import Alias, ModuleOperations, ContentHandlers, ContentTypes
 from coremodules.iris.database_operations import Pages, Fields
-from coremodules.commons_engine.database_operations import MenuOperations, CommonsOperations
-from coremodules.theme_engine.database_operations import RegionOperations
-from coremodules.user_management.database_operations import UserOperations, SessionOperations
+from core.commons.database_operations import MenuOperations, CommonsOperations
+from core.comp.database_operations import RegionOperations
+from core.users.database_operations import UserOperations, SessionOperations
 
 __author__ = 'justusadam'
 

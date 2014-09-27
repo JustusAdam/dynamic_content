@@ -13,7 +13,7 @@ import sys
 from urllib.error import HTTPError
 
 from core import Modules
-from coremodules.theme_engine.template import Template
+from core.comp.template import Template
 from framework.config_tools import read_config
 from framework.html_elements import ContainerElement
 from framework.page import Component
@@ -169,7 +169,7 @@ class PageContentHandler(ObjectHandler, TemplateBasedContentHandler):
     return bool(self._url.get_query)
 
   def is_post(self):
-    return bool(self._url.post_query)
+    return self._url.is_post
 
   def process_url_query(self):
     pass
