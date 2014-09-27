@@ -7,24 +7,24 @@ import unittest
 
 # class MyTestCase(unittest.TestCase):
 # def test_something(self):
-#         self.assertEqual(True, False)
+# self.assertEqual(True, False)
 
 class AutoIncrTest(unittest.TestCase):
- def setUp(self):
-  self.db = Database()
-  try:
-   self.db.select('id', 'testtable')
-  except DatabaseError:
-   self.db.create_table('testtable',
-                        ['id int unsigned not null auto_increment primary key', 'title varchar(50) unique'])
-  try:
-   self.db.remove('testtable', 'title=' + escape_item('testtitle', 'utf-8'))
-  except DatabaseError:
-   pass
+  def setUp(self):
+    self.db = Database()
+    try:
+      self.db.select('id', 'testtable')
+    except DatabaseError:
+      self.db.create_table('testtable',
+                           ['id int unsigned not null auto_increment primary key', 'title varchar(50) unique'])
+    try:
+      self.db.remove('testtable', 'title=' + escape_item('testtitle', 'utf-8'))
+    except DatabaseError:
+      pass
 
- def tearDown(self):
-  del self.db
+  def tearDown(self):
+    del self.db
 
 
 if __name__ == '__main__':
- unittest.main()
+  unittest.main()

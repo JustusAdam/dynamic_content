@@ -4,5 +4,5 @@ __author__ = 'justusadam'
 
 
 class Overview(PageContentHandler):
- def process_content(self):
-  pass
+  def process_content(self):
+    pass

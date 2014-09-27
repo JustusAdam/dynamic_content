@@ -12,15 +12,15 @@ role = 'core'
 
 
 def load_modules():
- m = Modules()
- m.reload()
- return m
+  m = Modules()
+  m.reload()
+  return m
 
 
 def prepare():
- dbo.ContentHandlers().init_tables()
- a = dbo.Alias()
- a.init_tables()
- a.add_alias('/iris/1', '/welcome')
- dbo.ModuleOperations().init_tables()
- dbo.ContentTypes().init_tables()
+  dbo.ContentHandlers().init_tables()
+  a = dbo.Alias()
+  a.init_tables()
+  a.add_alias('/iris/1', '/welcome')
+  dbo.ModuleOperations().init_tables()
+  dbo.ContentTypes().init_tables()
