@@ -1,5 +1,5 @@
 {
-    "name": "commons_engine",
+    "name": "commons",
     "role": "common_page_element_manager",
     "tables":{
         "menu_items": [

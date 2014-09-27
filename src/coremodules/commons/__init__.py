@@ -1,6 +1,6 @@
 from .commons import TextCommonsHandler
 from . import database_operations as dbo
-from core.commons.menus import MenuHandler
+from coremodules.commons.menus import MenuHandler
 
 __author__ = 'justusadam'
 

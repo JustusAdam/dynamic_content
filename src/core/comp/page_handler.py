@@ -41,12 +41,6 @@ class BasicPageHandler(TemplateBasedPageHandler):
     handler = self.modules[handler_module].content_handler
     return handler
 
-  def get_theme_handler_class(self):
-    return self.modules['theme_engine'].theme_handler
-
-  def get_theme_handler(self, content_handler, client_info):
-    return self.get_theme_handler_class()(content_handler, client_info)
-
   @property
   def headers(self):
     headers = super().headers

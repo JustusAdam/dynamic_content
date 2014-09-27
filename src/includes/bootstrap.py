@@ -8,11 +8,7 @@ Might need to be expanded.
 __author__ = 'justusadam'
 
 DEFAULT_MODULES = [
-  'admin_pages',
-  'theme_engine',
   'iris',
-  'commons_engine',
-  'user_management',
   'internationalization'
 ]
 FILE_DIRECTORIES = {
