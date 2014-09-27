@@ -307,7 +307,7 @@ class Label(ContainerElement):
 
 class SubmitButton(Input):
 
-    def __init__(self, value='Submit', classes=set(), element_id='', name='submit', end_line=False, form='',
+    def __init__(self, value='Submit', classes=set(), element_id='', name='', end_line=False, form='',
                  additionals={}):
         super().__init__(value=value, classes=classes, element_id=element_id, name=name, input_type='submit', form=form,
                          additionals=additionals)
