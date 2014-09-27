@@ -18,17 +18,16 @@ __author__ = 'justusadam'
 
 @singleton
 class Modules:
+ _modules = None
 
-    _modules = None
+ def reload(self):
+  self._modules = self.load()
 
-    def reload(self):
-        self._modules = self.load()
+ def load(self):
+  return get_active_modules()
 
-    def load(self):
-        return get_active_modules()
+ def __getitem__(self, item):
+  return self._modules[item]
 
-    def __getitem__(self, item):
-        return self._modules[item]
-
-    def __str__(self):
-        return str(self._modules)
+ def __str__(self):
+  return str(self._modules)

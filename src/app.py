@@ -2,7 +2,6 @@ from http.server import *
 import os
 from pathlib import Path
 
-
 from framework.config_tools import read_config
 import core
 from core import request_handler
@@ -18,25 +17,25 @@ os.chdir(basedir)
 
 
 def main():
-    try:
-        core.register_installed_modules()
-        global modules
-        modules = core.load_modules()
-    except core.dbo.DBOperationError as error:
-        print('Failed to register installed modules, continuing.')
-        print(error)
+ try:
+  core.register_installed_modules()
+  global modules
+  modules = core.load_modules()
+ except core.dbo.DBOperationError as error:
+  print('Failed to register installed modules, continuing.')
+  print(error)
 
-    run_server(server_class=HTTPServer, handler_class=request_handler.RequestHandler)
+ run_server(server_class=HTTPServer, handler_class=request_handler.RequestHandler)
 
-    return 0
+ return 0
 
 
 def run_server(server_class=HTTPServer, handler_class=BaseHTTPRequestHandler):
-    config = read_config('config')
-    server_address = (config['server_arguments']['host'], config['server_arguments']['port'])
-    httpd = server_class(server_address, handler_class)
-    httpd.serve_forever()
+ config = read_config('config')
+ server_address = (config['server_arguments']['host'], config['server_arguments']['port'])
+ httpd = server_class(server_address, handler_class)
+ httpd.serve_forever()
 
 
 if __name__ == '__main__':
-    main()
+ main()

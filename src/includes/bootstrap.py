@@ -7,27 +7,26 @@ Might need to be expanded.
 
 __author__ = 'justusadam'
 
-
 DEFAULT_MODULES = [
-    'admin_pages',
-    'theme_engine',
-    'iris',
-    'commons_engine',
-    'user_management',
-    'internationalization'
+ 'admin_pages',
+ 'theme_engine',
+ 'iris',
+ 'commons_engine',
+ 'user_management',
+ 'internationalization'
 ]
 FILE_DIRECTORIES = {
-    'theme': [
-        'custom/themes',
-        'themes'
-    ],
-    'private': 'custom/files/private',
-    'public': 'custom/files/public'
+ 'theme': [
+  'custom/themes',
+  'themes'
+ ],
+ 'private': 'custom/files/private',
+ 'public': 'custom/files/public'
 }
 MODULES_DIRECTORY = 'custom/modules'
 NECESSARY_MODULE_ATTRIBUTES = [
-    'name',
-    'role'
+ 'name',
+ 'role'
 ]
 COREMODULES_DIRECTORY = 'coremodules'
 MODULE_CONFIG_NAME = 'config.json'
