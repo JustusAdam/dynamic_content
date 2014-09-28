@@ -1,11 +1,11 @@
-from core.base_handlers import PageContentHandler, RedirectMixIn
+from core.handlers import PageContent, RedirectMixIn
 from framework.html_elements import FormElement, TableElement, Input, ContainerElement
 from core.users import users
 
 __author__ = 'justusadam'
 
 
-class CreateUser(PageContentHandler, RedirectMixIn):
+class CreateUser(PageContent, RedirectMixIn):
   page_title = 'Create User'
 
   destination = '/'

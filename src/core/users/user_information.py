@@ -1,7 +1,7 @@
 from core import handlers
 from framework.html_elements import TableElement, ContainerElement
 from .database_operations import UserOperations
-from core.users.cli_info import ANONYMOUS
+from core.users.client import ANONYMOUS
 from .login import LOGOUT_BUTTON
 
 __author__ = 'justusadam'

@@ -54,7 +54,7 @@ class WebObject(Content):
       self._url = val
 
   @property
-  def client_info(self):
+  def client(self):
     return None
 
   def add_header(self, key, value):
@@ -92,22 +92,38 @@ class WebObject(Content):
     return bool(self.url.post)
 
   def process_queries(self):
+    """
+    Simple routine that calls the appropriate 'process' methods IF they're necessary
+    :return:
+    """
     if self.is_get():
       self.process_get()
     if self.is_post():
       self.process_post()
 
   def process_get(self):
+    """
+    This method gets called by the class IF there are get query variables present.
+
+    Inheriting classes should overwrite this method rather than 'process_queries'.
+    :return:
+    """
     pass
 
   def process_post(self):
+    """
+    This method gets called if there is a valid post query present.
+
+    Inheriting classes should overwrite this method rather than 'process_queries'.
+    :return:
+    """
     pass
 
 
 class Page(WebObject):
-  def __init__(self, url, client_info):
+  def __init__(self, url, client):
     super().__init__(url)
-    self._client_info = client_info
+    self._client = client
     self.page_type = None
     self.content_type = 'text/html'
     self.encoding = sys.getfilesystemencoding()
@@ -117,8 +133,8 @@ class Page(WebObject):
     return str(self.compiled).encode(self.encoding)
 
   @property
-  def client_info(self):
-    return self._client_info
+  def client(self):
+    return self._client
 
 
 class Field(Content):
@@ -184,8 +200,8 @@ class PageContent(WebObject, TemplateBasedContent):
     self._parent = parent_handler
 
   @property
-  def client_info(self):
-    return self._parent.client_info
+  def client(self):
+    return self._parent.client
 
   def process_content(self):
     pass

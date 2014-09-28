@@ -6,7 +6,7 @@ and hardened this should be refactored to remove the framework elements and stor
 """
 from core import Modules
 
-from core.base_handlers import TemplateBasedPageHandler, RedirectMixIn
+from core.handlers import TemplateBasedPage, RedirectMixIn
 from .database import DatabaseError, Database
 from . import module_operations
 from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, LinkElement
@@ -36,7 +36,7 @@ def try_database_connection():
       'reload this page', html_type='p')
 
 
-class SetupHandler(TemplateBasedPageHandler, RedirectMixIn):
+class SetupHandler(TemplateBasedPage, RedirectMixIn):
   def __init__(self, url, client_info):
     super().__init__(url, client_info)
 

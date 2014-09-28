@@ -21,7 +21,6 @@ from framework.url import Url
 from framework.config_tools import read_config
 from core.users import client
 from includes import log
-from core import form
 import core
 
 
@@ -38,12 +37,10 @@ class RequestHandler(BaseHTTPRequestHandler):
     fields to not have the user enter everything again.
     :return:
     """
-    # construct Url object from path for accessibility
-    url = Url(self.path, True)
-
     post_query = self.rfile.read(int(self.headers['Content-Length'])).decode()
 
-    form.handle_post(url, post_query)
+    # construct Url object from path for accessibility
+    url = Url(self.path, post_query)
 
     return self.do_any(url)
 

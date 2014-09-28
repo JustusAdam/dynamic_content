@@ -71,7 +71,7 @@ class LogoutHandler(handlers.PageContent, handlers.RedirectMixIn):
     self.logout()
 
   def logout(self):
-    user = self._parent.client_info.user
+    user = self._parent.client.user
     if user == ANONYMOUS:
       self.redirect('/login')
     else:
