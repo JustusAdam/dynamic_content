@@ -1,5 +1,5 @@
 {
-    "name": "user_management",
+    "name": "users",
     "role": "user_management",
     "tables": {
         "cms_users": [

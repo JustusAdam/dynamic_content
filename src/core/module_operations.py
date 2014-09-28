@@ -108,7 +108,7 @@ def register_installed_modules():
 def discover_modules():
   filename = bootstrap.MODULE_CONFIG_NAME
   accumulator = []
-  for directory in (bootstrap.MODULES_DIRECTORY, bootstrap.COREMODULES_DIRECTORY):
+  for directory in bootstrap.MODULES_DIRECTORIES + bootstrap.COREMODULES_DIRECTORIES:
     for file in Path(directory).iterdir():
       if file.is_dir():
         configpath = file / filename

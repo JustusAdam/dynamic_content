@@ -158,18 +158,6 @@ class SetupHandler(TemplateBasedPageHandler, RedirectMixIn):
     core_config = read_config('core/config')
     core_config['path'] = 'core'
 
-    if 'reset' in self._url.get_query:
-      if self._url.get_query['reset'][0].lower() == 'true':
-        try:
-          # HACK dropping core tables separately
-          module_operations.drop_module_tables(core_config)
-
-          moduleconf = module_operations.discover_modules()
-          for module in moduleconf:
-            if module['name'] in bootstrap.DEFAULT_MODULES:
-              module_operations.drop_module_tables(module)
-        except DatabaseError as error:
-          print('Database Error in setup: ' + str(error.args))
     try:
       # HACK separately registering and activating core
       module_operations._activate_module(core_config)

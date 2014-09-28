@@ -3,6 +3,7 @@ __author__ = 'justusadam'
 from .module_operations import register_installed_modules
 from .modules import Modules
 from . import database_operations as dbo
+from . import admin, comp, form, users
 
 name = 'olymp'
 
@@ -17,10 +18,15 @@ def load_modules():
   return m
 
 
+def add_content_handler(name, handler, prefix):
+  dbo.ContentHandlers().add_new(name, handler, prefix)
+
+
 def prepare():
   dbo.ContentHandlers().init_tables()
   a = dbo.Alias()
   a.init_tables()
   a.add_alias('/iris/1', '/welcome')
-  dbo.ModuleOperations().init_tables()
+  mo = dbo.ModuleOperations()
+  mo.init_tables()
   dbo.ContentTypes().init_tables()

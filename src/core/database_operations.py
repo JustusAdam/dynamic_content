@@ -152,7 +152,10 @@ class ModuleOperations(Operations):
 
   def ask_active(self, module):
     self.execute('ask_active', module_name=escape(module))
-    return self.cursor.fetchone()[0]
+    result = self.cursor.fetchone()
+    if result:
+      return result[0]
+    else: return None
 
   def get_enabled(self):
     self.execute('get_enabled')

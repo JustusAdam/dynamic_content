@@ -1,7 +1,7 @@
 from core.database import Database
 from core.database_operations import Alias, ModuleOperations, ContentHandlers, ContentTypes
-from coremodules.iris.database_operations import Pages, Fields
-from core.commons.database_operations import MenuOperations, CommonsOperations
+from modules.iris.database_operations import Pages, Fields
+from modules.commons.database_operations import MenuOperations, CommonsOperations
 from core.comp.database_operations import RegionOperations
 from core.users.database_operations import UserOperations, SessionOperations
 

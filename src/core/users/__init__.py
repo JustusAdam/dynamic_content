@@ -4,7 +4,7 @@ from .user_information import UserInformationCommon
 
 __author__ = 'justusadam'
 
-name = 'user_management'
+name = 'users'
 
 role = 'user_management'
 
@@ -29,12 +29,15 @@ def common_handler(item_type, item_name, show_title, user, access_group):
   return handlers[item_type](item_name, show_title, user, access_group)
 
 
+def form_handler():
+  pass
+
+
 def prepare():
-  from core.database_operations import ContentHandlers
+  import core
   from .database_operations import UserOperations, SessionOperations
   from core.comp.database_operations import RegionOperations
   # from coremodules.internationalization.database_operations import DisplayNamesOperations
-  cho = ContentHandlers()
   so = SessionOperations()
   uo = UserOperations()
   ro = RegionOperations()
@@ -43,15 +46,18 @@ def prepare():
   uo.init_tables()
 
   # add login page
-  cho.add_new('login', 'user_management', login_prefix)
-  cho.add_new('logout', 'user_management', logout_prefix)
+  core.add_content_handler('login', 'users', login_prefix)
+  core.add_content_handler('logout', 'users', logout_prefix)
+
+  # add login form
+  core.form.register_form('login', 'users')
 
   # add login common
   ro.add_item('login', START_REGION, 0, START_THEME)
-  ro.add_item_conf('login', 'login', 'user_management', True)
+  ro.add_item_conf('login', 'login', 'users', True)
   #dn.add_item('login', 'user_management', ('english', 'User Login'))
 
   # add user information common
-  ro.add_item_conf('user_information', 'user_information', 'user_management', True)
+  ro.add_item_conf('user_information', 'user_information', 'users', True)
   ro.add_item('user_information', START_REGION, 1, START_THEME)
   #dn.add_item('user_information', 'user_management', ('english', 'Your Account Information'))

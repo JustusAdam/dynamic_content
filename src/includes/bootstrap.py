@@ -7,7 +7,10 @@ Might need to be expanded.
 
 __author__ = 'justusadam'
 
+
+# the order in this list dictates the order in which these modules will be activated
 DEFAULT_MODULES = [
+  'form', 'admin', 'comp', 'users', 'commons',
   'iris',
   'internationalization'
 ]
@@ -19,12 +22,12 @@ FILE_DIRECTORIES = {
   'private': 'custom/files/private',
   'public': 'custom/files/public'
 }
-MODULES_DIRECTORY = 'custom/modules'
+MODULES_DIRECTORIES = ['custom/modules', 'modules']
 NECESSARY_MODULE_ATTRIBUTES = [
   'name',
   'role'
 ]
-COREMODULES_DIRECTORY = 'coremodules'
+COREMODULES_DIRECTORIES = ['core']
 MODULE_CONFIG_NAME = 'config.json'
 ALLOW_HIDDEN_FILES = False
 # Setting the above option to true will allow access to files starting with a '.' via the file handler/url

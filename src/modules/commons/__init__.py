@@ -1,6 +1,6 @@
 from .commons import TextCommonsHandler
 from . import database_operations as dbo
-from coremodules.commons.menus import MenuHandler
+from modules.commons.menus import MenuHandler
 
 __author__ = 'justusadam'
 
@@ -24,9 +24,9 @@ def prepare():
   mo.init_tables()
 
   mo.add_menu('start_menu', True)
-  mo.add_menu_item('welcome', 'Welcome', '/iris/1', 'start_menu', True, '<root>', 1)
-  mo.add_menu_item('testpage', 'Hello World', '/iris/2', 'start_menu', True, '<root>', 2)
-  mo.add_menu_item('setup', 'Restart Setup', '/setup', 'start_menu', True, 'welcome', 1)
+  mo.add_menu_item('welcome', '/iris/1', 'start_menu', True, '<root>', 1)
+  mo.add_menu_item('testpage', '/iris/2', 'start_menu', True, '<root>', 2)
+  mo.add_menu_item('setup', '/setup', 'start_menu', True, 'welcome', 1)
   co.add_content('text', 'copyright', '<p>_jaide CMS - © Justus Adam 2014</p>')
 
   # do = DisplayNamesOperations()

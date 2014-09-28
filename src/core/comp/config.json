@@ -1,5 +1,5 @@
 {
-    "name": "theme_engine",
+    "name": "comp",
     "role": "theme_engine",
     "active_theme_path": "themes/default_theme",
     "active_theme": "default_theme",

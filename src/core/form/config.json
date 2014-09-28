@@ -1,4 +1,6 @@
 {
+    "name": "form",
+    "role": "form_api",
     "tables": {
         "form_handlers": [
             "id int unsigned not null unique auto_increment primary key",

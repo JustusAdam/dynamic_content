@@ -10,7 +10,7 @@ class FormOperations(Operations):
   _queries = {
     'mysql': {
       'get_handler': 'select handler_module from form_handlers where path_prefix={prefix};',
-      'add_handler': 'insert into form_handlers (path_prefix, handler_module) values ({prefix}, {handler_mule});'
+      'add_handler': 'insert into form_handlers (path_prefix, handler_module) values ({prefix}, {handler_module});'
     }
   }
 
@@ -20,3 +20,6 @@ class FormOperations(Operations):
 
   def add_handler(self, prefix, handler_module):
     self.execute('add_handler', prefix=escape(prefix), handler_module=escape(handler_module))
+
+  def add_token(self, form, user):
+    pass

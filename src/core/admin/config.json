@@ -1,5 +1,5 @@
 {
-    "name": "admin_pages",
+    "name": "admin",
     "role": "administration_pages_handler",
     "tables": {
         "admin_categories": [
