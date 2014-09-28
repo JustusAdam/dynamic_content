@@ -18,7 +18,7 @@
             "date_created datetime not null",
             "date_changed timestamp default current_timestamp on update current_timestamp"
         ],
-        "body": [
+        "body_data": [
             "id int unsigned not null auto_increment unique primary key",
             "page_id int unsigned not null",
             "path_prefix varchar(100) not null",

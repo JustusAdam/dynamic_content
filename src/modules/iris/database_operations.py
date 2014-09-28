@@ -48,14 +48,14 @@ class Pages(Operations):
 class Fields(Operations):
   _queries = {
     'mysql': {
-      'get_content': 'select content from {table} where page_id={page_id} and path_prefix={path_prefix};',
-      'alter_content': 'update {table} set content={content} where page_id={page_id} and path_prefix={path_prefix};',
-      'add_field': 'insert into {table} (page_id, content, path_prefix) values ({page_id}, {content}, {path_prefix});',
+      'get_content': 'select content from {table}_data where page_id={page_id} and path_prefix={path_prefix};',
+      'alter_content': 'update {table}_data set content={content} where page_id={page_id} and path_prefix={path_prefix};',
+      'add_field': 'insert into {table}_data (page_id, content, path_prefix) values ({page_id}, {content}, {path_prefix});',
       'add_field_type': 'insert into page_fields (machine_name, field_name, content_type, handler_module, weight, description) values ({machine_name}, {field_name}, {content_type}, {handler_module}, 1, {description});'
     }
   }
 
-  _tables = {'body', 'page_fields'}
+  _tables = {'body_data', 'page_fields'}
 
   _start_field = 'body'
 

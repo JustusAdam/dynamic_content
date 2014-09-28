@@ -55,8 +55,7 @@ class LoginHandler(handlers.PageContent, handlers.RedirectMixIn):
     token = session.start_session(username, password)
     if token:
       self.add_morsels({'SESS': token})
-      return 0
-    return 1
+      self.redirect('/iris/1')
 
 
 class LoginCommonHandler(handlers.Commons):

@@ -49,9 +49,6 @@ def prepare():
   core.add_content_handler('login', 'users', login_prefix)
   core.add_content_handler('logout', 'users', logout_prefix)
 
-  # add login form
-  core.form.register_form('login', 'users')
-
   # add login common
   ro.add_item('login', START_REGION, 0, START_THEME)
   ro.add_item_conf('login', 'login', 'users', True)

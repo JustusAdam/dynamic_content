@@ -120,13 +120,13 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.RedirectMixIn):
   def assign_inputs(self, fields):
     for field in fields:
       mapping = {}
-      for key in field.get_post_query_keys():
+      for key in field.post_query_keys:
         if not key in self.url.post:
           raise KeyError
         mapping[key] = [parse.unquote_plus(a) for a in self.url.post[key]]
       field.query = mapping
   
-  def alter_page(self):
+  def process_page(self):
     if not 'title' in self.url.post:
       raise ValueError
     if self.url.post['title'] != self.page_title:
@@ -136,6 +136,15 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.RedirectMixIn):
     else:
       published = False
     database_operations.Pages().edit_page(self.url.page_type, self.page_title, published, self.url.page_id)
+
+  def process_post(self):
+    self.assign_inputs(self.fields)
+    try:
+      self.process_fields(self.fields)
+      self.process_page()
+      self.redirect()
+    except ValueError:
+      pass
 
 
 class AddFieldBasedContentHandler(EditFieldBasedContent):
@@ -151,7 +160,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
     theme = ops.get_theme(content_type=content_type)
     return title, content_type, theme
   
-  def create_page(self):
+  def process_page(self):
     self.page_title = parse.unquote_plus(self.url.post['title'][0])
     if 'publish' in self.url.post:
       published = True

@@ -159,6 +159,7 @@ class SessionOperations(Operations):
     else:
       token = new_token()
       self.execute('add_session', user_id=escape(user_id), sess_token=escape(token), exp_date=escape(new_time()))
+      self.db.commit()
     return token
 
   def close_session(self, user_id):
