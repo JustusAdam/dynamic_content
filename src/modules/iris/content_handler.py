@@ -36,8 +36,8 @@ class FieldBasedPageContent(handlers.PageContent):
     if query_keys:
       vals = {}
       for key in query_keys:
-        if key in self._url.post_query.keys():
-          vals[key] = self._url.post_query[key]
+        if key in self.url.post:
+          vals[key] = self.url.post[key]
       if vals:
         field_handler.process_post(UrlQuery(vals))
 
@@ -46,13 +46,13 @@ class FieldBasedPageContent(handlers.PageContent):
     if query_keys:
       vals = {}
       for key in query_keys:
-        if key in self._url.get_query.keys():
-          vals[key] = self._url.post_query[key]
+        if key in self.url.get_query:
+          vals[key] = self.url.post[key]
       if vals:
         field_handler.process_get(UrlQuery(vals))
 
   def get_field_handler(self, name, module):
-    return self.modules[module].field_handler(name, self._url.page_type, self._url.page_id, self.modifier)
+    return self.modules[module].field_handler(name, self.url.page_type, self.url.page_id, self.modifier)
 
   def concatenate_content(self, fields):
     content = self.field_content(fields)
@@ -69,7 +69,7 @@ class FieldBasedPageContent(handlers.PageContent):
 
   def get_page_information(self):
     ops = database_operations.Pages()
-    (content_type, title) = ops.get_page_information(self._url.page_type, self._url.page_id)
+    (content_type, title) = ops.get_page_information(self.url.page_type, self.url.page_id)
     theme = ops.get_theme(content_type=content_type)
     return title, content_type, theme
 
@@ -82,7 +82,6 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.RedirectMixIn):
   def __init__(self, url, parent_handler):
     super().__init__(url, parent_handler)
     self.user = '1'
-    self._is_post = bool(self._url.post_query)
 
   @property
   def title_options(self):
@@ -94,7 +93,7 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.RedirectMixIn):
     content += self.field_content(fields)
     content.append(self.admin_options)
     table = TableElement(*content, classes={'edit', self.content_type, 'edit-form'})
-    return FormElement(table, action=str(self._url))
+    return FormElement(table, action=str(self.url))
 
   def field_content(self, fields):
     content = []
@@ -122,21 +121,21 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.RedirectMixIn):
     for field in fields:
       mapping = {}
       for key in field.get_post_query_keys():
-        if not key in self._url.post_query:
+        if not key in self.url.post:
           raise KeyError
-        mapping[key] = [parse.unquote_plus(a) for a in self._url.post_query[key]]
+        mapping[key] = [parse.unquote_plus(a) for a in self.url.post[key]]
       field.query = mapping
-  #
-  # def alter_page(self):
-  #   if not 'title' in self._url.post_query.keys():
-  #     raise ValueError
-  #   if self._url.post_query['title'] != self.page_title:
-  #     self.page_title = parse.unquote_plus(self._url.post_query['title'][0])
-  #   if 'publish' in self._url.post_query.keys():
-  #     published = True
-  #   else:
-  #     published = False
-  #   database_operations.Pages().edit_page(self._url.page_type, self.page_title, published, self._url.page_id)
+  
+  def alter_page(self):
+    if not 'title' in self.url.post:
+      raise ValueError
+    if self.url.post['title'] != self.page_title:
+      self.page_title = parse.unquote_plus(self.url.post['title'][0])
+    if 'publish' in self.url.post:
+      published = True
+    else:
+      published = False
+    database_operations.Pages().edit_page(self.url.page_type, self.page_title, published, self.url.page_id)
 
 
 class AddFieldBasedContentHandler(EditFieldBasedContent):
@@ -144,22 +143,22 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
 
   def get_page_information(self):
     ops = database_operations.Pages()
-    if not 'ct' in self._url.get_query:
+    if not 'ct' in self.url.get_query:
       raise ValueError
-    content_type = self._url.get_query['ct'][0]
+    content_type = self.url.get_query['ct'][0]
     display_name = ContentTypes().get_ct_display_name(content_type)
     title = 'Add new ' + display_name + ' page'
     theme = ops.get_theme(content_type=content_type)
     return title, content_type, theme
-  #
-  # def create_page(self):
-  #   self.page_title = parse.unquote_plus(self._url.post_query['title'][0])
-  #   if 'publish' in self._url.post_query.keys():
-  #     published = True
-  #   else:
-  #     published = False
-  #   return database_operations.Pages().add_page(self._url.page_type, self.content_type,
-  #                                               self.page_title, self.user, published)
+  
+  def create_page(self):
+    self.page_title = parse.unquote_plus(self.url.post['title'][0])
+    if 'publish' in self.url.post:
+      published = True
+    else:
+      published = False
+    return database_operations.Pages().add_page(self.url.page_type, self.content_type,
+                                                self.page_title, self.user, published)
 
   @property
   def title_options(self):

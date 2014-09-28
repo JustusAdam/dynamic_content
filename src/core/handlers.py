@@ -223,11 +223,11 @@ class PageContent(WebObject, TemplateBasedContent):
 
 class RedirectMixIn(WebObject):
   def redirect(self, destination=None):
-    if 'destination' in self._url.get_query:
-      destination = self._url.get_query['destination'][0]
+    if 'destination' in self.url.get_query:
+      destination = self.url.get_query['destination'][0]
     elif not destination:
-      destination = str(self._url.path.prt_to_str(0, -1))
-    raise HTTPError(str(self._url), 302, 'Redirect',
+      destination = str(self.url.path.prt_to_str(0, -1))
+    raise HTTPError(str(self.url), 302, 'Redirect',
                     [('Location', destination), ('Connection', 'close'), ('Content-Type', 'text/html')], None)
 
 

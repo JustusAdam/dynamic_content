@@ -48,10 +48,10 @@ class LoginHandler(handlers.PageContent, handlers.RedirectMixIn):
     return ContainerElement(self.message, LOGIN_FORM)
 
   def process_post(self):
-    if not self._url.post_query['username'] or not self._url.post_query['password']:
+    if not self.url.post['username'] or not self._url.post['password']:
       raise ValueError
-    username = self._url.post_query['username'][0]
-    password = self._url.post_query['password'][0]
+    username = self.url.post['username'][0]
+    password = self.url.post['password'][0]
     token = session.start_session(username, password)
     if token:
       self.add_morsels({'SESS': token})

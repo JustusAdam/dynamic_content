@@ -13,10 +13,10 @@ class CreateUser(PageContent, RedirectMixIn):
   message = ''
 
   def process_content(self):
-    if 'destination' in self._url.get_query:
-      target_url = str(self._url)
+    if 'destination' in self.url.get_query:
+      target_url = str(self.url)
     else:
-      target_url = str(self._url) + '?destination=' + self.destination + ''
+      target_url = str(self.url) + '?destination=' + self.destination + ''
     return str(ContainerElement(
       '{message}',
       FormElement(
@@ -32,12 +32,12 @@ class CreateUser(PageContent, RedirectMixIn):
       )
     )).format(message=self.message)
 
-  def process_post_query(self):
-    if self._url.post_query['confirm-password'] == self._url.post_query['password']:
+  def process_post(self):
+    if self.url.post['confirm-password'] == self.url.post['password']:
       args = dict()
       for key in ['username', 'password', 'last_name', 'first_name', 'middle_name']:
-        if key in self._url.post_query:
-          args[key] = self._url.post_query[key][0]
+        if key in self.url.post:
+          args[key] = self.url.post[key][0]
       users.add_user(**args)
-      self.redirect(str(self._url.path))
+      self.redirect(str(self.url.path))
     self.message = ContainerElement('Your passwords did not match.', classes='alert')
