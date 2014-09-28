@@ -6,9 +6,10 @@ __author__ = 'justusadam'
 
 
 def handle_post(url, post_query):
-  handler = FormOperations().get_handler(url.page_type)
-  if handler:
-    Modules()[handler](url, post_query)
+  handler_name = FormOperations().get_handler(url.page_type)
+  if handler_name:
+    handler = Modules()[handler_name](url, post_query)
+    return handler.handle()
   else:
     raise HTTPError(str(url), 404, None, None, None)
 

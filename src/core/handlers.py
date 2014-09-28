@@ -17,7 +17,7 @@ from core.comp.template import Template
 from framework.config_tools import read_config
 from framework.html_elements import ContainerElement
 from framework.page import Component
-from framework.url_tools import Url
+from framework.url import Url, UrlQuery
 
 
 __author__ = 'justusadam'
@@ -32,13 +32,26 @@ class Content:
     return str(self.compiled)
 
 
-class Object(Content):
+class WebObject(Content):
+
+  _url = None
+
   def __init__(self, url):
     super().__init__()
-    assert isinstance(url, Url)
-    self._url = url
+    self.url = url
     self._headers = set()
     self._cookies = None
+
+  @property
+  def url(self):
+    return self._url
+
+  @url.setter
+  def url(self, val):
+    if not isinstance(val, Url):
+      self._url = Url(val)
+    else:
+      self._url = val
 
   @property
   def client_info(self):
@@ -72,8 +85,26 @@ class Object(Content):
       self.add_header(name, value)
     return self._headers
 
+  def is_get(self):
+    return bool(self.url.get_query)
 
-class Page(Object):
+  def is_post(self):
+    return bool(self.url.post)
+
+  def process_queries(self):
+    if self.is_get():
+      self.process_get()
+    if self.is_post():
+      self.process_post()
+
+  def process_get(self):
+    pass
+
+  def process_post(self):
+    pass
+
+
+class Page(WebObject):
   def __init__(self, url, client_info):
     super().__init__(url)
     self._client_info = client_info
@@ -140,7 +171,7 @@ class TemplateBasedPage(Page, TemplateBasedContent):
   template_name = 'page'
 
 
-class PageContent(Object, TemplateBasedContent):
+class PageContent(WebObject, TemplateBasedContent):
   theme = 'default_theme'
 
   template_name = 'content'
@@ -162,21 +193,19 @@ class PageContent(Object, TemplateBasedContent):
   def has_url_query(self):
     return bool(self._url.get_query)
 
-  def process_url_query(self):
-    pass
-
   def fill_template(self):
     self._template['content'] = self.process_content()
     self._template['title'] = self.page_title
 
   @property
   def compiled(self):
+    self.process_queries()
     self.fill_template()
     page = Component(str(self._template), title=self.page_title)
     return page
 
 
-class RedirectMixIn(Object):
+class RedirectMixIn(WebObject):
   def redirect(self, destination=None):
     if 'destination' in self._url.get_query:
       destination = self._url.get_query['destination'][0]

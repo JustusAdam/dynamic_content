@@ -13,16 +13,16 @@ import sys
 import traceback
 import copy
 
-from core import database_operations
 from core.database import DatabaseError, Database
 from core.comp.page import BasicHandler
 from includes import bootstrap
 from .file_handler import FileHandler
-from framework.url_tools import Url
+from framework.url import Url
 from framework.config_tools import read_config
-from core.users.cli_info import ClientInfoImpl
+from core.users import client
 from includes import log
 from core import form
+import core
 
 
 __author__ = 'justusadam'
@@ -30,6 +30,14 @@ __author__ = 'justusadam'
 
 class RequestHandler(BaseHTTPRequestHandler):
   def do_POST(self):
+    """
+    Method that gets called by this handler if it receives a post request.
+
+    Post requests have to be handled by the same methods and handlers. This is to avoid that should a form be sent
+    which contains incorrect input the content/field handlers can opt to send the provided inputs back as "value"
+    fields to not have the user enter everything again.
+    :return:
+    """
     # construct Url object from path for accessibility
     url = Url(self.path, True)
 
@@ -46,7 +54,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
   def do_any(self, url):
     # construct client information from headers
-    client_information = ClientInfoImpl(self.headers)
+    client_information = client.ClientInfoImpl(self.headers)
 
     try:
       # ensure the request is being redirected, if it has a trailing slash
@@ -143,7 +151,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     except DatabaseError:
       raise HTTPError(str(url), 500, 'Database unreachable', None, None)
 
-    url.path = self.translate_alias(str(url.path))
+    url.path = core.translate_alias(str(url.path))
 
     if len(url.path) == 0:
       raise HTTPError(str(url), 404, None, None, None)
@@ -156,10 +164,3 @@ class RequestHandler(BaseHTTPRequestHandler):
     from .setup import SetupHandler
 
     return SetupHandler(url, client_info)
-
-  def translate_alias(self, alias):
-    try:
-      query_result = database_operations.Alias().get_by_alias(alias)
-      return query_result
-    except (DatabaseError, TypeError):
-      return alias

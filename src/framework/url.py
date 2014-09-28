@@ -19,12 +19,19 @@ def join_path(path, location, query):
 
 
 class Url:
-  def __init__(self, url, is_post=False):
+
+  post = None
+
+  def __init__(self, url, post=None):
     parsed = parse.urlsplit(url)
     self._path = UrlPath(parsed.path)
     self._location = UrlLocation(parsed.fragment)
     self._get_query = UrlQuery(parsed.query)
-    self.is_post = is_post
+    if post:
+      if isinstance(post, UrlQuery):
+        self.post = post
+      else:
+        self.post = UrlQuery(post)
 
     self.page_id = 1
     self.page_type = None

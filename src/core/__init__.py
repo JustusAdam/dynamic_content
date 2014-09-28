@@ -30,3 +30,11 @@ def prepare():
   mo = dbo.ModuleOperations()
   mo.init_tables()
   dbo.ContentTypes().init_tables()
+
+
+def translate_alias(alias):
+  try:
+    query_result = dbo.Alias().get_by_alias(alias)
+    return query_result
+  except (dbo.DBOperationError, TypeError):
+    return alias

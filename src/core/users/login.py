@@ -2,7 +2,7 @@ import datetime
 
 from framework.html_elements import FormElement, TableElement, ContainerElement, Label, Input, SubmitButton
 from core import handlers
-from core.users.cli_info import ANONYMOUS
+from core.users.client import ANONYMOUS
 from . import session
 
 
@@ -44,9 +44,10 @@ class LoginHandler(handlers.PageContent, handlers.RedirectMixIn):
     self.page_title = 'Login'
 
   def process_content(self):
+    ContainerElement('Your Login failed, please try again.', classes={'alert'})
     return ContainerElement(self.message, LOGIN_FORM)
 
-  def process_post_query(self):
+  def process_post(self):
     if not self._url.post_query['username'] or not self._url.post_query['password']:
       raise ValueError
     username = self._url.post_query['username'][0]
@@ -54,8 +55,8 @@ class LoginHandler(handlers.PageContent, handlers.RedirectMixIn):
     token = session.start_session(username, password)
     if token:
       self.add_morsels({'SESS': token})
-      self.redirect('/iris/1')
-    self.message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
+      return 0
+    return 1
 
 
 class LoginCommonHandler(handlers.Commons):
