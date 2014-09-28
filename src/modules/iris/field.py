@@ -1,7 +1,6 @@
 from . import database_operations
 from core import handlers
-from framework.page import Component
-from framework.html_elements import Textarea, ContainerElement
+from framework.html_elements import Textarea
 
 __author__ = 'justusadam'
 
@@ -31,7 +30,7 @@ class EditBaseFieldHandler(BaseFieldHandler):
     return [self.machine_name]
 
   def process_post(self):
-    self.db_ops.alter_content(self.machine_name, self.path_prefix, self.page_id, self.query[self.machine_name])
+    self.db_ops.alter_content(self.machine_name, self.path_prefix, self.page_id, self._query[self.machine_name][0])
 
 
 class AddBaseFieldHandler(EditBaseFieldHandler):
@@ -41,4 +40,4 @@ class AddBaseFieldHandler(EditBaseFieldHandler):
     return Textarea(name=self.machine_name, rows=7, cols=50, classes={self.machine_name} | self.xtra_classes)
 
   def process_post(self):
-    self.db_ops.add_field(self.machine_name, self.path_prefix, self.page_id, self.query[self.machine_name])
+    self.db_ops.add_field(self.machine_name, self.path_prefix, self.page_id, self.query[self.machine_name][0])

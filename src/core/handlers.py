@@ -153,9 +153,6 @@ class Field(Content):
 
   @query.setter
   def query(self, value):
-    for key in value:
-      if not isinstance(key, str):
-        raise ValueError
     self._query = value
 
   @property
