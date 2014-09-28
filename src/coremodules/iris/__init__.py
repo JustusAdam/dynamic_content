@@ -31,6 +31,14 @@ def field_handler(field_name, prefix, page_id, modifier):
   return handlers[modifier](prefix, page_id, field_name)
 
 
+def post_handler(url, post_query):
+  handlers = {
+    'add': None,
+    'edit': None
+  }
+  return handlers[url.page_modifier](url, post_query)
+
+
 def prepare():
   ct = dbo.Pages()
   ct.init_tables()
