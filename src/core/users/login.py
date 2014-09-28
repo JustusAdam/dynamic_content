@@ -1,7 +1,7 @@
 import datetime
 
 from framework.html_elements import FormElement, TableElement, ContainerElement, Label, Input, SubmitButton
-from core.base_handlers import PageContentHandler, RedirectMixIn, CommonsHandler
+from core import handlers
 from core.users.cli_info import ANONYMOUS
 from . import session
 
@@ -37,7 +37,7 @@ LOGIN_COMMON = FormElement(
 )
 
 
-class LoginHandler(PageContentHandler, RedirectMixIn):
+class LoginHandler(handlers.PageContent, handlers.RedirectMixIn):
   def __init__(self, url, parent_handler):
     super().__init__(url, parent_handler)
     self.message = ''
@@ -58,14 +58,14 @@ class LoginHandler(PageContentHandler, RedirectMixIn):
     self.message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
 
 
-class LoginCommonHandler(CommonsHandler):
+class LoginCommonHandler(handlers.Commons):
   source_table = 'user_management'
 
   def get_content(self, name):
     return LOGIN_COMMON
 
 
-class LogoutHandler(PageContentHandler, RedirectMixIn):
+class LogoutHandler(handlers.PageContent, handlers.RedirectMixIn):
   def process_content(self):
     self.logout()
 

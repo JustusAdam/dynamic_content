@@ -15,7 +15,7 @@ import copy
 
 from core import database_operations
 from core.database import DatabaseError, Database
-from core.comp.page_handler import BasicPageHandler
+from core.comp.page import BasicHandler
 from includes import bootstrap
 from .file_handler import FileHandler
 from framework.url_tools import Url
@@ -148,7 +148,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     if len(url.path) == 0:
       raise HTTPError(str(url), 404, None, None, None)
 
-    return BasicPageHandler(url, client_info)
+    return BasicHandler(url, client_info)
 
   def start_setup(self, url, client_info):
     if not read_config('config.json')['setup']:

@@ -1,4 +1,4 @@
-from core.base_handlers import CommonsHandler
+from core import handlers
 from framework.html_elements import TableElement, ContainerElement
 from .database_operations import UserOperations
 from core.users.cli_info import ANONYMOUS
@@ -7,7 +7,7 @@ from .login import LOGOUT_BUTTON
 __author__ = 'justusadam'
 
 
-class UserInformationCommon(CommonsHandler):
+class UserInformationCommon(handlers.Commons):
   source_table = 'user_management'
 
   def __init__(self, machine_name, show_title, user, access_group):
