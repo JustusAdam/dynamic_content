@@ -1,6 +1,7 @@
 from http.server import *
 import os
 from pathlib import Path
+from core.database import Database, DatabaseError
 
 from framework.config_tools import read_config
 import core
@@ -18,10 +19,12 @@ os.chdir(basedir)
 
 def main():
   try:
+    db = Database()
     core.register_installed_modules()
     global modules
     modules = core.load_modules()
-  except core.dbo.DBOperationError as error:
+    db.close()
+  except (core.dbo.DBOperationError, DatabaseError) as error:
     print('Failed to register installed modules, continuing.')
     print(error)
 

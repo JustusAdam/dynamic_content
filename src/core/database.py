@@ -60,6 +60,7 @@ class Database:
   def close(self):
     if self._connection:
       self._connection.close()
+      self._connection = None
 
   def connect(self):
     if self._connection:

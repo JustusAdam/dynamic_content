@@ -27,6 +27,9 @@ import core
 __author__ = 'justusadam'
 
 
+db = None
+
+
 class RequestHandler(BaseHTTPRequestHandler):
   def do_POST(self):
     """
@@ -79,7 +82,9 @@ class RequestHandler(BaseHTTPRequestHandler):
       log.write_error('Request Handler', function='do_any', message='Unexpected error ' + str(exce))
       self.send_error(500, *self.responses[500])
       return 0
-
+    global db
+    if db:
+      db.close()
     return 0
 
   def process_http_error(self, error, page_handler=None):
@@ -136,7 +141,7 @@ class RequestHandler(BaseHTTPRequestHandler):
       raise HTTPError(str(url), 301, 'Indexing is prohibited on this server', [("Location", str(new_dest))], None)
 
   def get_handler(self, url, client_info):
-
+    global db
     if url.page_type == 'setup':
 
       return self.start_setup(url, client_info)
