@@ -3,7 +3,7 @@ from urllib.error import HTTPError
 from core import Modules, database_operations
 from core.database_operations import DBOperationError
 from core.comp.regions import RegionHandler
-from core.base_handlers import TemplateBasedPageHandler
+from core.handlers import TemplateBasedPage
 from framework.config_tools import read_config
 from framework.html_elements import Stylesheet, Script, LinkElement, ContainerElement
 
@@ -11,7 +11,7 @@ from framework.html_elements import Stylesheet, Script, LinkElement, ContainerEl
 __author__ = 'justusadam'
 
 
-class BasicPageHandler(TemplateBasedPageHandler):
+class BasicHandler(TemplateBasedPage):
   _theme = None
 
   template_name = 'page'

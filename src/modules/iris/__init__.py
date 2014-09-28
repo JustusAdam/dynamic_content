@@ -1,5 +1,5 @@
-from .content_handler import FieldBasedPageContentHandler, EditFieldBasedContentHandler, AddFieldBasedContentHandler
-from .field_handler import BaseFieldHandler, EditBaseFieldHandler, AddBaseFieldHandler
+from .content_handler import FieldBasedPageContent, EditFieldBasedContent, AddFieldBasedContentHandler
+from . import field
 from . import database_operations as dbo
 
 from core.database_operations import ContentHandlers, ContentTypes
@@ -15,8 +15,8 @@ path_prefix = 'iris'
 
 def content_handler(url, parent_handler):
   handlers = {
-    'edit': EditFieldBasedContentHandler,
-    'show': FieldBasedPageContentHandler,
+    'edit': EditFieldBasedContent,
+    'show': FieldBasedPageContent,
     'add': AddFieldBasedContentHandler
   }
   return handlers[url.page_modifier](url, parent_handler)
@@ -24,9 +24,9 @@ def content_handler(url, parent_handler):
 
 def field_handler(field_name, prefix, page_id, modifier):
   handlers = {
-    'show': BaseFieldHandler,
-    'add': AddBaseFieldHandler,
-    'edit': EditBaseFieldHandler
+    'show': field.BaseFieldHandler,
+    'add': field.AddBaseFieldHandler,
+    'edit': field.EditBaseFieldHandler
   }
   return handlers[modifier](prefix, page_id, field_name)
 

@@ -6,7 +6,7 @@ own page handlers.
 from pathlib import Path
 from urllib.error import HTTPError
 
-from core.base_handlers import PageHandler
+from core.handlers import Page
 from includes import bootstrap
 from includes import log
 
@@ -26,7 +26,7 @@ FILETYPES = {
 }
 
 
-class FileHandler(PageHandler):
+class FileHandler(Page):
   def __init__(self, url, client_info):
     super().__init__(url, client_info)
     self.page_type = 'file'

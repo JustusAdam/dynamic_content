@@ -1,6 +1,6 @@
-from .commons import TextCommonsHandler
+from .commons import TextCommons
 from . import database_operations as dbo
-from modules.commons.menus import MenuHandler
+from modules.commons.menus import Handler
 
 __author__ = 'justusadam'
 
@@ -11,8 +11,8 @@ role = 'block_manager'
 
 def common_handler(item_type, item_name, show_title, user, access_group):
   handlers = {
-    'menu': MenuHandler,
-    'com_text': TextCommonsHandler
+    'menu': Handler,
+    'com_text': TextCommons
   }
   return handlers[item_type](item_name, show_title, user, access_group)
 

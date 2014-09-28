@@ -1,17 +1,17 @@
 from urllib import parse
 
-from core.base_handlers import PageContentHandler, RedirectMixIn
+from core import handlers
 from core.modules import Modules
 from framework.html_elements import FormElement, TableElement, Input, Label, ContainerElement
 from framework.url_tools import UrlQuery
 from . import database_operations
-from core.database_operations import ContentTypes, DBOperationError
+from core.database_operations import ContentTypes
 
 
 __author__ = 'justusadam'
 
 
-class FieldBasedPageContentHandler(PageContentHandler):
+class FieldBasedPageContent(handlers.PageContent):
   modifier = 'show'
 
   def __init__(self, url, parent_handler):
@@ -74,7 +74,7 @@ class FieldBasedPageContentHandler(PageContentHandler):
     return title, content_type, theme
 
 
-class EditFieldBasedContentHandler(FieldBasedPageContentHandler, RedirectMixIn):
+class EditFieldBasedContent(FieldBasedPageContent, handlers.RedirectMixIn):
   modifier = 'edit'
 
   field_identifier_separator = '-'
@@ -139,7 +139,7 @@ class EditFieldBasedContentHandler(FieldBasedPageContentHandler, RedirectMixIn):
   #   database_operations.Pages().edit_page(self._url.page_type, self.page_title, published, self._url.page_id)
 
 
-class AddFieldBasedContentHandler(EditFieldBasedContentHandler):
+class AddFieldBasedContentHandler(EditFieldBasedContent):
   modifier = 'add'
 
   def get_page_information(self):

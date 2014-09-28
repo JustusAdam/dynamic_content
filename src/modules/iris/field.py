@@ -1,12 +1,12 @@
 from . import database_operations
-from core.base_handlers import FieldHandler
+from core import handlers
 from framework.page import Component
 from framework.html_elements import Textarea, ContainerElement
 
 __author__ = 'justusadam'
 
 
-class BaseFieldHandler(FieldHandler):
+class BaseFieldHandler(handlers.Field):
   def __init__(self, path_prefix, page_id, machine_name):
     super().__init__()
     self.page_id = page_id

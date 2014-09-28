@@ -1,10 +1,10 @@
 from . import database_operations
-from core.base_handlers import CommonsHandler
+from core import handlers
 
 __author__ = 'justusadam'
 
 
-class TextCommonsHandler(CommonsHandler):
+class TextCommons(handlers.Commons):
   com_type = 'text'
 
   def __init__(self, machine_name, show_title, user, access_group):

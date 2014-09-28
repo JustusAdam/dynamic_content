@@ -23,7 +23,7 @@ from framework.url_tools import Url
 __author__ = 'justusadam'
 
 
-class ContentHandler:
+class Content:
   @property
   def compiled(self):
     return ''
@@ -32,7 +32,7 @@ class ContentHandler:
     return str(self.compiled)
 
 
-class ObjectHandler(ContentHandler):
+class Object(Content):
   def __init__(self, url):
     super().__init__()
     assert isinstance(url, Url)
@@ -73,7 +73,7 @@ class ObjectHandler(ContentHandler):
     return self._headers
 
 
-class PageHandler(ObjectHandler):
+class Page(Object):
   def __init__(self, url, client_info):
     super().__init__(url)
     self._client_info = client_info
@@ -90,11 +90,11 @@ class PageHandler(ObjectHandler):
     return self._client_info
 
 
-class FieldHandler(ContentHandler):
+class Field(Content):
   pass
 
 
-class TemplateBasedContentHandler(ContentHandler):
+class TemplateBasedContent(Content):
   _theme = 'default_theme'
 
   template_name = None
@@ -136,11 +136,11 @@ class TemplateBasedContentHandler(ContentHandler):
     pass
 
 
-class TemplateBasedPageHandler(PageHandler, TemplateBasedContentHandler):
+class TemplateBasedPage(Page, TemplateBasedContent):
   template_name = 'page'
 
 
-class PageContentHandler(ObjectHandler, TemplateBasedContentHandler):
+class PageContent(Object, TemplateBasedContent):
   theme = 'default_theme'
 
   template_name = 'content'
@@ -149,7 +149,7 @@ class PageContentHandler(ObjectHandler, TemplateBasedContentHandler):
 
   def __init__(self, url, parent_handler):
     super().__init__(url)
-    TemplateBasedContentHandler.__init__(self)
+    TemplateBasedContent.__init__(self)
     self._parent = parent_handler
 
   @property
@@ -176,7 +176,7 @@ class PageContentHandler(ObjectHandler, TemplateBasedContentHandler):
     return page
 
 
-class RedirectMixIn(ObjectHandler):
+class RedirectMixIn(Object):
   def redirect(self, destination=None):
     if 'destination' in self._url.get_query:
       destination = self._url.get_query['destination'][0]
@@ -186,7 +186,7 @@ class RedirectMixIn(ObjectHandler):
                     [('Location', destination), ('Connection', 'close'), ('Content-Type', 'text/html')], None)
 
 
-class CommonsHandler:
+class Commons:
   # used to identify items with internationalization
   com_type = 'commons'
 

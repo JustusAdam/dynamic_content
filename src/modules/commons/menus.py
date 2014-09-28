@@ -1,5 +1,5 @@
 from .commons import database_operations
-from core.base_handlers import CommonsHandler
+from core import handlers
 from framework.html_elements import ContainerElement, List
 
 __author__ = 'justusadam'
@@ -69,7 +69,7 @@ class HTMLMenuItem(MenuItem):
     return self.render_self(depth), self.render_children(depth + 1)
 
 
-class MenuHandler(CommonsHandler):
+class Handler(handlers.Commons):
   source_table = 'menu_items'
 
   def __init__(self, machine_name, show_title, user, access_group):
