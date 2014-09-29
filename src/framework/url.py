@@ -10,14 +10,6 @@ from urllib import parse
 __author__ = 'justusadam'
 
 
-def join_path(path, location, query):
-  if location != '':
-    location = '#' + location
-  if query != '':
-    query = '?' + query
-  return path + location + query
-
-
 class Url:
 
   post = None
@@ -48,7 +40,8 @@ class Url:
       elif self.path[1].isalpha():
         self.page_modifier = self.path[1]
     if len(self.path) > 2:
-      self.page_modifier = self.path[2]
+      if not self.page_modifier:
+        self.page_modifier = self.path[2]
 
   @property
   def path(self):

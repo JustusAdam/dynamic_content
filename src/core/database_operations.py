@@ -7,7 +7,7 @@ This is currently the recommended method for accessing the database to ensure co
 import sys
 from pathlib import Path
 
-from core.database import escape, DatabaseError, InterfaceError, Database, ProgrammingError
+from core.database import escape, DatabaseError, Database
 from framework.config_tools import read_config
 
 
@@ -47,7 +47,7 @@ class Operations:
     query = self.queries[query_name].format(*format_args, **format_kwargs)
     try:
       self.cursor.execute(query)
-    except (DatabaseError, InterfaceError, ProgrammingError) as error:
+    except (DatabaseError) as error:
       raise DBOperationError(query, error)
 
   def create_table(self, table, columns):

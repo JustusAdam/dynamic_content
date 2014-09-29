@@ -1,3 +1,7 @@
+"""
+Main file that runs the server.
+"""
+
 from http.server import *
 import os
 from pathlib import Path

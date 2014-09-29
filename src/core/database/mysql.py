@@ -2,24 +2,20 @@
 This file holds the adapter used to connect to the database(s). It will be expanded in the future to allow for
 compatibility with more database types.
 
-The API for accessing the database has changed and it is no longer recommended to use the insert(), select() etc,
-functions and instead use a custom Operations class, for which a base class can be found in database_operations and
-execute queries custom to the database type like the ones defined there.
+The API for accessing the database is currently not finally decided upon.
 
 It is recommended to escape all values but not table and column names using the escape() function provided here since
 thus the escaping will be custom to the database type.
 """
-
-from pathlib import Path
 
 __author__ = 'justusadam'
 
 from pymysql import DatabaseError, connect, ProgrammingError, InterfaceError
 from pymysql.converters import escape_item
 
-from framework.config_tools import read_config
 from framework.singleton import singleton
 
+from ._abs import AbstractDatabase
 
 def unwrap_pairing(pairing, charset):
   into_cols = []
@@ -35,11 +31,11 @@ def unwrap_pairing(pairing, charset):
 
 
 @singleton
-class Database:
+class Database(AbstractDatabase):
   date_time_format = '%Y-%m-%d %H:%M:%S'
 
-  def __init__(self):
-    self.config = read_config(str(self.get_my_folder()) + '/../config')
+  def __init__(self, config):
+    self.config = config
     self._connection = None
     self.connect()
     self.charset = 'utf-8'
@@ -80,9 +76,6 @@ class Database:
   # def get_module_id(self, module_name):
   # cursor = self._connection.cursor()
   # return cursor.execute('select id from modules where module_name = ' + module_name + ';')[0]
-
-  def get_my_folder(self):
-    return str(Path(__file__).parent)
 
   def select(self, columns, from_table, query_tail=';'):
     if isinstance(columns, (list, tuple)):
