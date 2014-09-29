@@ -68,6 +68,13 @@ src/config.json
 # fonts
 *.ttf
 
+# misc resources
+*.odg
+*.pbm
+
+# temporary files
+*.~*
+
 # large media file only intended for testing
 *.png
 *.ogg
