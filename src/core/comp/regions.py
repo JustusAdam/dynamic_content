@@ -20,15 +20,12 @@ class RegionHandler:
 
   def get_all_commons(self, name, theme):
     region_info = self.operations.get_commons(name, theme)
-
     acc = []
-
     if region_info:
       info = {a[0]: a[1:] for a in self.get_items_info(region_info)}
 
       for item in region_info:
         acc.append(self.get_item(item, *self.user_info + info[item]))
-
     return acc
 
   def get_item(self, item_name, user, access_group, handler_module, item_type, show_title):

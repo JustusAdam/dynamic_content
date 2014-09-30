@@ -75,16 +75,6 @@ def init_module(module_path):
     print('it seems no prepare() method could be found')
 
 
-def drop_module_tables(moduleconf):
-  if 'required_tables' in moduleconf:
-    print('dropping tables for ' + moduleconf['name'])
-    try:
-      database_operations.ModuleOperations().drop_tables(*(a['table_name'] for a in moduleconf['required_tables']))
-    except DatabaseError as newerror:
-      print('Could not drop table for ' + moduleconf['name'] + ' due to error: ' + str(
-        newerror.args))
-
-
 def get_module_path(module):
   return database_operations.ModuleOperations().get_path(module)
 
@@ -129,6 +119,7 @@ def register_modules(r_modules):
 
 
 def register_single_module(moduleconf):
+  assert isinstance(moduleconf, dict)
   print('registering module ' + moduleconf['name'])
   db_op = database_operations.ModuleOperations()
   try:

@@ -32,6 +32,10 @@ def unwrap_pairing(pairing, charset):
 
 @singleton
 class Database(AbstractDatabase):
+  """
+  Implementation of the abstract Database for mysql databases.
+  """
+
   date_time_format = '%Y-%m-%d %H:%M:%S'
 
   def __init__(self, config):

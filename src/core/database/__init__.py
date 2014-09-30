@@ -17,6 +17,7 @@ db_types = {
 
 db_imp = importlib.import_module('.' + db_types[config['database_type']], __name__)
 
+
 def database_factory():
   return db_imp.Database(config)
 

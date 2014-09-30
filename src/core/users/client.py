@@ -7,8 +7,14 @@ __author__ = 'justusadam'
 
 SESSION_TOKEN_IDENTIFIER = 'SESS'
 
+# special usernames
 UNKNOWN = -2
 ANONYMOUS = -1
+
+# special access groups
+UNKNOWN_GRP = -2
+ANONYMOUS_GRP = -1
+AUTH = 1
 
 
 class ClientInformation:
@@ -18,9 +24,9 @@ class ClientInformation:
       self._cookies = cookies.SimpleCookie(headers['Cookie'])
     else:
       self._cookies = None
-    # If user is set to -2 it is undecided what user is used, -1 is guest/not logged id
-    self._user = -2
-    self._access_group = -2
+    # user and group are initially set to UNKNOWN and only resolved when necessary
+    self._user = UNKNOWN
+    self._access_group = UNKNOWN_GRP
 
   @property
   def headers(self):
@@ -34,7 +40,7 @@ class ClientInformation:
 
   @property
   def access_group(self):
-    if self._access_group == UNKNOWN:
+    if self._access_group == UNKNOWN_GRP:
       self._access_group = self.get_acc_grp(self.user)
     return self._access_group
 
