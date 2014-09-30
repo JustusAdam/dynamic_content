@@ -19,25 +19,25 @@ class FormOperations(Operations):
 
   _queries = {
     'mysql': {
-      'add_token': 'insert into form_tokens (url, token, user) values ({form}, {token}, {user});',
-      'validate': 'select user from form_tokens where user={user} and url={form} and token={token};',
-      'remove': 'delete from form_tokens where user={user} and url={form} and token={token};'
+      'add_token': 'insert into form_tokens (url, token) values ({form}, {token});',
+      'validate': 'select url from form_tokens where url={form} and token={token};',
+      'remove': 'delete from form_tokens where url={form} and token={token};'
     }
   }
 
-  def new_token(self, form, user):
+  def new_token(self, form):
     token = gen_token()
-    self.execute('add_token', form=escape(form), token=escape(token), user=escape(user))
+    self.execute('add_token', form=escape(form), token=escape(token))
     return binascii.hexlify(token)
 
-  def validate(self, form, user, token):
+  def validate(self, form, token):
     token = binascii.unhexlify(token)
-    self.execute('validate', user=escape(user), form=escape(form), token=escape(token))
+    self.execute('validate', form=escape(form), token=escape(token))
     if self.cursor.fetchone():
-      self.remove(form, user, token)
+      self.remove(form, token)
       return True
     return False
 
-  def remove(self, form, user, token):
+  def remove(self, form, token):
     assert isinstance(token, bytes)
-    self.execute('remove', form=escape(form), user=escape(user), token=escape(token))
+    self.execute('remove', form=escape(form), token=escape(token))
