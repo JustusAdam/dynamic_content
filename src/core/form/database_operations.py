@@ -32,8 +32,6 @@ class FormOperations(Operations):
 
   def validate(self, form, user, token):
     token = binascii.unhexlify(token)
-    if isinstance(user, str):
-      user = int(user)
     self.execute('validate', user=escape(user), form=escape(form), token=escape(token))
     if self.cursor.fetchone():
       self.remove(form, user, token)

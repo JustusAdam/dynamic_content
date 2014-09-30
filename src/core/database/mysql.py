@@ -49,8 +49,11 @@ class Database(AbstractDatabase):
     if self._connection:
       self._connection.commit()
       self._connection.close()
+      self._connection = None
 
   def cursor(self):
+    if not self._connection:
+      self.connect()
     return self._connection.cursor()
 
   def commit(self):

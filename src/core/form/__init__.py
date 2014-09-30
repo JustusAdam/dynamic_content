@@ -1,4 +1,5 @@
 from .database_operations import FormOperations
+from .secure import SecureForm
 
 __author__ = 'justusadam'
 
@@ -12,3 +13,4 @@ def validate(form, user, query_or_token):
     FormOperations().validate(form, user, query_or_token)
   else:
     FormOperations().validate(form, user, query_or_token['form_token'])
+

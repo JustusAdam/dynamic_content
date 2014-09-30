@@ -92,7 +92,7 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
               ContainerElement('Please verify that these settings are correct or change '
                                'them accordingly in the \'config.json\' file.',
                                html_type='p'),
-              try_database_connection()
+              '{db_con}'
             )
           )
       },
@@ -137,6 +137,8 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
 
     self._template.update(generic)
     message = ''
+    if self._url.page_id == 2:
+      self._template['content'] = self._template['content'].format(db_con=try_database_connection())
     if self._url.page_id == 4:
       setup_result = self.setup_wrapper()
       self._template['content'] = self._template['content'].format(**setup_result)

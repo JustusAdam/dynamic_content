@@ -103,7 +103,7 @@ class BaseClassIdElement(BaseElement):
 class ContainerElement(BaseClassIdElement):
   def __init__(self, *content, html_type='div', classes=set(), element_id='', additionals={}):
     super().__init__(html_type, classes, element_id, additionals)
-    self._content = content
+    self._content = list(content)
 
   @property
   def content(self):
@@ -304,7 +304,7 @@ class Label(ContainerElement):
 
 
 class SubmitButton(Input):
-  def __init__(self, value='Submit', classes=set(), element_id='', name='', end_line=False, form='',
+  def __init__(self, value='Submit', classes=set(), element_id='', name='', form='',
                additionals={}):
     super().__init__(value=value, classes=classes, element_id=element_id, name=name, input_type='submit', form=form,
                      additionals=additionals)

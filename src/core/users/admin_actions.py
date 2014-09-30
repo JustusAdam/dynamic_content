@@ -1,5 +1,6 @@
 from core.handlers import PageContent, RedirectMixIn
-from framework.html_elements import FormElement, TableElement, Input, ContainerElement
+from framework.html_elements import TableElement, Input, ContainerElement
+from core.form import SecureForm
 from core.users import users
 
 __author__ = 'justusadam'
@@ -19,7 +20,7 @@ class CreateUser(PageContent, RedirectMixIn):
       target_url = str(self.url) + '?destination=' + self.destination + ''
     return str(ContainerElement(
       '{message}',
-      FormElement(
+      SecureForm(0,
         TableElement(
           ('Name', Input(name='last_name')),
           ('Firstname (optional)', Input(name='first_name')),
