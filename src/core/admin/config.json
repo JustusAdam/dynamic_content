@@ -13,6 +13,13 @@
             "machine_name varchar(200) not null unique",
             "display_name varchar(200) not null",
             "description varchar(400)",
+            "subcategory varchar(200)",
+            "weight int"
+        ],
+        "admin_subcategories": [
+            "id int unsigned not null unique auto_increment primary key",
+            "machine_name varchar(200) not null unique",
+            "display_name varchar(200) not null",
             "category varchar(200)",
             "weight int"
         ]
