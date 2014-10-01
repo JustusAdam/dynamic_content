@@ -57,6 +57,7 @@ target/
 
 # custom additions
 Apache License.txt
+sandbox.py
 
 # the individual config made from example.config.json
 src/config.json

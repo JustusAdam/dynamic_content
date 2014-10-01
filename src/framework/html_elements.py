@@ -13,7 +13,7 @@ class BaseElement:
   your inheriting class, unless you require a more complex setter
   """
 
-  def __init__(self, html_type, additionals={}):
+  def __init__(self, html_type, additionals=dict()):
     self.html_type = html_type
     if isinstance(additionals, str):
       additionals = [additionals]

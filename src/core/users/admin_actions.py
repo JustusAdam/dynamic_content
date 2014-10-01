@@ -20,7 +20,7 @@ class CreateUser(PageContent, RedirectMixIn):
       target_url = str(self.url) + '?destination=' + self.destination + ''
     return str(ContainerElement(
       '{message}',
-      SecureForm(0,
+      SecureForm(
         TableElement(
           ('Name', Input(name='last_name')),
           ('Firstname (optional)', Input(name='first_name')),
