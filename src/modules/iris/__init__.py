@@ -39,7 +39,6 @@ def post_handler(url):
 
 def prepare():
   from core.database_operations import ContentHandlers, ContentTypes
-  from core import admin
   ct = dbo.Pages()
   ct.init_tables()
   f = dbo.Fields()
@@ -50,8 +49,6 @@ def prepare():
   ContentHandlers().add_new('iris', name, path_prefix)
   ContentTypes().add('article', 'Simple Article', 'iris', 'active')
   f.add_field_type('body', 'Body', 'article', 'iris')
-
-  # add admin pages
 
 
   page_id = ct.add_page(
