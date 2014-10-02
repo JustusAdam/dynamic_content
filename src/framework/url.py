@@ -31,17 +31,19 @@ class Url:
     self.parse_path()
 
   def parse_path(self):
+    self.tail = []
     if len(self.path) > 0:
       self.page_type = self.path[0]
       self.page_id = 0
     if len(self.path) > 1:
       if self.path[1].isdigit():
         self.page_id = int(self.path[1])
+        self.tail = self.path[2:]
       elif self.path[1].isalpha():
-        self.page_modifier = self.path[1]
+        self.tail = self.path[1:]
     if len(self.path) > 2:
-      if not self.page_modifier:
-        self.page_modifier = self.path[2]
+      if self.tail:
+        self.page_modifier = self.tail[0]
 
   @property
   def path(self):

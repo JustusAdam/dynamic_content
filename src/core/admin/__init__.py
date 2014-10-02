@@ -1,11 +1,27 @@
+from .database_operations import AdminOperations
+from .admin_pages import Overview, CategoryPage
+from core import Modules
+
 __author__ = 'justusadam'
 
-name = 'admin_pages'
+name = 'admin'
 
 
-def page_handler_factory():
-  pass
+def content_handler(url, parent_handler):
+  if not url.tail:
+    handler = Overview
+  elif len(url.tail) == 1:
+    handler = CategoryPage
+  else:
+    handler_name = AdminOperations().get_page(url.tail[1])
+    handler = Modules()[handler_name]
+  return handler(url, parent_handler)
 
 
 def prepare():
-  pass
+  ops = AdminOperations()
+
+  ops.init_tables()
+
+  from core.database_operations import ContentHandlers
+  ContentHandlers().add_new('admin', 'admin', 'admin')

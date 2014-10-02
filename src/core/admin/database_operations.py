@@ -6,14 +6,23 @@ __author__ = 'justusadam'
 class AdminOperations(Operations):
   _queries = {
     'mysql': {
-      'get_all_categories': 'select machine_name, display_name from admin_categories;',
-      'get_subcategories': 'select machine_name, display_name, category from admin_sections {cond} order by subcategory, weight;'
+      'get_all_categories': 'select machine_name, display_name from admin_categories {cond} order by weight;',
+      'get_subcategories': 'select machine_name, display_name, category from admin_subcategories {cond} order by category, weight;',
+      'get_page': 'select handler_module from admin_pages where machine_name={machine_name};',
+      'get_cat_pages': 'select machine_name, display_name, handler_module from admin_pages where subcategory={category};'
     }
   }
 
-  def get_categories(self):
+  _tables = {'admin_categories', 'admin_subcategories', 'admin_pages'}
 
-    self.execute('get_all_categories')
+  def get_categories(self, *categories):
+    cond = ''
+    if categories:
+      acc = []
+      for item in categories:
+        acc.append('machine_name=' + escape(item))
+      cond = 'where ' + ' and '.join(acc)
+    self.execute('get_all_categories', cond=cond)
     return self.cursor.fetchall()
 
   def get_subcategories(self, *categories):
@@ -24,4 +33,12 @@ class AdminOperations(Operations):
         acc.append('category=' + escape(item))
       cond = 'where ' + ' and '.join(acc)
     self.execute('get_subcategories', cond=cond)
+    return self.cursor.fetchall()
+
+  def get_page(self, name):
+    self.execute('get_page', machine_name=escape(name))
+    return self.cursor.fetchone()[0]
+
+  def get_cat_pages(self, category):
+    self.execute('get_cat_pages', category=escape(category))
     return self.cursor.fetchall()

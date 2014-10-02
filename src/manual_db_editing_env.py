@@ -1,3 +1,4 @@
+from core.admin.database_operations import AdminOperations
 from core.database import Database
 from core.database_operations import Alias, ModuleOperations, ContentHandlers, ContentTypes
 from modules.iris.database_operations import Pages, Fields
@@ -45,3 +46,6 @@ info.append('User operations: us_dbo')
 
 ses_dbo = SessionOperations()
 info.append('Session Operations: ses_dbo')
+
+ad_dbo = AdminOperations()
+info.append('Admin Pages Operations: ad_dbo')
