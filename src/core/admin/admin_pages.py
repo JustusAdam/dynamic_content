@@ -10,6 +10,7 @@ class Overview(PageContent):
   def __init__(self, url, parent_handler):
     super().__init__(url, parent_handler)
     self.ops = AdminOperations()
+    self.page_title = 'Website Administration'
 
   def process_content(self):
     return self.render_categories(*self.element_tree())
@@ -20,8 +21,11 @@ class Overview(PageContent):
   def get_parents_data(self):
     return self.ops.get_categories()
 
+  def base_path(self):
+    return '/admin'
+
   def render_categories(self, *subcategories):
-    subcategories = [a.render('/admin') for a in subcategories]
+    subcategories = [a.render(self.base_path()) for a in subcategories]
     if len(subcategories) == 1:
       return ContainerElement(*subcategories)
     else:
@@ -49,6 +53,9 @@ class Overview(PageContent):
 
 class CategoryPage(Overview):
 
+  def base_path(self):
+    return self.url.path.prt_to_str(0, -1)
+
   def get_parents_data(self):
     return self.ops.get_categories(self.url.tail[0])
 
@@ -56,7 +63,7 @@ class CategoryPage(Overview):
     return self.ops.get_subcategories(self.url.tail[0])
 
 
-class SubcategoryPage(Overview):
+class SubcategoryPage(CategoryPage):
 
   def __init__(self, url, parent_handler):
     super().__init__(url, parent_handler)

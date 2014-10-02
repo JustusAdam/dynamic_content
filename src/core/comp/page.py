@@ -38,7 +38,7 @@ class BasicHandler(TemplateBasedPage):
       print(error)
       raise HTTPError(self._url, 404, None, None, None)
 
-    handler = self.modules[handler_module].content_handler
+    handler = self.modules[handler_module].content_handler(url)
     return handler
 
   @property

@@ -13,13 +13,13 @@ role = 'page_handler'
 path_prefix = 'iris'
 
 
-def content_handler(url, parent_handler):
+def content_handler(url):
   handlers = {
     'edit': EditFieldBasedContent,
     'show': FieldBasedPageContent,
     'add': AddFieldBasedContentHandler
   }
-  return handlers[url.page_modifier](url, parent_handler)
+  return handlers[url.page_modifier]
 
 
 def field_handler(field_name, prefix, page_id, modifier):
@@ -31,12 +31,12 @@ def field_handler(field_name, prefix, page_id, modifier):
   return handlers[modifier](prefix, page_id, field_name)
 
 
-def post_handler(url, post_query):
+def post_handler(url):
   handlers = {
     'add': None,
     'edit': None
   }
-  return handlers[url.page_modifier](url, post_query)
+  return handlers[url.page_modifier]
 
 
 def prepare():

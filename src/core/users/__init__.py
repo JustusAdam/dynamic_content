@@ -1,6 +1,7 @@
 from .login import LoginHandler, LoginCommonHandler, LogoutHandler, login_prefix, logout_prefix
 from . import session, users
 from .user_information import UserInformationCommon
+from .admin_actions import CreateUser
 
 __author__ = 'justusadam'
 
@@ -13,12 +14,19 @@ START_REGION = 'sidebar_left'
 START_THEME = 'default_theme'
 
 
-def content_handler(url, parent_handler):
+def admin_handler(name):
+  handlers = {
+    'create_user': CreateUser
+  }
+  return handlers[name]
+
+
+def content_handler(url):
   handlers = {
     login_prefix: LoginHandler,
     logout_prefix: LogoutHandler
   }
-  return handlers[url.page_type](url, parent_handler)
+  return handlers[url.page_type]
 
 
 def common_handler(item_type, item_name, show_title, user, access_group):

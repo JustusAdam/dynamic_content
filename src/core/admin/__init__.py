@@ -7,7 +7,7 @@ __author__ = 'justusadam'
 name = 'admin'
 
 
-def content_handler(url, parent_handler):
+def content_handler(url):
   if not url.tail:
     handler = Overview
   elif len(url.tail) == 1:
@@ -15,9 +15,9 @@ def content_handler(url, parent_handler):
   elif len(url.tail) == 2:
     handler = SubcategoryPage
   else:
-    handler_name = AdminOperations().get_page(url.tail[1])
-    handler = Modules()[handler_name]
-  return handler(url, parent_handler)
+    handler_name = AdminOperations().get_page(url.tail[2])
+    handler = Modules()[handler_name].admin_handler(url.tail[2])
+  return handler
 
 
 def prepare():
