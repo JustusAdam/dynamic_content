@@ -72,6 +72,8 @@ src/config.json
 # misc resources
 *.odg
 *.pbm
+*.css
+*.css.*
 
 # temporary files
 *.~*

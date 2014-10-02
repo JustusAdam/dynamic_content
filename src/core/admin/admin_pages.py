@@ -75,6 +75,10 @@ class OverviewCommon(Commons, Overview):
     subcategories = [a.render(self.base_path()) for a in self.element_tree()]
     return subcategories
 
+  @property
+  def title(self):
+    return ContainerElement(super().title, html_type='a', additionals={'href': '/admin'})
+
 
 class CategoryPage(OverviewPage):
 

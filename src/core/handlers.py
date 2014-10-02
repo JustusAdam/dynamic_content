@@ -15,7 +15,7 @@ from urllib.error import HTTPError
 from core import Modules
 from core.comp.template import Template
 from framework.config_tools import read_config
-from framework.html_elements import ContainerElement
+from framework.html_elements import ContainerElement, container_wrapper
 from framework.page import Component
 from framework.url import Url, UrlQuery
 
@@ -294,9 +294,13 @@ class Commons:
       self.dn_ops = Modules()['internationalization'].Operations()
     return self.dn_ops.get_display_name(item, self.source_table, language)
 
+  @property
+  def title(self):
+    return self.get_display_name(self.name)
+
   def wrap_content(self, content):
     if self.show_title:
-      title = ContainerElement(self.get_display_name(self.name), html_type='h3')
+      title = ContainerElement(self.title, html_type='h3')
     else:
       title = ''
     if isinstance(content, (list, tuple, set)):

@@ -327,3 +327,10 @@ class FormElement(ContainerElement):
 
   def render_content(self):
     return super().render_content() + str(self.submit)
+
+
+# this recurses?
+def container_wrapper(used_class, **kwargs):
+  def wrapped(*args):
+    return used_class(*args, **kwargs)
+  return wrapped
