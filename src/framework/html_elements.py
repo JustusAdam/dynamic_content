@@ -228,8 +228,13 @@ class List(ContainerElement):
     if isinstance(element, ContainerElement):
       if element.html_type == 'li':
         return str(element)
-    else:
+    elif isinstance(element, str):
+      return str(ContainerElement(element, html_type='li', classes=self.item_classes,
+                                  additionals=self.item_additionals))
+    elif hasattr(element, '__iter__'):
       return str(ContainerElement(*element, html_type='li', classes=self.item_classes,
+                                  additionals=self.item_additionals))
+    return str(ContainerElement(element, html_type='li', classes=self.item_classes,
                                   additionals=self.item_additionals))
 
   def render_content(self):

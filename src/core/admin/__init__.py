@@ -1,5 +1,5 @@
 from .database_operations import AdminOperations
-from .admin_pages import Overview, CategoryPage
+from .admin_pages import Overview, CategoryPage, SubcategoryPage
 from core import Modules
 
 __author__ = 'justusadam'
@@ -12,6 +12,8 @@ def content_handler(url, parent_handler):
     handler = Overview
   elif len(url.tail) == 1:
     handler = CategoryPage
+  elif len(url.tail) == 2:
+    handler = SubcategoryPage
   else:
     handler_name = AdminOperations().get_page(url.tail[1])
     handler = Modules()[handler_name]

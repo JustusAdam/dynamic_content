@@ -6,10 +6,11 @@ __author__ = 'justusadam'
 class AdminOperations(Operations):
   _queries = {
     'mysql': {
-      'get_all_categories': 'select machine_name, display_name from admin_categories {cond} order by weight;',
+      'get_categories_info': 'select machine_name, display_name from admin_categories {cond} order by weight;',
       'get_subcategories': 'select machine_name, display_name, category from admin_subcategories {cond} order by category, weight;',
       'get_page': 'select handler_module from admin_pages where machine_name={machine_name};',
-      'get_cat_pages': 'select machine_name, display_name, handler_module from admin_pages where subcategory={category};'
+      'get_cat_pages': 'select machine_name, display_name, subcategory from admin_pages where subcategory={category};',
+      'get_subcategories_info': 'select machine_name, display_name from admin_subcategories {cond} order by weight;'
     }
   }
 
@@ -22,7 +23,17 @@ class AdminOperations(Operations):
       for item in categories:
         acc.append('machine_name=' + escape(item))
       cond = 'where ' + ' and '.join(acc)
-    self.execute('get_all_categories', cond=cond)
+    self.execute('get_categories_info', cond=cond)
+    return self.cursor.fetchall()
+
+  def get_subcategories_info(self, *categories):
+    cond = ''
+    if categories:
+      acc = []
+      for item in categories:
+        acc.append('machine_name=' + escape(item))
+      cond = 'where ' + ' and '.join(acc)
+    self.execute('get_subcategories_info', cond=cond)
     return self.cursor.fetchall()
 
   def get_subcategories(self, *categories):
