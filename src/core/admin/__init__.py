@@ -22,7 +22,7 @@ def content_handler(url):
 
 def common_handler(item_type, item_name, show_title, user, access_group):
   handlers = {
-    'admin_menu': OverviewCommon
+    'menu': OverviewCommon
   }
   return handlers[item_type](item_name, show_title, user, access_group)
 
