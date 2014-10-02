@@ -297,4 +297,15 @@ form.login-form {
       text-decoration: none;
     }
   }
+  ul {
+    padding-left: 25px;
+  }
+}
+
+.admin-page {
+  ul {
+    list-style-type: none;
+    padding-left: 15px;
+    margin: 8px 0;
+  }
 }

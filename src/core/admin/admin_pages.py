@@ -58,6 +58,7 @@ class OverviewPage(PageContent, Overview):
   def __init__(self, url, parent_handler):
     super().__init__(url, parent_handler)
     Overview.__init__(self)
+    self.classes = {'admin-menu', 'overview', 'admin-page'}
 
   def process_content(self):
     return self.render_categories(*self.element_tree())
