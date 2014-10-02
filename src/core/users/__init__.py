@@ -45,6 +45,8 @@ def prepare():
   import core
   from .database_operations import UserOperations, SessionOperations
   from core.comp.database_operations import RegionOperations
+  from core import admin
+
   # from coremodules.internationalization.database_operations import DisplayNamesOperations
   so = SessionOperations()
   uo = UserOperations()
@@ -54,15 +56,21 @@ def prepare():
   uo.init_tables()
 
   # add login page
-  core.add_content_handler('login', 'users', login_prefix)
-  core.add_content_handler('logout', 'users', logout_prefix)
+  core.add_content_handler('login', name, login_prefix)
+  core.add_content_handler('logout', name, logout_prefix)
 
   # add login common
   ro.add_item('login', START_REGION, 0, START_THEME)
-  ro.add_item_conf('login', 'login', 'users', True)
+  ro.add_item_conf('login', 'login', name, True)
   #dn.add_item('login', 'user_management', ('english', 'User Login'))
 
   # add user information common
-  ro.add_item_conf('user_information', 'user_information', 'users', True)
+  ro.add_item_conf('user_information', 'user_information', name, True)
   ro.add_item('user_information', START_REGION, 1, START_THEME)
   #dn.add_item('user_information', 'user_management', ('english', 'Your Account Information'))
+
+  # add admin pages
+  admin.new_category('user', 'Users')
+  admin.new_subcategory('user_management', 'Add and Edit Users', 'user')
+  admin.new_page('create_user', 'Register new User', 'user_management', name)
+  admin.new_page('delete_user', 'Remove a User Account', 'user_management', name)

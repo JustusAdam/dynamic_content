@@ -23,6 +23,7 @@
             "machine_name varchar(200) not null unique",
             "display_name varchar(200) not null",
             "category varchar(200)",
+            "description varchar(400)",
             "weight int"
         ]
     }

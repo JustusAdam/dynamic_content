@@ -53,3 +53,33 @@ class AdminOperations(Operations):
   def get_cat_pages(self, category):
     self.execute('get_cat_pages', category=escape(category))
     return self.cursor.fetchall()
+
+  def add_category(self, machine_name, display_name, description, weight):
+    pairing = {
+      'machine_name': machine_name,
+      'display_name': display_name,
+      'description': description,
+      'weight': weight
+    }
+    self.db.insert('admin_categories', pairing)
+
+  def add_subcategory(self, machine_name, display_name, category, description, weight):
+    pairing = {
+      'machine_name': machine_name,
+      'display_name': display_name,
+      'category': category,
+      'description': description,
+      'weight:': weight
+    }
+    self.db.insert('admin_subcategories', pairing)
+
+  def add_page(self, machine_name, display_name, subcategory, handler_module, description, weight):
+    pairing = {
+      'machine_name': machine_name,
+      'display_name': display_name,
+      'subcategory': subcategory,
+      'description': description,
+      'weight:': weight,
+      'handler_module': handler_module
+    }
+    self.db.insert('admin_pages', pairing)
