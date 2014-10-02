@@ -23,13 +23,6 @@ class Operations:
     self.charset = 'utf-8'
     self.cursor = self.db.cursor()
 
-  def __del__(self):
-    """
-    Ensures queries are committed
-    :return:
-    """
-    self.db.commit()
-
   _queries = {}
 
   _tables = {}
