@@ -1,19 +1,18 @@
-from core.handlers import PageContent
+from core.handlers import PageContent, Content, Commons
 from .database_operations import AdminOperations
 from framework.html_elements import ContainerElement, List
 
 __author__ = 'justusadam'
 
 
-class Overview(PageContent):
+ADMIN_PATH = '/admin'
 
-  def __init__(self, url, parent_handler):
-    super().__init__(url, parent_handler)
+
+class Overview(Content):
+
+  def __init__(self):
     self.ops = AdminOperations()
     self.page_title = 'Website Administration'
-
-  def process_content(self):
-    return self.render_categories(*self.element_tree())
 
   def get_children_data(self):
     return self.ops.get_subcategories()
@@ -22,7 +21,7 @@ class Overview(PageContent):
     return self.ops.get_categories()
 
   def base_path(self):
-    return '/admin'
+    return ADMIN_PATH
 
   def render_categories(self, *subcategories):
     subcategories = [a.render(self.base_path()) for a in subcategories]
@@ -51,7 +50,30 @@ class Overview(PageContent):
     return [child_class(machine_name, display_name, category, None) for (machine_name, display_name, category) in self.get_children_data()]
 
 
-class CategoryPage(Overview):
+class OverviewPage(PageContent, Overview):
+
+  def __init__(self, url, parent_handler):
+    super().__init__(url, parent_handler)
+    Overview.__init__(self)
+
+  def process_content(self):
+    return self.render_categories(*self.element_tree())
+
+
+class OverviewCommon(Commons, Overview):
+
+  source_table = 'admin'
+
+  def __init__(self, machine_name, show_title, user, access_group):
+    super().__init__(machine_name, show_title, user, access_group)
+    Overview.__init__(self)
+
+  def get_content(self, name):
+    subcategories = [a.render(self.base_path()) for a in self.element_tree()]
+    return subcategories
+
+
+class CategoryPage(OverviewPage):
 
   def base_path(self):
     return self.url.path.prt_to_str(0, -1)

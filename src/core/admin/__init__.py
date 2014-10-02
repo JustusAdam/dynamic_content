@@ -1,5 +1,5 @@
 from .database_operations import AdminOperations
-from .admin_pages import Overview, CategoryPage, SubcategoryPage
+from .admin_pages import OverviewPage, CategoryPage, SubcategoryPage, OverviewCommon
 from core import Modules
 
 __author__ = 'justusadam'
@@ -9,7 +9,7 @@ name = 'admin'
 
 def content_handler(url):
   if not url.tail:
-    handler = Overview
+    handler = OverviewPage
   elif len(url.tail) == 1:
     handler = CategoryPage
   elif len(url.tail) == 2:
@@ -18,6 +18,13 @@ def content_handler(url):
     handler_name = AdminOperations().get_page(url.tail[2])
     handler = Modules()[handler_name].admin_handler(url.tail[2])
   return handler
+
+
+def common_handler(item_type, item_name, show_title, user, access_group):
+  handlers = {
+    'admin_menu': OverviewCommon
+  }
+  return handlers[item_type](item_name, show_title, user, access_group)
 
 
 def new_category(machine_name, display_name, description='', weight=0):
