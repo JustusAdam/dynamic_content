@@ -69,7 +69,7 @@ class AdminOperations(Operations):
       'display_name': display_name,
       'category': category,
       'description': description,
-      'weight:': weight
+      'weight': weight
     }
     self.db.insert('admin_subcategories', pairing)
 
@@ -79,7 +79,7 @@ class AdminOperations(Operations):
       'display_name': display_name,
       'subcategory': subcategory,
       'description': description,
-      'weight:': weight,
+      'weight': weight,
       'handler_module': handler_module
     }
     self.db.insert('admin_pages', pairing)

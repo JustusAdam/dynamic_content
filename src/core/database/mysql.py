@@ -25,7 +25,7 @@ def unwrap_pairing(pairing, charset):
     values.append(escape(pairing[item], charset))
 
   def tstr(val):
-    return '(' + ' ,'.join(val) + ')'
+    return '(' + ', '.join(val) + ')'
 
   return tstr(into_cols), tstr(values)
 
@@ -159,6 +159,7 @@ class Database(AbstractDatabase):
     function only used for the setup process to test whether indexing the database works
     :return:
     """
+    self.connect()
     cursor = self._connection.cursor()
     try:
       cursor.execute('show tables')
