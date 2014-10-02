@@ -2,8 +2,6 @@ from .content_handler import FieldBasedPageContent, EditFieldBasedContent, AddFi
 from . import field
 from . import database_operations as dbo
 
-from core.database_operations import ContentHandlers, ContentTypes
-
 __author__ = 'justusadam'
 
 name = 'iris'
@@ -40,15 +38,21 @@ def post_handler(url):
 
 
 def prepare():
+  from core.database_operations import ContentHandlers, ContentTypes
+  from core import admin
   ct = dbo.Pages()
   ct.init_tables()
   f = dbo.Fields()
   f.init_tables()
   conf = ct.config
 
+  # add basic content handlers etc
   ContentHandlers().add_new('iris', name, path_prefix)
   ContentTypes().add('article', 'Simple Article', 'iris', 'active')
   f.add_field_type('body', 'Body', 'article', 'iris')
+
+  # add admin pages
+
 
   page_id = ct.add_page(
     **{k: conf['startpage'][k] for k in ['content_type', 'creator', 'page_title', 'published', 'page_type']})

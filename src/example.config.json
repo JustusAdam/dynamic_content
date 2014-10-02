@@ -18,7 +18,8 @@
         "passwd": "python_cms", // password
         "database": "python_cms",
         "user": "python_cms",
-        "host": "localhost"
+        "host": "localhost",
+        "autocommit": true
     },
     "setup": true,
     "database_type": "mysql"
