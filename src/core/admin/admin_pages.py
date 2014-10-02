@@ -10,6 +10,8 @@ ADMIN_PATH = '/admin'
 
 class Overview(Content):
 
+  classes = {'admin-menu', 'overview'}
+
   def __init__(self):
     self.ops = AdminOperations()
     self.page_title = 'Website Administration'
@@ -26,12 +28,13 @@ class Overview(Content):
   def render_categories(self, *subcategories):
     subcategories = [a.render(self.base_path()) for a in subcategories]
     if len(subcategories) == 1:
-      return ContainerElement(*subcategories)
+      return ContainerElement(*subcategories, classes=self.classes)
     else:
       half = len(subcategories) // 2
       return ContainerElement(
-        ContainerElement(*subcategories[:half]),
-        ContainerElement(*subcategories[half:])
+        ContainerElement(*subcategories[:half], classes={'left-column'}),
+        ContainerElement(*subcategories[half:], classes={'right-column'}),
+        classes=self.classes
       )
 
   def element_tree(self):
@@ -75,6 +78,8 @@ class OverviewCommon(Commons, Overview):
 
 class CategoryPage(OverviewPage):
 
+  classes = {'admin-menu', 'category'}
+
   def base_path(self):
     return self.url.path.prt_to_str(0, -1)
 
@@ -86,6 +91,8 @@ class CategoryPage(OverviewPage):
 
 
 class SubcategoryPage(CategoryPage):
+
+  classes = {'admin-menu', 'subcategory'}
 
   def __init__(self, url, parent_handler):
     super().__init__(url, parent_handler)
@@ -100,6 +107,8 @@ class SubcategoryPage(CategoryPage):
 
 class Category:
 
+  classes = {'category'}
+
   def __init__(self, name, display_name, parent, sub):
     self.name = name
     self.display_name = display_name
@@ -109,7 +118,7 @@ class Category:
   def render(self, url_base):
     path = url_base + '/' + self.name
     title = ContainerElement(
-        self.display_name, html_type='a', additionals={'href': path}
+        self.display_name, html_type='a', additionals={'href': path}, classes=self.classes
       )
     if not self.sub:
       return title
