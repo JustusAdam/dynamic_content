@@ -36,7 +36,7 @@ _edit_user_table_order = [
 ]
 
 
-def factory(url, parent_handler):
+def factory(url):
   handlers = {
     'edit': EditUser,
     'new': CreateUser,
@@ -44,8 +44,8 @@ def factory(url, parent_handler):
     'show': UserInformation
   }
   if url.page_id == 0:
-    return UsersOverview(url, parent_handler)
-  return handlers[url.page_modifier](url, parent_handler)
+    return UsersOverview
+  return handlers[url.page_modifier]
 
 
 class CreateUser(PageContent, RedirectMixIn):

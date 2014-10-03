@@ -3,7 +3,7 @@
     "role": "user_management",
     "tables": {
         "cms_users": [
-            "id int unsigned not null auto_increment unique primary key",
+            "uid int unsigned not null auto_increment unique primary key",
             "username varchar(200) not null unique",
             "email_address varchar(200) not null unique",
             "user_first_name varchar(100)",
@@ -15,15 +15,24 @@
         ],
         "cms_user_auth": [
             "id int unsigned not null unique auto_increment primary key",
-            "username varchar(200) not null unique",
+            "uid varchar(200) not null unique references cms_users (uid) on delete cascade on update cascade",
             "password varbinary({pass_size}) not null unique",
             "salt varbinary({salt_size}) not null unique"
         ],
         "session": [
             "session_id int unsigned not null unique auto_increment primary key",
             "sess_token varbinary({token_length}) not null unique",
-            "user_id int unsigned not null unique",
+            "uid int unsigned not null unique references cms_users (uid) on delete cascade on update cascade",
             "exp_date datetime not null"
+        ],
+        "access_groups": [
+            "aid int unsigned not null unique auto_increment primary key",
+            "machine_name varchar(200) not null unique"
+        ],
+        "access_group_permissions": [
+            "aid int unsigned not null references access_groups (aid) on delete cascade on update cascade",
+            "permission varchar(200) not null unique",
+            "handler_module varchar(200) not null references modules (module_name) on update cascade on delete no action"
         ]
     }
 }

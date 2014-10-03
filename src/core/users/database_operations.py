@@ -34,19 +34,19 @@ def hash_and_new_salt(password):
 class UserOperations(Operations):
   _queries = {
     'mysql': {
-      'add_user_auth': 'insert into cms_user_auth (username, salt, password) values ({username}, {salt}, {password});',
-      'change_password': 'update cms_user_auth set password={password}, salt={salt} where username={username};',
-      'get_pass_and_salt': 'select password, salt from cms_user_auth where username={username};',
-      'get_user_id': 'select id from cms_users where username={username};',
+      'add_user_auth': 'insert into cms_user_auth (uid, salt, password) values ({uid}, {salt}, {password});',
+      'change_password': 'update cms_user_auth set password={password}, salt={salt} where uid={uid};',
+      'get_pass_and_salt': 'select password, salt from cms_user_auth where uid={uid};',
+      'get_user_id': 'select uid from cms_users where username={username};',
       'get_acc_grp': 'select access_group from cms_users where {cond};',
-      'get_username': 'select username from cms_users where id={user_id};',
+      'get_username': 'select username from cms_users where uid={uid};',
       'get_date_joined': 'select date_created from cms_users where {cond};',
-      'get_users': 'select id, username, user_first_name, user_middle_name, user_last_name, date_created from cms_users order by id limit {selection};',
-      'get_single_user': 'select id, username, email_address, user_first_name, user_middle_name, user_last_name, date_created from cms_users where {cond};'
+      'get_users': 'select uid, username, user_first_name, user_middle_name, user_last_name, date_created from cms_users order by uid limit {selection};',
+      'get_single_user': 'select uid, username, email_address, user_first_name, user_middle_name, user_last_name, date_created from cms_users where {cond};'
     }
   }
 
-  _tables = {'cms_user_auth', 'cms_users'}
+  _tables = {'cms_users', 'cms_user_auth'}
 
   @property
   def config(self):
@@ -56,7 +56,7 @@ class UserOperations(Operations):
       for a in con['tables']['cms_user_auth']]
     return con
 
-  def get_id(self, username):
+  def get_uid(self, username):
     self.execute('get_user_id', username=escape(username))
     return self.cursor.fetchone()[0]
 
@@ -67,59 +67,59 @@ class UserOperations(Operations):
     self.add_user_auth(username, password)
     self.db.commit()
 
-  def add_user_auth(self, username, password):
+  def add_user_auth(self, uid, password):
     hashed, salt = hash_and_new_salt(password)
-    self.execute('add_user_auth', username=escape(username), password=escape(hashed), salt=escape(salt))
+    self.execute('add_user_auth', uid=escape(uid), password=escape(hashed), salt=escape(salt))
 
   def update_password(self, password, username):
     hashed, salt = hash_and_new_salt(password)
-    self.execute('change_password', password=escape(hashed), username=escape(username), salt=escape(salt))
+    self.execute('change_password', password=escape(hashed), uid=escape(uid), salt=escape(salt))
 
-  def get_pass_salt(self, username):
-    self.execute('get_pass_and_salt', username=escape((username)))
+  def get_pass_salt(self, uid):
+    self.execute('get_pass_and_salt', uid=escape(uid))
     return self.cursor.fetchone()
 
-  def change_password(self, username, old_password, new_password):
-    (pass_from_db, salt) = self.get_pass_salt(username)
+  def change_password(self, uid, old_password, new_password):
+    (pass_from_db, salt) = self.get_pass_salt(uid)
     if check_ident(old_password, salt, pass_from_db):
-      self.update_password(new_password, username)
+      self.update_password(new_password, uid)
     else:
       raise DBOperationError
 
-  def authenticate_user(self, username, password):
-    pass_from_db, salt = self.get_pass_salt(username)
+  def authenticate_user(self, uid, password):
+    pass_from_db, salt = self.get_pass_salt(uid)
     return check_ident(password, salt, pass_from_db)
 
-  def get_acc_grp(self, uname_or_id):
-    self.execute('get_acc_grp', cond=self.comp_cond(uname_or_id))
+  def get_acc_grp(self, uname_or_uid):
+    self.execute('get_acc_grp', cond=self.comp_cond(uname_or_uid))
     return self.cursor.fetchone()[0]
 
-  def get_username(self, user_id):
-    self.execute('get_username', user_id=escape(user_id))
+  def get_username(self, uid):
+    self.execute('get_username', uid=escape(uid))
     return self.cursor.fetchone()[0]
 
-  def comp_cond(self, uname_or_id):
-    assert isinstance(uname_or_id, int) or isinstance(uname_or_id, str)
-    if isinstance(uname_or_id, int):
-      return 'id=' + escape(str(uname_or_id))
-    elif uname_or_id.isalpha():
-      return 'id=' + escape(uname_or_id)
+  def comp_cond(self, uname_or_uid):
+    assert isinstance(uname_or_uid, int) or isinstance(uname_or_uid, str)
+    if isinstance(uname_or_uid, int):
+      return 'uid=' + escape(str(uname_or_uid))
+    elif uname_or_uid.isalpha():
+      return 'uid=' + escape(uname_or_uid)
     else:
-      return 'username=' + escape(uname_or_id)
+      return 'username=' + escape(uname_or_uid)
 
-  def get_date_joined(self, uname_or_id):
-    self.execute('get_date_joined', cond=self.comp_cond(uname_or_id))
+  def get_date_joined(self, uname_or_uid):
+    self.execute('get_date_joined', cond=self.comp_cond(uname_or_uid))
     return self.cursor.fetchone()[0]
 
   def get_users(self, selection='0,50'):
     self.execute('get_users', selection=selection)
     return self.cursor.fetchall()
 
-  def edit_user(self, user_id, **kwargs):
-    self.db.update('cms_users', kwargs, where_condition='where id=' + escape(user_id))
+  def edit_user(self, uid, **kwargs):
+    self.db.update('cms_users', kwargs, where_condition='where uid=' + escape(uid))
 
-  def get_single_user(self, uname_or_id):
-    cond = self.comp_cond(uname_or_id)
+  def get_single_user(self, uname_or_uid):
+    cond = self.comp_cond(uname_or_uid)
     self.execute('get_single_user', cond=cond)
     return self.cursor.fetchone()
 
@@ -142,11 +142,11 @@ def new_time():
 class SessionOperations(Operations):
   _queries = {
     'mysql': {
-      'add_session': 'insert into session (user_id, sess_token, exp_date) values ({user_id}, {sess_token}, {exp_date});',
-      'get_user': 'select user_id, exp_date from session where sess_token={sess_token};',
-      'get_token': 'select sess_token, exp_date from session where user_id={user_id};',
-      'refresh': 'update session set exp_date={exp_date} where user_id={user_id};',
-      'remove_session': 'delete from session where user_id={user_id};'
+      'add_session': 'insert into session (uid, sess_token, exp_date) values ({uid}, {sess_token}, {exp_date});',
+      'get_user': 'select uid, exp_date from session where sess_token={sess_token};',
+      'get_token': 'select sess_token, exp_date from session where uid={uid};',
+      'refresh': 'update session set exp_date={exp_date} where uid={uid};',
+      'remove_session': 'delete from session where uid={uid};'
     }
 
   }
@@ -160,46 +160,51 @@ class SessionOperations(Operations):
     return con
 
   def check_session(self, token):
-    user_id = self.get_user(token)
-    if user_id:
-      self.refresh(user_id)
-      return user_id
+    uid = self.get_user(token)
+    if uid:
+      self.refresh(uid)
+      return uid
     return None
 
-  def add_session(self, user_id):
-    token = self.get_token(user_id)
+  def add_session(self, uid):
+    token = self.get_token(uid)
     if token:
-      self.refresh(user_id)
+      self.refresh(uid)
     else:
       token = new_token()
-      self.execute('add_session', user_id=escape(user_id), sess_token=escape(token), exp_date=escape(new_time()))
+      self.execute('add_session', uid=escape(uid), sess_token=escape(token), exp_date=escape(new_time()))
       self.db.commit()
     return token
 
-  def close_session(self, user_id):
-    self.execute('remove_session', user_id=escape(user_id))
+  def close_session(self, uid):
+    self.execute('remove_session', uid=escape(uid))
     self.db.commit()
 
-  def get_token(self, user_id):
-    self.execute('get_token', user_id=escape(user_id))
+  def get_token(self, uid):
+    self.execute('get_token', uid=escape(uid))
     result = self.cursor.fetchone()
     if not result:
       return None
     token, exp_date = result
     if check_exp_time(exp_date):
       return token
-    self.close_session(user_id)
+    self.close_session(uid)
     return None
 
   def get_user(self, token):
     self.execute('get_user', sess_token=escape(token))
     result = self.cursor.fetchone()
     if result:
-      user_id, exp_date = result
+      uid, exp_date = result
       if check_exp_time(exp_date):
-        return int(user_id)
-      self.close_session(user_id)
+        return int(uid)
+      self.close_session(uid)
     return None
 
-  def refresh(self, user_id):
-    self.execute('refresh', exp_date=escape(new_time()), user_id=escape(user_id))
+  def refresh(self, uid):
+    self.execute('refresh', exp_date=escape(new_time()), uid=escape(uid))
+
+
+class AccessOperations(Operations):
+
+  _tables = {'access_groups', 'access_group_permissions'}

@@ -14,19 +14,19 @@ START_REGION = 'sidebar_left'
 START_THEME = 'default_theme'
 
 
-def admin_handler(name):
+def admin_handler(h_name):
   handlers = {
     'create_user': CreateUser,
     'user_overview': UsersOverview
   }
-  return handlers[name]
+  return handlers[h_name]
 
 
 def content_handler(url):
   handlers = {
     login_prefix: LoginHandler,
     logout_prefix: LogoutHandler,
-    'users': factory
+    'users': factory(url)
   }
   return handlers[url.page_type]
 

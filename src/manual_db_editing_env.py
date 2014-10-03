@@ -4,7 +4,7 @@ from core.database_operations import Alias, ModuleOperations, ContentHandlers, C
 from modules.iris.database_operations import Pages, Fields
 from modules.commons.database_operations import MenuOperations, CommonsOperations
 from core.comp.database_operations import RegionOperations
-from core.users.database_operations import UserOperations, SessionOperations
+from core.users.database_operations import UserOperations, SessionOperations, AccessOperations
 
 __author__ = 'justusadam'
 
@@ -46,6 +46,9 @@ info.append('User operations: us_dbo')
 
 ses_dbo = SessionOperations()
 info.append('Session Operations: ses_dbo')
+
+ac_dbo = AccessOperations()
+info.append('Access Operations: ac_dbo')
 
 ad_dbo = AdminOperations()
 info.append('Admin Pages Operations: ad_dbo')
