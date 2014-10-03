@@ -13,3 +13,7 @@ def add_user(username, password, first_name='', middle_name='', last_name=''):
 
 def get_info(selection):
   return UserOperations().get_users(selection)
+
+
+def edit_user():
+  pass
