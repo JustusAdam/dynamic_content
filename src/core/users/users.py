@@ -16,7 +16,7 @@ def acc_grp(user):
 
 
 def add_user(username, password, email, first_name='', middle_name='', last_name=''):
-  UserOperations().add_user(username, password, 1, first_name, middle_name, last_name)
+  UserOperations().add_user(username, password, email, 1, first_name, middle_name, last_name)
 
 
 def get_info(selection):

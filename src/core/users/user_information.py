@@ -3,6 +3,7 @@ from framework.html_elements import TableElement, ContainerElement
 from .database_operations import UserOperations
 from core.users.client import ANONYMOUS
 from .login import LOGOUT_BUTTON
+from . import users
 
 __author__ = 'justusadam'
 
@@ -32,3 +33,20 @@ class UserInformationCommon(handlers.Commons):
     if user == ANONYMOUS:
       return 'Not joined yet.'
     return str(self.ops.get_date_joined(user))
+
+class UserInformation(handlers.PageContent):
+
+  page_title = 'User Information'
+
+  def process_content(self):
+    (user_id, username, email, first_name, middle_name, last_name, date_created) = users.get_single_user(self.url.page_id)
+    return ContainerElement(
+      TableElement(
+        ['UID', str(user_id)],
+        ['Username', username],
+        ['Email-Address', email],
+        ['Full name', ' '.join([first_name, middle_name, last_name])],
+        ['Account created', date_created],
+        ['Access Group', users.acc_grp(user_id)]
+      )
+    )

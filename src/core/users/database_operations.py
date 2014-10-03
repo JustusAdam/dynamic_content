@@ -42,7 +42,7 @@ class UserOperations(Operations):
       'get_username': 'select username from cms_users where id={user_id};',
       'get_date_joined': 'select date_created from cms_users where {cond};',
       'get_users': 'select id, username, user_first_name, user_middle_name, user_last_name, date_created from cms_users order by id limit {selection};',
-      'get_single_user': 'select id, username, user_first_name, user_middle_name, user_last_name, date_created from cms_users where {cond};'
+      'get_single_user': 'select id, username, email_address, user_first_name, user_middle_name, user_last_name, date_created from cms_users where {cond};'
     }
   }
 

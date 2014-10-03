@@ -111,5 +111,5 @@ class BasicHandler(TemplateBasedPage):
     acc = []
     for i in range(len(self.url.path)):
       acc.append(ContainerElement(self.breadcrumb_separator(), html_type='span', classes={'breadcrumb-separator'}))
-      acc.append(ContainerElement(self.url.path[i], html_type='a', classes={'breadcrumb'}, additionals={'href': self.url.path.prt_to_str(0,i)}))
+      acc.append(ContainerElement(self.url.path[i], html_type='a', classes={'breadcrumb'}, additionals={'href': self.url.path.prt_to_str(0,i+1)}))
     return ContainerElement(*acc, classes={'breadcrumbs'})

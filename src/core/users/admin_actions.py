@@ -2,6 +2,7 @@ from core.handlers import PageContent, RedirectMixIn
 from framework.html_elements import TableElement, Input, ContainerElement, Label
 from core.form import SecureForm
 from core.users import users
+from .user_information import UserInformation
 
 __author__ = 'justusadam'
 
@@ -39,7 +40,8 @@ def factory(url, parent_handler):
   handlers = {
     'edit': EditUser,
     'new': CreateUser,
-    'overview': UsersOverview
+    'overview': UsersOverview,
+    'show': UserInformation
   }
   return handlers[url.page_modifier](url, parent_handler)
 
@@ -117,8 +119,6 @@ class EditUser(CreateUser):
                              middle_name=middle_name,
                              last_name=last_name,
                              date_created=date_created)
-
-
 
 
 class UsersOverview(PageContent):
