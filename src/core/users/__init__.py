@@ -1,7 +1,7 @@
 from .login import LoginHandler, LoginCommonHandler, LogoutHandler, login_prefix, logout_prefix
 from . import session, users
 from .user_information import UserInformationCommon
-from .admin_actions import CreateUser
+from .admin_actions import CreateUser, UsersOverview
 
 __author__ = 'justusadam'
 
@@ -16,7 +16,8 @@ START_THEME = 'default_theme'
 
 def admin_handler(name):
   handlers = {
-    'create_user': CreateUser
+    'create_user': CreateUser,
+    'users': UsersOverview
   }
   return handlers[name]
 

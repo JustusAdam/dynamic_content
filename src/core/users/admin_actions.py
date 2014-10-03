@@ -42,3 +42,20 @@ class CreateUser(PageContent, RedirectMixIn):
       users.add_user(**args)
       self.redirect(str(self.url.path))
     self.message = ContainerElement('Your passwords did not match.', classes='alert')
+
+
+class UsersOverview(PageContent):
+
+  page_title = 'User Overview'
+
+  def process_content(self):
+    if 'selection' in self.url.get_query:
+      selection = self.url.get_query['selection'][0]
+    else:
+      selection = '0,50'
+    all_users = users.get_info(selection)
+    acc = [['id', 'Username', 'Name (if provided)', 'Date created', 'Actions']]
+    for (user_id, username, user_first_name, user_middle_name, user_last_name, date_created) in all_users:
+      acc.append([str(user_id), username, ' '.join([user_first_name, user_middle_name, user_last_name]), date_created,
+                  ContainerElement('edit', html_type='a', additionals={'href': '/users/' + str(user_id) + '/edit'})])
+    return TableElement(*acc)

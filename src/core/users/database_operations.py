@@ -40,7 +40,8 @@ class UserOperations(Operations):
       'get_user_id': 'select id from cms_users where username={username};',
       'get_acc_grp': 'select access_group from cms_users where {cond};',
       'get_username': 'select username from cms_users where id={user_id};',
-      'get_date_joined': 'select date_created from cms_users where {cond};'
+      'get_date_joined': 'select date_created from cms_users where {cond};',
+      'get_users': 'select id, username, user_first_name, user_middle_name, user_last_name, date_created from cms_users order by id limit {selection};'
     }
   }
 
@@ -108,6 +109,10 @@ class UserOperations(Operations):
   def get_date_joined(self, uname_or_id):
     self.execute('get_date_joined', cond=self.comp_cond(uname_or_id))
     return self.cursor.fetchone()[0]
+
+  def get_users(self, selection='0,50'):
+    self.execute('get_users', selection=selection)
+    return self.cursor.fetchall()
 
 
 def new_token():
