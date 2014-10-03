@@ -142,5 +142,5 @@ class UsersOverview(PageContent):
                   date_created,
                   ContainerElement('edit', html_type='a', additionals={'href': '/users/' + str(user_id) + '/edit'})])
     if len(acc) == 1 or acc == []:
-      return ContainerElement(ContainerElement('It seems you do not have any users yet.', additionals={'style': 'padding:10px;text-align:center;'}), ContainerElement('Would you like to ', ContainerElement('create one', html_type='a', additionals={'href': '/users/new'}), '?', additionals={'style': 'padding:10px;'}), additionals={'style': 'padding:10px; text-align:center; background-color: cornflowerblue;color:white;'})
+      return ContainerElement(ContainerElement('It seems you do not have any users yet.', additionals={'style': 'padding:10px;text-align:center;'}), ContainerElement('Would you like to ', ContainerElement('create one', html_type='a', additionals={'href': '/users/new', 'style': 'color:rgb(255, 199, 37);text-decoration:none;'}), '?', additionals={'style': 'padding:10px;'}), additionals={'style': 'padding:15px; text-align:center; background-color: cornflowerblue;color:white;border-radius:20px;font-size:20px;'})
     return TableElement(*acc, classes={'user-overview'})
