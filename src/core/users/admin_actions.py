@@ -37,14 +37,15 @@ _edit_user_table_order = [
 
 
 def factory(url):
+  if url.page_id == 0:
+    if url.page_modifier == 'new':
+      return CreateUser
+    return UsersOverview
   handlers = {
     'edit': EditUser,
-    'new': CreateUser,
     'overview': UsersOverview,
     'show': UserInformation
   }
-  if url.page_id == 0:
-    return UsersOverview
   return handlers[url.page_modifier]
 
 
@@ -140,4 +141,6 @@ class UsersOverview(PageContent):
                   ' '.join([user_first_name, user_middle_name, user_last_name]),
                   date_created,
                   ContainerElement('edit', html_type='a', additionals={'href': '/users/' + str(user_id) + '/edit'})])
+    if len(acc) == 1 or acc == []:
+      return ContainerElement(ContainerElement('It seems you do not have any users yet.', additionals={'style': 'padding:10px;text-align:center;'}), ContainerElement('Would you like to ', ContainerElement('create one', html_type='a', additionals={'href': '/users/new'}), '?', additionals={'style': 'padding:10px;'}), additionals={'style': 'padding:10px; text-align:center; background-color: cornflowerblue;color:white;'})
     return TableElement(*acc, classes={'user-overview'})

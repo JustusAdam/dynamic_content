@@ -33,15 +33,19 @@ class DisplayNamesOperations(Operations):
     return item
 
   def edit_display_name(self, item, source_table, language, value):
-    self.execute('edit_display_name', language=language, value=escape(value), machine_name=escape(item),
-                 source_table=escape(source_table))
+    result = self.get_display_name(item, source_table, language)
+    if result == item:
+      self.add_item(item, source_table, [language, value])
+    else:
+      self.execute('edit_display_name', language=language, value=escape(value), machine_name=escape(item),
+                  source_table=escape(source_table))
 
   def add_item(self, item, source_table, *translations):
     languages = ''
     display_names = ''
     if translations:
-      for a in translations:
-        languages += ', ' + a[0]
-        display_names += ', ' + escape(a[1])
+      for (language, value) in translations:
+        languages += ', ' + language
+        display_names += ', ' + escape(value)
     self.execute('add_item_il', languages=languages, machine_name=escape(item), source_table=escape(source_table),
                  display_names=display_names)

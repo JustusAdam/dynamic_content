@@ -41,9 +41,8 @@ class Url:
         self.tail = self.path[2:]
       elif self.path[1].isalpha():
         self.tail = self.path[1:]
-    if len(self.path) > 2:
-      if self.tail:
-        self.page_modifier = self.tail[0]
+    if self.tail:
+      self.page_modifier = self.tail[0]
 
   @property
   def path(self):

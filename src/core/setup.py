@@ -138,11 +138,16 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
     self._template.update(generic)
     message = ''
     if self._url.page_id == 2:
+      db = Database()
       self._template['content'] = self._template['content'].format(db_con=try_database_connection())
+      del db
     if self._url.page_id == 4:
+      db = Database()
+      db.connect()
       setup_result = self.setup_wrapper()
       self._template['content'] = self._template['content'].format(**setup_result)
       self._template['title'] = self._template['title'].format(**setup_result)
+      del db
     elif self._url.page_id == 5:
       handler = CreateUser(self._url, self)
       handler.destination = '/setup/6'

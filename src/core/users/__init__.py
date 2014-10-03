@@ -76,5 +76,5 @@ def prepare():
   admin.new_category('user', 'Users')
   admin.new_subcategory('user_management', 'Add and Edit Users', 'user')
   admin.new_page('create_user', 'Register new User', 'user_management', name)
-  admin.new_page('users', 'Overview', 'user_management', name)
+  admin.new_page('user_overview', 'Overview', 'user_management', name)
   #admin.new_page('delete_user', 'Remove a User Account', 'user_management', name)
