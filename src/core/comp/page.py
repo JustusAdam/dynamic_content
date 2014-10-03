@@ -98,7 +98,7 @@ class BasicHandler(TemplateBasedPage):
     self._template['meta'] = self.compile_meta(self.theme)
     self._template['header'] = ''
     self._template['content'] = str(page.content)
-    self._template['pagetitle'] = ContainerElement('msaw - my super awesome website', html_type='a',
+    self._template['pagetitle'] = ContainerElement('dynamic_content - fast, python and extensible', html_type='a',
                                                    additionals='href="/"')
     self._template['breadcrumbs'] = self.breadcrumbs()
     for region in self.regions:

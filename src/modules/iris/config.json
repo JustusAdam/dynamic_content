@@ -2,10 +2,10 @@
     "startpage": {
         "content_type": "article",
         "creator": "1",
-        "page_title": "Welcome to _jaide",
+        "page_title": "Welcome to \"dynamic_content\"",
         "page_type": "iris",
         "published": true,
-        "body": "<div><h3>Welcome to your _jaide installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you'll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div><image src=\"http://imgs.xkcd.com/comics/server_attention_span.png\" width=\"550px\" style=\"padding:20px 0px\">"
+        "body": "<div><h3>Welcome to your \"dynamic_content\" installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you'll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div><image src=\"http://imgs.xkcd.com/comics/server_attention_span.png\" width=\"550px\" style=\"padding:20px 0px\">"
     },
     "name": "iris",
     "tables": {

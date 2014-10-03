@@ -27,7 +27,7 @@ def prepare():
   mo.add_menu_item('welcome', '/iris/1', 'start_menu', True, '<root>', 1)
   mo.add_menu_item('testpage', '/iris/2', 'start_menu', True, '<root>', 2)
   mo.add_menu_item('setup', '/setup', 'start_menu', True, 'welcome', 1)
-  co.add_content('text', 'copyright', '<p>_jaide CMS - © Justus Adam 2014</p>')
+  co.add_content('text', 'copyright', '<p>\"dynamic_content\" CMS - © Justus Adam 2014</p>')
 
   # do = DisplayNamesOperations()
 
