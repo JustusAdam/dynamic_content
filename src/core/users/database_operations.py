@@ -41,7 +41,8 @@ class UserOperations(Operations):
       'get_acc_grp': 'select access_group from cms_users where {cond};',
       'get_username': 'select username from cms_users where id={user_id};',
       'get_date_joined': 'select date_created from cms_users where {cond};',
-      'get_users': 'select id, username, user_first_name, user_middle_name, user_last_name, date_created from cms_users order by id limit {selection};'
+      'get_users': 'select id, username, user_first_name, user_middle_name, user_last_name, date_created from cms_users order by id limit {selection};',
+      'get_single_user': 'select id, username, user_first_name, user_middle_name, user_last_name, date_created from cms_users where {cond};'
     }
   }
 
@@ -59,8 +60,8 @@ class UserOperations(Operations):
     self.execute('get_user_id', username=escape(username))
     return self.cursor.fetchone()[0]
 
-  def add_user(self, username, password, access_group=1, first_name='', middle_name='', last_name=''):
-    pairing = {'username': username, 'access_group': access_group, 'user_first_name': first_name,
+  def add_user(self, username, password, email, access_group=1, first_name='', middle_name='', last_name=''):
+    pairing = {'username': username, 'access_group': access_group, 'user_first_name': first_name, 'email_address': email,
                'user_middle_name': middle_name, 'user_last_name': last_name, 'date_created': datetime.datetime.utcnow()}
     self.db.insert('cms_users', pairing)
     self.add_user_auth(username, password)
@@ -113,6 +114,14 @@ class UserOperations(Operations):
   def get_users(self, selection='0,50'):
     self.execute('get_users', selection=selection)
     return self.cursor.fetchall()
+
+  def edit_user(self, user_id, **kwargs):
+    self.db.update('cms_users', kwargs, where_condition='where id=' + escape(user_id))
+
+  def get_single_user(self, uname_or_id):
+    cond = self.comp_cond(uname_or_id)
+    self.execute('get_single_user', cond=cond)
+    return self.cursor.fetchone()
 
 
 def new_token():

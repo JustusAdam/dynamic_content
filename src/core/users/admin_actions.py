@@ -15,7 +15,7 @@ _edit_user_form = {
     'input_type': 'password',
     'required': True
   },
-  'email-address': {
+  'email': {
     'input_type': 'email',
     'required': True
   },
@@ -29,9 +29,19 @@ _edit_user_table_order = [
   ('Name', 'last_name'),
   ('Middle name', 'middle_name'),
   ('Username', 'username'),
+  ('Email-Address', 'email'),
   ('Password', 'password'),
   ('Confirm Password', 'confirm-password')
 ]
+
+
+def factory(url, parent_handler):
+  handlers = {
+    'edit': EditUser,
+    'new': CreateUser,
+    'overview': UsersOverview
+  }
+  return handlers[url.page_modifier](url, parent_handler)
 
 
 class CreateUser(PageContent, RedirectMixIn):
@@ -56,11 +66,12 @@ class CreateUser(PageContent, RedirectMixIn):
   def user_form(self, **kwargs):
     acc = []
     for (display_name, name) in _edit_user_table_order:
+      arguments = {}
       if name in _edit_user_form:
-        b = Input(name=name, **_edit_user_form[name])
-      else:
-        b = Input(name=name)
-      acc.append(Label(display_name, label_for=name), b)
+        arguments = _edit_user_form[name]
+      if name in kwargs:
+        arguments['value'] = kwargs[name]
+      acc.append([Label(display_name, label_for=name), Input(name=name, **arguments)])
 
     return SecureForm(
           TableElement(
@@ -71,14 +82,17 @@ class CreateUser(PageContent, RedirectMixIn):
 
 
   def process_post(self):
-    if self.url.post['confirm-password'] == self.url.post['password']:
-      args = dict()
-      for key in ['username', 'password', 'last_name', 'first_name', 'middle_name']:
-        if key in self.url.post:
-          args[key] = self.url.post[key][0]
-      self.action(**args)
-      self.redirect(str(self.url.path))
-    self.message = ContainerElement('Your passwords did not match.', classes='alert')
+    if 'password' in self.url.post:
+      if self.url.post['confirm-password'] != self.url.post['password']:
+        self.message = ContainerElement('Your passwords did not match.', classes='alert')
+        return
+    args = dict()
+    for key in ['username', 'password', 'email', 'last_name', 'first_name', 'middle_name']:
+      if key in self.url.post:
+        args[key] = self.url.post[key][0]
+    self.action(**args)
+    self.redirect(str(self.url.path))
+
 
   def action(self, **kwargs):
     users.add_user(**kwargs)
@@ -92,7 +106,17 @@ class EditUser(CreateUser):
   message = ''
 
   def action(self, **kwargs):
-    users.edit_user(**kwargs)
+    users.edit_user(self.url.page_id, **kwargs)
+
+  def user_form(self, **kwargs):
+    (user_id, username, email, first_name, middle_name, last_name, date_created) = users.get_single_user(self.url.page_id)
+    return super().user_form(user_id=user_id,
+                             username=username,
+                             email=email,
+                             first_name=first_name,
+                             middle_name=middle_name,
+                             last_name=last_name,
+                             date_created=date_created)
 
 
 

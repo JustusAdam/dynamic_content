@@ -100,5 +100,16 @@ class BasicHandler(TemplateBasedPage):
     self._template['content'] = str(page.content)
     self._template['pagetitle'] = ContainerElement('msaw - my super awesome website', html_type='a',
                                                    additionals='href="/"')
+    self._template['breadcrumbs'] = self.breadcrumbs()
     for region in self.regions:
       self._template[region.name] = str(region.compiled)
+
+  def breadcrumb_separator(self):
+    return '>>'
+
+  def breadcrumbs(self):
+    acc = []
+    for i in range(len(self.url.path)):
+      acc.append(ContainerElement(self.breadcrumb_separator(), html_type='span', classes={'breadcrumb-separator'}))
+      acc.append(ContainerElement(self.url.path[i], html_type='a', classes={'breadcrumb'}, additionals={'href': self.url.path.prt_to_str(0,i)}))
+    return ContainerElement(*acc, classes={'breadcrumbs'})

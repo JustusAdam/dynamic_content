@@ -5,6 +5,7 @@
         "cms_users": [
             "id int unsigned not null auto_increment unique primary key",
             "username varchar(200) not null unique",
+            "email_address varchar(200) not null unique",
             "user_first_name varchar(100)",
             "user_middle_name varchar(200)",
             "user_last_name varchar(100)",

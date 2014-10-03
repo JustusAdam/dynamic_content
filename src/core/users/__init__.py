@@ -1,7 +1,7 @@
 from .login import LoginHandler, LoginCommonHandler, LogoutHandler, login_prefix, logout_prefix
 from . import session, users
 from .user_information import UserInformationCommon
-from .admin_actions import CreateUser, UsersOverview, EditUser
+from .admin_actions import CreateUser, UsersOverview, EditUser, factory
 
 __author__ = 'justusadam'
 
@@ -17,8 +17,7 @@ START_THEME = 'default_theme'
 def admin_handler(name):
   handlers = {
     'create_user': CreateUser,
-    'users': UsersOverview,
-    'edit_user': EditUser
+    'user_overview': UsersOverview
   }
   return handlers[name]
 
@@ -26,7 +25,8 @@ def admin_handler(name):
 def content_handler(url):
   handlers = {
     login_prefix: LoginHandler,
-    logout_prefix: LogoutHandler
+    logout_prefix: LogoutHandler,
+    'users': factory
   }
   return handlers[url.page_type]
 
@@ -60,6 +60,7 @@ def prepare():
   # add login page
   core.add_content_handler('login', name, login_prefix)
   core.add_content_handler('logout', name, logout_prefix)
+  core.add_content_handler('users', name, 'users')
 
   # add login common
   ro.add_item('login', START_REGION, 0, START_THEME)
