@@ -43,6 +43,8 @@ def factory(url, parent_handler):
     'overview': UsersOverview,
     'show': UserInformation
   }
+  if url.page_id == 0:
+    return UsersOverview(url, parent_handler)
   return handlers[url.page_modifier](url, parent_handler)
 
 
@@ -131,8 +133,11 @@ class UsersOverview(PageContent):
     else:
       selection = '0,50'
     all_users = users.get_info(selection)
-    acc = [['id', 'Username', 'Name (if provided)', 'Date created', 'Actions']]
+    acc = [['UID', 'Username', 'Name (if provided)', 'Date created', 'Actions']]
     for (user_id, username, user_first_name, user_middle_name, user_last_name, date_created) in all_users:
-      acc.append([str(user_id), username, ' '.join([user_first_name, user_middle_name, user_last_name]), date_created,
+      acc.append([ContainerElement(str(user_id), html_type='a', additionals={'href': '/users/' + str(user_id)}),
+                  ContainerElement(username, html_type='a', additionals={'href': '/users/' + str(user_id)}),
+                  ' '.join([user_first_name, user_middle_name, user_last_name]),
+                  date_created,
                   ContainerElement('edit', html_type='a', additionals={'href': '/users/' + str(user_id) + '/edit'})])
-    return TableElement(*acc)
+    return TableElement(*acc, classes={'user-overview'})
