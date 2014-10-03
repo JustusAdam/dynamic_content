@@ -64,7 +64,7 @@ class UserOperations(Operations):
     pairing = {'username': username, 'access_group': access_group, 'user_first_name': first_name, 'email_address': email,
                'user_middle_name': middle_name, 'user_last_name': last_name, 'date_created': datetime.datetime.utcnow()}
     self.db.insert('cms_users', pairing)
-    self.add_user_auth(username, password)
+    self.add_user_auth(self.get_uid(username), password)
     self.db.commit()
 
   def add_user_auth(self, uid, password):

@@ -15,7 +15,7 @@
         ],
         "cms_user_auth": [
             "id int unsigned not null unique auto_increment primary key",
-            "uid varchar(200) not null unique references cms_users (uid) on delete cascade on update cascade",
+            "uid int not null unique references cms_users (uid) on delete cascade on update cascade",
             "password varbinary({pass_size}) not null unique",
             "salt varbinary({salt_size}) not null unique"
         ],

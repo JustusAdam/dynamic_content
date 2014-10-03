@@ -17,15 +17,21 @@ __author__ = 'justusadam'
 class Operations:
   _config_name = 'config.json'
 
-  db = Database()
-
   def __init__(self):
     self.charset = 'utf-8'
-    self.cursor = self.db.cursor()
+    self.db = Database()
 
   _queries = {}
 
   _tables = {}
+
+  _cursor = None
+
+  @property
+  def cursor(self):
+    if not self._cursor:
+      self._cursor = self.db.cursor()
+    return self._cursor
 
   @property
   def tables(self):
@@ -47,8 +53,9 @@ class Operations:
     self.db.create_table(table, columns)
 
   def create_all_tables(self):
-    for table in self.tables:
-      self.create_table(table, self.tables[table])
+    t = self.config['tables']
+    for table in self._tables:
+      self.create_table(table, t[table])
 
   def drop_tables(self, *tables):
     self.db.drop_tables(*tables)
