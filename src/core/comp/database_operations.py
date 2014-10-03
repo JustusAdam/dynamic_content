@@ -13,7 +13,7 @@ class RegionOperations(Operations):
     }
   }
 
-  _tables = {'commons_config', 'regions'}
+  _tables = {'commons_config', 'regions', 'commons_custom_access'}
 
   def get_commons(self, region_name, theme):
     self.execute('get_commons', region=escape(region_name), theme=escape(theme))
