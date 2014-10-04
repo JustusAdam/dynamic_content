@@ -340,3 +340,10 @@ a.breadcrumb {
     }
   }
 }
+
+input[type='text'], input[type='email'], input[type='password'], textarea {
+  border-radius: 5px;
+  box-shadow: 0 0 3px #ccc;
+  border: 1px solid #878582;
+  padding: 3px 6px;
+}
