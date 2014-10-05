@@ -11,8 +11,8 @@ __author__ = 'justusadam'
 class UserInformationCommon(handlers.Commons):
   source_table = 'user_management'
 
-  def __init__(self, machine_name, show_title, client):
-    super().__init__(machine_name, show_title, client)
+  def __init__(self, machine_name, show_title, access_type, client):
+    super().__init__(machine_name, show_title, access_type, client)
     self.ops = UserOperations()
 
   def get_content(self, name):

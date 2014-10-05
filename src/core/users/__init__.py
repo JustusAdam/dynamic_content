@@ -31,16 +31,12 @@ def content_handler(url):
   return handlers[url.page_type]
 
 
-def common_handler(item_type, item_name, show_title, client):
+def common_handler(item_type):
   handlers = {
     login_prefix: LoginCommonHandler,
     'user_information': user_information.UserInformationCommon
   }
-  return handlers[item_type](item_name, show_title, client)
-
-
-def form_handler():
-  pass
+  return handlers[item_type]
 
 
 def prepare():

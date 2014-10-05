@@ -23,6 +23,9 @@ from framework.url import Url
 __author__ = 'justusadam'
 
 
+ACCESS_DEFAULT_GRANTED = 0
+
+
 class Content:
   @property
   def compiled(self):
@@ -283,7 +286,8 @@ class Commons:
   # temporary
   language = 'english'
 
-  def __init__(self, machine_name, show_title, client):
+  def __init__(self, machine_name, show_title, access_type, client):
+    self.access_type = access_type
     self.client = client
     self.name = machine_name
     self.show_title = show_title
@@ -311,6 +315,8 @@ class Commons:
     return ''
 
   def check_permission(self, permission):
+    if self.access_type == ACCESS_DEFAULT_GRANTED:
+      return True
     return self.client.check_permission(permission)
 
   def check_access(self):

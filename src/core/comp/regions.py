@@ -28,9 +28,9 @@ class RegionHandler:
         acc.append(self.get_item(item, *info[item]))
     return acc
 
-  def get_item(self, item_name, handler_module, item_type, show_title):
+  def get_item(self, item_name, handler_module, item_type, show_title, access_type):
     show_title = show_title == 1
-    handler = self.modules[handler_module].common_handler(item_type, item_name, show_title, self.client)
+    handler = self.modules[handler_module].common_handler(item_type)(item_name, show_title, access_type, self.client)
     return Common(item_name, handler, item_type)
 
   def get_items_info(self, items):
