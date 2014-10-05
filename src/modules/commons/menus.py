@@ -72,9 +72,9 @@ class HTMLMenuItem(MenuItem):
 class Handler(handlers.Commons):
   source_table = 'menu_items'
 
-  def __init__(self, machine_name, show_title, user, access_group):
+  def __init__(self, machine_name, show_title, client):
     self.mo = database_operations.MenuOperations()
-    super().__init__(machine_name, show_title, user, access_group)
+    super().__init__(machine_name, show_title, client)
 
   def get_items(self, item_class=MenuItem):
     """

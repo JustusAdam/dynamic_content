@@ -209,8 +209,8 @@ class AccessOperations(Operations):
 
   _queries = {
     'mysql': {
-      'check_permission': 'select permission from access_group_permissions where permission={permission}, aid={aid};',
-      'remove_permission': 'delete from access_group_permissions where permission={permission}, aid={aid}'
+      'check_permission': 'select permission from access_group_permissions where permission={permission} and aid={aid};',
+      'remove_permission': 'delete from access_group_permissions where permission={permission} and aid={aid}'
     }
   }
 

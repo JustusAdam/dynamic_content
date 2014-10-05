@@ -15,9 +15,9 @@ from urllib.error import HTTPError
 from core import Modules
 from core.comp.template import Template
 from framework.config_tools import read_config
-from framework.html_elements import ContainerElement, container_wrapper
+from framework.html_elements import ContainerElement
 from framework.page import Component
-from framework.url import Url, UrlQuery
+from framework.url import Url
 
 
 __author__ = 'justusadam'
@@ -283,9 +283,8 @@ class Commons:
   # temporary
   language = 'english'
 
-  def __init__(self, machine_name, show_title, user, access_group):
-    self.access_group = access_group
-    self.user = user
+  def __init__(self, machine_name, show_title, client):
+    self.client = client
     self.name = machine_name
     self.show_title = show_title
 
@@ -311,7 +310,16 @@ class Commons:
   def get_content(self, name):
     return ''
 
+  def check_permission(self, permission):
+    return self.client.check_permission(permission)
+
+  def check_access(self):
+    return self.check_permission('access common ' + self.name)
+
   @property
   def compiled(self):
-    obj = Component(self.wrap_content(self.get_content(self.name)))
-    return obj
+    if self.check_access():
+      obj = Component(self.wrap_content(self.get_content(self.name)))
+      return obj
+    else:
+      return None

@@ -20,11 +20,11 @@ def content_handler(url):
   return handler
 
 
-def common_handler(item_type, item_name, show_title, user, access_group):
+def common_handler(item_type, item_name, show_title, client):
   handlers = {
     'menu': OverviewCommon
   }
-  return handlers[item_type](item_name, show_title, user, access_group)
+  return handlers[item_type](item_name, show_title, client)
 
 
 def new_category(machine_name, display_name, description='', weight=0):

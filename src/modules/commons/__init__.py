@@ -9,12 +9,12 @@ name = 'commons_engine'
 role = 'block_manager'
 
 
-def common_handler(item_type, item_name, show_title, user, access_group):
+def common_handler(item_type, item_name, show_title, client):
   handlers = {
     'menu': Handler,
     'com_text': TextCommons
   }
-  return handlers[item_type](item_name, show_title, user, access_group)
+  return handlers[item_type](item_name, show_title, client)
 
 
 def prepare():

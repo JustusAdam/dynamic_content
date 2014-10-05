@@ -26,11 +26,11 @@
             "exp_date datetime not null"
         ],
         "access_groups": [
-            "aid int unsigned not null unique auto_increment primary key",
+            "aid int unsigned unique auto_increment primary key comment '0 reserved for control group (holds all permissions), 1 for guests, 2 usually admin'",
             "machine_name varchar(200) not null unique"
         ],
         "access_group_permissions": [
-            "aid int unsigned not null references access_groups (aid) on delete cascade on update cascade",
+            "aid int unsigned references access_groups (aid) on delete cascade on update cascade",
             "permission varchar(200) not null unique"
         ]
     }

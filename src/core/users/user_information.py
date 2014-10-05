@@ -11,16 +11,16 @@ __author__ = 'justusadam'
 class UserInformationCommon(handlers.Commons):
   source_table = 'user_management'
 
-  def __init__(self, machine_name, show_title, user, access_group):
-    super().__init__(machine_name, show_title, user, access_group)
+  def __init__(self, machine_name, show_title, client):
+    super().__init__(machine_name, show_title, client)
     self.ops = UserOperations()
 
   def get_content(self, name):
     return ContainerElement(
       TableElement(
-        ('Username: ', self.get_username(self.user)),
-        ('Access Group: ', self.access_group),
-        ('Joined: ', self.get_date_joined(self.user))
+        ('Username: ', self.get_username(self.client.user)),
+        ('Access Group: ', self.client.access_group),
+        ('Joined: ', self.get_date_joined(self.client.user))
       ), LOGOUT_BUTTON
     )
 

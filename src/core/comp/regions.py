@@ -10,8 +10,8 @@ __author__ = 'justusadam'
 class RegionHandler:
   modules = Modules()
 
-  def __init__(self, region_name, region_config, theme, user, access_group):
-    self.user_info = (user, access_group)
+  def __init__(self, region_name, region_config, theme, client):
+    self.client = client
     self.operations = database_operations.RegionOperations()
     self.name = region_name
     self.theme = theme
@@ -25,13 +25,12 @@ class RegionHandler:
       info = {a[0]: a[1:] for a in self.get_items_info(region_info)}
 
       for item in region_info:
-        acc.append(self.get_item(item, *self.user_info + info[item]))
+        acc.append(self.get_item(item, *info[item]))
     return acc
 
-  def get_item(self, item_name, user, access_group, handler_module, item_type, show_title):
+  def get_item(self, item_name, handler_module, item_type, show_title):
     show_title = show_title == 1
-    handler = self.modules[handler_module].common_handler(item_type, item_name, show_title, user, access_group)
-    assert isinstance(handler, handlers.Commons)
+    handler = self.modules[handler_module].common_handler(item_type, item_name, show_title, self.client)
     return Common(item_name, handler, item_type)
 
   def get_items_info(self, items):
@@ -55,10 +54,11 @@ class RegionHandler:
     if self.commons:
       c = [item.handler.compiled for item in self.commons]
       for comp_item in c:
-        stylesheets += comp_item.stylesheets
-        meta += comp_item.metatags
-        scripts += comp_item.metatags
-        cont_acc.append(comp_item.content)
+        if comp_item:
+          stylesheets += comp_item.stylesheets
+          meta += comp_item.metatags
+          scripts += comp_item.metatags
+          cont_acc.append(comp_item.content)
       content = self.wrap(cont_acc)
     else:
       content = ''

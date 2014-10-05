@@ -12,17 +12,31 @@ _value_mapping = {
 }
 
 # do not change this value after installing
-CONTROL_GROUP = -1
+CONTROL_GROUP = 0
+
+
+def check_aid(func):
+  def wrapped(aid, *args):
+    if not isinstance(aid, int):
+      if aid.isdigit():
+        aid = int(aid)
+      else:
+        log.write_error('users', 'permissions', 'check_permission', 'invalid argument, expected numerical, got ' + str(type(aid)))
+        raise ValueError
+    else:
+      return func(aid, *args)
+  return wrapped
 
 
 def acc_grp(user):
   return UserOperations().get_acc_grp(user)
 
-
+@check_aid
 def check_permission(aid, permission):
   return AccessOperations().check_permission(aid, permission)
 
 
+@check_aid
 def assign_permission(aid, permission):
   if aid == CONTROL_GROUP:
     log.write_error('users', 'permissions', 'assign_permission', 'cannot assign permissions to control group')
@@ -36,6 +50,7 @@ def assign_permission(aid, permission):
     AccessOperations().add_permission(aid, permission)
 
 
+@check_aid
 def revoke_permission(aid, permission):
   if aid == CONTROL_GROUP:
     log.write_error('users', 'permissions', 'assign_permission', 'cannot revoke permission from control group')

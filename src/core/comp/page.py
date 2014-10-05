@@ -87,7 +87,7 @@ class BasicHandler(TemplateBasedPage):
     config = self.theme_config['regions']
     r = []
     for region in config:
-      r.append(RegionHandler(region, config[region], self.theme, self.client.user, self.client.access_group))
+      r.append(RegionHandler(region, config[region], self.theme, self.client))
     return r
 
   def fill_template(self):

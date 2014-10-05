@@ -68,8 +68,8 @@ class OverviewCommon(Commons, Overview):
 
   source_table = 'admin'
 
-  def __init__(self, machine_name, show_title, user, access_group):
-    super().__init__(machine_name, show_title, user, access_group)
+  def __init__(self, machine_name, show_title, client):
+    super().__init__(machine_name, show_title, client)
     Overview.__init__(self)
 
   def get_content(self, name):
