@@ -18,8 +18,8 @@ def load_modules():
   return m
 
 
-def add_content_handler(name, handler, prefix):
-  dbo.ContentHandlers().add_new(name, handler, prefix)
+def add_content_handler(handler_name, handler, prefix):
+  dbo.ContentHandlers().add_new(handler_name, handler, prefix)
 
 
 def prepare():

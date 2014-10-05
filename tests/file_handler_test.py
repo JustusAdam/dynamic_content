@@ -2,7 +2,7 @@ __author__ = 'justusadam'
 
 import unittest
 
-from src.core.file_handler import FileHandler
+from core.handlers.file import FileHandler
 
 
 class MyTestCase(unittest.TestCase):

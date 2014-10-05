@@ -37,7 +37,7 @@ LOGIN_COMMON = FormElement(
 )
 
 
-class LoginHandler(handlers.PageContent, handlers.RedirectMixIn):
+class LoginHandler(handlers.content.Content, handlers.base.RedirectMixIn):
   def __init__(self, url, parent_handler):
     super().__init__(url, parent_handler)
     self.message = ''
@@ -58,14 +58,14 @@ class LoginHandler(handlers.PageContent, handlers.RedirectMixIn):
       self.redirect('/iris/1')
 
 
-class LoginCommonHandler(handlers.Commons):
+class LoginCommonHandler(handlers.common.Commons):
   source_table = 'user_management'
 
   def get_content(self, name):
     return LOGIN_COMMON
 
 
-class LogoutHandler(handlers.PageContent, handlers.RedirectMixIn):
+class LogoutHandler(handlers.content.Content, handlers.base.RedirectMixIn):
   def process_content(self):
     self.logout()
 

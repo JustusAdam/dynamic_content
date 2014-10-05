@@ -1,6 +1,5 @@
 from . import database_operations
 from core.modules import Modules
-from core import handlers
 from framework.html_elements import ContainerElement
 from framework.page import Component
 

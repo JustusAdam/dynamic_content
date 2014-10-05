@@ -11,7 +11,7 @@ from core.database_operations import ContentTypes
 __author__ = 'justusadam'
 
 
-class FieldBasedPageContent(handlers.PageContent):
+class FieldBasedPageContent(handlers.content.Content):
   modifier = 'access'
 
   def __init__(self, url, parent_handler):
@@ -75,7 +75,7 @@ class FieldBasedPageContent(handlers.PageContent):
     return title, content_type, theme
 
 
-class EditFieldBasedContent(FieldBasedPageContent, handlers.RedirectMixIn):
+class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
   modifier = 'edit'
 
   field_identifier_separator = '-'

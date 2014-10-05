@@ -5,7 +5,7 @@ from framework.html_elements import Textarea
 __author__ = 'justusadam'
 
 
-class BaseFieldHandler(handlers.Field):
+class BaseFieldHandler(handlers.field.Field):
   def __init__(self, path_prefix, page_id, machine_name):
     super().__init__(path_prefix, page_id, machine_name)
     self.db_ops = database_operations.Fields()

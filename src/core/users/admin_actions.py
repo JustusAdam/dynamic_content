@@ -1,4 +1,5 @@
-from core.handlers import PageContent, RedirectMixIn
+from core.handlers.content import Content
+from core.handlers.base import RedirectMixIn
 from framework.html_elements import TableElement, Input, ContainerElement, Label
 from core.form import SecureForm
 from core.users import users
@@ -49,7 +50,7 @@ def factory(url):
   return handlers[url.page_modifier]
 
 
-class CreateUser(PageContent, RedirectMixIn):
+class CreateUser(Content, RedirectMixIn):
   page_title = 'Create User'
 
   destination = '/'
@@ -124,7 +125,7 @@ class EditUser(CreateUser):
                              date_created=date_created)
 
 
-class UsersOverview(PageContent):
+class UsersOverview(Content):
 
   page_title = 'User Overview'
 

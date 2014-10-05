@@ -7,7 +7,7 @@ from . import users
 __author__ = 'justusadam'
 
 
-class UserInformationCommon(handlers.Commons):
+class UserInformationCommon(handlers.common.Commons):
   source_table = 'user_management'
 
   def __init__(self, machine_name, show_title, access_type, client):
@@ -33,7 +33,7 @@ class UserInformationCommon(handlers.Commons):
       return 'Not joined yet.'
     return str(self.ops.get_date_joined(user))
 
-class UserInformation(handlers.PageContent):
+class UserInformation(handlers.content.Content):
 
   page_title = 'User Information'
 

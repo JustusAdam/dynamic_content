@@ -210,7 +210,8 @@ class AccessOperations(Operations):
   _queries = {
     'mysql': {
       'check_permission': 'select permission from access_group_permissions where permission={permission} and aid={aid};',
-      'remove_permission': 'delete from access_group_permissions where permission={permission} and aid={aid}'
+      'remove_permission': 'delete from access_group_permissions where permission={permission} and aid={aid};',
+      'remove_all_permissions': 'delete from access_group_permissions where permission={permission};'
     }
   }
 
@@ -225,3 +226,6 @@ class AccessOperations(Operations):
 
   def remove_permission(self, aid, permission):
     self.execute('remove_permission', aid=escape(permission), permission=escape(permission))
+
+  def remove_all_permissions(self, permission):
+    self.execute('remove_all_permissions', permission=escape(permission))

@@ -1,4 +1,4 @@
-from core.handlers import PageContent, Content, Commons
+from core import handlers
 from .database_operations import AdminOperations
 from framework.html_elements import ContainerElement, List
 
@@ -8,7 +8,7 @@ __author__ = 'justusadam'
 ADMIN_PATH = '/admin'
 
 
-class Overview(Content):
+class Overview(handlers.base.Content):
 
   classes = {'admin-menu', 'overview'}
 
@@ -53,18 +53,19 @@ class Overview(Content):
     return [child_class(machine_name, display_name, category, None) for (machine_name, display_name, category) in self.get_children_data()]
 
 
-class OverviewPage(PageContent, Overview):
+class OverviewPage(handlers.content.Content, Overview):
 
   def __init__(self, url, parent_handler):
     super().__init__(url, parent_handler)
     Overview.__init__(self)
     self.classes = {'admin-menu', 'overview', 'admin-page'}
+    self.permission = 'access admin pages'
 
   def process_content(self):
     return self.render_categories(*self.element_tree())
 
 
-class OverviewCommon(Commons, Overview):
+class OverviewCommon(handlers.common.Commons, Overview):
 
   source_table = 'admin'
 
@@ -128,10 +129,10 @@ class Category:
     if not self.sub:
       return title
     else:
-      list = [a.render(path) for a in self.sub]
+      l = [a.render(path) for a in self.sub]
       return ContainerElement(
         title,
         List(
-          *list
+          *l
         )
       )

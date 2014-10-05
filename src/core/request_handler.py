@@ -16,7 +16,7 @@ import copy
 from core.database import DatabaseError, Database
 from core.comp.page import BasicHandler
 from includes import bootstrap
-from .file_handler import FileHandler
+from core.handlers.file import FileHandler
 from framework.url import Url
 from framework.config_tools import read_config
 from core.users import client

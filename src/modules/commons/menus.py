@@ -69,7 +69,7 @@ class HTMLMenuItem(MenuItem):
     return self.render_self(depth), self.render_children(depth + 1)
 
 
-class Handler(handlers.Commons):
+class Handler(handlers.common.Commons):
   source_table = 'menu_items'
 
   def __init__(self, machine_name, show_title, access_type, client):

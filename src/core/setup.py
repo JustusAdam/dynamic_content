@@ -5,8 +5,8 @@ Currently uses the framework to dynamically create elements, once the basic site
 and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
 """
 from core import Modules
-
-from core.handlers import TemplateBasedPage, RedirectMixIn
+from core.handlers.page import TemplateBasedPage
+from core.handlers.base import RedirectMixIn
 from .database import DatabaseError, Database
 from . import module_operations
 from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, LinkElement

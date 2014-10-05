@@ -17,11 +17,6 @@ def start_session(username, password):
 
 
 def close_session(uid):
-  """
-  function also accepts username
-  :param userid:
-  :return:
-  """
   if isinstance(uid, str):
     if uid.isalpha():
       uid = int(uid)
