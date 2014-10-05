@@ -70,8 +70,8 @@ def get_info(selection):
   return UserOperations().get_users(selection)
 
 
-def get_single_user(uname_or_id):
-  return UserOperations().get_single_user(uname_or_id)
+def get_single_user(uname_or_uid):
+  return UserOperations().get_single_user(uname_or_uid)
 
 
 def edit_user(user_id, **kwargs):

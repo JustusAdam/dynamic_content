@@ -14,6 +14,7 @@ from urllib.error import HTTPError
 
 from core import Modules
 from core.comp.template import Template
+from core.errors import html_message
 from framework.config_tools import read_config
 from framework.html_elements import ContainerElement
 from framework.page import Component
@@ -29,6 +30,7 @@ ACCESS_DEFAULT_GRANTED = 0
 class Content:
   @property
   def compiled(self):
+
     return ''
 
   def __str__(self):
@@ -242,6 +244,7 @@ class PageContent(WebObject, TemplateBasedContent):
     super().__init__(url)
     TemplateBasedContent.__init__(self)
     self._parent = parent_handler
+    self.permission = 'access pages'
 
   @property
   def client(self):
@@ -257,12 +260,18 @@ class PageContent(WebObject, TemplateBasedContent):
     self._template['content'] = self.process_content()
     self._template['title'] = self.page_title
 
+  def check_permission(self):
+    return self.client.check_permission(self.permission)
+
   @property
   def compiled(self):
-    self.process_queries()
-    self.fill_template()
-    page = Component(str(self._template), title=self.page_title)
-    return page
+    if self.check_permission():
+      self.process_queries()
+      self.fill_template()
+      page = Component(str(self._template), title=self.page_title)
+      return page
+    else:
+      return Component(str(html_message.error_message(401)))
 
 
 class RedirectMixIn(WebObject):

@@ -12,13 +12,14 @@ __author__ = 'justusadam'
 
 
 class FieldBasedPageContent(handlers.PageContent):
-  modifier = 'show'
+  modifier = 'access'
 
   def __init__(self, url, parent_handler):
     super().__init__(url, parent_handler)
     self.modules = Modules()
     (self.page_title, self.content_type, self._theme) = self.get_page_information()
     self.fields = self.get_fields()
+    self.permission = ' '.join([self.modifier, 'content type', self.content_type])
 
   def get_fields(self):
     db_result = database_operations.Pages().get_fields(self.content_type)

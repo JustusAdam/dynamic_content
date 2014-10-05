@@ -22,7 +22,7 @@ def content_handler(url):
 
 def field_handler(field_name, prefix, page_id, modifier):
   handlers = {
-    'show': field.BaseFieldHandler,
+    'access': field.BaseFieldHandler,
     'add': field.AddBaseFieldHandler,
     'edit': field.EditBaseFieldHandler
   }
