@@ -31,8 +31,7 @@
         ],
         "access_group_permissions": [
             "aid int unsigned not null references access_groups (aid) on delete cascade on update cascade",
-            "permission varchar(200) not null unique",
-            "handler_module varchar(200) not null references modules (module_name) on update cascade on delete no action"
+            "permission varchar(200) not null unique"
         ]
     }
 }

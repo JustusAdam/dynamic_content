@@ -2,8 +2,8 @@ import hashlib
 import os
 import datetime
 
-from core.database_operations import Operations, escape, DBOperationError
-from includes import bootstrap
+from core.database_operations import Operations, escape, DBOperationError, DatabaseError
+from includes import bootstrap, log
 
 
 __author__ = 'justusadam'
@@ -71,7 +71,7 @@ class UserOperations(Operations):
     hashed, salt = hash_and_new_salt(password)
     self.execute('add_user_auth', uid=escape(uid), password=escape(hashed), salt=escape(salt))
 
-  def update_password(self, password, username):
+  def update_password(self, uid, password):
     hashed, salt = hash_and_new_salt(password)
     self.execute('change_password', password=escape(hashed), uid=escape(uid), salt=escape(salt))
 
@@ -82,7 +82,7 @@ class UserOperations(Operations):
   def change_password(self, uid, old_password, new_password):
     (pass_from_db, salt) = self.get_pass_salt(uid)
     if check_ident(old_password, salt, pass_from_db):
-      self.update_password(new_password, uid)
+      self.update_password(uid, new_password)
     else:
       raise DBOperationError
 
@@ -207,4 +207,21 @@ class SessionOperations(Operations):
 
 class AccessOperations(Operations):
 
+  _queries = {
+    'mysql': {
+      'check_permission': 'select permission from access_group_permissions where permission={permission}, aid={aid};',
+      'remove_permission': 'delete from access_group_permissions where permission={permission}, aid={aid}'
+    }
+  }
+
   _tables = {'access_groups', 'access_group_permissions'}
+
+  def check_permission(self, aid, permission):
+    self.execute('check_permission', permission=escape(permission), aid=escape(aid))
+    return bool(self.cursor.fetchone())
+
+  def add_permission(self, aid, permission):
+    self.db.insert('access_group_permissions', {'permission': permission, 'aid': aid})
+
+  def remove_permission(self, aid, permission):
+    self.execute('remove_permission', aid=escape(permission), permission=escape(permission))

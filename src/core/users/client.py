@@ -76,3 +76,6 @@ class ClientInfoImpl(ClientInformation):
         if db_result is not None:
           return db_result
     return -1
+
+  def check_permission(self, permission):
+    return users.check_permission(self.access_group, permission)

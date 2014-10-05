@@ -1,4 +1,5 @@
-from .database_operations import UserOperations
+from .database_operations import UserOperations, AccessOperations
+from includes import log
 
 __author__ = 'justusadam'
 
@@ -10,9 +11,40 @@ _value_mapping = {
   'email': 'email_address'
 }
 
+# do not change this value after installing
+CONTROL_GROUP = -1
+
 
 def acc_grp(user):
   return UserOperations().get_acc_grp(user)
+
+
+def check_permission(aid, permission):
+  return AccessOperations().check_permission(aid, permission)
+
+
+def assign_permission(aid, permission):
+  if aid == CONTROL_GROUP:
+    log.write_error('users', 'permissions', 'assign_permission', 'cannot assign permissions to control group')
+  elif check_permission(aid, permission):
+    log.write_warning('users', 'permissions', 'assign_permission', 'access group ' + str(aid) + ' already owns permission ' + permission)
+  elif check_permission(CONTROL_GROUP, permission):
+    log.write_warning('users', 'permissions', 'assign_permission', 'permission ' + permission + ' does not exist yet')
+    new_permission(permission)
+    assign_permission(aid, permission)
+  else:
+    AccessOperations().add_permission(aid, permission)
+
+
+def revoke_permission(aid, permission):
+  if aid == CONTROL_GROUP:
+    log.write_error('users', 'permissions', 'assign_permission', 'cannot revoke permission from control group')
+  else:
+    AccessOperations().remove_permission(aid, permission)
+
+
+def new_permission(permission):
+  AccessOperations().add_permission(CONTROL_GROUP, permission)
 
 
 def add_user(username, password, email, first_name='', middle_name='', last_name=''):
