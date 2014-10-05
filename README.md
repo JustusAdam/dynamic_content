@@ -1,4 +1,4 @@
-\_JAIDE
+dynamic\_content
 ====
 
 Content Management System for web application.
