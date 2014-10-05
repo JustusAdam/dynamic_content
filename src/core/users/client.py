@@ -7,15 +7,6 @@ __author__ = 'justusadam'
 
 SESSION_TOKEN_IDENTIFIER = 'SESS'
 
-# special usernames
-UNKNOWN = -2
-ANONYMOUS = -1
-
-# special access groups
-UNKNOWN_GRP = -2
-ANONYMOUS_GRP = -1
-AUTH = 1
-
 
 class ClientInformation:
   def __init__(self, headers):
@@ -25,8 +16,8 @@ class ClientInformation:
     else:
       self._cookies = None
     # user and group are initially set to UNKNOWN and only resolved when necessary
-    self._user = UNKNOWN
-    self._access_group = UNKNOWN_GRP
+    self._user = users.UNKNOWN
+    self._access_group = users.UNKNOWN_GRP
 
   @property
   def headers(self):
@@ -34,21 +25,21 @@ class ClientInformation:
 
   @property
   def user(self):
-    if self._user == UNKNOWN:
+    if self._user == users.UNKNOWN:
       self._user = self.auth_user()
     return self._user
 
   @property
   def access_group(self):
-    if self._access_group == UNKNOWN_GRP:
+    if self._access_group == users.UNKNOWN_GRP:
       self._access_group = self.get_acc_grp(self.user)
     return self._access_group
 
   def auth_user(self):
-    return -1
+    return users.GUEST
 
   def get_acc_grp(self, user):
-    return 0
+    return users.GUEST_GRP
 
   @user.setter
   def user(self, value):
@@ -67,8 +58,8 @@ class ClientInfoImpl(ClientInformation):
     super().__init__(headers)
 
   def get_acc_grp(self, user):
-    if user == ANONYMOUS:
-      return ANONYMOUS
+    if user == users.GUEST:
+      return users.GUEST_GRP
     else:
       return users.acc_grp(user)
 
@@ -78,4 +69,4 @@ class ClientInfoImpl(ClientInformation):
         db_result = session.validate_session(self._cookies[SESSION_TOKEN_IDENTIFIER].value)
         if db_result is not None:
           return db_result
-    return -1
+    return users.GUEST

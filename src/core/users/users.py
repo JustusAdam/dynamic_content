@@ -15,6 +15,15 @@ _value_mapping = {
 CONTROL_GROUP = 0
 
 
+# special usernames
+UNKNOWN = -1 # placeholder - user undetermined
+GUEST = 1 # Not a authenticated User
+
+# special access groups
+UNKNOWN_GRP = -1 # placeholder - user group undetermined
+GUEST_GRP = 1 # Not a authenticated User
+AUTH = 2 # Default group for users. users that have no particular group assigned to them
+
 def check_aid(func):
   def wrapped(aid, *args):
     if not isinstance(aid, int):
@@ -29,7 +38,11 @@ def check_aid(func):
 
 
 def acc_grp(user):
-  return UserOperations().get_acc_grp(user)
+  result = UserOperations().get_acc_grp(user)
+  if result:
+    return result[0]
+  else:
+    return AUTH
 
 @check_aid
 def check_permission(aid, permission):

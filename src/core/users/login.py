@@ -2,7 +2,7 @@ import datetime
 
 from framework.html_elements import FormElement, TableElement, ContainerElement, Label, Input, SubmitButton
 from core import handlers
-from core.users.client import ANONYMOUS
+from core.users.users import GUEST
 from . import session
 
 
@@ -71,7 +71,7 @@ class LogoutHandler(handlers.PageContent, handlers.RedirectMixIn):
 
   def logout(self):
     user = self._parent.client.user
-    if user == ANONYMOUS:
+    if user == GUEST:
       self.redirect('/login')
     else:
       session.close_session(user)

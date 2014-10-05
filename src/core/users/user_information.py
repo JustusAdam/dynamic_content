@@ -1,7 +1,6 @@
 from core import handlers
 from framework.html_elements import TableElement, ContainerElement
 from .database_operations import UserOperations
-from core.users.client import ANONYMOUS
 from .login import LOGOUT_BUTTON
 from . import users
 
@@ -25,12 +24,12 @@ class UserInformationCommon(handlers.Commons):
     )
 
   def get_username(self, user):
-    if user == ANONYMOUS:
+    if user == users.GUEST:
       return 'Anonymous'
     return self.ops.get_username(user)
 
   def get_date_joined(self, user):
-    if user == ANONYMOUS:
+    if user == users.GUEST:
       return 'Not joined yet.'
     return str(self.ops.get_date_joined(user))
 

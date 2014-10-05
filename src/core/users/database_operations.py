@@ -92,7 +92,7 @@ class UserOperations(Operations):
 
   def get_acc_grp(self, uname_or_uid):
     self.execute('get_acc_grp', cond=self.comp_cond(uname_or_uid))
-    return self.cursor.fetchone()[0]
+    return self.cursor.fetchone()
 
   def get_username(self, uid):
     self.execute('get_username', uid=escape(uid))
