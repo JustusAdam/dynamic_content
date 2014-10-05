@@ -6,17 +6,16 @@ __author__ = 'justusadam'
 
 
 class Content(WebObject, TemplateBasedContent):
+
   theme = 'default_theme'
-
   template_name = 'content'
-
   page_title = 'Dynamic Page'
+  permission = 'access pages'
 
   def __init__(self, url, parent_handler):
     super().__init__(url)
     TemplateBasedContent.__init__(self)
     self._parent = parent_handler
-    self.permission = 'access pages'
 
   @property
   def client(self):

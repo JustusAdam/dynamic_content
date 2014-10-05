@@ -46,7 +46,10 @@ def acc_grp(user):
 
 @check_aid
 def check_permission(aid, permission):
-  return AccessOperations().check_permission(aid, permission)
+  if aid != GUEST_GRP:
+    return AccessOperations().check_permission(aid, GUEST_GRP, permission)
+  else:
+    return AccessOperations().check_permission(GUEST_GRP, None, permission)
 
 
 @check_aid

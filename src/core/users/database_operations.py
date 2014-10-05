@@ -209,7 +209,7 @@ class AccessOperations(Operations):
 
   _queries = {
     'mysql': {
-      'check_permission': 'select permission from access_group_permissions where permission={permission} and aid={aid};',
+      'check_permission': 'select permission from access_group_permissions where permission={permission} and (aid={aid}{default});',
       'remove_permission': 'delete from access_group_permissions where permission={permission} and aid={aid};',
       'remove_all_permissions': 'delete from access_group_permissions where permission={permission};'
     }
@@ -217,8 +217,12 @@ class AccessOperations(Operations):
 
   _tables = {'access_groups', 'access_group_permissions'}
 
-  def check_permission(self, aid, permission):
-    self.execute('check_permission', permission=escape(permission), aid=escape(aid))
+  def check_permission(self, aid, default, permission):
+    if default is not None:
+      default = ' or aid=' + escape(default)
+    else:
+      default = ''
+    self.execute('check_permission', permission=escape(permission), aid=escape(aid), default=default)
     return bool(self.cursor.fetchone())
 
   def add_permission(self, aid, permission):

@@ -38,6 +38,9 @@ LOGIN_COMMON = FormElement(
 
 
 class LoginHandler(handlers.content.Content, handlers.base.RedirectMixIn):
+
+  permission = 'access login page'
+
   def __init__(self, url, parent_handler):
     super().__init__(url, parent_handler)
     self.message = ''
@@ -66,6 +69,9 @@ class LoginCommonHandler(handlers.common.Commons):
 
 
 class LogoutHandler(handlers.content.Content, handlers.base.RedirectMixIn):
+
+  permission = 'access logout'
+
   def process_content(self):
     self.logout()
 

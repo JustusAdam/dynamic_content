@@ -51,10 +51,9 @@ def factory(url):
 
 
 class CreateUser(Content, RedirectMixIn):
+
   page_title = 'Create User'
-
   destination = '/'
-
   message = ''
 
   def process_content(self):
@@ -105,10 +104,9 @@ class CreateUser(Content, RedirectMixIn):
 
 
 class EditUser(CreateUser):
+
   page_title = 'Edit User'
-
   destination = '/'
-
   message = ''
 
   def action(self, **kwargs):
