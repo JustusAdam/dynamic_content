@@ -31,7 +31,7 @@
         ],
         "access_group_permissions": [
             "aid int unsigned references access_groups (aid) on delete cascade on update cascade",
-            "permission varchar(200) not null unique"
+            "permission varchar(200) not null"
         ]
     }
 }

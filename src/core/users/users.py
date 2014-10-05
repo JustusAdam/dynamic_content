@@ -53,7 +53,7 @@ def assign_permission(aid, permission):
 @check_aid
 def revoke_permission(aid, permission):
   if aid == CONTROL_GROUP:
-    log.write_error('users', 'permissions', 'assign_permission', 'cannot revoke permission from control group')
+    log.write_error('users', 'permissions', 'assign_permission', 'cannot revoke permissions from control group')
   else:
     AccessOperations().remove_permission(aid, permission)
 
