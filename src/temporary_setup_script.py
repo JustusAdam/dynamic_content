@@ -46,7 +46,7 @@ from core.users import users
 permissions = [
   [
     users.GUEST_GRP, # unauthorized guests
-    ['access login page', 'access content type article']
+    ['access login page', 'access content type article', 'access common login']
   ], [
     users.AUTH, # any authorized user
     ['access logout']
