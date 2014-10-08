@@ -41,6 +41,8 @@ i18n.add_display_name('admin_menu', source_table, language, 'Administration Acti
 
 # assign the important first permissions
 
+ADMIN_GRP = 5
+
 from core.users import users
 
 permissions = [
@@ -50,6 +52,9 @@ permissions = [
   ], [
     users.AUTH, # any authorized user
     ['access logout']
+  ], [
+    ADMIN_GRP,
+    ['edit user accounts', 'access users overview']
   ]
 ]
 

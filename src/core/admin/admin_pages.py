@@ -55,11 +55,12 @@ class Overview(handlers.base.Content):
 
 class OverviewPage(handlers.content.Content, Overview):
 
+  permission = 'access admin pages'
+
   def __init__(self, url, parent_handler):
     super().__init__(url, parent_handler)
     Overview.__init__(self)
     self.classes = {'admin-menu', 'overview', 'admin-page'}
-    self.permission = 'access admin pages'
 
   def process_content(self):
     return self.render_categories(*self.element_tree())

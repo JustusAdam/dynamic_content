@@ -55,6 +55,7 @@ class CreateUser(Content, RedirectMixIn):
   page_title = 'Create User'
   destination = '/'
   message = ''
+  permission = 'edit user accounts'
 
   def process_content(self):
 
@@ -126,6 +127,7 @@ class EditUser(CreateUser):
 class UsersOverview(Content):
 
   page_title = 'User Overview'
+  permission = 'access users overview'
 
   def process_content(self):
     if 'selection' in self.url.get_query:
