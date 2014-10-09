@@ -40,7 +40,7 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
   def __init__(self, url, client_info):
     super().__init__(url, client_info)
 
-  def fill_template(self):
+  def _fill_template(self):
     config = read_config('config')
     setup_pages = {
       0: {

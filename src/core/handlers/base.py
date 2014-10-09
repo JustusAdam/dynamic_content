@@ -79,17 +79,17 @@ class WebObject(Content):
   def is_post(self):
     return bool(self.url.post)
 
-  def process_queries(self):
+  def _process_queries(self):
     """
     Simple routine that calls the appropriate 'process' methods IF they're necessary
     :return:
     """
     if self.is_get():
-      self.process_get()
+      self._process_get()
     if self.is_post():
-      self.process_post()
+      self._process_post()
 
-  def process_get(self):
+  def _process_get(self):
     """
     This method gets called by the class IF there are get query variables present.
 
@@ -98,7 +98,7 @@ class WebObject(Content):
     """
     pass
 
-  def process_post(self):
+  def _process_post(self):
     """
     This method gets called if there is a valid post query present.
 
@@ -126,21 +126,7 @@ class TemplateBasedContent(Content):
   def __init__(self):
     super().__init__()
     self.theme_config = read_config(self.theme_path + '/config.json')
-    self._template = Template(self.get_template_path())
-
-  def get_template_path(self):
-    path = self.theme_path
-    if 'template_directory' in self.theme_config:
-      path += '/' + self.theme_config['template_directory']
-    else:
-      path += '/' + 'templates'
-    return path + '/' + self.template_name + '.html'
-
-  def get_my_folder(self):
-    return str(Path(sys.modules[self.__class__.__module__].__file__).parent)
-
-  def get_config_folder(self):
-    return self.get_my_folder()
+    self._template = Template(self._get_template_path())
 
   @property
   def theme(self):
@@ -152,9 +138,23 @@ class TemplateBasedContent(Content):
 
   @property
   def compiled(self):
-    self.fill_template()
+    self._fill_template()
     page = Component(str(self._template))
     return page
 
-  def fill_template(self):
+  def _get_template_path(self):
+    path = self.theme_path
+    if 'template_directory' in self.theme_config:
+      path += '/' + self.theme_config['template_directory']
+    else:
+      path += '/' + 'templates'
+    return path + '/' + self.template_name + '.html'
+
+  def _get_my_folder(self):
+    return str(Path(sys.modules[self.__class__.__module__].__file__).parent)
+
+  def _get_config_folder(self):
+    return self._get_my_folder()
+
+  def _fill_template(self):
     pass

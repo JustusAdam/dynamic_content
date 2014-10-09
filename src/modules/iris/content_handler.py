@@ -40,7 +40,7 @@ class FieldBasedPageContent(handlers.content.Content):
         if key in self.url.post:
           vals[key] = self.url.post[key]
       if vals:
-        field_handler.process_post(UrlQuery(vals))
+        field_handler._process_post(UrlQuery(vals))
 
   def handle_single_field_get(self, field_handler):
     query_keys = field_handler.get_post_query_keys()
@@ -50,7 +50,7 @@ class FieldBasedPageContent(handlers.content.Content):
         if key in self.url.get_query:
           vals[key] = self.url.post[key]
       if vals:
-        field_handler.process_get(UrlQuery(vals))
+        field_handler._process_get(UrlQuery(vals))
 
   def get_field_handler(self, name, module):
     return self.modules[module].field_handler(name, self.url.page_type, self.url.page_id, self.modifier)
@@ -116,7 +116,7 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
 
   def process_fields(self, fields):
     for field in fields:
-      field.process_post()
+      field._process_post()
 
   def assign_inputs(self, fields):
     for field in fields:
@@ -138,7 +138,7 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
       published = False
     database_operations.Pages().edit_page(self.url.page_type, self.page_title, published, self.url.page_id)
 
-  def process_post(self):
+  def _process_post(self):
     self.assign_inputs(self.fields)
     try:
       self.process_fields(self.fields)

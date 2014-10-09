@@ -19,7 +19,7 @@ class BasicHandler(TemplateBasedPage):
   def __init__(self, url, client_info):
     self.modules = Modules()
     self.content_handler = self.get_content_handler(url)
-    self.module_config = read_config(self.get_config_folder() + '/config.json')
+    self.module_config = read_config(self._get_config_folder() + '/config.json')
     super().__init__(url, client_info)
 
   @property
@@ -90,7 +90,7 @@ class BasicHandler(TemplateBasedPage):
       r.append(RegionHandler(region, config[region], self.theme, self.client))
     return r
 
-  def fill_template(self):
+  def _fill_template(self):
     page = self.content_handler.compiled
     self._template['title'] = page.title
     self._template['scripts'] = self.compile_scripts(page)

@@ -27,7 +27,7 @@ class Content(WebObject, TemplateBasedContent):
   def has_url_query(self):
     return bool(self._url.get_query)
 
-  def fill_template(self):
+  def _fill_template(self):
     self._template['content'] = self.process_content()
     self._template['title'] = self.page_title
 
@@ -37,8 +37,8 @@ class Content(WebObject, TemplateBasedContent):
   @property
   def compiled(self):
     if self.check_permission():
-      self.process_queries()
-      self.fill_template()
+      self._process_queries()
+      self._fill_template()
       page = Component(str(self._template), title=self.page_title)
       return page
     else:

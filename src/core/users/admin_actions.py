@@ -87,7 +87,7 @@ class CreateUser(Content, RedirectMixIn):
 
 
 
-  def process_post(self):
+  def _process_post(self):
     if 'password' in self.url.post:
       if self.url.post['confirm-password'] != self.url.post['password']:
         self.message = ContainerElement('Your passwords did not match.', classes='alert')

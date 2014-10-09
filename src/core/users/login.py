@@ -50,7 +50,7 @@ class LoginHandler(handlers.content.Content, handlers.base.RedirectMixIn):
     ContainerElement('Your Login failed, please try again.', classes={'alert'})
     return ContainerElement(self.message, LOGIN_FORM)
 
-  def process_post(self):
+  def _process_post(self):
     if not self.url.post['username'] or not self._url.post['password']:
       raise ValueError
     username = self.url.post['username'][0]
