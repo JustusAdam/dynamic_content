@@ -17,7 +17,7 @@ class Field(Content):
 
   @property
   def query(self):
-    return {}
+    return self._query
 
   @query.setter
   def query(self, value):

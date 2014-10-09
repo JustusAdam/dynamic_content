@@ -18,20 +18,20 @@ class BasicHandler(TemplateBasedPage):
 
   def __init__(self, url, client_info):
     self.modules = Modules()
-    self.content_handler = self.get_content_handler(url)
+    self.content_handler = self._get_content_handler(url)
     self.module_config = read_config(self._get_config_folder() + '/config.json')
     super().__init__(url, client_info)
 
   @property
   def theme(self):
     if not self._theme:
-      self._theme = self.get_used_theme(self.content_handler)
+      self._theme = self._get_used_theme(self.content_handler)
     return self._theme
 
-  def get_content_handler(self, url):
-    return self.get_content_handler_class(url)(url, self)
+  def _get_content_handler(self, url):
+    return self._get_content_handler_class(url)(url, self)
 
-  def get_content_handler_class(self, url):
+  def _get_content_handler_class(self, url):
     try:
       handler_module = database_operations.ContentHandlers().get_by_prefix(url.page_type)
     except DBOperationError as error:
@@ -49,7 +49,7 @@ class BasicHandler(TemplateBasedPage):
         headers.add(header)
     return headers
 
-  def get_used_theme(self, handler):
+  def _get_used_theme(self, handler):
     if handler.theme == 'active':
       return self.module_config['active_theme']
     elif handler.theme == 'default':

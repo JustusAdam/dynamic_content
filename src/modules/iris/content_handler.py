@@ -40,7 +40,7 @@ class FieldBasedPageContent(handlers.content.Content):
         if key in self.url.post:
           vals[key] = self.url.post[key]
       if vals:
-        field_handler._process_post(UrlQuery(vals))
+        field_handler.process_post(UrlQuery(vals))
 
   def handle_single_field_get(self, field_handler):
     query_keys = field_handler.get_post_query_keys()
@@ -50,7 +50,7 @@ class FieldBasedPageContent(handlers.content.Content):
         if key in self.url.get_query:
           vals[key] = self.url.post[key]
       if vals:
-        field_handler._process_get(UrlQuery(vals))
+        field_handler.process_get(UrlQuery(vals))
 
   def get_field_handler(self, name, module):
     return self.modules[module].field_handler(name, self.url.page_type, self.url.page_id, self.modifier)
@@ -116,7 +116,7 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
 
   def process_fields(self, fields):
     for field in fields:
-      field._process_post()
+      field.process_post()
 
   def assign_inputs(self, fields):
     for field in fields:
@@ -141,9 +141,9 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
   def _process_post(self):
     self.assign_inputs(self.fields)
     try:
+      page = self.process_page()
       self.process_fields(self.fields)
-      self.process_page()
-      self.redirect()
+      self.redirect(page)
     except ValueError:
       pass
 
@@ -167,8 +167,16 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
       published = True
     else:
       published = False
-    return database_operations.Pages().add_page(self.url.page_type, self.content_type,
+    page_id = database_operations.Pages().add_page(self.url.page_type, self.content_type,
                                                 self.page_title, self.user, published)
+    self.update_field_page_id(page_id)
+    self.url.page_id = page_id
+    return self.url.path.prt_to_str(0,-1) + '/' + str(self.url.page_id)
+
+
+  def update_field_page_id(self, page_id):
+    for field in self.fields:
+      field.page_id = page_id
 
   @property
   def title_options(self):
