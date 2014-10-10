@@ -45,36 +45,32 @@ class Database(AbstractDatabase):
     self.charset = 'utf-8'
     self.db_type = self.config['database_type']
 
-  def __del__(self):
-    if self._connection:
-      self._connection.commit()
-      self._connection.close()
-      self._connection = None
-
   def cursor(self):
-    if not self._connection:
+    if not self.connected:
       self.connect()
     return self._connection.cursor()
 
   def commit(self):
-    if self._connection:
+    if self.connected:
       self._connection.commit()
 
   def close(self):
-    if self._connection:
+    if self.connected:
       self._connection.close()
       self._connection = None
 
+  def __check_connection(self):
+    return bool(self._connection)
+
   def connect(self):
-    if self._connection:
-      self._connection.close()
+    self.close()
     self._connection = connect(**self.config['database_connection_arguments'])
 
   def create_table(self, table_name, columns):
     if isinstance(columns, (list, tuple)):
       columns = ', '.join(columns)
 
-    cursor = self._connection.cursor()
+    cursor = self.cursor()
     cursor.execute('create table ' + ' '.join([table_name, '(' + columns + ')']) + ';')
     print('created table ' + table_name)
     cursor.close()
@@ -160,7 +156,7 @@ class Database(AbstractDatabase):
     :return:
     """
     self.connect()
-    cursor = self._connection.cursor()
+    cursor = self.cursor()
     try:
       cursor.execute('show tables')
       return True

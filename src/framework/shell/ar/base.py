@@ -1,6 +1,7 @@
 from includes import log
 from ..database import escape, DatabaseError
 from .column import Column
+from .table import Table
 
 __author__ = 'justusadam'
 
@@ -28,11 +29,16 @@ class ARDatabase(AR):
 
 class ARTable(AR):
 
-  def __init__(self, ar_database, *columns):
+  def __init__(self, ar_database, name):
     assert isinstance(ar_database, ARDatabase)
     super().__init__(ar_database.database)
     self.ar_database = ar_database
-    self.columns = columns
+    self.name = name
+    self.table = Table(*self._get_cols(name))
+
+  def _get_cols(self, table):
+    data = self.db.show_columns(table=table)
+    return list(Column(*b) for b in data)
 
 
 class ARRow(AR):
