@@ -13,7 +13,7 @@ import sys
 import traceback
 import copy
 
-from core.database import DatabaseError, Database
+from framework.shell import DataShell, DataError
 from core.comp.page import BasicHandler
 from includes import bootstrap
 from core.handlers.file import FileHandler
@@ -25,9 +25,6 @@ import core
 
 
 __author__ = 'justusadam'
-
-
-db = None
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -73,7 +70,6 @@ class RequestHandler(BaseHTTPRequestHandler):
     try:
       self.send_document(page_handler)
     except HTTPError as error:
-      print('ping')
       return self.process_http_error(error, page_handler)
     except Exception as exce:
       print("Unexpected error")
@@ -82,9 +78,6 @@ class RequestHandler(BaseHTTPRequestHandler):
       log.write_error('Request Handler', function='do_any', message='Unexpected error ' + str(exce))
       self.send_error(500, *self.responses[500])
       return 0
-    global db
-    if db:
-      db.close()
     return 0
 
   def process_http_error(self, error, page_handler=None):
@@ -140,17 +133,15 @@ class RequestHandler(BaseHTTPRequestHandler):
       new_dest.path.trailing_slash = False
       raise HTTPError(str(url), 301, 'Indexing is prohibited on this server', [("Location", str(new_dest))], None)
 
-  def get_handler(self, url, client_info):
-    global db
-    if url.page_type == 'setup':
-
-      return self.start_setup(url, client_info)
+    elif url.page_type == 'setup':
+      return self.start_setup(url)
     elif url.page_type in bootstrap.FILE_DIRECTORIES.keys():
-      return FileHandler(url, client_info)
+      return FileHandler(url)
+
+  def get_handler(self, url, client_info):
     try:
-      db = Database()
-      db.connect()
-    except DatabaseError:
+      shell = DataShell()
+    except DataError:
       raise HTTPError(str(url), 500, 'Database unreachable', None, None)
 
     url.path = core.translate_alias(str(url.path))
@@ -160,9 +151,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     return BasicHandler(url, client_info)
 
-  def start_setup(self, url, client_info):
+  def start_setup(self, url):
     if not read_config('config.json')['setup']:
       raise HTTPError(str(url), 403, 'Request disabled via server config', None, None)
     from .setup import SetupHandler
 
-    return SetupHandler(url, client_info)
+    return SetupHandler(url)

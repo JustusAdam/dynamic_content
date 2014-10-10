@@ -1,5 +1,5 @@
 from core.form.database_operations import FormOperations
-from core import database
+from framework.shell import database
 
 __author__ = 'justusadam'
 

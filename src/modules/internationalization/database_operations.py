@@ -1,5 +1,5 @@
 from core.database_operations import Operations
-from core.database import escape
+from framework.shell.database import escape
 
 
 __author__ = 'justusadam'

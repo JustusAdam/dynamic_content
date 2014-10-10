@@ -3,7 +3,7 @@ from pathlib import Path
 
 from core import database_operations
 from framework.config_tools import read_config
-from core.database import DatabaseError
+from framework.shell.database import DatabaseError
 from includes import bootstrap
 
 

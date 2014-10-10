@@ -54,8 +54,6 @@ def prepare():
   f.add_field_type('body', 'Body', 'article', 'iris')
 
   # add admin pages
-  from core import admin
-  admin.
 
   # add some initial pages
 

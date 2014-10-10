@@ -1,40 +1,69 @@
 from includes import log
-from ..database import Database, escape
+from ..database import escape, DatabaseError
 from .column import Column
 
 __author__ = 'justusadam'
 
 
-class ActiveRecord:
+class AR:
+
+  database = None
+  db = database
+
+  def __init__(self, database):
+    self.database = database
+
+  def __del__(self):
+    self.save()
+
+  def save(self):
+    pass
+
+
+class ARDatabase(AR):
+
+  def __init__(self, database):
+    super().__init__(database)
+
+
+class ARTable(AR):
+
+  def __init__(self, ar_database, *columns):
+    assert isinstance(ar_database, ARDatabase)
+    super().__init__(ar_database.database)
+    self.ar_database = ar_database
+    self.columns = columns
+
+
+class ARRow(AR):
 
   _key_values = {}
   allowed_identifiers = []
-  table = ''
   updated = []
   values = {}
   exists = True
-  db = Database()
 
-  @classmethod
-  def _get_cols(cls):
-    c = cls.db.show_columns(cls.table)
-    cols = [Column(*a) for a in c]
-    return cols
-
-  columns = _get_cols()
-
-  def __init__(self, autoretrieve=True, **identifiers):
+  def __init__(self, table, autoretrieve=True, **identifiers):
+    assert isinstance(table, ARTable)
+    super().__init__(ARTable.database)
+    self.table = table
     for key in identifiers:
       if key in self.allowed_identifiers:
         self._key_values[key] = identifiers[key]
       else:
         log.write_error('active record', message='identifier ' + key + ' is not allowed')
-    self.columns = self._get_cols()
 
     if self._key_values and autoretrieve:
       items = self.items
-      result = self.db.select(', '.join(items), self.table, 'where ' + self.identifier() + ';').fetchone()
-      self.values = {zip(items, result)}
+      try:
+        result = self.db.select(', '.join(items), self.table, 'where ' + self.identifier() + ';').fetchone()
+        self.values = dict(zip(items, result))
+      except (DatabaseError, Exception):
+        self.exists = False
+
+  @property
+  def columns(self):
+    return self.table.columns
 
   @property
   def _db_keys(self):
@@ -48,14 +77,6 @@ class ActiveRecord:
   @property
   def items(self):
     return [a.name for a in self.columns]
-
-  @property
-  def columns(self):
-    return self._columns
-
-  @columns.setter
-  def columns(self, val):
-    self._columns = val
 
   def __getitem__(self, item):
     if item in self.items:
@@ -86,6 +107,3 @@ class ActiveRecord:
 
   def identifier(self):
     return ' '.join(list(a + '=' + escape(self._key_values[a]) for a in self._key_values))
-
-  def __del__(self):
-    self.save()

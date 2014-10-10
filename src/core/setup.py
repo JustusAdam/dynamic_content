@@ -7,7 +7,7 @@ and hardened this should be refactored to remove the framework elements and stor
 from core import Modules
 from core.handlers.page import TemplateBasedPage
 from core.handlers.base import RedirectMixIn
-from .database import DatabaseError, Database
+from .framework.shell.database import DatabaseError, Database
 from . import module_operations
 from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, LinkElement
 from framework.config_tools import read_config, write_config
@@ -37,8 +37,8 @@ def try_database_connection():
 
 
 class SetupHandler(TemplateBasedPage, RedirectMixIn):
-  def __init__(self, url, client_info):
-    super().__init__(url, client_info)
+  def __init__(self, url):
+    super().__init__(url, None)
 
   def _fill_template(self):
     config = read_config('config')

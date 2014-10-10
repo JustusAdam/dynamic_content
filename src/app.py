@@ -5,8 +5,8 @@ Main file that runs the server.
 from http.server import *
 import os
 from pathlib import Path
-from core.database import Database, DatabaseError
 
+from framework.shell.database import Database, DatabaseError
 from framework.config_tools import read_config
 import core
 from core import request_handler

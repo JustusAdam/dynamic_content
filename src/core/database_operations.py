@@ -7,7 +7,7 @@ This is currently the recommended method for accessing the database to ensure co
 import sys
 from pathlib import Path
 
-from core.database import escape, DatabaseError, Database
+from framework.shell.database import escape, DatabaseError, Database
 from framework.config_tools import read_config
 
 

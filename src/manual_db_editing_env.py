@@ -1,5 +1,5 @@
 from core.admin.database_operations import AdminOperations
-from core.database import Database
+from framework.shell.database import Database
 from core.database_operations import Alias, ModuleOperations, ContentHandlers, ContentTypes
 from modules.iris.database_operations import Pages, Fields
 from modules.commons.database_operations import MenuOperations, CommonsOperations

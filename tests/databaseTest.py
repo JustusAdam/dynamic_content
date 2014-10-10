@@ -1,4 +1,4 @@
-from core.database import DatabaseError, Database, escape_item
+from framework.shell.database import DatabaseError, Database, escape
 
 __author__ = 'justusadam'
 
@@ -18,7 +18,7 @@ class AutoIncrTest(unittest.TestCase):
       self.db.create_table('testtable',
                            ['id int unsigned not null auto_increment primary key', 'title varchar(50) unique'])
     try:
-      self.db.remove('testtable', 'title=' + escape_item('testtitle', 'utf-8'))
+      self.db.remove('testtable', 'title=' + escape('testtitle', 'utf-8'))
     except DatabaseError:
       pass
 
