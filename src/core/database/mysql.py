@@ -137,7 +137,7 @@ class Database(AbstractDatabase):
       where_condition = 'where ' + where_condition + ';'
     else:
       where_condition += ';'
-    cursor = self._connection.cursor()
+    cursor = self.cursor()
     # print(' '.join(['update', table, 'set', set_clause, where_condition]))
     cursor.execute(' '.join(['update', table, 'set', set_clause, where_condition]))
 
@@ -151,7 +151,7 @@ class Database(AbstractDatabase):
       if not where_condition.endswith(';'):
         where_condition += ';'
     query = 'delete from ' + from_table + ' ' + where_condition
-    cursor = self._connection.cursor()
+    cursor = self.cursor()
     return cursor.execute(query)
 
   def check_connection(self):
@@ -166,6 +166,14 @@ class Database(AbstractDatabase):
       return True
     except DatabaseError:
       return False
+
+  def show_columns(self, table=''):
+    if table:
+      table = ' from ' + table
+    cursor = self.cursor()
+    query = 'show columns' + table + ';'
+    cursor.execute(query)
+    return cursor.fetchall()
 
 
 def escape(item, charset='utf-8'):

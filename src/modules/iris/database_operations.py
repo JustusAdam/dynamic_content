@@ -12,7 +12,8 @@ class Pages(Operations):
       'edit_page': 'update {page_type} set page_title={page_title}, published={published} where id={page_id};',
       'add_page': 'insert into {page_type} (content_type, page_title, creator, published, date_created) values ({content_type}, {page_title}, {creator}, {published}, utc_timestamp()); ',
       'get_new_id': 'select id from {page_type} where content_type={content_type} and page_title={page_title} and creator={creator} and published={published} order by id desc limit 1;',
-      'largest_id': 'select id from {table} order by id desc limit 1;'
+      'largest_id': 'select id from {t} order by id desc limit 1;',
+      'get_all_pages': 'select id, content_type, page_title, published from {t} order by date_changed desc limit {low}, {hight};'
     }
   }
 
@@ -40,8 +41,8 @@ class Pages(Operations):
     self.execute('get_new_id', **values)
     return self.cursor.fetchone()[0]
 
-  def get_largest_id(self, table):
-    self.execute('largest_id', table=table)
+  def get_largest_id(self, table_name):
+    self.execute('largest_id', t=table_name)
     return self.cursor.fetchone()[0]
 
 

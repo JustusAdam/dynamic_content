@@ -10,6 +10,9 @@ role = 'page_handler'
 
 path_prefix = 'iris'
 
+def admin_handler(h_name):
+  return None
+
 
 def content_handler(url):
   handlers = {
@@ -50,6 +53,11 @@ def prepare():
   ContentTypes().add('article', 'Simple Article', 'iris', 'active')
   f.add_field_type('body', 'Body', 'article', 'iris')
 
+  # add admin pages
+  from core import admin
+  admin.
+
+  # add some initial pages
 
   page_id = ct.add_page(
     **{k: conf['startpage'][k] for k in ['content_type', 'creator', 'page_title', 'published', 'page_type']})
@@ -59,3 +67,4 @@ def prepare():
   page_id = ct.add_page('iris', 'article', 'Wuhuuu', 1, True)
   f.add_field('body', 'iris', page_id,
               '<p>More content is good</p><iframe src="http://www.xkcd.com" height="840px" width="600px" seamless></iframe>')
+
