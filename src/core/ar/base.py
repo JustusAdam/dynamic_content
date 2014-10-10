@@ -13,28 +13,37 @@ class ActiveRecord:
   updated = []
   values = {}
   exists = True
+  db = Database()
 
-  def __init__(self, **identifiers):
+  @classmethod
+  def _get_cols(cls):
+    c = cls.db.show_columns(cls.table)
+    cols = [Column(*a) for a in c]
+    return cols
+
+  columns = _get_cols()
+
+  def __init__(self, autoretrieve=True, **identifiers):
     for key in identifiers:
       if key in self.allowed_identifiers:
         self._key_values[key] = identifiers[key]
       else:
         log.write_error('active record', message='identifier ' + key + ' is not allowed')
-    self.db = Database()
     self.columns = self._get_cols()
+
+    if self._key_values and autoretrieve:
+      items = self.items
+      result = self.db.select(', '.join(items), self.table, 'where ' + self.identifier() + ';').fetchone()
+      self.values = {zip(items, result)}
 
   @property
   def _db_keys(self):
-    return filter(lambda a: bool(), self.items)
+    columns = {a.name: a for a in self.columns}
+    return filter(lambda a: bool(columns[a].key), self.items)
 
   @property
   def keys(self):
     return self._key_values
-
-  def _get_cols(self):
-    c = self.db.show_columns()
-    cols = [Column(*a) for a in c]
-    return cols
 
   @property
   def items(self):
@@ -60,13 +69,19 @@ class ActiveRecord:
 
   def save(self):
     if self.updated:
+      if self.exists:
+        self._update()
+      else:
+        self._insert()
+        self.exists = True
+      self.updated = []
 
   def _update(self):
     self.db.update(self.table, dict([[a, self.values[a]] for a in self.updated]), 'where ' + self.identifier())
 
   def _insert(self):
     pairing = {a: None for a in self._db_keys}
-    pairing = dict([[a, self.values[a]] for a in self.updated])
+    pairing.update(dict([[a, self.values[a]] for a in self.updated]))
     self.db.insert(self.table, pairing, 'where ' + self.identifier())
 
   def identifier(self):
