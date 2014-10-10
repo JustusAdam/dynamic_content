@@ -10,7 +10,11 @@ from framework.url import Url
 __author__ = 'justusadam'
 
 
-class Content:
+class ContentCompiler:
+
+  def __init__(self, data_shell):
+    self.data_shell = data_shell
+
   @property
   def compiled(self):
 
@@ -20,12 +24,12 @@ class Content:
     return str(self.compiled)
 
 
-class WebObject(Content):
+class WebObject(ContentCompiler):
 
   _url = None
 
-  def __init__(self, url):
-    super().__init__()
+  def __init__(self, data_shell, url):
+    super().__init__(data_shell)
     self.url = url
     self._headers = set()
     self._cookies = None
@@ -118,13 +122,13 @@ class RedirectMixIn(WebObject):
                     [('Location', destination), ('Connection', 'close'), ('Content-Type', 'text/html')], None)
 
 
-class TemplateBasedContent(Content):
+class TemplateBasedContentCompiler(ContentCompiler):
   _theme = 'default_theme'
 
   template_name = None
 
-  def __init__(self):
-    super().__init__()
+  def __init__(self, data_shell):
+    super().__init__(data_shell)
     self.theme_config = read_config(self.theme_path + '/config.json')
     self._template = Template(self._get_template_path())
 

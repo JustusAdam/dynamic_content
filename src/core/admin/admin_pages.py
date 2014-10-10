@@ -8,7 +8,7 @@ __author__ = 'justusadam'
 ADMIN_PATH = '/admin'
 
 
-class Overview(handlers.base.Content):
+class Overview(handlers.base.ContentCompiler):
 
   classes = {'admin-menu', 'overview'}
 

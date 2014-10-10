@@ -29,12 +29,15 @@ class ARDatabase(AR):
 
 class ARTable(AR):
 
+  columns = None
+  table = columns
+
   def __init__(self, ar_database, name):
     assert isinstance(ar_database, ARDatabase)
     super().__init__(ar_database.database)
     self.ar_database = ar_database
     self.name = name
-    self.table = Table(*self._get_cols(name))
+    self.columns = Table(*self._get_cols(name))
 
   def _get_cols(self, table):
     data = self.db.show_columns(table=table)

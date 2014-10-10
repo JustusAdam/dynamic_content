@@ -1,16 +1,16 @@
-from core.handlers.base import Content
+from core.handlers.base import ContentCompiler
 from framework.html_elements import ContainerElement
 from framework.page import Component
 
 __author__ = 'justusadam'
 
 
-class Field(Content):
+class Field(ContentCompiler):
   _query = {}
   db_ops = None
 
-  def __init__(self, path_prefix, page_id, machine_name):
-    super().__init__()
+  def __init__(self, data_shell, path_prefix, page_id, machine_name):
+    super().__init__(data_shell)
     self.page_id = page_id
     self.machine_name = machine_name
     self.path_prefix = path_prefix

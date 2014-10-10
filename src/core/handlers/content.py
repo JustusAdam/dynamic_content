@@ -1,20 +1,20 @@
 from core.errors import html_message
-from core.handlers.base import WebObject, TemplateBasedContent
+from core.handlers.base import WebObject, TemplateBasedContentCompiler
 from framework.page import Component
 
 __author__ = 'justusadam'
 
 
-class Content(WebObject, TemplateBasedContent):
+class Content(WebObject, TemplateBasedContentCompiler):
 
   theme = 'default_theme'
   template_name = 'content'
   page_title = 'Dynamic Page'
   permission = 'access pages'
 
-  def __init__(self, url, parent_handler):
-    super().__init__(url)
-    TemplateBasedContent.__init__(self)
+  def __init__(self, data_shell, url, parent_handler):
+    super().__init__(data_shell, url)
+    TemplateBasedContentCompiler.__init__(self, data_shell)
     self._parent = parent_handler
 
   @property
