@@ -12,9 +12,6 @@ __author__ = 'justusadam'
 
 class ContentCompiler:
 
-  def __init__(self, data_shell):
-    self.data_shell = data_shell
-
   @property
   def compiled(self):
 
@@ -28,8 +25,8 @@ class WebObject(ContentCompiler):
 
   _url = None
 
-  def __init__(self, data_shell, url):
-    super().__init__(data_shell)
+  def __init__(self, url):
+    super().__init__()
     self.url = url
     self._headers = set()
     self._cookies = None
@@ -127,8 +124,8 @@ class TemplateBasedContentCompiler(ContentCompiler):
 
   template_name = None
 
-  def __init__(self, data_shell):
-    super().__init__(data_shell)
+  def __init__(self):
+    super().__init__()
     self.theme_config = read_config(self.theme_path + '/config.json')
     self._template = Template(self._get_template_path())
 

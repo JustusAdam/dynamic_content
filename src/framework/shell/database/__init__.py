@@ -9,7 +9,7 @@ def get_my_folder():
   return str(Path(__file__).parent)
 
 
-config = read_config(str(get_my_folder()) + '/../../config')
+config = read_config(str(get_my_folder()) + '/../../../config')
 
 db_types = {
   'mysql': 'mysql'

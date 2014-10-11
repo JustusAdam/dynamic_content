@@ -5,8 +5,8 @@ __author__ = 'justusadam'
 
 
 class Page(WebObject):
-  def __init__(self, data_shell, url, client):
-    super().__init__(data_shell, url)
+  def __init__(self, url, client):
+    super().__init__(url)
     self._client = client
     self.page_type = None
     self.content_type = 'text/html'

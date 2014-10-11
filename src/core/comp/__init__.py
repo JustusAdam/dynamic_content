@@ -20,5 +20,5 @@ def add_commons_config(machine_name, commons_type, handler_module, show_title=Tr
   dbo.RegionOperations().add_item_conf(machine_name, commons_type, handler_module, show_title)
 
 
-def assign_common(name, region, weight, theme):
-  dbo.RegionOperations().add_item(name, region, weight, theme)
+def assign_common(common_name, region, weight, theme):
+  dbo.RegionOperations().add_item(common_name, region, weight, theme)

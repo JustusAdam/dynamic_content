@@ -27,8 +27,8 @@ FILETYPES = {
 
 
 class FileHandler(Page):
-  def __init__(self, data_shell, url):
-    super().__init__(data_shell, url, None)
+  def __init__(self, url):
+    super().__init__(url, None)
     self.page_type = 'file'
     self._document = ''
 

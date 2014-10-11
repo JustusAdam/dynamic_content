@@ -12,9 +12,9 @@ class Content(WebObject, TemplateBasedContentCompiler):
   page_title = 'Dynamic Page'
   permission = 'access pages'
 
-  def __init__(self, data_shell, url, parent_handler):
-    super().__init__(data_shell, url)
-    TemplateBasedContentCompiler.__init__(self, data_shell)
+  def __init__(self, url, parent_handler):
+    super().__init__(url)
+    TemplateBasedContentCompiler.__init__(self)
     self._parent = parent_handler
 
   @property

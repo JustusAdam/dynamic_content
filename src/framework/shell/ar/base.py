@@ -8,8 +8,9 @@ __author__ = 'justusadam'
 
 class AR:
 
-  database = None
-  db = database
+  @property
+  def db(self):
+    return self.database
 
   def __init__(self, database):
     self.database = database
@@ -26,11 +27,15 @@ class ARDatabase(AR):
   def __init__(self, database):
     super().__init__(database)
 
+  def table(self, name):
+    return ARTable(self, name)
+
 
 class ARTable(AR):
 
-  columns = None
-  table = columns
+  @property
+  def table(self):
+    return self.columns
 
   def __init__(self, ar_database, name):
     assert isinstance(ar_database, ARDatabase)
@@ -39,15 +44,20 @@ class ARTable(AR):
     self.name = name
     self.columns = Table(*self._get_cols(name))
 
+  def keys(self):
+    return self.table.db_keys()
+
   def _get_cols(self, table):
     data = self.db.show_columns(table=table)
     return list(Column(*b) for b in data)
+
+  def row(self, **identifiers):
+    return ARRow(self, **identifiers)
 
 
 class ARRow(AR):
 
   _key_values = {}
-  allowed_identifiers = []
   updated = []
   values = {}
   exists = True
@@ -57,10 +67,7 @@ class ARRow(AR):
     super().__init__(ARTable.database)
     self.table = table
     for key in identifiers:
-      if key in self.allowed_identifiers:
-        self._key_values[key] = identifiers[key]
-      else:
-        log.write_error('active record', message='identifier ' + key + ' is not allowed')
+      self._key_values[key] = identifiers[key]
 
     if self._key_values and autoretrieve:
       items = self.items

@@ -9,8 +9,8 @@ class Field(ContentCompiler):
   _query = {}
   db_ops = None
 
-  def __init__(self, data_shell, path_prefix, page_id, machine_name):
-    super().__init__(data_shell)
+  def __init__(self, path_prefix, page_id, machine_name):
+    super().__init__()
     self.page_id = page_id
     self.machine_name = machine_name
     self.path_prefix = path_prefix

@@ -33,4 +33,4 @@ class Column:
       raise ValueError
 
   def __str__(self):
-    return ' '.join([self.name, self.data_type, str(self.null_allowed), self.key, self.default, self.extra])
+    return ' '.join([self.name, self.data_type, str(self.null_allowed), self.key, str(self.default), self.extra])
