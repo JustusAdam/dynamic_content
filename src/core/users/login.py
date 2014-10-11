@@ -1,6 +1,7 @@
 import datetime
 
-from framework.html_elements import FormElement, TableElement, ContainerElement, Label, Input, SubmitButton
+from framework.html_elements import TableElement, ContainerElement, Label, Input, SubmitButton
+from ..form import SecureForm
 from core import handlers
 from core.users.users import GUEST
 from . import session
@@ -21,7 +22,7 @@ LOGOUT_TARGET = '/login'
 LOGOUT_BUTTON = ContainerElement('Logout', html_type='a', classes={'logout', 'button'},
                                  additionals={'href': '/' + logout_prefix})
 
-LOGIN_FORM = FormElement(
+LOGIN_FORM = SecureForm(
   TableElement(
     USERNAME_INPUT,
     PASSWORD_INPUT
@@ -29,7 +30,7 @@ LOGIN_FORM = FormElement(
   , action='/' + login_prefix, classes={'login-form'}, submit=SubmitButton(value='Login')
 )
 
-LOGIN_COMMON = FormElement(
+LOGIN_COMMON = SecureForm(
   ContainerElement(
     *USERNAME_INPUT + PASSWORD_INPUT
   )

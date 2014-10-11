@@ -1,6 +1,5 @@
 from core.database_operations import Operations, escape
 import os
-import binascii
 
 __author__ = 'justusadam'
 
@@ -28,10 +27,9 @@ class FormOperations(Operations):
   def new_token(self, form):
     token = gen_token()
     self.execute('add_token', form=escape(form), token=escape(token))
-    return binascii.hexlify(token)
+    return token
 
   def validate(self, form, token):
-    token = binascii.unhexlify(token)
     self.execute('validate', form=escape(form), token=escape(token))
     if self.cursor.fetchone():
       self.remove(form, token)

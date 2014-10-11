@@ -10,7 +10,7 @@ class MyTestCase(unittest.TestCase):
     self.file_handler = FileHandler(['public', '..', '..'])
 
   def testFileAccess(self):
-    self.assertEqual(self.file_handler.parse_path(), 403)
+    self.assertRaises(PermissionError, self.file_handler.parse_path)
 
 
 if __name__ == '__main__':

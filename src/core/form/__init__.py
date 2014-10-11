@@ -1,5 +1,7 @@
 from .database_operations import FormOperations
 from .secure import SecureForm
+from . import tokens
+
 
 __author__ = 'justusadam'
 
@@ -8,9 +10,6 @@ def prepare():
   fo = FormOperations()
   fo.init_tables()
 
-def validate(form, query_or_token):
-  if isinstance(query_or_token, str):
-    FormOperations().validate(form, query_or_token)
-  else:
-    FormOperations().validate(form, query_or_token['form_token'])
-
+def validation_hook(url):
+  if 'form_token' in url.post:
+    return tokens.validate(str(url.path), url.post['form_token'][0])

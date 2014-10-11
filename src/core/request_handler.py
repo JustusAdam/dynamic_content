@@ -40,6 +40,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     # construct Url object from path for accessibility
     url = Url(self.path, post_query)
+    if not core.form.validation_hook(url):
+      self.send_error(403)
 
     return self.do_any(url)
 
@@ -133,7 +135,7 @@ class RequestHandler(BaseHTTPRequestHandler):
       raise HTTPError(str(url), 301, 'Indexing is prohibited on this server', [("Location", str(new_dest))], None)
 
   def get_handler(self, url, client_info):
-      # raise HTTPError(str(url), 500, 'Database unreachable', None, None)
+    # raise HTTPError(str(url), 500, 'Database unreachable', None, None)
 
     url.path = core.translate_alias(str(url.path))
 
