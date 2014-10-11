@@ -234,6 +234,7 @@ class AccessOperations(Operations):
 
   def add_permission(self, aid, permission):
     self.db.insert('access_group_permissions', {'permission': permission, 'aid': aid})
+    self.db.commit()
 
   def remove_permission(self, aid, permission):
     self.execute('remove_permission', aid=escape(permission), permission=escape(permission))

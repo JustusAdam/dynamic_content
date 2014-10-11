@@ -7,7 +7,7 @@ and hardened this should be refactored to remove the framework elements and stor
 from core import Modules
 from core.handlers.page import TemplateBasedPage
 from core.handlers.base import RedirectMixIn
-from .framework.shell.database import DatabaseError, Database
+from framework.shell.database import DatabaseError, Database
 from . import module_operations
 from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, LinkElement
 from framework.config_tools import read_config, write_config
@@ -47,16 +47,16 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
         'title': 'Setup of your CMS Installation',
         'content': str(
           ContainerElement(
-            ContainerElement('Welcome to the setup process of your _jaide content management system.',
+            ContainerElement('Welcome to the setup process of your \'dynamic_content\' content management system.',
                              html_type='p'),
             ContainerElement(
-              'These pages will guide you trough the necessary steps and tests that need to be taken to ensure _jaide will function properly for you.',
+              'These pages will guide you trough the necessary steps and tests that need to be taken to ensure \'dynamic_content\' will function properly for you.',
               html_type='p'),
             ContainerElement(
               'During this process you will be required to enter and confirm sensible data to your installation as well as set a password for the administration user. It is therefore recommended that you perform this setup directly on the server or ahead of deployment or utilizing a secure and encrypted connection.',
               html_type='p'),
             ContainerElement(
-              'I hope that you will enjoy and be pleased with _jaide.', html_type='p'),
+              'I hope that you will enjoy and be pleased with \'dynamic_content\'.', html_type='p'),
             ContainerElement('Continue', html_type='a', classes=['continue', 'button'],
                              additionals=['href="/setup/{next_page}"'])
           )
@@ -101,11 +101,11 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
         'content': str(
           ContainerElement(
             ContainerElement(
-              'The following step will execute the initial queries to the database requred for _jaide to function. This will create new tables and fill them according to the installation specifications provided sufficient access to the database has been granted.',
+              'The following step will execute the initial queries to the database requred for \'dynamic_content\' to function. This will create new tables and fill them according to the installation specifications provided sufficient access to the database has been granted.',
               html_type='p'),
             ContainerElement('This step is required to proceed', html_type='p'),
             ContainerElement(
-              'If you are certain, that the database has been properly configured to allow sufficient access to _jaide and are content with this software making changes to your database please click \'Continue\'',
+              'If you are certain, that the database has been properly configured to allow sufficient access to \'dynamic_content\' and are content with this software making changes to your database please click \'Continue\'',
               html_type='p'),
             ContainerElement('Continue', html_type='a', classes=['button', 'continue'],
                              additionals='href="/setup/{next_page}"')
@@ -129,7 +129,7 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
     generic = {
       'stylesheets': str(Stylesheet('/theme/default_theme/css/style.css')),
       'sidebar_left': '<div class="sidebar" style="height: 1px;"></div>',
-      'footer': str(ContainerElement('_jaide CMS - &copy; Justus Adam 2014', element_id='powered_by')),
+      'footer': str(ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', element_id='powered_by')),
       'pagetitle': 'Setting up your CMS installation',
       'meta': str(LinkElement('/theme/default_theme/favicon.png', 'shortcut icon', element_type='image/png'))
     }

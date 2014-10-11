@@ -32,8 +32,7 @@ def check_aid(func):
       else:
         log.write_error('users', 'permissions', 'check_permission', 'invalid argument, expected numerical, got ' + str(type(aid)))
         raise ValueError
-    else:
-      return func(aid, *args)
+    return func(aid, *args)
   return wrapped
 
 
@@ -58,7 +57,7 @@ def assign_permission(aid, permission):
     log.write_error('users', 'permissions', 'assign_permission', 'cannot assign permissions to control group')
   elif check_permission(aid, permission):
     log.write_warning('users', 'permissions', 'assign_permission', 'access group ' + str(aid) + ' already owns permission ' + permission)
-  elif check_permission(CONTROL_GROUP, permission):
+  elif not check_permission(CONTROL_GROUP, permission):
     log.write_warning('users', 'permissions', 'assign_permission', 'permission ' + permission + ' does not exist yet')
     new_permission(permission)
     assign_permission(aid, permission)
