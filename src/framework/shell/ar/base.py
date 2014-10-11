@@ -1,7 +1,7 @@
+from framework.shell.ar.data import Column
 from includes import log
 from ..database import escape, DatabaseError
-from .column import Column
-from .table import Table
+from .data import Table
 
 __author__ = 'justusadam'
 

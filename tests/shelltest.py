@@ -1,5 +1,6 @@
 import unittest
-from framework.shell.ar import base, column
+from framework.shell.ar import base
+from framework.shell.ar.data import Column
 from framework.shell.database import Database
 from pymysql.connections import Connection
 
@@ -29,7 +30,7 @@ class ARTest(unittest.TestCase):
     keys = []
     for element in test_table:
       a = test_table[element]
-      self.assertIsInstance(a, column.Column)
+      self.assertIsInstance(a, Column)
       if a.key:
         keys.append(element)
     real = test_table.db_keys()
