@@ -16,11 +16,11 @@ class BasicHandler(TemplateBasedPage):
 
   template_name = 'page'
 
-  def __init__(self, data_shell, url, client_info):
+  def __init__(self, url, client_info):
     self.modules = Modules()
     self.content_handler = self._get_content_handler(url)
     self.module_config = read_config(self._get_config_folder() + '/config.json')
-    super().__init__(data_shell, url, client_info)
+    super().__init__(url, client_info)
 
   @property
   def theme(self):

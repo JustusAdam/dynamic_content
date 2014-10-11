@@ -59,8 +59,10 @@ class Database(AbstractDatabase):
       self._connection.close()
       self._connection = None
 
-  def __check_connection(self):
-    return bool(self._connection)
+  def _check_connection(self):
+    if not self._connection:
+      return False
+    return bool(self._connection.socket)
 
   def connect(self):
     self.close()

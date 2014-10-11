@@ -47,14 +47,14 @@ class AbstractDatabase:
     """
     This is a value indicating whether or not a connection is present.
 
-    This method should not be overwritten, instead one should overwrite the __check_connection() method instead.
+    This method should not be overwritten, instead one should overwrite the _check_connection() method instead.
     This property exists only for beautification reasons.
 
     :return: boolean
     """
-    return self.__check_connection()
+    return self._check_connection()
 
-  def __check_connection(self):
+  def _check_connection(self):
     pass
 
   def __del__(self):

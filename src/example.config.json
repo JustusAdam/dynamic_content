@@ -15,9 +15,9 @@
     },
     "database_connection_arguments": {
     // Arguments used to connect to the database
-        "passwd": "python_cms", // password
-        "database": "python_cms",
-        "user": "python_cms",
+        "passwd": "dynamic_content", // password
+        "database": "dynamic_content",
+        "user": "dynamic_content",
         "host": "localhost",
         "autocommit": true
     },

@@ -13,7 +13,6 @@ import sys
 import traceback
 import copy
 
-from framework.shell import DataShell, DataError
 from core.comp.page import BasicHandler
 from includes import bootstrap
 from core.handlers.file import FileHandler
@@ -133,18 +132,15 @@ class RequestHandler(BaseHTTPRequestHandler):
       new_dest.path.trailing_slash = False
       raise HTTPError(str(url), 301, 'Indexing is prohibited on this server', [("Location", str(new_dest))], None)
 
-    elif url.page_type == 'setup':
+  def get_handler(self, url, client_info):
+      # raise HTTPError(str(url), 500, 'Database unreachable', None, None)
+
+    url.path = core.translate_alias(str(url.path))
+
+    if url.page_type == 'setup':
       return self.start_setup(url)
     elif url.page_type in bootstrap.FILE_DIRECTORIES.keys():
       return FileHandler(url)
-
-  def get_handler(self, url, client_info):
-    try:
-      shell = DataShell()
-    except DataError:
-      raise HTTPError(str(url), 500, 'Database unreachable', None, None)
-
-    url.path = core.translate_alias(str(url.path))
 
     if len(url.path) == 0:
       raise HTTPError(str(url), 404, None, None, None)

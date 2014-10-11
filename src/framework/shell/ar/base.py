@@ -60,26 +60,33 @@ class ARRow(AR):
   _key_values = {}
   updated = []
   values = {}
-  exists = True
+  exists = False
 
   def __init__(self, table, autoretrieve=True, **identifiers):
     assert isinstance(table, ARTable)
-    super().__init__(ARTable.database)
-    self.table = table
+    super().__init__(table.database)
+    self.ar_table = table
+    self.table = table.table
+    self.table_name = table.name
     for key in identifiers:
       self._key_values[key] = identifiers[key]
 
     if self._key_values and autoretrieve:
-      items = self.items
-      try:
-        result = self.db.select(', '.join(items), self.table, 'where ' + self.identifier() + ';').fetchone()
+      self._get_data()
+
+  def _get_data(self):
+    items = self.items
+    try:
+      result = self.db.select(', '.join(items), self.table_name, 'where ' + self.identifier() + ';').fetchone()
+      if result:
         self.values = dict(zip(items, result))
-      except (DatabaseError, Exception):
-        self.exists = False
+        self.exists = True
+    except (DatabaseError, Exception):
+      self.exists = False
 
   @property
   def columns(self):
-    return self.table.columns
+    return self.table
 
   @property
   def _db_keys(self):
@@ -92,7 +99,7 @@ class ARRow(AR):
 
   @property
   def items(self):
-    return [a.name for a in self.columns]
+    return [a for a in self.columns]
 
   def __getitem__(self, item):
     if item in self.items:
@@ -114,12 +121,19 @@ class ARRow(AR):
       self.updated = []
 
   def _update(self):
-    self.db.update(self.table, dict([[a, self.values[a]] for a in self.updated]), 'where ' + self.identifier())
+    self.db.update(self.table_name, dict([[a, self.values[a]] for a in self.updated]), 'where ' + self.identifier())
 
   def _insert(self):
-    pairing = {a: None for a in self._db_keys}
-    pairing.update(dict([[a, self.values[a]] for a in self.updated]))
-    self.db.insert(self.table, pairing, 'where ' + self.identifier())
+    pairing = dict([[a, self.values[a]] for a in self.updated])
+    missing_keys = []
+    for key in filter(lambda a: self.table[a].default is None and 'auto_increment' not in self.table[a].extra, self.table):
+      if key not in pairing:
+        missing_keys.append(key)
+    if missing_keys:
+      print('missing columns with no default argument: ' + ' '.join(missing_keys))
+      raise ValueError
+    self.db.insert(self.table_name, pairing, 'where ' + self.identifier())
+    self._get_data()
 
   def identifier(self):
     return ' '.join(list(a + '=' + escape(self._key_values[a]) for a in self._key_values))
