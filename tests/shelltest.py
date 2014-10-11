@@ -1,7 +1,7 @@
 import unittest
 from framework.shell.ar import base
 from framework.shell.ar.data import Column
-from framework.shell.database import Database
+from framework.shell.database import Database, escape
 from pymysql.connections import Connection
 import datetime
 
@@ -40,25 +40,35 @@ class ARTest(unittest.TestCase):
   def testRetrieval(self):
     table = self.ar_db.table('body_data')
     testrow1 = table.row(id=6)
+    self.assertEqual(testrow1.exists, True)
     self.assertEqual(testrow1['page_id'], 0)
     self.assertEqual(testrow1['content'], 'oergierngiernvienunerlwefnjewnjewnf')
 
   def testInsertion(self):
-    table = self.ar_db.table('body_data')
+    table_name = 'body_data'
+    table = self.ar_db.table(table_name)
     testrow1 = table.row()
+
     self.assertEqual(testrow1.exists, False)
     self.assertEqual(testrow1['content'], None)
     content = 'unittest test content'
     # date = datetime.datetime.utcnow()
     # testrow1['date_changed'] = date
+
     testrow1['content'] = content
     testrow1['page_id'] = 3
+
     self.assertRaises(ValueError, testrow1.save)
-    testrow1['path_prefix'] = 'unittest'
+    path_prefix = 'unittest'
+    testrow1['path_prefix'] = path_prefix
     testrow1.save()
     testrow2 = table.row(page_id=3, content=content)
     self.assertEqual(testrow2['content'], content)
     self.assertEqual(testrow2.exists, True)
+
+    self.assertRaises(KeyError, testrow1.__setitem__, 'this fails', 'content')
+
+    self.ar_db.database.remove(table_name, 'path_prefix=' + escape(path_prefix))
 
 
 if __name__ == '__main__':

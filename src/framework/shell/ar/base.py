@@ -1,5 +1,4 @@
 from framework.shell.ar.data import Column
-from includes import log
 from ..database import escape, DatabaseError
 from .data import Table
 
@@ -110,6 +109,8 @@ class ARRow(AR):
       self.values[key] = value
       if key not in self.updated:
         self.updated.append(key)
+    else:
+      raise KeyError
 
   def save(self):
     if self.updated:
@@ -136,4 +137,4 @@ class ARRow(AR):
     self._get_data()
 
   def identifier(self):
-    return ' '.join(list(a + '=' + escape(self._key_values[a]) for a in self._key_values))
+    return ' and '.join(list(a + '=' + escape(self._key_values[a]) for a in self._key_values))
