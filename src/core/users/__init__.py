@@ -41,7 +41,7 @@ def common_handler(item_type):
 
 def prepare():
   import core
-  from .database_operations import UserOperations, SessionOperations
+  from .database_operations import UserOperations, SessionOperations, AccessOperations
   from core.comp.database_operations import RegionOperations
   from core import admin
 
@@ -49,9 +49,11 @@ def prepare():
   so = SessionOperations()
   uo = UserOperations()
   ro = RegionOperations()
+  aa = AccessOperations()
   # dn = DisplayNamesOperations()
   so.init_tables()
   uo.init_tables()
+  aa.init_tables()
 
   # add login page
   core.add_content_handler('login', name, login_prefix)
