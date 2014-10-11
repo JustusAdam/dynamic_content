@@ -1,5 +1,4 @@
-from core.form.database_operations import FormOperations
-from framework.shell import database
+from core.form import tokens
 
 __author__ = 'justusadam'
 
@@ -7,15 +6,10 @@ import unittest
 
 
 class TestFormToken(unittest.TestCase):
-  def setUp(self):
-    self.db = database.Database()
-    self.ops = FormOperations()
-    self.ops.init_tables()
-
-  def test_something(self):
-    form = '/test'
-    token = self.ops.new_token(form)
-    self.ops.validate(form, token)
+  def test_form(self):
+    form_name = '/unittest'
+    test_token = tokens.new(form_name)
+    self.assertEqual(tokens.validate(form_name, test_token), True)
 
 
 if __name__ == '__main__':

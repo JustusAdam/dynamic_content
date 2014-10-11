@@ -1,4 +1,5 @@
 import datetime
+from urllib.error import HTTPError
 
 from framework.html_elements import TableElement, ContainerElement, Label, Input, SubmitButton
 from ..form import SecureForm
@@ -48,7 +49,6 @@ class LoginHandler(handlers.content.Content, handlers.base.RedirectMixIn):
     self.page_title = 'Login'
 
   def process_content(self):
-    ContainerElement('Your Login failed, please try again.', classes={'alert'})
     return ContainerElement(self.message, LOGIN_FORM)
 
   def _process_post(self):
@@ -60,6 +60,8 @@ class LoginHandler(handlers.content.Content, handlers.base.RedirectMixIn):
     if token:
       self.add_morsels({'SESS': token})
       self.redirect('/iris/1')
+    else:
+      self.message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
 
 
 class LoginCommonHandler(handlers.common.Commons):

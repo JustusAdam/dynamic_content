@@ -58,7 +58,11 @@ class UserOperations(Operations):
 
   def get_uid(self, username):
     self.execute('get_user_id', username=escape(username))
-    return self.cursor.fetchone()[0]
+    result = self.cursor.fetchone()
+    if result:
+      return result[0]
+    else:
+      return None
 
   def add_user(self, username, password, email, access_group=1, first_name='', middle_name='', last_name=''):
     pairing = {'username': username, 'access_group': access_group, 'user_first_name': first_name, 'email_address': email,
@@ -87,7 +91,10 @@ class UserOperations(Operations):
       raise DBOperationError
 
   def authenticate_user(self, uid, password):
-    pass_from_db, salt = self.get_pass_salt(uid)
+    result = self.get_pass_salt(uid)
+    if not result:
+      return False
+    pass_from_db, salt = result
     return check_ident(password, salt, pass_from_db)
 
   def get_acc_grp(self, uname_or_uid):
