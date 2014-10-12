@@ -1,8 +1,9 @@
 from framework.application import Application
 from .modules import Modules
 from .module_operations import register_installed_modules
-from framework.shell.database import Database, DatabaseError
+from framework.shell.database import Database
 from framework.shell.connector import Connector
+import os
 
 __author__ = 'justusadam'
 
@@ -27,8 +28,8 @@ class MainApp(Application):
     httpd = self.config.server_class(server_address, self.handle_http_request)
     httpd.serve_forever()
 
-  def handle_http_request(self, *args, **kwargs):
-    return self.config.http_request_handler(*args, **kwargs)
+  def handle_http_request(self, *args):
+    return self.config.http_request_handler(*args)
 
   def register_modules(self):
     register_installed_modules()
@@ -42,3 +43,6 @@ class MainApp(Application):
 
   def load_database(self):
     self.load_external('database', Database())
+
+  def set_working_directory(self):
+    os.chdir(self.config.basedir)
