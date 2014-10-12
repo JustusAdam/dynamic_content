@@ -2,4 +2,6 @@ __author__ = 'justusadam'
 
 
 class Connector:
-  pass
+  def __init__(self, name, connection):
+    self.name = name
+    self.connection = connection

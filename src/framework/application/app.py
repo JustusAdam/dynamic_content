@@ -1,13 +1,23 @@
+from .config import ApplicationConfig
+
 __author__ = 'justusadam'
 
 
 class Application(object):
 
-  def __init__(self):
-    pass
+  externals = {}
+  shell = {}
+
+  def __init__(self, config):
+    assert isinstance(config, ApplicationConfig)
+    self.config = config
+    self.load()
 
   def load(self):
-    pass
+    self.load_modules()
 
   def load_modules(self):
+    pass
+
+  def run(self):
     pass
