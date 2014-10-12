@@ -5,7 +5,7 @@ from .data import Table
 __author__ = 'justusadam'
 
 
-class AR:
+class AR(object):
 
   @property
   def db(self):
@@ -27,19 +27,46 @@ class ARDatabase(AR):
     super().__init__(database)
 
   def table(self, name):
-    return ARTable(self, name)
+    return SimpleARTable(self, name)
 
 
 class ARTable(AR):
+
+  name = None
+  table = None
+
+  def __init__(self, ar_database):
+    assert isinstance(ar_database, ARDatabase)
+    super().__init__(ar_database.database)
+    self.ar_database = ar_database
+
+  def keys(self):
+    pass
+
+  def row(self, **identifiers):
+    pass
+
+  def insert(self, pairing, identifiers):
+    pass
+
+  def update(self, pairing, identifier):
+    pass
+
+  def select(self, rows, identifiers):
+    pass
+
+  def join_condition(self, identifiers):
+    return ' and '.join(list(a + '=' + escape(identifiers[a]) for a in identifiers))
+
+
+class SimpleARTable(ARTable):
 
   @property
   def table(self):
     return self.columns
 
   def __init__(self, ar_database, name):
-    assert isinstance(ar_database, ARDatabase)
-    super().__init__(ar_database.database)
-    self.ar_database = ar_database
+    super().__init__(ar_database)
     self.name = name
     self.columns = Table(*self._get_cols(name))
 
@@ -52,6 +79,25 @@ class ARTable(AR):
 
   def row(self, **identifiers):
     return ARRow(self, **identifiers)
+
+  def insert(self, pairing, identifiers):
+    self.db.insert(self.name, pairing, 'where ' + self.join_condition(identifiers))
+
+  def update(self, pairing, identifier):
+    self.db.update(self.name, pairing, 'where ' + self.join_condition(identifier))
+
+  def select(self, rows, identifiers):
+    return self.db.select(', '.join(rows), self.name, 'where ' + self.join_condition(identifiers) + ';').fetchone()
+
+
+class CompoundARTable(ARTable):
+
+  tables = {}
+
+  def __init__(self, ar_database, *names):
+    super().__init__(ar_database)
+    for name in names:
+      self.table[name] = SimpleARTable(ar_database, name)
 
 
 class ARRow(AR):
@@ -76,7 +122,7 @@ class ARRow(AR):
   def _get_data(self):
     items = self.items
     try:
-      result = self.db.select(', '.join(items), self.table_name, 'where ' + self.identifier() + ';').fetchone()
+      result = self.ar_table.select(items, self._key_values)
       if result:
         self.values = dict(zip(items, result))
         self.exists = True
@@ -122,7 +168,7 @@ class ARRow(AR):
       self.updated = []
 
   def _update(self):
-    self.db.update(self.table_name, dict([[a, self.values[a]] for a in self.updated]), 'where ' + self.identifier())
+    self.ar_table.update(dict([[a, self.values[a]] for a in self.updated]), self._key_values)
 
   def _insert(self):
     pairing = dict([[a, self.values[a]] for a in self.updated])
@@ -133,8 +179,5 @@ class ARRow(AR):
     if missing_keys:
       print('missing columns with no default argument: ' + ' '.join(missing_keys))
       raise ValueError
-    self.db.insert(self.table_name, pairing, 'where ' + self.identifier())
+    self.ar_table.insert(pairing,  self._key_values)
     self._get_data()
-
-  def identifier(self):
-    return ' and '.join(list(a + '=' + escape(self._key_values[a]) for a in self._key_values))

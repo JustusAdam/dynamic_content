@@ -8,11 +8,22 @@ USERS_TABLE_NAME = 'cms_users'
 USERS_AUTH_TABLE_NAME = 'cms_user_auth'
 
 database = base.ARDatabase(Database())
-users_table = base.ARTable(database, USERS_TABLE_NAME)
+
 user_auth_table = base.ARTable(database, USERS_AUTH_TABLE_NAME)
 
 
+class UserTable(base.ARTable):
+  def __init__(self):
+    super().__init__(database, USERS_TABLE_NAME)
+
+  def new(self, uid=None, username=''):
+    return NewUser(self, uid, username)
+
+
 class BaseUser(base.ARRow):
+
+  def __init__(self, table, autoretrieve, **identifiers):
+    super().__init__(table, autoretrieve, **identifiers)
 
   _auth = None
   _identifiers = {}
@@ -23,13 +34,12 @@ class BaseUser(base.ARRow):
       self._auth = base.ARRow(user_auth_table, **self._identifiers)
     return self._auth
 
-  @staticmethod
-  def new(uid=None, username=''):
-    return NewUser(uid, username)
+  def new(self, uid=None, username=''):
+    return NewUser(self.ar_table, uid, username)
 
 class ExistingUser(BaseUser):
 
-  def __init__(self, uname_or_uid):
+  def __init__(self, table, uname_or_uid):
 
     # if input is uid
     if isinstance(uname_or_uid, int):
@@ -46,13 +56,17 @@ class ExistingUser(BaseUser):
     else:
       raise ValueError
 
-    super().__init__(users_table, True, **self._identifiers)
+    super().__init__(table, True, **self._identifiers)
 
 class NewUser(BaseUser):
 
-  def __init__(self, uid=None, username=''):
+  def __init__(self, table, uid=None, username=''):
     if uid:
       self._identifiers['uid'] = int(uid)
     if username:
       self._identifiers['username'] = username
-    super().__init__(users_table, False, **self._identifiers)
+    super().__init__(table, False, **self._identifiers)
+
+
+class UserGroup(base.ARRow):
+  pass
