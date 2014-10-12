@@ -11,7 +11,7 @@ class Table(dict):
     super().__init__(**kwargs)
 
   def db_keys(self):
-    return filter(lambda s: bool(self[s].key), self)
+    return list(filter(lambda s: bool(self[s].key), self))
 
 
 class Column:

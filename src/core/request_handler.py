@@ -17,7 +17,7 @@ from core.comp.page import BasicHandler
 from includes import bootstrap
 from core.handlers.file import FileHandler
 from framework.url import Url
-from framework.config_tools import read_config
+from framework.tools.config import read_config
 from core.users import client
 from includes import log
 import core

@@ -2,10 +2,12 @@ from http import cookies
 from pathlib import Path
 import sys
 from urllib.error import HTTPError
+
 from core.comp.template import Template
-from framework.config_tools import read_config
+from framework.tools.config import read_config
 from framework.page import Component
 from framework.url import Url
+
 
 __author__ = 'justusadam'
 

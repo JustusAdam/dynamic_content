@@ -2,7 +2,7 @@ from importlib import import_module
 from pathlib import Path
 
 from core import database_operations
-from framework.config_tools import read_config
+from framework.tools.config import read_config
 from framework.shell.database import DatabaseError
 from includes import bootstrap
 

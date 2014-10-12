@@ -1,11 +1,13 @@
 from framework.shell.ar.data import Column
 from ..database import escape, DatabaseError
 from .data import Table
+from itertools import chain
+from ..connector import Connector
 
 __author__ = 'justusadam'
 
 
-class AR(object):
+class AR(Connector):
 
   @property
   def db(self):
@@ -97,7 +99,17 @@ class CompoundARTable(ARTable):
   def __init__(self, ar_database, *names):
     super().__init__(ar_database)
     for name in names:
-      self.table[name] = SimpleARTable(ar_database, name)
+      self.tables[name] = SimpleARTable(ar_database, name)
+
+  def row(self, **identifiers):
+    return ARRow(self, **identifiers)
+
+  def keys(self):
+    return set(chain(*(a.keys() for a in self.tables.values())))
+
+  @property
+  def table(self):
+    return {a.table for a in self.tables}
 
 
 class ARRow(AR):

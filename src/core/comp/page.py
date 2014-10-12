@@ -4,7 +4,7 @@ from core import Modules, database_operations
 from core.database_operations import DBOperationError
 from core.comp.regions import RegionHandler
 from core.handlers.page import TemplateBasedPage
-from framework.config_tools import read_config
+from framework.tools.config import read_config
 from framework.html_elements import Stylesheet, Script, LinkElement, ContainerElement
 
 

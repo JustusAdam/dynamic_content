@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 from framework.shell.database import escape, DatabaseError, Database
-from framework.config_tools import read_config
+from framework.tools.config import read_config
 
 
 __author__ = 'justusadam'

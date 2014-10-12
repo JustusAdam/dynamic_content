@@ -1,6 +1,8 @@
-from framework.config_tools import read_config
 from pathlib import Path
 import importlib
+
+from framework.tools.config import read_config
+
 
 __author__ = 'justusadam'
 

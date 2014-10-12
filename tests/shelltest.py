@@ -70,6 +70,12 @@ class ARTest(unittest.TestCase):
 
     self.ar_db.database.remove(table_name, 'path_prefix=' + escape(path_prefix))
 
+  def test_compound_table(self):
+    test_table_names = ['cms_users', 'cms_user_auth', 'form_tokens']
+    table = base.CompoundARTable(self.ar_db, *test_table_names)
+    result = table.keys()
+    self.assertSetEqual(result, {'uid', 'id', 'username', 'email_address', 'token', 'salt', 'password'})
+
 
 if __name__ == '__main__':
     unittest.main()
