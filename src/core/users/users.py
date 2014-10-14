@@ -25,14 +25,14 @@ GUEST_GRP = 1 # Not a authenticated User
 AUTH = 2 # Default group for users. users that have no particular group assigned to them
 
 def check_aid(func):
-  def wrapped(aid, *args):
+  def wrapped(aid, *args, **kwargs):
     if not isinstance(aid, int):
-      if aid.isdigit():
+      if aid.isalpha():
         aid = int(aid)
       else:
         log.write_error('users', 'permissions', 'check_permission', 'invalid argument, expected numerical, got ' + str(type(aid)))
         raise ValueError
-    return func(aid, *args)
+    return func(aid, *args, **kwargs)
   return wrapped
 
 

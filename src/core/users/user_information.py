@@ -35,6 +35,8 @@ class UserInformationCommon(handlers.common.Commons):
 
 class UserInformation(handlers.content.Content):
 
+  permission = 'view user info'
+
   page_title = 'User Information'
 
   def process_content(self):

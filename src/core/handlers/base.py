@@ -141,6 +141,7 @@ class TemplateBasedContentCompiler(ContentCompiler):
 
   @property
   def compiled(self):
+    # TODO add callback function instead of rendering page directly
     self._fill_template()
     page = Component(str(self._template))
     return page
