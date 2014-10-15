@@ -1,3 +1,17 @@
+"""
+This file is the backbone of all database interaction.
+
+Once the AR is implemented it is strongly advised to use
+the AR instead of directly importing and using this file.
+
+Usage:
+  - import this module
+  - call Database() to get a connection wrapper for database access
+  - use the provided update, select, insert etc. methods
+  - try to avoid using cursor() directly
+  - escape all values using the escape() function provided here
+"""
+
 from pathlib import Path
 import importlib
 
