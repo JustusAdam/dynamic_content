@@ -1,0 +1,30 @@
+{
+    "name": "admin",
+    "role": "administration_pages_handler",
+    "tables": {
+        "admin_categories": [
+            "id int unsigned not null unique auto_increment primary key",
+            "machine_name varchar(200) not null unique",
+            "display_name varchar(200) not null unique",
+            "description varchar(400)",
+            "weight int not null"
+        ],
+        "admin_pages": [
+            "id int unsigned not null unique auto_increment primary key",
+            "machine_name varchar(200) not null unique",
+            "display_name varchar(200) not null",
+            "description varchar(400)",
+            "subcategory varchar(200) not null",
+            "handler_module varchar(200) not null",
+            "weight int"
+        ],
+        "admin_subcategories": [
+            "id int unsigned not null unique auto_increment primary key",
+            "machine_name varchar(200) not null unique",
+            "display_name varchar(200) not null",
+            "category varchar(200)",
+            "description varchar(400)",
+            "weight int"
+        ]
+    }
+}
