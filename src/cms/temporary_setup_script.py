@@ -7,9 +7,9 @@ been created yet.
 __author__ = 'justusadam'
 
 
+from modules import comp
+from modules.users import users
 # add admin menu common
-
-from core import comp
 
 comp.add_commons_config('admin_menu', 'menu', 'admin')
 comp.assign_common('admin_menu', 'sidebar_left', 4, 'default_theme')
@@ -42,8 +42,6 @@ i18n.add_display_name('admin_menu', source_table, language, 'Administration Acti
 # assign the important first permissions
 
 ADMIN_GRP = 5
-
-from core.users import users
 
 permissions = [
   [

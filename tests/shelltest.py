@@ -1,9 +1,11 @@
 import unittest
-from framework.shell.ar import base
-from framework.shell.ar.data import Column
-from framework.shell.database import Database, escape
+
 from pymysql.connections import Connection
-import datetime
+
+from backend.ar.data import Column
+from backend.database import Database, escape
+from backend.ar import base
+
 
 __author__ = 'justusadam'
 

@@ -1,5 +1,4 @@
-from framework.shell.database import DatabaseError, Database, escape
-from framework.shell.database.mysql import Database as MySql
+from backend.database.mysql import Database as MySql
 
 __author__ = 'justusadam'
 

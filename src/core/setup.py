@@ -7,12 +7,12 @@ and hardened this should be refactored to remove the framework elements and stor
 from core import Modules
 from core.handlers.page import TemplateBasedPage
 from core.handlers.base import RedirectMixIn
-from framework.shell.database import DatabaseError, Database
+from backend.database import DatabaseError, Database
 from . import module_operations
-from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, LinkElement
-from framework.tools.config import read_config, write_config
+from modules.comp.html_elements import ContainerElement, Stylesheet, List, TableElement, LinkElement
+from util.config import read_config, write_config
 from includes import bootstrap
-from core.users.admin_actions import CreateUser
+from modules.users.admin_actions import CreateUser
 
 
 __author__ = 'justusadam'

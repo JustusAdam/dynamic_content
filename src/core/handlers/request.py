@@ -13,14 +13,15 @@ import sys
 import traceback
 import copy
 
-from core.comp.page import BasicHandler
+from modules.comp.page_handler import BasicHandler
 from includes import bootstrap
 from core.handlers.file import FileHandler
-from framework.url import Url
-from framework.tools.config import read_config
-from core.users import client
+from util.url import Url
+from util.config import read_config
+from modules.users import client
 from includes import log
 import core
+from modules import form
 
 
 __author__ = 'justusadam'
@@ -40,7 +41,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     # construct Url object from path for accessibility
     url = Url(self.path, post_query)
-    if not core.form.validation_hook(url):
+    if not form.validation_hook(url):
       self.send_error(403)
 
     return self.do_any(url)
@@ -152,6 +153,6 @@ class RequestHandler(BaseHTTPRequestHandler):
   def start_setup(self, url):
     if not read_config('config.json')['setup']:
       raise HTTPError(str(url), 403, 'Request disabled via server config', None, None)
-    from .setup import SetupHandler
+    from core.setup import SetupHandler
 
     return SetupHandler(url)

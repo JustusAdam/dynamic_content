@@ -1,9 +1,11 @@
-from framework.application import Application
-from .modules import Modules
-from .module_operations import register_installed_modules
-from framework.shell.database import Database
-from framework.shell.connector import Connector
 import os
+
+from application.app import Application
+from core.modules import Modules
+from core.module_operations import register_installed_modules
+from backend.database import Database
+from backend.connector import Connector
+
 
 __author__ = 'justusadam'
 

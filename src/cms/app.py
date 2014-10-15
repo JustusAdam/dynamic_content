@@ -2,13 +2,14 @@
 Main file that runs the application.
 """
 
-from http.server import *
 from pathlib import Path
 
-from framework.tools.config import read_config
-from core import request_handler
-from framework.application.app import ApplicationConfig
-from core.application import MainApp
+from core.handlers import request
+from core.handlers.server import ThreadedHTTPServer
+
+from util.config import read_config
+from application.app import ApplicationConfig
+from cms.application import MainApp
 
 
 __author__ = 'justusadam'
@@ -20,8 +21,8 @@ def main():
   c = read_config('config')
   config = ApplicationConfig()
   config.server_arguments = c['server_arguments']
-  config.server_class = HTTPServer
-  config.http_request_handler = request_handler.RequestHandler
+  config.server_class = ThreadedHTTPServer
+  config.http_request_handler = request.RequestHandler
   config.basedir = basedir
 
   app = MainApp(config)

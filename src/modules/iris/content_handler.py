@@ -2,8 +2,8 @@ from urllib import parse
 
 from core import handlers
 from core.modules import Modules
-from framework.html_elements import FormElement, TableElement, Input, Label, ContainerElement
-from framework.url import UrlQuery
+from modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement
+from util.url import UrlQuery
 from . import database_operations
 from core.database_operations import ContentTypes
 

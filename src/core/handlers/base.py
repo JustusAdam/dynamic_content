@@ -3,10 +3,10 @@ from pathlib import Path
 import sys
 from urllib.error import HTTPError
 
-from core.comp.template import Template
-from framework.tools.config import read_config
-from framework.page import Component
-from framework.url import Url
+from modules.comp.template import Template
+from util.config import read_config
+from modules.comp.page import Component
+from util.url import Url
 
 
 __author__ = 'justusadam'

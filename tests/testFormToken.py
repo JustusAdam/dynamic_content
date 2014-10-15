@@ -1,4 +1,4 @@
-from core.form import tokens
+from modules.form import tokens
 
 __author__ = 'justusadam'
 

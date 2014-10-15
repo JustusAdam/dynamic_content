@@ -1,5 +1,5 @@
 from core.database_operations import Operations, ContentTypes
-from framework.shell.database import escape
+from backend.database import escape
 
 __author__ = 'justusadam'
 

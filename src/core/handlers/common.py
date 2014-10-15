@@ -1,6 +1,6 @@
 from core import Modules
-from framework.html_elements import ContainerElement
-from framework.page import Component
+from modules.comp.html_elements import ContainerElement
+from modules.comp.page import Component
 
 __author__ = 'justusadam'
 

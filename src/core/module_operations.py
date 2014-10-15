@@ -2,8 +2,8 @@ from importlib import import_module
 from pathlib import Path
 
 from core import database_operations
-from framework.tools.config import read_config
-from framework.shell.database import DatabaseError
+from util.config import read_config
+from backend.database import DatabaseError
 from includes import bootstrap
 
 

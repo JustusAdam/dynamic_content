@@ -1,10 +1,10 @@
-from core.admin.database_operations import AdminOperations
-from framework.shell.database import Database
+from modules.admin.database_operations import AdminOperations
+from backend.database import Database
 from core.database_operations import Alias, ModuleOperations, ContentHandlers, ContentTypes
 from modules.iris.database_operations import Pages, Fields
 from modules.commons.database_operations import MenuOperations, CommonsOperations
-from core.comp.database_operations import RegionOperations
-from core.users.database_operations import UserOperations, SessionOperations, AccessOperations
+from modules.comp.database_operations import RegionOperations
+from modules.users.database_operations import UserOperations, SessionOperations, AccessOperations
 
 __author__ = 'justusadam'
 
