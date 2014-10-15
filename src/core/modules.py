@@ -11,7 +11,7 @@ needed is loaded immediately at server start.
 """
 
 from .module_operations import get_active_modules
-from util import singleton
+from util.singleton import singleton
 
 __author__ = 'justusadam'
 

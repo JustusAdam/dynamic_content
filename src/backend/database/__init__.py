@@ -24,8 +24,10 @@ __author__ = 'justusadam'
 def get_my_folder():
   return str(Path(__file__).parent)
 
-
-config = read_config(str(get_my_folder()) + '/../../../config')
+# TODO let the config be read when calling Database()
+# TODO before that make Database() be only called once and not be a singleton!!!
+# HACK setting config path here (hard), needs to be changed
+config = read_config(str(get_my_folder()) + '/../../cms/config')
 
 db_types = {
   'mysql': 'mysql'

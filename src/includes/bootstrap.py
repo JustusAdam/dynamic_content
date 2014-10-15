@@ -22,7 +22,7 @@ FILE_DIRECTORIES = {
   'private': 'custom/files/private',
   'public': 'custom/files/public'
 }
-MODULES_DIRECTORIES = ['custom/modules', 'modules']
+MODULES_DIRECTORIES = ['cms/custom/modules', 'modules']
 NECESSARY_MODULE_ATTRIBUTES = [
   'name',
   'role'

@@ -1,34 +1,48 @@
-"""
-Main file that runs the application.
-"""
+import os
 
-from pathlib import Path
-
-from core.handlers import request
-from core.handlers.server import ThreadedHTTPServer
-
-from util.config import read_config
-from application.app import ApplicationConfig
-from cms.application import MainApp
+from application.app import Application
+from core.modules import Modules
+from core.module_operations import register_installed_modules
+from backend.database import Database
+from backend.connector import Connector
 
 
 __author__ = 'justusadam'
 
-basedir = str(Path(__file__).parent.resolve())
 
+class MainApp(Application):
 
-def main():
-  c = read_config('config')
-  config = ApplicationConfig()
-  config.server_arguments = c['server_arguments']
-  config.server_class = ThreadedHTTPServer
-  config.http_request_handler = request.RequestHandler
-  config.basedir = basedir
+  def __init__(self, config):
+    super().__init__(config)
 
-  app = MainApp(config)
+  def load(self):
+    self.register_modules()
+    self.load_modules()
+    self.load_database()
 
-  app.run()
+  def run(self):
+    self.run_http_server_loop()
 
+  def run_http_server_loop(self):
+    server_address = (self.config.server_arguments['host'], self.config.server_arguments['port'])
+    httpd = self.config.server_class(server_address, self.handle_http_request)
+    httpd.serve_forever()
 
-if __name__ == '__main__':
-  main()
+  def handle_http_request(self, *args):
+    return self.config.http_request_handler(*args)
+
+  def register_modules(self):
+    register_installed_modules()
+
+  def load_modules(self):
+    self.modules = Modules()
+    self.modules.reload()
+
+  def load_external(self, name, connection):
+    self.shell[name] = Connector(name, connection)
+
+  def load_database(self):
+    self.load_external('database', Database())
+
+  def set_working_directory(self):
+    os.chdir(self.config.basedir)
