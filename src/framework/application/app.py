@@ -7,6 +7,7 @@ class Application(object):
 
   externals = {}
   shell = {}
+  modules = None
 
   def __init__(self, config):
     assert isinstance(config, ApplicationConfig)
