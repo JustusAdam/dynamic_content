@@ -69,30 +69,38 @@ class RequestHandler(BaseHTTPRequestHandler):
     client_information = client.ClientInfoImpl(self.headers)
 
     try:
-      # ensure the request is being redirected, if it has a trailing slash
-      page_handler = self.get_handler(url, client_information)
+      page_handler = self.error_wrapper(self.get_handler)(url, client_information)
     except HTTPError as error:
       return self.process_http_error(error)
-    except Exception as exce:
-      print("Unexpected error")
-      traceback.print_tb(sys.exc_info()[2])
-      print(exce)
-      log.write_error('Request Handler', function='do_any', message='Unexpected error ' + str(exce))
-      self.send_error(500, *self.responses[500])
-      return 0
 
     try:
-      self.send_document(page_handler)
+      self.error_wrapper(self.send_document)(page_handler)
     except HTTPError as error:
       return self.process_http_error(error, page_handler)
-    except Exception as exce:
-      print("Unexpected error")
-      traceback.print_tb(sys.exc_info()[2])
-      print(exce)
-      log.write_error('Request Handler', function='do_any', message='Unexpected error ' + str(exce))
-      self.send_error(500, *self.responses[500])
-      return 0
     return 0
+
+  def error_wrapper(self, function):
+    def wrapped(*args, **kwargs):
+      try:
+        return function(*args, **kwargs)
+      except PermissionError:
+        log.write_error(message='permission denied for operation ' + str(self.path))
+        self.send_error(401, *self.responses[401])
+      except ValueError:
+        log.write_error(message='value error for operation ' + str(self.path))
+        self.send_error(400, *self.responses[400])
+      except IsADirectoryError:
+        log.write_error(message='error when accessing directory' + str(self.path))
+        self.send_error(405, 'Indexing is not allowed')
+      except FileNotFoundError:
+        log.write_error(message='file could not be found for operation' + str(self.path))
+        self.send_error(404, *self.responses[404])
+      except Exception as exception:
+        print(exception)
+        traceback.print_tb(sys.exc_info()[2])
+        log.write_error('Unexpected error ' + str(exception))
+        self.send_error(500, *self.responses[500])
+    return wrapped
 
   def process_http_error(self, error, page_handler=None):
     print(error)
