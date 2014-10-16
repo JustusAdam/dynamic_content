@@ -93,12 +93,13 @@ class DirectoryHandler(TemplateBasedPage):
   def _render_file_list(self):
     return List(
       *[ContainerElement(
-          str(a.name), html_type='a' , additionals={'href':str(self.url.path) + quote_plus(str(a.name))}
+          str(a.name), html_type='a' , additionals={'href':str(self.url.path) + quote_plus(str(a.name),)},
+          classes={'file-link'}
         ) for a in self._files()
-      ]
+      ], classes={'directory-index'}, item_classes={'directory-content'}
     )
 
   def _fill_template(self):
-    self._template['title'] = self._template['pagetitle'] = self.directory.name
+    self._template['title'] = self.directory.name
     self._template['content'] = self._render_file_list()
     super()._fill_template()

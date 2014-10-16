@@ -41,7 +41,7 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
     super().__init__(url, None)
 
   def _fill_template(self):
-    config = read_config('config')
+    config = read_config('cms/config')
     setup_pages = {
       0: {
         'title': 'Setup of your CMS Installation',
@@ -127,11 +127,8 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
       6: {}
     }
     generic = {
-      'stylesheets': str(Stylesheet('/theme/default_theme/css/style.css')),
       'sidebar_left': '<div class="sidebar" style="height: 1px;"></div>',
-      'footer': str(ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', element_id='powered_by')),
-      'pagetitle': 'Setting up your CMS installation',
-      'meta': str(LinkElement('/theme/default_theme/favicon.png', 'shortcut icon', element_type='image/png'))
+      'pagetitle': 'Setting up your CMS installation'
     }
     self._template.update(setup_pages[self._url.page_id])
 
@@ -159,6 +156,7 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
       self.redirect('/iris/1')
     self._template['content'] = self._template['content'].format(this=self._url.path, next_page=self._url.page_id + 1,
                                                                  message=message)
+    super()._fill_template()
 
   def setup(self):
 

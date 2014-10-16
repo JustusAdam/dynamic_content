@@ -347,3 +347,24 @@ input[type='text'], input[type='email'], input[type='password'], textarea {
   border: 1px solid #878582;
   padding: 3px 6px;
 }
+
+.directory-index {
+  list-style-type: none;
+}
+a.file-link {
+  display: block;
+  padding: 15px 20px;
+  border: 1px solid #999999;
+  background-color: rgb(247, 247, 247);
+  transition: background-color 100ms ease 0ms;
+  text-decoration: none;
+  font-weight: bold;
+  color: #2e4c11;
+}
+a.file-link:hover {
+  background-color: rgb(255, 212, 146);
+  transition: background-color 300ms ease 0ms;
+}
+a.file-link:visited {
+  color: inherit;
+}

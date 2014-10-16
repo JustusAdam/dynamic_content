@@ -59,10 +59,13 @@ class TemplateBasedPage(Page, TemplateBasedContentCompiler):
     return str(LinkElement('/theme/' + self.theme + '/' + favicon, rel='shortcut icon', element_type='image/png'))
 
   def _fill_template(self):
-    self._template['scripts'] = self.compile_scripts()
-    self._template['stylesheets'] = self.compile_stylesheets()
-    self._template['meta'] = self.compile_meta()
-    self._template['breadcrumbs'] = self.render_breadcrumbs()
+    self._template.assign_key_safe('scripts', self.compile_scripts())
+    self._template.assign_key_safe('stylesheets', self.compile_stylesheets())
+    self._template.assign_key_safe('meta', self.compile_meta())
+    self._template.assign_key_safe('breadcrumbs', self.render_breadcrumbs())
+    self._template.assign_key_safe('pagetitle', ContainerElement('dynamic_content - fast, python and extensible', html_type='a',
+                                                   additionals='href="/"'))
+    self._template.assign_key_safe('footer', str(ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', element_id='powered_by')))
 
   def breadcrumb_separator(self):
     return '>>'

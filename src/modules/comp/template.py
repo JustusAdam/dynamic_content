@@ -21,6 +21,13 @@ class Template(dict):
       print('trying to assign to non existent key: ' + key)
     dict.__setitem__(self, key, value)
 
+  def assign_key_safe(self, key, value):
+    if self[key]:
+      print('key ' + key + ' already exists in template')
+    else:
+      self.__setitem__(key, value)
+
+
   @property
   def compiled(self):
     return self._template.format(**self)

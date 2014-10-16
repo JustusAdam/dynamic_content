@@ -80,8 +80,6 @@ class BasicHandler(TemplateBasedPage):
     self._template['title'] = self.page.title
     self._template['header'] = ''
     self._template['content'] = str(self.page.content)
-    self._template['pagetitle'] = ContainerElement('dynamic_content - fast, python and extensible', html_type='a',
-                                                   additionals='href="/"')
     for region in self.regions:
       self._template[region.name] = str(region.compiled)
     super()._fill_template()

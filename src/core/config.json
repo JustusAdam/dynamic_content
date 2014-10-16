@@ -28,5 +28,6 @@
             "theme varchar(100) not null default 'active'",
             "description text comment 'human readable content type description'"
         ]
-    }
+    },
+    "active_theme": "default_theme"
 }
