@@ -45,7 +45,7 @@ def prepare():
   from .database_operations import UserOperations, SessionOperations, AccessOperations
   from modules.comp.database_operations import RegionOperations
 
-  # from coremodules.internationalization.database_operations import DisplayNamesOperations
+  # from coremodules.i18n.database_operations import DisplayNamesOperations
   so = SessionOperations()
   uo = UserOperations()
   ro = RegionOperations()

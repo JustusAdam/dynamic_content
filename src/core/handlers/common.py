@@ -9,7 +9,7 @@ ACCESS_DEFAULT_GRANTED = 0
 
 
 class Commons:
-  # used to identify items with internationalization
+  # used to identify items with i18n
   com_type = 'commons'
 
   source_table = 'commons_config'
@@ -27,7 +27,7 @@ class Commons:
 
   def get_display_name(self, item, language='english'):
     if not self.dn_ops:
-      self.dn_ops = Modules()['internationalization'].Operations()
+      self.dn_ops = Modules()['i18n'].Operations()
     return self.dn_ops.get_display_name(item, self.source_table, language)
 
   @property

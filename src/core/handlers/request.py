@@ -13,7 +13,6 @@ import sys
 import traceback
 import copy
 
-from modules.comp.page_handler import BasicHandler
 from includes import bootstrap
 from core.handlers.file import PathHandler
 from util.url import Url
@@ -27,7 +26,21 @@ from modules import form
 __author__ = 'justusadam'
 
 
+class RequestWrapper:
+  def __init__(self, class_, callback):
+    self.wrapped_class = class_
+    self.callback = callback
+
+  def __call__(self, *args, **kwargs):
+    return self.wrapped_class(self.callback, *args, **kwargs)
+
+
 class RequestHandler(BaseHTTPRequestHandler):
+
+  def __init__(self, callback_function, request, client_address, server):
+    self.callback = callback_function
+    super().__init__(request, client_address, server)
+
   def do_POST(self):
     """
     Method that gets called by this handler if it receives a post request.
@@ -150,7 +163,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     if len(url.path) == 0:
       raise HTTPError(str(url), 404, None, None, None)
 
-    return BasicHandler(url, client_info)
+    return self.callback(self.path, url.post, client_info)
 
   def start_setup(self, url):
     if not read_config('config.json')['setup']:

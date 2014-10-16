@@ -1,5 +1,5 @@
 {
-    "name": "internationalization",
+    "name": "i18n",
     "role": "translator",
     "tables": {
         "display_names": [

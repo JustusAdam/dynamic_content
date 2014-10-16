@@ -12,7 +12,7 @@ __author__ = 'justusadam'
 DEFAULT_MODULES = [
   'form', 'admin', 'comp', 'users', 'commons',
   'iris',
-  'internationalization'
+  'i18n'
 ]
 FILE_DIRECTORIES = {
   'theme': [

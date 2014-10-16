@@ -17,7 +17,7 @@ comp.assign_common('admin_menu', 'sidebar_left', 4, 'default_theme')
 
 # Add menu item translations
 
-from modules import internationalization as i18n
+from modules import i18n as i18n
 
 source_table = 'menu_items'
 language = 'english'

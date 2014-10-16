@@ -20,14 +20,14 @@ basedir = str(Path(__file__).parent.parent.resolve())
 os.chdir(basedir)
 
 def main():
-  c = read_config('cms/config')
-  config = ApplicationConfig()
-  config.server_arguments = c['server_arguments']
-  config.server_class = ThreadedHTTPServer
-  config.http_request_handler = request.RequestHandler
-  config.basedir = basedir
+  config = read_config('cms/config')
+  app_config = ApplicationConfig()
+  app_config.server_arguments = config['server_arguments']
+  app_config.server_class = ThreadedHTTPServer
+  app_config.http_request_handler = request.RequestHandler
+  app_config.basedir = basedir
 
-  app = MainApp(config)
+  app = MainApp(app_config)
 
   app.run()
 

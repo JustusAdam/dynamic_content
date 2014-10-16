@@ -29,7 +29,11 @@ class MainApp(Application):
     httpd.serve_forever()
 
   def handle_http_request(self, *args):
-    return self.config.http_request_handler(*args)
+    def http_callback(path, post_query, client):
+      pass
+
+    return self.config.http_request_handler(http_callback, *args)
+
 
   def register_modules(self):
     register_installed_modules()
