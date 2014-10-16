@@ -32,6 +32,7 @@ MODULE_CONFIG_NAME = 'config.json'
 ALLOW_HIDDEN_FILES = False
 # Setting the above option to true will allow access to files starting with a '.' via the file handler/url
 # it is highly recommended to NOT set this flag to true!
+ALLOW_INDEXING = True
 BROWSER_CACHING = False
 HASHING_ALGORITHM = 'sha256'
 HASHING_ROUNDS = 100000

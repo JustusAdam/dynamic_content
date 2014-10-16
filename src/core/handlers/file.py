@@ -5,10 +5,14 @@ own page handlers.
 
 from pathlib import Path
 from urllib.error import HTTPError
+from urllib.parse import quote_plus
+import copy
 
 from core.handlers.page import Page
+from core.handlers.base import RedirectMixIn
 from includes import bootstrap
 from includes import log
+from modules.comp.html_elements import ContainerElement, List
 
 
 __author__ = 'justusadam'
@@ -26,7 +30,21 @@ FILETYPES = {
 }
 
 
-class FileHandler(Page):
+def _index_template(directory, content):
+  return ContainerElement(
+           ContainerElement(
+             ContainerElement(directory, html_type='title'),
+             html_type='head'
+           ),
+           ContainerElement(
+             content,
+             html_type='body'
+           ),
+           html_type='html'
+         )
+
+
+class PathHandler(Page, RedirectMixIn):
   def __init__(self, url):
     super().__init__(url, None)
     self.page_type = 'file'
@@ -51,7 +69,7 @@ class FileHandler(Page):
     return self.compiled
 
   def parse_path(self):
-    if len(self._url.path) < 2:
+    if len(self._url.path) < 1:
       raise FileNotFoundError
     basedirs = bootstrap.FILE_DIRECTORIES[self._url.path[0]]
     if isinstance(basedirs, str):
@@ -69,10 +87,10 @@ class FileHandler(Page):
       if not bootstrap.ALLOW_HIDDEN_FILES and filepath.name.startswith('.'):
         raise PermissionError
 
-      if basedir not in filepath.parents:
+      if basedir not in filepath.parents and basedir != filepath:
         raise PermissionError
       if filepath.is_dir():
-        raise IsADirectoryError
+        return self.serve_directory(filepath)
 
       suffix = filepath.suffix
       if not suffix is None:
@@ -80,3 +98,26 @@ class FileHandler(Page):
           self.content_type, self.encoding = FILETYPES[suffix]
       return filepath.open('rb').read()
     raise FileNotFoundError
+
+  def serve_directory(self, directory):
+    if not bootstrap.ALLOW_INDEXING:
+      raise IsADirectoryError
+    elif not self.url.path.trailing_slash:
+      self.url.path.trailing_slash = True
+      self.redirect(str(self.url))
+    else:
+      files = filter(lambda a: not str(a.name).startswith('.'), directory.iterdir())
+      links = [
+        ContainerElement(str(a.name), html_type='a' , additionals={'href':str(self.url.path) + quote_plus(str(a.name))}) for a in files
+      ]
+      self.content_type = 'text/html'
+      self.encoding = 'utf-8'
+      document = str(
+        _index_template(str(directory.name), List(*links))
+      )
+      return document.encode(self.encoding)
+
+  def serve_file(self, file):
+    if self.url.path.trailing_slash:
+      self.url.path.trailing_slash = False
+      self.redirect(str(self.url))

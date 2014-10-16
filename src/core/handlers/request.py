@@ -15,7 +15,7 @@ import copy
 
 from modules.comp.page_handler import BasicHandler
 from includes import bootstrap
-from core.handlers.file import FileHandler
+from core.handlers.file import PathHandler
 from util.url import Url
 from util.config import read_config
 from modules.users import client
@@ -57,7 +57,6 @@ class RequestHandler(BaseHTTPRequestHandler):
 
     try:
       # ensure the request is being redirected, if it has a trailing slash
-      self.check_path(url)
       page_handler = self.get_handler(url, client_information)
     except HTTPError as error:
       return self.process_http_error(error)
@@ -133,7 +132,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     if url.path.trailing_slash:
       new_dest = copy.copy(url)
       new_dest.path.trailing_slash = False
-      raise HTTPError(str(url), 301, 'Indexing is prohibited on this server', [("Location", str(new_dest))], None)
+      raise HTTPError(str(url), 301, 'Destination invalid', [("Location", str(new_dest))], None)
 
   def get_handler(self, url, client_info):
     # raise HTTPError(str(url), 500, 'Database unreachable', None, None)
@@ -141,9 +140,12 @@ class RequestHandler(BaseHTTPRequestHandler):
     url.path = core.translate_alias(str(url.path))
 
     if url.page_type == 'setup':
+      self.check_path(url)
       return self.start_setup(url)
     elif url.page_type in bootstrap.FILE_DIRECTORIES.keys():
-      return FileHandler(url)
+      return PathHandler(url)
+
+    self.check_path(url)
 
     if len(url.path) == 0:
       raise HTTPError(str(url), 404, None, None, None)
