@@ -5,6 +5,8 @@ from core.modules import Modules
 from core.module_operations import register_installed_modules
 from backend.database import Database
 from backend.connector import Connector
+from modules.comp.page_handler import BasicHandler
+from util.url import Url
 
 
 __author__ = 'justusadam'
@@ -30,10 +32,11 @@ class MainApp(Application):
 
   def handle_http_request(self, *args):
     def http_callback(path, post_query, client):
-      pass
+      url = Url(path)
+      url.post = post_query
+      return BasicHandler(url, client)
 
     return self.config.http_request_handler(http_callback, *args)
-
 
   def register_modules(self):
     register_installed_modules()
