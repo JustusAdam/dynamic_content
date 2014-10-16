@@ -4,29 +4,16 @@ own page handlers.
 """
 
 from pathlib import Path
-from urllib.error import HTTPError
 from urllib.parse import quote_plus
+import mimetypes
 
 from core.handlers.page import Page
 from core.handlers.base import RedirectMixIn
 from includes import bootstrap
-from includes import log
 from modules.comp.html_elements import ContainerElement, List
 
 
 __author__ = 'justusadam'
-
-
-# This list is probably wrong in many places
-# it is supposed to map file endings to the appropriate filetype and encoding as a tuple
-# syntax suffix: (type, encoding)
-FILETYPES = {
-  '.css': ('text/css', 'text/css'),
-  '.mp3': ('audio/mp3', 'audio/mpeg'),
-  '.ogg': ('audio/ogg', 'ogg/vorbis'),
-  '.png': ('img/png', 'img/png'),
-  '.ttf': ('font/ttf', 'font/ttf')
-}
 
 
 def _index_template(directory, content):
@@ -51,17 +38,7 @@ class PathHandler(Page, RedirectMixIn):
 
   @property
   def compiled(self):
-    # try:
-      return self.parse_path()
-    # except IsADirectoryError:
-    #   log.write_warning('FileHandler', message='Attempted access to directory ' + str(self._url))
-    #   raise HTTPError(str(self._url), 405, 'Indexing is not allowed', None, None)
-    # except PermissionError:
-    #   log.write_warning('FileHandler', message='Attempted access to protected file ' + str(self._url))
-    #   raise HTTPError(str(self._url), 403, 'Access prohibited by server config', None, None)
-    # except FileNotFoundError:
-    #   log.write_error('FileHandler', message='Attempted access to non-existent file ' + str(self._url))
-    #   raise HTTPError(str(self._url), 404, 'File does not exist', None, None)
+    return self.parse_path()
 
   @property
   def encoded(self):
@@ -119,8 +96,5 @@ class PathHandler(Page, RedirectMixIn):
     if self.url.path.trailing_slash:
       self.url.path.trailing_slash = False
       self.redirect(str(self.url))
-    suffix = file.suffix
-    if not suffix is None:
-      if suffix in FILETYPES:
-        self.content_type, self.encoding = FILETYPES[suffix]
+    self.content_type, self.encoding = mimetypes.guess_type(str(file.name))
     return file.open('rb').read()
