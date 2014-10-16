@@ -92,9 +92,11 @@ class RequestHandler(BaseHTTPRequestHandler):
       except IsADirectoryError:
         log.write_error(message='error when accessing directory' + str(self.path))
         self.send_error(405, 'Indexing is not allowed')
-      except FileNotFoundError:
-        log.write_error(message='file could not be found for operation' + str(self.path))
-        self.send_error(404, *self.responses[404])
+      # except FileNotFoundError:
+      #   log.write_error(message='file could not be found for operation' + str(self.path))
+      #   self.send_error(404, *self.responses[404])
+      except HTTPError as err:
+        raise err
       except Exception as exception:
         print(exception)
         traceback.print_tb(sys.exc_info()[2])

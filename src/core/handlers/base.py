@@ -124,7 +124,7 @@ class RedirectMixIn(WebObject):
 class TemplateBasedContentCompiler(ContentCompiler):
   _theme = 'default_theme'
 
-  template_name = None
+  template_name = ''
 
   def __init__(self):
     super().__init__()
@@ -138,6 +138,10 @@ class TemplateBasedContentCompiler(ContentCompiler):
   @property
   def theme_path(self):
     return 'themes/' + self.theme
+
+  @property
+  def theme_path_alias(self):
+    return '/theme/' + self.theme
 
   @property
   def compiled(self):

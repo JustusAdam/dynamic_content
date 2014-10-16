@@ -10,7 +10,8 @@ class Template(dict):
     super().__init__(**kwargs)
     self._template = open(template_path).read()
     for a in VAR_REGEX.finditer(self._template):
-      dict.__setitem__(self, a.group(1), '')
+      if a.group(1) not in self:
+        dict.__setitem__(self, a.group(1), '')
 
   def template(self):
     return self._template

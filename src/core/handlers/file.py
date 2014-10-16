@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import quote_plus
 import mimetypes
 
-from core.handlers.page import Page
+from core.handlers.page import Page, TemplateBasedPage
 from core.handlers.base import RedirectMixIn
 from includes import bootstrap
 from modules.comp.html_elements import ContainerElement, List
@@ -16,18 +16,7 @@ from modules.comp.html_elements import ContainerElement, List
 __author__ = 'justusadam'
 
 
-def _index_template(directory, content):
-  return ContainerElement(
-           ContainerElement(
-             ContainerElement(directory, html_type='title'),
-             html_type='head'
-           ),
-           ContainerElement(
-             content,
-             html_type='body'
-           ),
-           html_type='html'
-         )
+_template_path = 'themes/default_theme/template/page.html'
 
 
 class PathHandler(Page, RedirectMixIn):
@@ -79,18 +68,7 @@ class PathHandler(Page, RedirectMixIn):
       self.url.path.trailing_slash = True
       self.redirect(str(self.url))
     else:
-      files = filter(lambda a: not str(a.name).startswith('.'), directory.iterdir())
-      links = [
-        ContainerElement(
-          str(a.name), html_type='a' , additionals={'href':str(self.url.path) + quote_plus(str(a.name))}
-        ) for a in files
-      ]
-      self.content_type = 'text/html'
-      self.encoding = 'utf-8'
-      document = str(
-        _index_template(str(directory.name), List(*links))
-      )
-      return document.encode(self.encoding)
+      return DirectoryHandler(self.url, self._client, directory).encoded
 
   def serve_file(self, file):
     if self.url.path.trailing_slash:
@@ -98,3 +76,29 @@ class PathHandler(Page, RedirectMixIn):
       self.redirect(str(self.url))
     self.content_type, self.encoding = mimetypes.guess_type(str(file.name))
     return file.open('rb').read()
+
+class DirectoryHandler(TemplateBasedPage):
+
+  def __init__(self, url, client, real_dir):
+    super().__init__(url, client)
+    if not isinstance(real_dir, Path):
+      Path(real_dir)
+    self.directory = real_dir
+
+  template_name = 'page'
+
+  def _files(self):
+    return filter(lambda a: not str(a.name).startswith('.'), self.directory.iterdir())
+
+  def _render_file_list(self):
+    return List(
+      *[ContainerElement(
+          str(a.name), html_type='a' , additionals={'href':str(self.url.path) + quote_plus(str(a.name))}
+        ) for a in self._files()
+      ]
+    )
+
+  def _fill_template(self):
+    self._template['title'] = self._template['pagetitle'] = self.directory.name
+    self._template['content'] = self._render_file_list()
+    super()._fill_template()
