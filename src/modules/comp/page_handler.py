@@ -82,21 +82,6 @@ class BasicHandler(TemplateBasedPage):
     self._template['content'] = str(self.page.content)
     self._template['pagetitle'] = ContainerElement('dynamic_content - fast, python and extensible', html_type='a',
                                                    additionals='href="/"')
-    self._template['breadcrumbs'] = self.render_breadcrumbs()
     for region in self.regions:
       self._template[region.name] = str(region.compiled)
     super()._fill_template()
-
-  def breadcrumb_separator(self):
-    return '>>'
-
-  def breacrumbs(self):
-    for i in range(len(self.url.path)):
-      yield self.url.path[i], self.url.path.prt_to_str(0,i+1)
-
-  def render_breadcrumbs(self):
-    acc = []
-    for (name, location) in self.breacrumbs():
-      acc.append(ContainerElement(self.breadcrumb_separator(), html_type='span', classes={'breadcrumb-separator'}))
-      acc.append(ContainerElement(name, html_type='a', classes={'breadcrumb'}, additionals={'href': location}))
-    return ContainerElement(*acc, classes={'breadcrumbs'})

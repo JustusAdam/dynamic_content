@@ -1,6 +1,6 @@
 import sys
 from core.handlers.base import WebObject, TemplateBasedContentCompiler
-from modules.comp.html_elements import Stylesheet, Script, LinkElement
+from modules.comp.html_elements import Stylesheet, Script, LinkElement, ContainerElement
 from util.config import read_config
 
 __author__ = 'justusadam'
@@ -62,3 +62,18 @@ class TemplateBasedPage(Page, TemplateBasedContentCompiler):
     self._template['scripts'] = self.compile_scripts()
     self._template['stylesheets'] = self.compile_stylesheets()
     self._template['meta'] = self.compile_meta()
+    self._template['breadcrumbs'] = self.render_breadcrumbs()
+
+  def breadcrumb_separator(self):
+    return '>>'
+
+  def breacrumbs(self):
+    for i in range(len(self.url.path)):
+      yield self.url.path[i], self.url.path.prt_to_str(0,i+1)
+
+  def render_breadcrumbs(self):
+    acc = []
+    for (name, location) in self.breacrumbs():
+      acc.append(ContainerElement(self.breadcrumb_separator(), html_type='span', classes={'breadcrumb-separator'}))
+      acc.append(ContainerElement(name, html_type='a', classes={'breadcrumb'}, additionals={'href': location}))
+    return ContainerElement(*acc, classes={'breadcrumbs'})
