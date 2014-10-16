@@ -82,3 +82,6 @@ src/cms/config.json
 *.png
 *.ogg
 *.mp3
+
+# custom scripts
+src/cms/custom/scripts/
