@@ -176,7 +176,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     return self.callback(self.path, url.post, client_info)
 
   def start_setup(self, url):
-    if not read_config('config.json')['setup']:
+    if not read_config('cms/config.json')['setup']:
       raise HTTPError(str(url), 403, 'Request disabled via server config', None, None)
     from core.setup import SetupHandler
 
