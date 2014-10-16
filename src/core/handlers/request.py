@@ -142,7 +142,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     if url.page_type == 'setup':
       self.check_path(url)
       return self.start_setup(url)
-    elif url.page_type in bootstrap.FILE_DIRECTORIES.keys():
+    elif url.page_type in bootstrap.FILE_DIRECTORIES:
       return PathHandler(url)
 
     self.check_path(url)

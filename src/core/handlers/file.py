@@ -6,7 +6,6 @@ own page handlers.
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.parse import quote_plus
-import copy
 
 from core.handlers.page import Page
 from core.handlers.base import RedirectMixIn
@@ -75,7 +74,7 @@ class PathHandler(Page, RedirectMixIn):
     if isinstance(basedirs, str):
       basedirs = (basedirs,)
     for basedir in basedirs:
-      filepath = basedir + '/'.join([''] + self._url.path[1:])
+      filepath = '/'.join([basedir] + self._url.path[1:])
       filepath = Path(filepath)
 
       if not filepath.exists():
@@ -91,12 +90,9 @@ class PathHandler(Page, RedirectMixIn):
         raise PermissionError
       if filepath.is_dir():
         return self.serve_directory(filepath)
+      else:
+        return self.serve_file(filepath)
 
-      suffix = filepath.suffix
-      if not suffix is None:
-        if suffix in FILETYPES:
-          self.content_type, self.encoding = FILETYPES[suffix]
-      return filepath.open('rb').read()
     raise FileNotFoundError
 
   def serve_directory(self, directory):
@@ -108,7 +104,9 @@ class PathHandler(Page, RedirectMixIn):
     else:
       files = filter(lambda a: not str(a.name).startswith('.'), directory.iterdir())
       links = [
-        ContainerElement(str(a.name), html_type='a' , additionals={'href':str(self.url.path) + quote_plus(str(a.name))}) for a in files
+        ContainerElement(
+          str(a.name), html_type='a' , additionals={'href':str(self.url.path) + quote_plus(str(a.name))}
+        ) for a in files
       ]
       self.content_type = 'text/html'
       self.encoding = 'utf-8'
@@ -121,3 +119,8 @@ class PathHandler(Page, RedirectMixIn):
     if self.url.path.trailing_slash:
       self.url.path.trailing_slash = False
       self.redirect(str(self.url))
+    suffix = file.suffix
+    if not suffix is None:
+      if suffix in FILETYPES:
+        self.content_type, self.encoding = FILETYPES[suffix]
+    return file.open('rb').read()
