@@ -87,7 +87,7 @@ class FieldBasedPageContent(handlers.content.Content):
     s = []
     for (name, modifier) in self._editorial_list_base:
       if self.check_permission(self.join_permission(modifier, self.content_type)):
-        s.append((name, str(self.url.path) + '/' + modifier))
+        s.append((name, '/'.join(['', self.url.page_type, str(self.url.page_id), modifier])))
     return s
 
 

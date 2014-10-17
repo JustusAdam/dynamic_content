@@ -29,7 +29,8 @@ class Content(WebObject, TemplateBasedContentCompiler):
     l = self.editorial_list()
     if l:
       return List(
-        *[ContainerElement(name, html_type='a', classes={'editorial'}, additionals={'href': link}) for name,link in l]
+        *[ContainerElement(name, html_type='a', classes={'editorial-link'}, additionals={'href': link}) for name,link in l],
+        classes={'editorial-list'}
       )
     return ''
 
