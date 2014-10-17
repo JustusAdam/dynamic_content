@@ -11,6 +11,7 @@ from core.handlers.page import Page, TemplateBasedPage
 from core.handlers.base import RedirectMixIn
 from includes import bootstrap
 from modules.comp.html_elements import ContainerElement, List
+from errors.exceptions import MissingFileError, AccessDisabled
 
 
 __author__ = 'justusadam'
@@ -35,7 +36,7 @@ class PathHandler(Page, RedirectMixIn):
 
   def parse_path(self):
     if len(self._url.path) < 1:
-      raise FileNotFoundError
+      raise MissingFileError
     basedirs = bootstrap.FILE_DIRECTORIES[self._url.path[0]]
     if isinstance(basedirs, str):
       basedirs = (basedirs,)
@@ -50,20 +51,20 @@ class PathHandler(Page, RedirectMixIn):
       basedir = Path(basedir).resolve()
 
       if not bootstrap.ALLOW_HIDDEN_FILES and filepath.name.startswith('.'):
-        raise PermissionError
+        raise AccessDisabled
 
       if basedir not in filepath.parents and basedir != filepath:
-        raise PermissionError
+        raise AccessDisabled
       if filepath.is_dir():
         return self.serve_directory(filepath)
       else:
         return self.serve_file(filepath)
 
-    raise FileNotFoundError
+    raise MissingFileError
 
   def serve_directory(self, directory):
     if not bootstrap.ALLOW_INDEXING:
-      raise IsADirectoryError
+      raise AccessDisabled
     elif not self.url.path.trailing_slash:
       self.url.path.trailing_slash = True
       self.redirect(str(self.url))

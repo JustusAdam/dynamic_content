@@ -1,5 +1,5 @@
-from core.errors import html_message
 from core.handlers.base import WebObject, TemplateBasedContentCompiler
+from errors import html_message
 from modules.comp.page import Component
 
 __author__ = 'justusadam'
