@@ -9,6 +9,7 @@ __author__ = 'justusadam'
 
 from modules import comp
 from modules.users import users
+import core
 # add admin menu common
 
 comp.add_commons_config('admin_menu', 'menu', 'admin')
@@ -60,3 +61,13 @@ for (access_group, permission_list) in permissions:
   for permission in permission_list:
     users.new_permission(permission)
     users.assign_permission(access_group, permission)
+
+# add some useful aliases
+
+aliases = [
+  ('/', '/iris/1'),
+  ('/welcome', '/iris/1')
+]
+
+for alias, source in aliases:
+  core.add_alias(source, alias)

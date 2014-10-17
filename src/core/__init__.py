@@ -38,3 +38,7 @@ def translate_alias(alias):
     return query_result
   except (dbo.DBOperationError, TypeError):
     return alias
+
+
+def add_alias(source, alias):
+  dbo.Alias().add_alias(source, alias)

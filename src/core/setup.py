@@ -18,6 +18,12 @@ from modules.users.admin_actions import CreateUser
 __author__ = 'justusadam'
 
 
+#HACK special class for the initial user
+class InitialUser(CreateUser):
+  def check_own_permission(self):
+    return True
+
+
 def try_database_connection():
   try:
     test_database = Database()
@@ -146,7 +152,7 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
       self._template['title'] = self._template['title'].format(**setup_result)
       del db
     elif self._url.page_id == 5:
-      handler = CreateUser(self._url, self)
+      handler = InitialUser(self._url, self)
       handler.destination = '/setup/6'
       content = handler.compiled
       self._template['content'] = self._template['content'].format(user_form=content.content)
