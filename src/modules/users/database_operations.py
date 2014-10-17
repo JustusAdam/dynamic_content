@@ -236,6 +236,13 @@ class AccessOperations(Operations):
     self.db.insert('access_group_permissions', {'permission': permission, 'aid': aid})
     self.db.commit()
 
+  def add_group(self, aid, name):
+    aid = int(aid)
+    pairing = {'machine_name':name}
+    if not aid < 0:
+      pairing['aid'] = aid
+    self.db.insert('access_groups', pairing)
+
   def remove_permission(self, aid, permission):
     self.execute('remove_permission', aid=escape(permission), permission=escape(permission))
 

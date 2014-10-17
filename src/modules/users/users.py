@@ -24,7 +24,7 @@ CONTROL_GROUP = 0
 
 # special usernames
 UNKNOWN = -1  # placeholder - user undetermined
-GUEST = 1  # Not a authenticated User
+GUEST = 0  # Not a authenticated User
 
 # special access groups
 UNKNOWN_GRP = -1  # placeholder - user group undetermined
@@ -50,6 +50,10 @@ def acc_grp(user):
     return result[0]
   else:
     return AUTH
+
+
+def add_acc_grp(name, aid=-1):
+  AccessOperations().add_group(aid, name)
 
 
 @check_aid

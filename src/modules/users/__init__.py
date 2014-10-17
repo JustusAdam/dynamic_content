@@ -61,12 +61,12 @@ def prepare():
   core.add_content_handler('users', name, 'users')
 
   # add login common
+  ro.add_item_conf('login', 'login', name, True, 1)
   ro.add_item('login', START_REGION, 0, START_THEME)
-  ro.add_item_conf('login', 'login', name, True)
   #dn.add_item('login', 'user_management', ('english', 'User Login'))
 
   # add user information common
-  ro.add_item_conf('user_information', 'user_information', name, True)
+  ro.add_item_conf('user_information', 'user_information', name, True, 1)
   ro.add_item('user_information', START_REGION, 1, START_THEME)
   #dn.add_item('user_information', 'user_management', ('english', 'Your Account Information'))
 

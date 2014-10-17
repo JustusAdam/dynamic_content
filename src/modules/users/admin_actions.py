@@ -56,6 +56,7 @@ class CreateUser(Content, RedirectMixIn):
   destination = '/'
   message = ''
   permission = 'edit user accounts'
+  published = True
 
   def process_content(self):
 
@@ -84,8 +85,6 @@ class CreateUser(Content, RedirectMixIn):
             *acc
           ), action=self.target_url(), element_id='admin_form'
         )
-
-
 
   def _process_post(self):
     if 'password' in self.url.post:

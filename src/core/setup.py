@@ -158,7 +158,7 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
       self._template['content'] = self._template['content'].format(user_form=content.content)
     elif self._url.page_id == 6:
       config['setup'] = False
-      write_config(config, 'config.json')
+      write_config(config, 'cms/config.json')
       self.redirect('/iris/1')
     self._template['content'] = self._template['content'].format(this=self._url.path, next_page=self._url.page_id + 1,
                                                                  message=message)

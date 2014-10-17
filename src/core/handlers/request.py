@@ -57,6 +57,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     url = Url(self.path, post_query)
     if not form.validation_hook(url):
       self.send_error(403)
+      return 0
 
     return self.do_any(url)
 
