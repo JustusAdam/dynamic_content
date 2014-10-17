@@ -11,7 +11,14 @@ _value_mapping = {
   'email': 'email_address'
 }
 
-# do not change this value after installing
+# The following values are special user groups and users
+# and very important for the software
+#
+# you may assign any (integer) value to them
+# as long as no two of them are the same
+#
+# do NOT change these values after installing
+# unless you reset the database and reinstall
 CONTROL_GROUP = 0
 
 
