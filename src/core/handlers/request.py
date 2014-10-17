@@ -21,6 +21,7 @@ from modules.users import client
 from includes import log
 import core
 from modules import form
+from errors.exceptions import *
 
 
 __author__ = 'justusadam'
@@ -83,18 +84,18 @@ class RequestHandler(BaseHTTPRequestHandler):
     def wrapped(*args, **kwargs):
       try:
         return function(*args, **kwargs)
-      except PermissionError:
+      except AuthorizationRequiredError:
         log.write_error(message='permission denied for operation ' + str(self.path))
         self.send_error(401, *self.responses[401])
-      except ValueError:
+      except InvalidInputError:
         log.write_error(message='value error for operation ' + str(self.path))
         self.send_error(400, *self.responses[400])
-      except IsADirectoryError:
+      except AccessDisabled:
         log.write_error(message='error when accessing directory' + str(self.path))
         self.send_error(405, 'Indexing is not allowed')
-      # except FileNotFoundError:
-      #   log.write_error(message='file could not be found for operation' + str(self.path))
-      #   self.send_error(404, *self.responses[404])
+      except MissingFileError:
+        log.write_error(message='file could not be found for operation' + str(self.path))
+        self.send_error(404, *self.responses[404])
       except HTTPError as err:
         raise err
       except Exception as exception:
