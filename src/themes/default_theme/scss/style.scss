@@ -334,7 +334,7 @@ a.breadcrumb {
 .user-overview {
   a {
     text-decoration: none;
-    color:darkblue;
+    color: darkblue;
     :visited {
       color: darkblue;
     }
@@ -373,21 +373,25 @@ a.file-link {
   font-weight: bold;
   color: #2e4c11;
 }
+
 a.file-link:hover, a.file-link:visited:hover {
   @include white-link-box-animation;
   color: #c3a762;
   border-width: 0px 0px + $filelink-highlight-border-width;
   padding: $filelink-padding-vert $filelink-padding-horiz - $filelink-highlight-border-width;
 }
+
 a.file-link:visited {
   color: inherit;
 }
+
 li.directory-content {
   padding: 1px 0;
 }
+
 ul.editorial-list {
   list-style-type: None;
-  padding: 5px 25px;
+  padding: 5px 5px;
   display: block;
   overflow: hidden;
   a {
@@ -404,7 +408,7 @@ ul.editorial-list {
     color: inherit;
   }
   a:hover {
-  @include white-link-box-animation;
+    @include white-link-box-animation;
     border-width: 0 3px;
     padding: 5px 12px;
   }

@@ -2,32 +2,32 @@ __author__ = 'justus2'
 
 
 class DynamicContentError(Exception):
-  pass
+    pass
 
 
 class AuthorizationRequiredError(DynamicContentError):
-  pass
+    pass
 
 
 class MissingPermissionError(DynamicContentError):
-  pass
+    pass
 
 
 class MissingFileError(DynamicContentError):
-  pass
+    pass
 
 
 class BackendUnreachableError(DynamicContentError):
-  pass
+    pass
 
 
 class PageNotFoundError(DynamicContentError):
-  pass
+    pass
 
 
 class InvalidInputError(DynamicContentError):
-  pass
+    pass
 
 
 class AccessDisabled(DynamicContentError):
-  pass
+    pass

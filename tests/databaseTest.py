@@ -10,7 +10,7 @@ import unittest
 # self.assertEqual(True, False)
 #
 # class AutoIncrTest(unittest.TestCase):
-#   def setUp(self):
+# def setUp(self):
 #     self.db = Database()
 #     try:
 #       self.db.select('id', 'testtable')
@@ -26,17 +26,17 @@ import unittest
 #     del self.db
 
 class ConnectionTest(unittest.TestCase):
-  def setUp(self):
-    self.db = Database()
+    def setUp(self):
+        self.db = Database()
 
-  def testActiveConnection(self):
-    self.assertIsInstance(self.db, type(MySql(None)))
-    self.assertEqual(self.db.connected, True)
+    def testActiveConnection(self):
+        self.assertIsInstance(self.db, type(MySql(None)))
+        self.assertEqual(self.db.connected, True)
 
-  def testDeadConnection(self):
-    self.db.close()
-    self.assertEqual(self.db.connected, False)
+    def testDeadConnection(self):
+        self.db.close()
+        self.assertEqual(self.db.connected, False)
 
 
 if __name__ == '__main__':
-  unittest.main()
+    unittest.main()

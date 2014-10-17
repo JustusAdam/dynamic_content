@@ -2,8 +2,8 @@ __author__ = 'justusadam'
 
 
 class EditPageForm:
-  pass
+    pass
 
 
 class AddPageForm(EditPageForm):
-  pass
+    pass

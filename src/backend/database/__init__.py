@@ -22,7 +22,7 @@ __author__ = 'justusadam'
 
 
 def get_my_folder():
-  return str(Path(__file__).parent)
+    return str(Path(__file__).parent)
 
 # TODO let the config be read when calling Database()
 # TODO before that make Database() be only called once and not be a singleton!!!
@@ -30,14 +30,15 @@ def get_my_folder():
 config = read_config(str(get_my_folder()) + '/../../cms/config')
 
 db_types = {
-  'mysql': 'mysql'
+    'mysql': 'mysql'
 }
 
 db_imp = importlib.import_module('.' + db_types[config['database_type']], __name__)
 
 
 def database_factory():
-  return db_imp.Database(config)
+    return db_imp.Database(config)
+
 
 escape = db_imp.escape
 

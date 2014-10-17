@@ -10,22 +10,22 @@ __author__ = 'justusadam'
 
 # the order in this list dictates the order in which these modules will be activated
 DEFAULT_MODULES = [
-  'form', 'admin', 'comp', 'users', 'commons',
-  'iris',
-  'i18n'
+    'form', 'admin', 'comp', 'users', 'commons',
+    'iris',
+    'i18n'
 ]
 FILE_DIRECTORIES = {
-  'theme': [
-    'custom/themes',
-    'themes'
-  ],
-  'private': 'cms/custom/files/private',
-  'public': 'cms/custom/files/public'
+    'theme': [
+        'custom/themes',
+        'themes'
+    ],
+    'private': 'cms/custom/files/private',
+    'public': 'cms/custom/files/public'
 }
 MODULES_DIRECTORIES = ['cms/custom/modules', 'modules']
 NECESSARY_MODULE_ATTRIBUTES = [
-  'name',
-  'role'
+    'name',
+    'role'
 ]
 COREMODULES_DIRECTORIES = ['core']
 MODULE_CONFIG_NAME = 'config.json'

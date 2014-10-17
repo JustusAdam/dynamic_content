@@ -4,4 +4,4 @@ __author__ = 'justusadam'
 
 
 class DirectoryMusicPage(TemplateBasedPage):
-  pass
+    pass

@@ -14,7 +14,7 @@
         "port": 8000
     },
     "database_connection_arguments": {
-    // Arguments used to connect to the database
+        // Arguments used to connect to the database
         "passwd": "dynamic_content", // password
         "database": "dynamic_content",
         "user": "dynamic_content",

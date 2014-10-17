@@ -4,10 +4,10 @@ __author__ = 'justusadam'
 
 
 class Overview(handlers.content.Content):
-  permission = 'access iris content overview'
+    permission = 'access iris content overview'
 
-  def process_content(self):
-    pass
+    def process_content(self):
+        pass
 
-  def page_types(self):
-    return ['iris']
+    def page_types(self):
+        return ['iris']

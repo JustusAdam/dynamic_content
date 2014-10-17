@@ -2,7 +2,8 @@ __author__ = 'justusadam'
 
 
 class ApplicationConfig:
-  pass
+    pass
+
 
 class ModuleConfig:
-  hooks = {}
+    hooks = {}

@@ -4,4 +4,4 @@ __author__ = 'justusadam'
 
 
 class CompConfig(ModuleConfig):
-  pass
+    pass

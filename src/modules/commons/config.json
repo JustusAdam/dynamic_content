@@ -1,7 +1,7 @@
 {
     "name": "commons",
     "role": "common_page_element_manager",
-    "tables":{
+    "tables": {
         "menu_items": [
             "id int unsigned not null unique auto_increment primary key",
             "item_name varchar(200) not null",

@@ -6,10 +6,8 @@ been created yet.
 
 __author__ = 'justusadam'
 
-
 from modules import comp
 from modules.users import users
-import core
 # add admin menu common
 
 admin_menu_common = 'admin_menu'
@@ -48,30 +46,32 @@ i18n.add_display_name('admin_menu', source_table, language, 'Administration Acti
 ADMIN_GRP = 5
 
 permissions = [
-  [
-    users.GUEST_GRP, 'unauthorized guests',
-    ['access login page', 'access content type article', 'access common login']
-  ], [
-    users.AUTH, 'any authorized user',
-    ['access logout', 'access unpublished content type article', 'access content type article', 'access common ' + user_information_common]
-  ], [
-    ADMIN_GRP,  'admin',
-    ['edit user accounts', 'access users overview', 'edit content type article', 'add content type article', 'access common ' + admin_menu_common]
-  ]
+    [
+        users.GUEST_GRP, 'unauthorized guests',
+        ['access login page', 'access content type article', 'access common login']
+    ], [
+        users.AUTH, 'any authorized user',
+        ['access logout', 'access unpublished content type article', 'access content type article',
+         'access common ' + user_information_common, 'view own user info']
+    ], [
+        ADMIN_GRP, 'admin',
+        ['edit user accounts', 'access users overview', 'edit content type article', 'add content type article',
+         'access common ' + admin_menu_common, 'access admin pages', 'view other user info']
+    ]
 ]
 
 for (access_group, name, permission_list) in permissions:
-  users.add_acc_grp(name, access_group)
-  for permission in permission_list:
-    users.new_permission(permission)
-    users.assign_permission(access_group, permission)
+    users.add_acc_grp(name, access_group)
+    for permission in permission_list:
+        users.new_permission(permission)
+        users.assign_permission(access_group, permission)
 
-# add some useful aliases
+        # add some useful aliases
 
-# aliases = [
-#   ('/', '/iris/1'),
-#   ('/welcome', '/iris/1')
-# ]
-#
-# for alias, source in aliases:
-#   core.add_alias(source, alias)
+        # aliases = [
+        # ('/', '/iris/1'),
+        #   ('/welcome', '/iris/1')
+        # ]
+        #
+        # for alias, source in aliases:
+        #   core.add_alias(source, alias)

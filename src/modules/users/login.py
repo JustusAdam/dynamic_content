@@ -23,67 +23,65 @@ LOGOUT_BUTTON = ContainerElement('Logout', html_type='a', classes={'logout', 'bu
                                  additionals={'href': '/' + logout_prefix})
 
 LOGIN_FORM = SecureForm(
-  TableElement(
-    USERNAME_INPUT,
-    PASSWORD_INPUT
-  )
-  , action='/' + login_prefix, classes={'login-form'}, submit=SubmitButton(value='Login')
+    TableElement(
+        USERNAME_INPUT,
+        PASSWORD_INPUT
+    )
+    , action='/' + login_prefix, classes={'login-form'}, submit=SubmitButton(value='Login')
 )
 
 LOGIN_COMMON = SecureForm(
-  ContainerElement(
-    *USERNAME_INPUT + PASSWORD_INPUT
-  )
-  , action='/' + login_prefix, classes={'login-form'}, submit=SubmitButton(value='Login')
+    ContainerElement(
+        *USERNAME_INPUT + PASSWORD_INPUT
+    )
+    , action='/' + login_prefix, classes={'login-form'}, submit=SubmitButton(value='Login')
 )
 
 
 class LoginHandler(handlers.content.Content, handlers.base.RedirectMixIn):
+    permission = 'access login page'
 
-  permission = 'access login page'
+    def __init__(self, url, client):
+        super().__init__(url, client)
+        self.message = ''
+        self.page_title = 'Login'
 
-  def __init__(self, url, parent_handler):
-    super().__init__(url, parent_handler)
-    self.message = ''
-    self.page_title = 'Login'
+    def process_content(self):
+        return ContainerElement(self.message, LOGIN_FORM)
 
-  def process_content(self):
-    return ContainerElement(self.message, LOGIN_FORM)
-
-  def _process_post(self):
-    if not self.url.post['username'] or not self._url.post['password']:
-      raise ValueError
-    username = self.url.post['username'][0]
-    password = self.url.post['password'][0]
-    token = session.start_session(username, password)
-    if token:
-      self.add_morsels({'SESS': token})
-      self.redirect('/iris/1')
-    else:
-      self.message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
+    def _process_post(self):
+        if not self.url.post['username'] or not self._url.post['password']:
+            raise ValueError
+        username = self.url.post['username'][0]
+        password = self.url.post['password'][0]
+        token = session.start_session(username, password)
+        if token:
+            self.add_morsels({'SESS': token})
+            self.redirect('/iris/1')
+        else:
+            self.message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
 
 
 class LoginCommonHandler(handlers.common.Commons):
-  source_table = 'user_management'
+    source_table = 'user_management'
 
-  def get_content(self, name):
-    return LOGIN_COMMON
+    def get_content(self, name):
+        return LOGIN_COMMON
 
 
 class LogoutHandler(handlers.content.Content, handlers.base.RedirectMixIn):
+    permission = 'access logout'
 
-  permission = 'access logout'
+    def process_content(self):
+        self.logout()
 
-  def process_content(self):
-    self.logout()
-
-  def logout(self):
-    user = self._parent.client.user
-    if user == GUEST:
-      self.redirect('/login')
-    else:
-      session.close_session(user)
-      time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
-      self.add_morsels({'SESS': ''})
-      self.cookies['SESS']['expires'] = time.strftime(_cookie_time_format)
-      self.redirect('/login')
+    def logout(self):
+        user = self.client.user
+        if user == GUEST:
+            self.redirect('/login')
+        else:
+            session.close_session(user)
+            time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+            self.add_morsels({'SESS': ''})
+            self.cookies['SESS']['expires'] = time.strftime(_cookie_time_format)
+            self.redirect('/login')
