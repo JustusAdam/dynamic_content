@@ -351,20 +351,36 @@ input[type='text'], input[type='email'], input[type='password'], textarea {
 .directory-index {
   list-style-type: none;
 }
+
+$filelink-highlight-border-width: 6px;
+$filelink-padding-horiz: 25px;
+$filelink-padding-vert: 20px;
+
 a.file-link {
   display: block;
-  padding: 15px 20px;
-  border: 1px solid #999999;
+  padding: $filelink-padding-vert $filelink-padding-horiz;
+  border: 0px solid #999999;
   background-color: rgb(247, 247, 247);
-  transition: background-color 100ms ease 0ms;
+  transition-delay: 0ms;
+  transition-timing-function: ease;
+  transition-property: background-color, padding, border-width;
+  transition-duration: 300ms;
   text-decoration: none;
   font-weight: bold;
   color: #2e4c11;
 }
-a.file-link:hover {
-  background-color: rgb(255, 212, 146);
-  transition: background-color 300ms ease 0ms;
+a.file-link:hover, a.file-link:visited:hover {
+  color: #c3a762;
+  transition-delay: 0ms;
+  transition-timing-function: ease;
+  transition-property: color, padding, border-width;
+  transition-duration: 300ms;
+  border-width: 0px 0px + $filelink-highlight-border-width;
+  padding: $filelink-padding-vert $filelink-padding-horiz - $filelink-highlight-border-width;
 }
 a.file-link:visited {
   color: inherit;
+}
+li.directory-content {
+  padding: 1px 0;
 }
