@@ -65,7 +65,7 @@ class TemplateBasedPage(Page, TemplateBasedContentCompiler):
     self._template.assign_key_safe('breadcrumbs', self.render_breadcrumbs())
     self._template.assign_key_safe('pagetitle', ContainerElement('dynamic_content - fast, python and extensible', html_type='a',
                                                    additionals='href="/"'))
-    self._template.assign_key_safe('footer', str(ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', element_id='powered_by')))
+    self._template.assign_key_safe('footer', str(ContainerElement(ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', html_type='p'), element_id='powered_by', classes={'common', 'copyright'})))
 
   def breadcrumb_separator(self):
     return '>>'

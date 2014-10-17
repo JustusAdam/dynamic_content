@@ -1,10 +1,13 @@
 from modules.comp import database_operations as dbo
+from .config import CompConfig
 
 __author__ = 'justusadam'
 
 name = 'theme_engine'
 
 role = 'theme_engine'
+
+default_configuration = CompConfig
 
 
 def prepare():
