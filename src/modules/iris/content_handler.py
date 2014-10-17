@@ -2,7 +2,7 @@ from urllib import parse
 
 from core import handlers
 from core.modules import Modules
-from modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement, List
+from modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement, Radio
 from util.url import UrlQuery
 from . import database_operations
 from core.database_operations import ContentTypes
@@ -130,7 +130,7 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
   @property
   def admin_options(self):
     return Label('Published', label_for='toggle-published'), \
-           Input(element_id='toggle-published', input_type='radio', value='1', name='publish')
+           Radio(element_id='toggle-published', input_type='radio',  value='published', name='published', checked=self.published)
 
   def process_fields(self, fields):
     for field in fields:
