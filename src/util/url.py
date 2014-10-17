@@ -54,7 +54,7 @@ class Url:
       self._path = value
     else:
       self._path = UrlPath(value)
-      self.parse_path()
+    self.parse_path()
 
   @property
   def location(self):
