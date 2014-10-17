@@ -16,16 +16,13 @@ __author__ = 'justusadam'
 
 class Operations:
     _config_name = 'config.json'
+    _queries = {}
+    _tables = {}
+    _cursor = None
 
     def __init__(self):
         self.charset = 'utf-8'
         self.db = Database()
-
-    _queries = {}
-
-    _tables = {}
-
-    _cursor = None
 
     @property
     def cursor(self):

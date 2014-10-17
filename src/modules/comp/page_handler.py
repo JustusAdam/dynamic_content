@@ -16,8 +16,9 @@ class BasicHandler(TemplateBasedPage):
 
     def __init__(self, url, client_info):
         self.modules = Modules()
-        self.content_handler = self._get_content_handler(url)
+        self.content_handler = self._get_content_handler(url, client_info)
         super().__init__(url, client_info)
+
 
     @property
     def theme(self):
@@ -25,8 +26,8 @@ class BasicHandler(TemplateBasedPage):
             self._theme = self._get_used_theme(self.content_handler)
         return self._theme
 
-    def _get_content_handler(self, url):
-        return self._get_content_handler_class(url)(url, self._client)
+    def _get_content_handler(self, url, client):
+        return self._get_content_handler_class(url)(url, client)
 
     def _get_content_handler_class(self, url):
         try:

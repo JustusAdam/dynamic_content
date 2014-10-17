@@ -1,7 +1,7 @@
 from .login import LoginHandler, LoginCommonHandler, LogoutHandler, login_prefix, logout_prefix
 from modules import admin
 from . import users, session
-from .admin_actions import CreateUser, UsersOverview, factory
+from .admin_actions import CreateUser, UsersOverview, factory, PermissionOverview, EditPermissions
 from . import user_information
 
 __author__ = 'justusadam'
@@ -18,7 +18,9 @@ START_THEME = 'default_theme'
 def admin_handler(h_name):
     handlers = {
         'create_user': CreateUser,
-        'user_overview': UsersOverview
+        'user_overview': UsersOverview,
+        'view_permissions': PermissionOverview,
+        'edit_permissions': EditPermissions
     }
     return handlers[h_name]
 
@@ -72,7 +74,12 @@ def prepare():
 
     # add admin pages
     admin.new_category('user', 'Users')
+
     admin.new_subcategory('user_management', 'Add and Edit Users', 'user')
     admin.new_page('create_user', 'Register new User', 'user_management', name)
     admin.new_page('user_overview', 'Overview', 'user_management', name)
+
+    admin.new_subcategory('permission_management', 'View and edit Permissions', 'user', 5)
+    admin.new_page('view_permissions', 'View Permissions', 'permission_management', name)
+    admin.new_page('edit_permissions', 'Edit Permissions', 'permission_management', name)
     #admin.new_page('delete_user', 'Remove a User Account', 'user_management', name)

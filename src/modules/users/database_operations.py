@@ -249,3 +249,19 @@ class AccessOperations(Operations):
 
     def remove_all_permissions(self, permission):
         self.execute('remove_all_permissions', permission=escape(permission))
+
+    def get_access_group(self, aid=-1):
+        assert isinstance(aid, int)
+        condition = ';'
+        if aid >= 0:
+            condition = 'where aid=' + str(aid) + condition
+        result = self.db.select(['aid', 'machine_name'], 'access_groups', condition)
+        return result.fetchall()
+
+    def get_permissions(self, aid=-1):
+        assert isinstance(aid, int)
+        condition = ';'
+        if aid >= 0:
+            condition = 'where aid=' + str(aid) + condition
+        result = self.db.select(['aid', 'permission'], 'access_group_permissions', condition)
+        return result.fetchall()

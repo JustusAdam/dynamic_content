@@ -288,9 +288,9 @@ class Input(BaseClassIdElement):
 
 
 class Radio(Input):
-    def __init__(self, classes=set(), element_id='', input_type='text', name='', form='', value='', required=False,
+    def __init__(self, classes=set(), element_id='', name='', form='', value='', required=False,
                  checked=False, additionals={}):
-        super().__init__(classes=classes, element_id=element_id, input_type=input_type, name=name, form=form,
+        super().__init__(classes=classes, element_id=element_id, input_type='radio', name=name, form=form,
                          value=value,
                          required=required, additionals=additionals)
         self.checked = checked

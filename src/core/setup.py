@@ -153,7 +153,7 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
             self._template['title'] = self._template['title'].format(**setup_result)
             del db
         elif self._url.page_id == 5:
-            handler = InitialUser(self._url, self)
+            handler = InitialUser(self._url, None)
             handler.destination = '/setup/6'
             content = handler.compiled
             self._template['content'] = self._template['content'].format(user_form=content.content)

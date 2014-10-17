@@ -1,6 +1,6 @@
 from core.handlers.content import Content
 from core.handlers.base import RedirectMixIn
-from modules.comp.html_elements import TableElement, Input, ContainerElement, Label
+from modules.comp.html_elements import TableElement, Input, ContainerElement, Label, Radio
 from . import users
 from modules.form.secure import SecureForm
 from modules.users.user_information import UserInformation
@@ -149,3 +149,59 @@ class UsersOverview(Content):
                                                      '?', additionals={'style': 'padding:10px;'}), additionals={
                 'style': 'padding:15px; text-align:center; background-color: cornflowerblue;color:white;border-radius:20px;font-size:20px;'})
         return TableElement(*acc, classes={'user-overview'})
+
+
+class PermissionOverview(Content):
+    page_title = 'Permissions Overview'
+    permission = 'view permissions'
+
+    def process_content(self):
+        return TableElement(*self.compile_the_list())
+
+    def compile_the_list(self):
+        l = []
+        access_groups = sorted([a for a in self.get_acc_groups()], key=lambda a: a[0])
+        l.append(['Permissions'] + [a[1] for a in access_groups])
+        permissions = {}
+        for aid, per in self.get_permissions():
+            if per in permissions:
+                permissions[per].append(aid)
+            else:
+                permissions[per] = [aid]
+
+        for p in permissions:
+            row = sorted(permissions[p])
+            l.append([p] + list(map(lambda a: self.checkbox(a[0] in row, '-'.join([str(a[1]), p])), access_groups)))
+        return l
+
+    def checkbox(self, value, name):
+        return {True: '&#x2713;', False: '&#x2718;'}[value]
+
+    def get_permissions(self):
+        return users.AccessOperations().get_permissions()
+
+    def get_acc_groups(self):
+        return users.AccessOperations().get_access_group()
+
+
+class EditPermissions(PermissionOverview):
+    page_title = 'Edit Permissions'
+    permission = 'edit permissions'
+
+    def process_content(self):
+        return SecureForm(
+            TableElement(*self.compile_the_list()), action=str(self.url.path)
+        )
+
+    def checkbox(self, value, name):
+        return Radio(name=name, value=name, checked=value)
+
+
+class AccGrpOverview(Content):
+    page_title = 'Access Groups Overview'
+    permission = 'view access groups'
+
+
+class EditAccGrp(AccGrpOverview):
+    page_title = 'Edit Access Groups'
+    permission = 'edit access groups'
