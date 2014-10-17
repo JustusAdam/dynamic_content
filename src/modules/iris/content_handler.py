@@ -2,7 +2,7 @@ from urllib import parse
 
 from core import handlers
 from core.modules import Modules
-from modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement
+from modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement, List
 from util.url import UrlQuery
 from . import database_operations
 from core.database_operations import ContentTypes
@@ -10,16 +10,25 @@ from core.database_operations import ContentTypes
 
 __author__ = 'justusadam'
 
+_access_modifier = 'access'
+_edit_modifier = 'edit'
+_add_modifier = 'add'
+
 
 class FieldBasedPageContent(handlers.content.Content):
-  modifier = 'access'
+
+  modifier = _access_modifier
+  _editorial_list_base = edits = [('edit', _edit_modifier)]
 
   def __init__(self, url, parent_handler):
     super().__init__(url, parent_handler)
     self.modules = Modules()
     (self.page_title, self.content_type, self._theme) = self.get_page_information()
     self.fields = self.get_fields()
-    self.permission = ' '.join([self.modifier, 'content type', self.content_type])
+    self.permission = self.join_permission(self.modifier, self.content_type)
+
+  def join_permission(self, modifier, content_type):
+    return ' '.join([modifier, 'content type', content_type])
 
   def get_fields(self):
     db_result = database_operations.Pages().get_fields(self.content_type)
@@ -74,10 +83,18 @@ class FieldBasedPageContent(handlers.content.Content):
     theme = ops.get_theme(content_type=content_type)
     return title, content_type, theme
 
+  def editorial_list(self):
+    s = []
+    for (name, modifier) in self._editorial_list_base:
+      if self.check_permission(self.join_permission(modifier, self.content_type)):
+        s.append((name, str(self.url.path) + '/' + modifier))
+    return s
+
 
 class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
-  modifier = 'edit'
 
+  modifier = _edit_modifier
+  _editorial_list_base = [('show', _access_modifier)]
   field_identifier_separator = '-'
 
   def __init__(self, url, parent_handler):

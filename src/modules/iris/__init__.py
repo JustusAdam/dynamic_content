@@ -18,6 +18,7 @@ def content_handler(url):
   handlers = {
     'edit': EditFieldBasedContent,
     'show': FieldBasedPageContent,
+    'access': FieldBasedPageContent,
     'add': AddFieldBasedContentHandler
   }
   return handlers[url.page_modifier]

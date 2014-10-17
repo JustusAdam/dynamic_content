@@ -1,5 +1,6 @@
 from core.handlers.base import WebObject, TemplateBasedContentCompiler
 from errors import html_message
+from modules.comp.html_elements import List, ContainerElement
 from modules.comp.page import Component
 
 __author__ = 'justusadam'
@@ -24,19 +25,34 @@ class Content(WebObject, TemplateBasedContentCompiler):
   def process_content(self):
     pass
 
+  def editorial(self):
+    l = self.editorial_list()
+    if l:
+      return List(
+        *[ContainerElement(name, html_type='a', classes={'editorial'}, additionals={'href': link}) for name,link in l]
+      )
+    return ''
+
+  def editorial_list(self):
+    return []
+
   def has_url_query(self):
     return bool(self._url.get_query)
 
   def _fill_template(self):
+    self._template['editorial'] = self.editorial()
     self._template['content'] = self.process_content()
     self._template['title'] = self.page_title
 
-  def check_permission(self):
+  def check_own_permission(self):
     return self.client.check_permission(self.permission)
+
+  def check_permission(self, permission):
+    return self.client.check_permission(permission)
 
   @property
   def compiled(self):
-    if self.check_permission():
+    if self.check_own_permission():
       self._process_queries()
       self._fill_template()
       page = Component(str(self._template), title=self.page_title)
