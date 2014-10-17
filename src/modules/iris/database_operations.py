@@ -7,7 +7,7 @@ __author__ = 'justusadam'
 class Pages(Operations):
   _queries = {
     'mysql': {
-      'get_page_information': 'select content_type, page_title from {page_type} where id={page_id};',
+      'get_page_information': 'select content_type, page_title, published from {page_type} where id={page_id};',
       'get_fields': 'select field_name, machine_name, handler_module from page_fields where content_type={content_type} order by weight;',
       'edit_page': 'update {page_type} set page_title={page_title}, published={published} where id={page_id};',
       'add_page': 'insert into {page_type} (content_type, page_title, creator, published, date_created) values ({content_type}, {page_title}, {creator}, {published}, utc_timestamp()); ',

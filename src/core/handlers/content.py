@@ -12,6 +12,8 @@ class Content(WebObject, TemplateBasedContentCompiler):
   template_name = 'content'
   page_title = 'Dynamic Page'
   permission = 'access pages'
+  published = True
+  permission_for_unpublished = 'access unpublished pages'
 
   def __init__(self, url, parent_handler):
     super().__init__(url)
@@ -46,7 +48,10 @@ class Content(WebObject, TemplateBasedContentCompiler):
     self._template['title'] = self.page_title
 
   def check_own_permission(self):
-    return self.client.check_permission(self.permission)
+    if not self.published:
+      if not self.check_permission(self.permission_for_unpublished):
+        return False
+    return self.check_permission(self.permission)
 
   def check_permission(self, permission):
     return self.client.check_permission(permission)

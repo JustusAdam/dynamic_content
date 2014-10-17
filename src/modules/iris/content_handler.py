@@ -23,9 +23,10 @@ class FieldBasedPageContent(handlers.content.Content):
   def __init__(self, url, parent_handler):
     super().__init__(url, parent_handler)
     self.modules = Modules()
-    (self.page_title, self.content_type, self._theme) = self.get_page_information()
+    (self.page_title, self.content_type, self._theme, self.published) = self.get_page_information()
     self.fields = self.get_fields()
     self.permission = self.join_permission(self.modifier, self.content_type)
+    self.permission_for_unpublished = self.join_permission('access unpublished', self.content_type)
 
   def join_permission(self, modifier, content_type):
     return ' '.join([modifier, 'content type', content_type])
@@ -79,9 +80,9 @@ class FieldBasedPageContent(handlers.content.Content):
 
   def get_page_information(self):
     ops = database_operations.Pages()
-    (content_type, title) = ops.get_page_information(self.url.page_type, self.url.page_id)
+    (content_type, title, published) = ops.get_page_information(self.url.page_type, self.url.page_id)
     theme = ops.get_theme(content_type=content_type)
-    return title, content_type, theme
+    return title, content_type, theme, published
 
   def editorial_list(self):
     s = []
@@ -176,7 +177,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
     display_name = ContentTypes().get_ct_display_name(content_type)
     title = 'Add new ' + display_name + ' page'
     theme = ops.get_theme(content_type=content_type)
-    return title, content_type, theme
+    return title, content_type, theme, True
   
   def process_page(self):
     self.page_title = parse.unquote_plus(self.url.post['title'][0])

@@ -49,7 +49,7 @@ permissions = [
     ['access login page', 'access content type article', 'access common login']
   ], [
     users.AUTH, # any authorized user
-    ['access logout']
+    ['access logout', 'access unpublished content type article']
   ], [
     ADMIN_GRP,
     ['edit user accounts', 'access users overview']

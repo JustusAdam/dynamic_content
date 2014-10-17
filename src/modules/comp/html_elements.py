@@ -2,6 +2,8 @@
 Framework for rendering HTML elements *incomplete*
 """
 
+import html
+
 __author__ = 'justusadam'
 
 
@@ -33,18 +35,18 @@ class BaseElement:
 
   def render_additionals(self):
     if isinstance(self.additionals, dict):
-      return list(k + '="' + v + '"' for k, v in self.additionals.items())
+      return list(k + '="' + html.escape(v) + '"' for k, v in self.additionals.items())
     else:
       return self._additionals
 
   def render_customs(self):
     def render(item):
       if isinstance(item, str):
-        return item
+        return html.escape(item)
       elif isinstance(item, (list, tuple, set)):
-        return ' '.join(list(str(a) for a in item))
+        return ' '.join(list(html.escape(str(a)) for a in item))
       else:
-        return str(item)
+        return html.escape(str(item))
 
     acc = []
     for k, v in self._customs.items():
