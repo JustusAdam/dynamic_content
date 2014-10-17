@@ -174,7 +174,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     if len(url.path) == 0:
       raise HTTPError(str(url), 404, None, None, None)
 
-    return self.callback(self.path, url.post, client_info)
+    return self.callback(url, client_info)
 
   def start_setup(self, url):
     if not read_config('cms/config.json')['setup']:

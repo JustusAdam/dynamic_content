@@ -31,9 +31,7 @@ class MainApp(Application):
     httpd.serve_forever()
 
   def handle_http_request(self, *args):
-    def http_callback(path, post_query, client):
-      url = Url(path)
-      url.post = post_query
+    def http_callback(url, client):
       return BasicHandler(url, client)
 
     return self.config.http_request_handler(http_callback, *args)
