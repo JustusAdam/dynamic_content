@@ -1,4 +1,4 @@
-from framework.html_elements import ContainerElement
+from modules.comp.html_elements import ContainerElement
 
 __author__ = 'justusadam'
 

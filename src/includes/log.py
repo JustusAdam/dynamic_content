@@ -5,7 +5,7 @@ __author__ = 'justusadam'
 
 
 def open_log():
-  path = Path(__file__).parent / '_jaide.log'
+  path = Path(__file__).parent / 'app.log'
   if not path.is_file():
     path.touch()
   return open(str(path), mode='a')

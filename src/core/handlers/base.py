@@ -2,10 +2,12 @@ from http import cookies
 from pathlib import Path
 import sys
 from urllib.error import HTTPError
-from core.comp.template import Template
-from framework.config_tools import read_config
-from framework.page import Component
-from framework.url import Url
+
+from modules.comp.template import Template
+from util.config import read_config
+from modules.comp.page import Component
+from util.url import Url
+
 
 __author__ = 'justusadam'
 
@@ -122,7 +124,7 @@ class RedirectMixIn(WebObject):
 class TemplateBasedContentCompiler(ContentCompiler):
   _theme = 'default_theme'
 
-  template_name = None
+  template_name = ''
 
   def __init__(self):
     super().__init__()
@@ -138,7 +140,12 @@ class TemplateBasedContentCompiler(ContentCompiler):
     return 'themes/' + self.theme
 
   @property
+  def theme_path_alias(self):
+    return '/theme/' + self.theme
+
+  @property
   def compiled(self):
+    # TODO add callback function instead of rendering page directly
     self._fill_template()
     page = Component(str(self._template))
     return page

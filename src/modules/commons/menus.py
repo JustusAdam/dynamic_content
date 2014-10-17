@@ -1,6 +1,6 @@
 from .commons import database_operations
 from core import handlers
-from framework.html_elements import ContainerElement, List
+from modules.comp.html_elements import ContainerElement, List
 
 __author__ = 'justusadam'
 

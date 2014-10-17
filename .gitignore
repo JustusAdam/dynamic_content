@@ -60,7 +60,7 @@ Apache License.txt
 sandbox.py
 
 # the individual config made from example.config.json
-src/config.json
+src/cms/config.json
 
 # intellij project configs
 .idea/
@@ -82,3 +82,6 @@ src/config.json
 *.png
 *.ogg
 *.mp3
+
+# custom scripts
+src/cms/custom/scripts/

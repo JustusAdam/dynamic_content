@@ -1,4 +1,4 @@
-from framework.url_tools import Url
+from util.url import Url
 
 __author__ = 'justusadam'
 

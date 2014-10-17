@@ -10,8 +10,8 @@ and removing .py files or altering them after the server starts *should* not com
 needed is loaded immediately at server start.
 """
 
-from framework.singleton import singleton
 from .module_operations import get_active_modules
+from util.singleton import singleton
 
 __author__ = 'justusadam'
 

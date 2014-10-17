@@ -7,12 +7,12 @@ and hardened this should be refactored to remove the framework elements and stor
 from core import Modules
 from core.handlers.page import TemplateBasedPage
 from core.handlers.base import RedirectMixIn
-from framework.shell.database import DatabaseError, Database
+from backend.database import DatabaseError, Database
 from . import module_operations
-from framework.html_elements import ContainerElement, Stylesheet, List, TableElement, LinkElement
-from framework.config_tools import read_config, write_config
+from modules.comp.html_elements import ContainerElement, Stylesheet, List, TableElement, LinkElement
+from util.config import read_config, write_config
 from includes import bootstrap
-from core.users.admin_actions import CreateUser
+from modules.users.admin_actions import CreateUser
 
 
 __author__ = 'justusadam'
@@ -41,7 +41,7 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
     super().__init__(url, None)
 
   def _fill_template(self):
-    config = read_config('config')
+    config = read_config('cms/config')
     setup_pages = {
       0: {
         'title': 'Setup of your CMS Installation',
@@ -127,11 +127,8 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
       6: {}
     }
     generic = {
-      'stylesheets': str(Stylesheet('/theme/default_theme/css/style.css')),
       'sidebar_left': '<div class="sidebar" style="height: 1px;"></div>',
-      'footer': str(ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', element_id='powered_by')),
-      'pagetitle': 'Setting up your CMS installation',
-      'meta': str(LinkElement('/theme/default_theme/favicon.png', 'shortcut icon', element_type='image/png'))
+      'pagetitle': 'Setting up your CMS installation'
     }
     self._template.update(setup_pages[self._url.page_id])
 
@@ -159,6 +156,7 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
       self.redirect('/iris/1')
     self._template['content'] = self._template['content'].format(this=self._url.path, next_page=self._url.page_id + 1,
                                                                  message=message)
+    super()._fill_template()
 
   def setup(self):
 

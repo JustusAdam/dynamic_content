@@ -1,5 +1,4 @@
 from core import handlers
-from .database_operations import Pages
 
 __author__ = 'justusadam'
 

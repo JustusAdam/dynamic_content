@@ -1,6 +1,6 @@
 from . import database_operations
 from core import handlers
-from framework.html_elements import Textarea
+from modules.comp.html_elements import Textarea
 
 __author__ = 'justusadam'
 
