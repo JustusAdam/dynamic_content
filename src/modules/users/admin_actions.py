@@ -145,6 +145,7 @@ class UsersOverview(Content):
             selection = '0,50'
         all_users = users.get_info(selection)
         acc = [['UID', 'Username', 'Name (if provided)', 'Date created', 'Actions']]
+
         for (user_id, username, user_first_name, user_middle_name, user_last_name, date_created) in all_users:
             acc.append([ContainerElement(str(user_id), html_type='a', additionals={'href': '/users/' + str(user_id)}),
                         ContainerElement(username, html_type='a', additionals={'href': '/users/' + str(user_id)}),
@@ -152,6 +153,7 @@ class UsersOverview(Content):
                         date_created,
                         ContainerElement('edit', html_type='a',
                                          additionals={'href': '/users/' + str(user_id) + '/edit'})])
+
         if len(acc) == 1 or acc == []:
             return ContainerElement(ContainerElement('It seems you do not have any users yet.',
                                                      additionals={'style': 'padding:10px;text-align:center;'}),
@@ -170,6 +172,11 @@ class PermissionOverview(Content):
     _perm_list = None
 
     def process_content(self):
+        return ContainerElement(
+            ContainerElement('Please note, that permissions assigned to the group \'any authorized user\' automatically apply to any other group as well as any authenticated user', classes={'alert'}), self.permission_table()
+            )
+
+    def permission_table(self):
         return TableElement(*self.compile_the_list())
 
     @property
@@ -222,7 +229,7 @@ class EditPermissions(PermissionOverview):
     page_title = 'Edit Permissions'
     permission = 'edit permissions'
 
-    def process_content(self):
+    def permission_table(self):
         return SecureForm(
             TableElement(*self.compile_the_list()), action=str(self.url.path)
         )
