@@ -293,13 +293,18 @@ class Radio(Input):
         super().__init__(classes=classes, element_id=element_id, input_type='radio', name=name, form=form,
                          value=value,
                          required=required, additionals=additionals)
-        self.checked = checked
+        if checked:
+            self._customs['checked'] = 'checked'
 
-    def render_head(self):
-        if self.checked:
-            return super().render_head() + ' checked'
-        else:
-            return super().render_head()
+
+class Checkbox(Input):
+    def __init__(self, classes=set(), element_id='', name='', form='', value='', required=False,
+                 checked=False, additionals={}):
+        super().__init__(classes=classes, element_id=element_id, input_type='checkbox', name=name, form=form,
+                         value=value,
+                         required=required, additionals=additionals)
+        if checked:
+            self._customs['checked'] = 'checked'
 
 
 class Textarea(ContainerElement):

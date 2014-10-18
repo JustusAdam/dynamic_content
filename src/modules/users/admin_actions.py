@@ -1,10 +1,11 @@
 from core.handlers.content import Content
 from core.handlers.base import RedirectMixIn
-from modules.comp.html_elements import TableElement, Input, ContainerElement, Label, Radio
+from modules.comp.html_elements import TableElement, Input, ContainerElement, Label, Checkbox
 from . import users
 from modules.form.secure import SecureForm
 from modules.users.user_information import UserInformation
 import re
+import copy
 
 __author__ = 'justusadam'
 
@@ -48,6 +49,17 @@ def factory(url):
         'show': UserInformation
     }
     return handlers[url.page_modifier]
+
+
+def split_list(l, func):
+    true = []
+    false = []
+    for i in l:
+        if func(i):
+            true.append(i)
+        else:
+            false.append(i)
+    return true, false
 
 
 class CreateUser(Content, RedirectMixIn):
@@ -155,16 +167,33 @@ class UsersOverview(Content):
 class PermissionOverview(Content):
     page_title = 'Permissions Overview'
     permission = 'view permissions'
+    _perm_list = None
 
     def process_content(self):
         return TableElement(*self.compile_the_list())
+
+    @property
+    def permissions_list(self):
+        if not self._perm_list:
+            l = self._get_permissions()
+            self._perm_list = self._sort_perm_list(l)
+        return self._perm_list
+
+    @permissions_list.setter
+    def permissions_list(self, val):
+        self._perm_list = val
+
+    def _sort_perm_list(self, l):
+        l.sort(key=lambda a: a[1])
+        l.sort(key=lambda a: a[0])
+        return l
 
     def compile_the_list(self):
         l = []
         access_groups = sorted([a for a in self.get_acc_groups()], key=lambda a: a[0])
         l.append(['Permissions'] + [a[1] for a in access_groups])
         permissions = {}
-        for aid, per in self.get_permissions():
+        for aid, per in self.permissions_list:
             if per in permissions:
                 permissions[per].append(aid)
             else:
@@ -173,13 +202,14 @@ class PermissionOverview(Content):
         for p in permissions:
             row = sorted(permissions[p])
             l.append([p] + list(map(lambda a: self.checkbox(a[0] in row, '-'.join([str(a[0]), p.replace(' ', '-')])), access_groups)))
+        l.sort(key=lambda a: a[0])
         return l
 
     def checkbox(self, value, name):
         return {True: '&#x2713;', False: '&#x2718;'}[value]
 
-    def get_permissions(self):
-        return users.AccessOperations().get_permissions()
+    def _get_permissions(self):
+        return [list(a) for a in users.AccessOperations().get_permissions()]
 
     def get_acc_groups(self):
         return users.AccessOperations().get_access_group()
@@ -198,16 +228,43 @@ class EditPermissions(PermissionOverview):
         )
 
     def checkbox(self, value, name):
-        return Radio(name=name, value=name, checked=value)
+        return Checkbox(name=name, value=name, checked=value)
 
     def _process_post(self):
+        new_perm = []
         for item in self.url.post:
             m = re.fullmatch(permission_structure, item)
             if m:
                 g = m.groups()
                 #print('assigning permission ' + ' '.join([g[1].replace('-', ' '), 'to', str(g[0])]))
-                users.assign_permission(int(g[0]), g[1].replace('-', ' '))
+                new_perm.append([int(g[0]), g[1].replace('-', ' ')])
+        new_perm = self._sort_perm_list(new_perm)
+        old_perm, control_perm = split_list(self.permissions_list, lambda a: int(a[0]) != users.CONTROL_GROUP, )
+        self.permissions_list = copy.copy(new_perm) + control_perm
+        add = []
+        remove = []
+        while new_perm and old_perm:
+            i = new_perm.pop()
+            j = old_perm.pop()
+            if not i == j:
+                if i in old_perm:
+                    old_perm.remove(i)
+                else:
+                    add.append(i)
 
+                if j in new_perm:
+                    new_perm.remove(j)
+                else:
+                    remove.append(j)
+        if new_perm:
+            add += new_perm
+        if old_perm:
+            remove += old_perm
+
+        for aid, permission in remove:
+            users.revoke_permission(aid, permission)
+        for aid, permission in add:
+            users.assign_permission(aid, permission)
 
 
 class AccGrpOverview(Content):
