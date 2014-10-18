@@ -17,7 +17,7 @@ class Url:
         parsed = parse.urlsplit(url)
         self._path = UrlPath(parsed.path)
         self._location = UrlLocation(parsed.fragment)
-        self._get_query = UrlQuery(parsed.query)
+        self._get_query = UrlQuery(parsed.query, safe='/')
         if post:
             if isinstance(post, UrlQuery):
                 self.post = post
