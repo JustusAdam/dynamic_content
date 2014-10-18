@@ -45,6 +45,23 @@ def check_aid(func):
     return wrapped
 
 
+def check_permission(pos, name):
+    def dec(func):
+        def wrapped(*args, **kwargs):
+            if name in kwargs:
+                examine = kwargs[name]
+            else:
+                examine = args[pos]
+
+            if not isinstance(examine, str):
+                raise ValueError
+            if '-' in examine:
+                raise ValueError
+            return func(*args, **kwargs)
+        return wrapped
+    return dec
+
+
 def acc_grp(user):
     result = UserOperations().get_acc_grp(user)
     if result:
@@ -52,24 +69,24 @@ def acc_grp(user):
     else:
         return AUTH
 
-
+@check_aid
 def add_acc_grp(name, aid=-1):
     AccessOperations().add_group(aid, name)
 
-
+#@check_permission(1, 'permission')
 @check_aid
-def check_permission(aid, permission):
-    if aid != GUEST_GRP:
+def check_permission(aid, permission, strict=False):
+    if aid != GUEST_GRP and not strict:
         return AccessOperations().check_permission(aid, AUTH, permission)
     else:
         return AccessOperations().check_permission(aid, None, permission)
 
-
+#@check_permission(1, 'permission')
 @check_aid
 def assign_permission(aid, permission):
     if aid == CONTROL_GROUP:
         log.write_error('users', 'permissions', 'assign_permission', 'cannot assign permissions to control group')
-    elif check_permission(aid, permission):
+    elif check_permission(aid, permission, True):
         log.write_warning('users', 'permissions', 'assign_permission',
                           'access group ' + str(aid) + ' already owns permission ' + permission)
     elif not check_permission(CONTROL_GROUP, permission):
@@ -80,7 +97,7 @@ def assign_permission(aid, permission):
     else:
         AccessOperations().add_permission(aid, permission)
 
-
+#@check_permission(1, 'permission')
 @check_aid
 def revoke_permission(aid, permission):
     if aid == CONTROL_GROUP:
@@ -88,11 +105,11 @@ def revoke_permission(aid, permission):
     else:
         AccessOperations().remove_permission(aid, permission)
 
-
+#@check_permission(0, 'permission')
 def new_permission(permission):
     AccessOperations().add_permission(CONTROL_GROUP, permission)
 
-
+#@check_permission(0, 'permission')
 def remove_permission(permission):
     AccessOperations().remove_all_permissions(permission)
 

@@ -155,43 +155,17 @@ class UrlLocation:
         return bool(self.location)
 
 
-class UrlQuery:
+class UrlQuery(dict):
     def __init__(self, query):
-        self.query = query
-
-    @property
-    def query(self):
-        return self._query
-
-    @query.setter
-    def query(self, value):
-        if not value:
-            self._query = {}
-        elif isinstance(value, dict):
-            self._query = value
-        elif isinstance(value, str):
-            self._query = parse.parse_qs(value)
+        if not query:
+            super().__init__()
+        elif isinstance(query, dict):
+            super().__init__(**query)
+        elif isinstance(query, str):
+            super().__init__(**parse.parse_qs(query))
 
     def __str__(self):
-        if self._query:
-            return parse.urlencode(self._query, doseq=True)
+        if self:
+            return parse.urlencode(self, doseq=True)
         else:
             return ''
-
-    def __getitem__(self, item):
-        return self.query[item]
-
-    def __setitem__(self, key, value):
-        self._query[key] = parse.quote_plus(value)
-
-    def __contains__(self, item):
-        if self.query:
-            return item in self.query
-        else:
-            return False
-
-    def __bool__(self):
-        return bool(self.query)
-
-    def keys(self):
-        return self._query.keys()

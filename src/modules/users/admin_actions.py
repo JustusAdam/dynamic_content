@@ -4,6 +4,7 @@ from modules.comp.html_elements import TableElement, Input, ContainerElement, La
 from . import users
 from modules.form.secure import SecureForm
 from modules.users.user_information import UserInformation
+import re
 
 __author__ = 'justusadam'
 
@@ -171,7 +172,7 @@ class PermissionOverview(Content):
 
         for p in permissions:
             row = sorted(permissions[p])
-            l.append([p] + list(map(lambda a: self.checkbox(a[0] in row, '-'.join([str(a[1]), p])), access_groups)))
+            l.append([p] + list(map(lambda a: self.checkbox(a[0] in row, '-'.join([str(a[0]), p.replace(' ', '-')])), access_groups)))
         return l
 
     def checkbox(self, value, name):
@@ -182,6 +183,9 @@ class PermissionOverview(Content):
 
     def get_acc_groups(self):
         return users.AccessOperations().get_access_group()
+
+
+permission_structure = re.compile('(\d)+-([0-9a-zA-Z_-]+)')
 
 
 class EditPermissions(PermissionOverview):
@@ -195,6 +199,15 @@ class EditPermissions(PermissionOverview):
 
     def checkbox(self, value, name):
         return Radio(name=name, value=name, checked=value)
+
+    def _process_post(self):
+        for item in self.url.post:
+            m = re.fullmatch(permission_structure, item)
+            if m:
+                g = m.groups()
+                #print('assigning permission ' + ' '.join([g[1].replace('-', ' '), 'to', str(g[0])]))
+                users.assign_permission(int(g[0]), g[1].replace('-', ' '))
+
 
 
 class AccGrpOverview(Content):
