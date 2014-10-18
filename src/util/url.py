@@ -75,7 +75,7 @@ class Url:
         if isinstance(value, UrlQuery):
             self._get_query = value
         else:
-            self._get_query = UrlQuery(value)
+            self._get_query = UrlQuery(value, safe='/')
 
     def __str__(self):
         return parse.urlunsplit(('', '', str(self._path), str(self._get_query), str(self._location)))
@@ -156,7 +156,8 @@ class UrlLocation:
 
 
 class UrlQuery(dict):
-    def __init__(self, query):
+    def __init__(self, query, safe=''):
+        self.safe = safe
         if not query:
             super().__init__()
         elif isinstance(query, dict):
@@ -166,6 +167,6 @@ class UrlQuery(dict):
 
     def __str__(self):
         if self:
-            return parse.urlencode(self, doseq=True, safe='/')
+            return parse.urlencode(self, doseq=True, safe=self.safe)
         else:
             return ''
