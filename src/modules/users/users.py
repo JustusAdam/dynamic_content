@@ -69,7 +69,7 @@ def acc_grp(user):
     else:
         return AUTH
 
-@check_aid
+
 def add_acc_grp(name, aid=-1):
     AccessOperations().add_group(aid, name)
 
