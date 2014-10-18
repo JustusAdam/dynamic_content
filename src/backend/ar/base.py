@@ -8,7 +8,7 @@ from .data import Table
 __author__ = 'justusadam'
 
 
-class AR(object):
+class VirtualStorage(object):
     @property
     def db(self):
         return self.database
@@ -23,20 +23,20 @@ class AR(object):
         pass
 
 
-class ARDatabase(AR):
+class VirtualDatabase(VirtualStorage):
     def __init__(self, database):
         super().__init__(database)
 
     def table(self, name):
-        return SimpleARTable(self, name)
+        return SimpleVirtualDBTable(self, name)
 
 
-class ARTable(AR):
+class VirtualDBTable(VirtualStorage):
     name = None
     table = None
 
     def __init__(self, ar_database):
-        assert isinstance(ar_database, ARDatabase)
+        assert isinstance(ar_database, VirtualDatabase)
         super().__init__(ar_database.database)
         self.ar_database = ar_database
 
@@ -59,7 +59,7 @@ class ARTable(AR):
         return ' and '.join(list(a + '=' + escape(identifiers[a]) for a in identifiers))
 
 
-class SimpleARTable(ARTable):
+class SimpleVirtualDBTable(VirtualDBTable):
     @property
     def table(self):
         return self.columns
@@ -89,13 +89,13 @@ class SimpleARTable(ARTable):
         return self.db.select(', '.join(rows), self.name, 'where ' + self.join_condition(identifiers) + ';').fetchone()
 
 
-class CompoundARTable(ARTable):
+class CompoundVirtualDBTable(VirtualDBTable):
     tables = {}
 
     def __init__(self, ar_database, *names):
         super().__init__(ar_database)
         for name in names:
-            self.tables[name] = SimpleARTable(ar_database, name)
+            self.tables[name] = SimpleVirtualDBTable(ar_database, name)
 
     def row(self, **identifiers):
         return ARRow(self, **identifiers)
@@ -108,14 +108,14 @@ class CompoundARTable(ARTable):
         return {a.table for a in self.tables}
 
 
-class ARRow(AR):
+class ARRow(VirtualStorage):
     _key_values = {}
     updated = []
     values = {}
     exists = False
 
     def __init__(self, table, autoretrieve=True, **identifiers):
-        assert isinstance(table, ARTable)
+        assert isinstance(table, VirtualDBTable)
         super().__init__(table.database)
         self.ar_table = table
         self.table = table.table

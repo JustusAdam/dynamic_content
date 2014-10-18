@@ -166,6 +166,6 @@ class UrlQuery(dict):
 
     def __str__(self):
         if self:
-            return parse.urlencode(self, doseq=True)
+            return parse.urlencode(self, doseq=True, safe='/')
         else:
             return ''

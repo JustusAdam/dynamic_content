@@ -1,4 +1,3 @@
-from backend.database import Database
 from backend.ar import base
 
 __author__ = 'justusadam'
@@ -6,11 +5,9 @@ __author__ = 'justusadam'
 USERS_TABLE_NAME = 'cms_users'
 USERS_AUTH_TABLE_NAME = 'cms_user_auth'
 
-database = base.ARDatabase(Database())
 
-
-class UserTable(base.CompoundARTable):
-    def __init__(self):
+class UserTable(base.CompoundVirtualDBTable):
+    def __init__(self, database):
         super().__init__(database, USERS_TABLE_NAME, USERS_AUTH_TABLE_NAME)
 
     def new(self, uid=None, username=''):

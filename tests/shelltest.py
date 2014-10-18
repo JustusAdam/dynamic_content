@@ -12,18 +12,18 @@ __author__ = 'justusadam'
 
 class ARTest(unittest.TestCase):
     def setUp(self):
-        self.ar_db = base.ARDatabase(Database())
+        self.ar_db = base.VirtualDatabase(Database())
 
     def test_ar_database(self):
         test_table = 'cms_users'
-        self.assertIsInstance(self.ar_db, base.ARDatabase)
+        self.assertIsInstance(self.ar_db, base.VirtualDatabase)
         self.assertIsInstance(self.ar_db.database._connection, Connection)
         self.assertTrue(len(self.ar_db.database.show_columns(test_table)) > 0)
 
     def test_ar_table(self):
         test_table_name = 'access_group_permissions'
         test_table = self.ar_db.table(test_table_name)
-        self.assertIsInstance(test_table, base.ARTable)
+        self.assertIsInstance(test_table, base.VirtualDBTable)
 
     def test_table(self):
         test_table_name = 'cms_users'
@@ -73,7 +73,7 @@ class ARTest(unittest.TestCase):
 
     def test_compound_table(self):
         test_table_names = ['cms_users', 'cms_user_auth', 'form_tokens']
-        table = base.CompoundARTable(self.ar_db, *test_table_names)
+        table = base.CompoundVirtualDBTable(self.ar_db, *test_table_names)
         result = table.keys()
         self.assertSetEqual(result, {'uid', 'id', 'username', 'email_address', 'token', 'salt', 'password'})
 
