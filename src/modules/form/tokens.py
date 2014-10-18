@@ -11,6 +11,7 @@ def _validate(form, token):
 
 
 def validate(form, query_or_token):
+    print(form)
     if isinstance(query_or_token, str):
         return _validate(form, query_or_token)
     else:
