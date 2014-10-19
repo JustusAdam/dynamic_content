@@ -245,8 +245,9 @@ class List(ContainerElement):
 
 
 class TableElement(ContainerElement):
-    def __init__(self, *content, classes=set(), element_id='', additionals={}):
+    def __init__(self, *content, classes=set(), element_id='', additionals={}, table_head=False):
         super().__init__(*content, html_type='table', classes=classes, element_id=element_id, additionals=additionals)
+        self.table_head = table_head
 
     def render_table_row(self, row):
         if isinstance(row, ContainerElement):
@@ -256,14 +257,28 @@ class TableElement(ContainerElement):
             return '<tr>' + ''.join(tuple(self.render_table_data(data) for data in row)) + '</tr>'
         return '<tr>' + self.render_table_data(row) + '</tr>'
 
+    def render_table_head(self, row):
+        if isinstance(row, ContainerElement):
+            if row.html_type == 'th':
+                return str(row)
+        elif isinstance(row, (list, tuple)):
+            return '<th>' + ''.join(tuple(self.render_table_data(data) for data in row)) + '</th>'
+        return '<th>' + self.render_table_data(row) + '</th>'
+
     def render_table_data(self, data):
         if isinstance(data, ContainerElement):
             if data.html_type == 'td':
                 return str(data)
         return '<td>' + str(data) + '</td>'
 
+    def render_rows(self):
+        if self.table_head:
+            return [self.render_table_head(self.content[0])] + [self.render_table_row(a) for a in self.content[1:]]
+        else:
+            return [self.render_table_row(element) for element in self.content]
+
     def render_content(self):
-        return ''.join(tuple(self.render_table_row(element) for element in self.content))
+        return ''.join(self.render_rows())
 
 
 class Input(BaseClassIdElement):
