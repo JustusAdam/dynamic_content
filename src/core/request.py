@@ -16,4 +16,4 @@ class Request(object):
         if hasattr(self, key):
             raise OverwriteProhibitedError
         else:
-            object.__setattr__(self, key, value)
+            super().__setattr__(key, value)
