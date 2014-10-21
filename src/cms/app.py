@@ -49,3 +49,6 @@ class MainApp(Application):
 
     def set_working_directory(self):
         os.chdir(self.config.basedir)
+
+    def process_request(self, request):
+        pass
