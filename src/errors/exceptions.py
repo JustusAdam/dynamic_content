@@ -33,5 +33,9 @@ class AccessDisabled(DynamicContentError):
     pass
 
 
-class UninitializedValuesError(DynamicContentError):
+class UninitializedValueError(DynamicContentError):
+    pass
+
+
+class OverwriteProhibitedError(DynamicContentError):
     pass
