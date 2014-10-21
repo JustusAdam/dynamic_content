@@ -31,3 +31,7 @@ class InvalidInputError(DynamicContentError):
 
 class AccessDisabled(DynamicContentError):
     pass
+
+
+class UninitializedValuesError(DynamicContentError):
+    pass
