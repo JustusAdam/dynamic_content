@@ -14,10 +14,10 @@ class BasicHandler(TemplateBasedPage):
     _theme = None
     template_name = 'page'
 
-    def __init__(self, url, client_info):
+    def __init__(self, request, client_info):
         self.modules = Modules()
-        self.content_handler = self._get_content_handler(url, client_info)
-        super().__init__(url, client_info)
+        self.content_handler = self._get_content_handler(request, client_info)
+        super().__init__(request, client_info)
 
 
     @property
@@ -34,7 +34,7 @@ class BasicHandler(TemplateBasedPage):
             handler_module = database_operations.ContentHandlers().get_by_prefix(url.page_type)
         except DBOperationError as error:
             print(error)
-            raise HTTPError(self._url, 404, None, None, None)
+            raise HTTPError(self._request, 404, None, None, None)
 
         handler = self.modules[handler_module].content_handler(url)
         return handler

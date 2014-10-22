@@ -20,8 +20,8 @@ _template_path = 'themes/default_theme/template/page.html'
 
 
 class PathHandler(Page, RedirectMixIn):
-    def __init__(self, url):
-        super().__init__(url, None)
+    def __init__(self, request):
+        super().__init__(request, None)
         self.page_type = 'file'
         self._document = ''
 
@@ -34,13 +34,13 @@ class PathHandler(Page, RedirectMixIn):
         return self.compiled
 
     def parse_path(self):
-        if len(self._url.path) < 1:
+        if len(self._request.path) < 1:
             raise MissingFileError
-        basedirs = bootstrap.FILE_DIRECTORIES[self._url.path[0]]
+        basedirs = bootstrap.FILE_DIRECTORIES[self._request.path[0]]
         if isinstance(basedirs, str):
             basedirs = (basedirs,)
         for basedir in basedirs:
-            filepath = '/'.join([basedir] + self._url.path[1:])
+            filepath = '/'.join([basedir] + self._request.path[1:])
             filepath = Path(filepath)
 
             if not filepath.exists():
@@ -64,23 +64,23 @@ class PathHandler(Page, RedirectMixIn):
     def serve_directory(self, directory):
         if not bootstrap.ALLOW_INDEXING:
             raise AccessDisabled
-        elif not self.url.path.trailing_slash:
-            self.url.path.trailing_slash = True
-            self.redirect(str(self.url))
+        elif not self.request.path.trailing_slash:
+            self.request.path.trailing_slash = True
+            self.redirect(str(self.request))
         else:
-            return DirectoryHandler(self.url, self._client, directory).encoded
+            return DirectoryHandler(self.request, self._client, directory).encoded
 
     def serve_file(self, file):
-        if self.url.path.trailing_slash:
-            self.url.path.trailing_slash = False
-            self.redirect(str(self.url))
+        if self.request.path.trailing_slash:
+            self.request.path.trailing_slash = False
+            self.redirect(str(self.request))
         self.content_type, self.encoding = mimetypes.guess_type(str(file.name))
         return file.open('rb').read()
 
 
 class DirectoryHandler(TemplateBasedPage):
-    def __init__(self, url, client, real_dir):
-        super().__init__(url, client)
+    def __init__(self, request, client, real_dir):
+        super().__init__(request, client)
         if not isinstance(real_dir, Path):
             Path(real_dir)
         self.directory = real_dir
@@ -93,7 +93,7 @@ class DirectoryHandler(TemplateBasedPage):
     def _render_file_list(self):
         return List(
             *[ContainerElement(
-                str(a.name), html_type='a', additionals={'href': str(self.url.path) + quote_plus(str(a.name), )},
+                str(a.name), html_type='a', additionals={'href': str(self.request.path) + quote_plus(str(a.name), )},
                 classes={'file-link'}
             ) for a in self._files()
             ], classes={'directory-index'}, item_classes={'directory-content'}

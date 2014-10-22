@@ -1,4 +1,4 @@
-from core.handlers.base import WebObject, TemplateBasedContentCompiler
+from core.handlers.base import ContentCompiler, TemplateBasedContentCompiler
 from errors import html_message
 from modules.comp.html_elements import List, ContainerElement
 from modules.comp.page import Component
@@ -6,7 +6,7 @@ from modules.comp.page import Component
 __author__ = 'justusadam'
 
 
-class Content(WebObject, TemplateBasedContentCompiler):
+class Content(ContentCompiler, TemplateBasedContentCompiler):
     theme = 'default_theme'
     template_name = 'content'
     page_title = 'Dynamic Page'
@@ -14,9 +14,9 @@ class Content(WebObject, TemplateBasedContentCompiler):
     published = True
     permission_for_unpublished = 'access unpublished pages'
 
-    def __init__(self, url, client):
+    def __init__(self, request, client):
         #assert isinstance(client, ClientInformation)
-        super().__init__(url)
+        super().__init__(request)
         TemplateBasedContentCompiler.__init__(self)
         self._client = client
 
@@ -41,7 +41,7 @@ class Content(WebObject, TemplateBasedContentCompiler):
         return []
 
     def has_url_query(self):
-        return bool(self._url.get_query)
+        return bool(self._request.get_query)
 
     def _fill_template(self):
         self._template['editorial'] = self.editorial()
@@ -60,7 +60,7 @@ class Content(WebObject, TemplateBasedContentCompiler):
     @property
     def compiled(self):
         if self.check_own_permission():
-            self._process_queries()
+            self._check_queries()
             self._fill_template()
             page = Component(str(self._template), title=self.page_title)
             return page

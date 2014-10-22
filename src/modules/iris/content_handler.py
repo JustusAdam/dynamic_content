@@ -19,8 +19,8 @@ class FieldBasedPageContent(handlers.content.Content):
     modifier = _access_modifier
     _editorial_list_base = edits = [('edit', _edit_modifier)]
 
-    def __init__(self, url, client):
-        super().__init__(url, client)
+    def __init__(self, request, client):
+        super().__init__(request, client)
         self.modules = Modules()
         (self.page_title, self.content_type, self._theme, self.published) = self.get_page_information()
         self.fields = self.get_fields()
@@ -46,8 +46,8 @@ class FieldBasedPageContent(handlers.content.Content):
         if query_keys:
             vals = {}
             for key in query_keys:
-                if key in self.url.post:
-                    vals[key] = self.url.post[key]
+                if key in self.request.post:
+                    vals[key] = self.request.post[key]
             if vals:
                 field_handler.process_post(UrlQuery(vals))
 
@@ -56,13 +56,13 @@ class FieldBasedPageContent(handlers.content.Content):
         if query_keys:
             vals = {}
             for key in query_keys:
-                if key in self.url.get_query:
-                    vals[key] = self.url.post[key]
+                if key in self.request.get_query:
+                    vals[key] = self.request.post[key]
             if vals:
                 field_handler.process_get(UrlQuery(vals))
 
     def get_field_handler(self, name, module):
-        return self.modules[module].field_handler(name, self.url.page_type, self.url.page_id, self.modifier)
+        return self.modules[module].field_handler(name, self.request.page_type, self.request.page_id, self.modifier)
 
     def concatenate_content(self, fields):
         content = self.field_content(fields)
@@ -79,7 +79,7 @@ class FieldBasedPageContent(handlers.content.Content):
 
     def get_page_information(self):
         ops = database_operations.Pages()
-        (content_type, title, published) = ops.get_page_information(self.url.page_type, self.url.page_id)
+        (content_type, title, published) = ops.get_page_information(self.request.page_type, self.request.page_id)
         theme = ops.get_theme(content_type=content_type)
         return title, content_type, theme, published
 
@@ -87,7 +87,7 @@ class FieldBasedPageContent(handlers.content.Content):
         s = []
         for (name, modifier) in self._editorial_list_base:
             if self.check_permission(self.join_permission(modifier, self.content_type)):
-                s.append((name, '/'.join(['', self.url.page_type, str(self.url.page_id), modifier])))
+                s.append((name, '/'.join(['', self.request.page_type, str(self.request.page_id), modifier])))
         return s
 
 
@@ -96,8 +96,8 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
     _editorial_list_base = [('show', _access_modifier)]
     field_identifier_separator = '-'
 
-    def __init__(self, url, client):
-        super().__init__(url, client)
+    def __init__(self, request, client):
+        super().__init__(request, client)
         self.user = '1'
 
     @property
@@ -110,7 +110,7 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
         content += self.field_content(fields)
         content.append(self.admin_options)
         table = TableElement(*content, classes={'edit', self.content_type, 'edit-form'})
-        return FormElement(table, action=str(self.url))
+        return FormElement(table, action=str(self.request))
 
     def field_content(self, fields):
         content = []
@@ -139,23 +139,23 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
         for field in fields:
             mapping = {}
             for key in field.post_query_keys:
-                if not key in self.url.post:
+                if not key in self.request.post:
                     raise KeyError
-                mapping[key] = [parse.unquote_plus(a) for a in self.url.post[key]]
+                mapping[key] = [parse.unquote_plus(a) for a in self.request.post[key]]
             field.query = mapping
 
     def process_page(self):
-        if not 'title' in self.url.post:
+        if not 'title' in self.request.post:
             raise ValueError
-        if self.url.post['title'] != self.page_title:
-            self.page_title = parse.unquote_plus(self.url.post['title'][0])
-        if 'publish' in self.url.post:
+        if self.request.post['title'] != self.page_title:
+            self.page_title = parse.unquote_plus(self.request.post['title'][0])
+        if 'publish' in self.request.post:
             published = True
         else:
             published = False
-        database_operations.Pages().edit_page(self.url.page_type, self.page_title, published, self.url.page_id)
+        database_operations.Pages().edit_page(self.request.page_type, self.page_title, published, self.request.page_id)
 
-    def _process_post(self):
+    def _process_query(self):
         self.assign_inputs(self.fields)
         try:
             page = self.process_page()
@@ -170,25 +170,25 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
 
     def get_page_information(self):
         ops = database_operations.Pages()
-        if not 'ct' in self.url.get_query:
+        if not 'ct' in self.request.get_query:
             raise ValueError
-        content_type = self.url.get_query['ct'][0]
+        content_type = self.request.get_query['ct'][0]
         display_name = ContentTypes().get_ct_display_name(content_type)
         title = 'Add new ' + display_name + ' page'
         theme = ops.get_theme(content_type=content_type)
         return title, content_type, theme, True
 
     def process_page(self):
-        self.page_title = parse.unquote_plus(self.url.post['title'][0])
-        if 'publish' in self.url.post:
+        self.page_title = parse.unquote_plus(self.request.post['title'][0])
+        if 'publish' in self.request.post:
             published = True
         else:
             published = False
-        page_id = database_operations.Pages().add_page(self.url.page_type, self.content_type,
+        page_id = database_operations.Pages().add_page(self.request.page_type, self.content_type,
                                                        self.page_title, self.user, published)
         self.update_field_page_id(page_id)
-        self.url.page_id = page_id
-        return self.url.path.prt_to_str(0, -1) + '/' + str(self.url.page_id)
+        self.request.page_id = page_id
+        return self.request.path.prt_to_str(0, -1) + '/' + str(self.request.page_id)
 
 
     def update_field_page_id(self, page_id):

@@ -7,12 +7,13 @@ from modules.comp.template import Template
 from util.config import read_config
 from modules.comp.page import Component
 from util.url import Url
+from errors.exceptions import InvalidInputError
 
 
 __author__ = 'justusadam'
 
 
-class ContentCompiler:
+class AbstractContentCompiler:
     @property
     def compiled(self):
         return ''
@@ -21,25 +22,26 @@ class ContentCompiler:
         return str(self.compiled)
 
 
-class WebObject(ContentCompiler):
-    _url = None
+class ContentCompiler(AbstractContentCompiler):
+    _request = None
+    _input_accepted = True
 
-    def __init__(self, url):
+    def __init__(self, request):
         super().__init__()
-        self.url = url
+        self.request = request
         self._headers = set()
         self._cookies = None
 
     @property
-    def url(self):
-        return self._url
+    def request(self):
+        return self._request
 
-    @url.setter
-    def url(self, val):
+    @request.setter
+    def request(self, val):
         if not isinstance(val, Url):
-            self._url = Url(val)
+            self._request = Url(val)
         else:
-            self._url = val
+            self._request = val
 
     @property
     def client(self):
@@ -73,32 +75,20 @@ class WebObject(ContentCompiler):
             self.add_header(name, value)
         return self._headers
 
-    def is_get(self):
-        return bool(self.url.get_query)
+    def _has_active_query(self):
+        pass
 
-    def is_post(self):
-        return bool(self.url.post)
-
-    def _process_queries(self):
+    def _check_queries(self):
         """
         Simple routine that calls the appropriate 'process' methods IF they're necessary
         :return:
         """
-        if self.is_get():
-            self._process_get()
-        if self.is_post():
-            self._process_post()
+        if not self._input_accepted:
+            raise InvalidInputError
+        if self._has_active_query():
+            self._process_query()
 
-    def _process_get(self):
-        """
-        This method gets called by the class IF there are get query variables present.
-
-        Inheriting classes should overwrite this method rather than 'process_queries'.
-        :return:
-        """
-        pass
-
-    def _process_post(self):
+    def _process_query(self):
         """
         This method gets called if there is a valid post query present.
 
@@ -108,17 +98,17 @@ class WebObject(ContentCompiler):
         pass
 
 
-class RedirectMixIn(WebObject):
+class RedirectMixIn(ContentCompiler):
     def redirect(self, destination=None):
-        if 'destination' in self.url.get_query:
-            destination = self.url.get_query['destination'][0]
+        if 'destination' in self.request.get_query:
+            destination = self.request.get_query['destination'][0]
         elif not destination:
-            destination = str(self.url.path.prt_to_str(0, -1))
-        raise HTTPError(str(self.url), 302, 'Redirect',
+            destination = str(self.request.path.prt_to_str(0, -1))
+        raise HTTPError(str(self.request), 302, 'Redirect',
                         [('Location', destination), ('Connection', 'close')], None)
 
 
-class TemplateBasedContentCompiler(ContentCompiler):
+class TemplateBasedContentCompiler(AbstractContentCompiler):
     _theme = 'default_theme'
 
     template_name = ''
@@ -144,7 +134,7 @@ class TemplateBasedContentCompiler(ContentCompiler):
     def compiled(self):
         # TODO add callback function instead of rendering page directly
         self._fill_template()
-        page = Component(str(self._template))
+        page = Component(self._template)
         return page
 
     def _get_template_path(self):

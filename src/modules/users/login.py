@@ -41,19 +41,19 @@ LOGIN_COMMON = SecureForm(
 class LoginHandler(handlers.content.Content, handlers.base.RedirectMixIn):
     permission = 'access login page'
 
-    def __init__(self, url, client):
-        super().__init__(url, client)
+    def __init__(self, request, client):
+        super().__init__(request, client)
         self.message = ''
         self.page_title = 'Login'
 
     def process_content(self):
         return ContainerElement(self.message, LOGIN_FORM)
 
-    def _process_post(self):
-        if not self.url.post['username'] or not self._url.post['password']:
+    def _process_query(self):
+        if not self.request.post['username'] or not self._request.post['password']:
             raise ValueError
-        username = self.url.post['username'][0]
-        password = self.url.post['password'][0]
+        username = self.request.post['username'][0]
+        password = self.request.post['password'][0]
         token = session.start_session(username, password)
         if token:
             self.add_morsels({'SESS': token})

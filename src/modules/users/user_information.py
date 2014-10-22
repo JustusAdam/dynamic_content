@@ -38,14 +38,14 @@ class UserInformation(handlers.content.Content):
     permission = 'view other user info'
     page_title = 'User Information'
 
-    def __init__(self, url, client):
-        super().__init__(url, client)
-        if self.url.page_id == self.client.user:
+    def __init__(self, request, client):
+        super().__init__(request, client)
+        if self.request.page_id == self.client.user:
             self.permission = 'view own user info'
 
     def process_content(self):
         (user_id, username, email, first_name, middle_name, last_name, date_created) = users.get_single_user(
-            self.url.page_id)
+            self.request.page_id)
         return ContainerElement(
             TableElement(
                 ['UID', str(user_id)],

@@ -1,6 +1,6 @@
 import sys
 
-from core.handlers.base import WebObject, TemplateBasedContentCompiler
+from core.handlers.base import ContentCompiler, TemplateBasedContentCompiler
 from modules.comp.html_elements import Stylesheet, Script, LinkElement, ContainerElement
 from util.config import read_config
 
@@ -8,9 +8,9 @@ from util.config import read_config
 __author__ = 'justusadam'
 
 
-class Page(WebObject):
-    def __init__(self, url, client):
-        super().__init__(url)
+class Page(ContentCompiler):
+    def __init__(self, request, client):
+        super().__init__(request)
         self._client = client
         self.page_type = None
         self.content_type = 'text/html'
@@ -28,8 +28,8 @@ class Page(WebObject):
 class TemplateBasedPage(Page, TemplateBasedContentCompiler):
     template_name = 'page'
 
-    def __init__(self, url, client):
-        super().__init__(url, client)
+    def __init__(self, request, client):
+        super().__init__(request, client)
         self.module_config = read_config(self._get_config_folder() + '/config.json')
         if 'active_theme' in self.module_config:
             self._theme = self.module_config['active_theme']
@@ -75,8 +75,8 @@ class TemplateBasedPage(Page, TemplateBasedContentCompiler):
         return '>>'
 
     def breacrumbs(self):
-        for i in range(len(self.url.path)):
-            yield self.url.path[i], self.url.path.prt_to_str(0, i + 1)
+        for i in range(len(self.request.path)):
+            yield self.request.path[i], self.request.path.prt_to_str(0, i + 1)
 
     def render_breadcrumbs(self):
         acc = []

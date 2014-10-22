@@ -43,8 +43,8 @@ def try_database_connection():
 
 
 class SetupHandler(TemplateBasedPage, RedirectMixIn):
-    def __init__(self, url):
-        super().__init__(url, None)
+    def __init__(self, request):
+        super().__init__(request, None)
 
     def _fill_template(self):
         config = read_config('cms/config')
@@ -137,32 +137,32 @@ class SetupHandler(TemplateBasedPage, RedirectMixIn):
             'sidebar_left': '<div class="sidebar" style="height: 1px;"></div>',
             'pagetitle': 'Setting up your CMS installation'
         }
-        self._template.update(setup_pages[self._url.page_id])
+        self._template.update(setup_pages[self._request.page_id])
 
         self._template.update(generic)
         message = ''
-        if self._url.page_id == 2:
+        if self._request.page_id == 2:
             db = Database()
             self._template['content'] = self._template['content'].format(db_con=try_database_connection())
             del db
-        if self._url.page_id == 4:
+        if self._request.page_id == 4:
             db = Database()
             db.connect()
             setup_result = self.setup_wrapper()
             self._template['content'] = self._template['content'].format(**setup_result)
             self._template['title'] = self._template['title'].format(**setup_result)
             del db
-        elif self._url.page_id == 5:
-            handler = InitialUser(self._url, None)
+        elif self._request.page_id == 5:
+            handler = InitialUser(self._request, None)
             handler.destination = '/setup/6'
             content = handler.compiled
             self._template['content'] = self._template['content'].format(user_form=content.content)
-        elif self._url.page_id == 6:
+        elif self._request.page_id == 6:
             config['setup'] = False
             write_config(config, 'cms/config.json')
             self.redirect('/iris/1')
-        self._template['content'] = self._template['content'].format(this=self._url.path,
-                                                                     next_page=self._url.page_id + 1,
+        self._template['content'] = self._template['content'].format(this=self._request.path,
+                                                                     next_page=self._request.page_id + 1,
                                                                      message=message)
         super()._fill_template()
 

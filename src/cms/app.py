@@ -6,6 +6,7 @@ from core.module_operations import register_installed_modules
 from backend.database import Database
 from backend.connector import Connector
 from modules.comp.page_handler import BasicHandler
+from core.urlparser import RequestMapper
 
 
 __author__ = 'justusadam'
@@ -24,11 +25,21 @@ class MainApp(Application):
         self.run_http_server_loop()
 
     def run_http_server_loop(self):
+        self.http_request_parser = RequestMapper(self.shell['database'])
         server_address = (self.config.server_arguments['host'], self.config.server_arguments['port'])
-        httpd = self.config.server_class(server_address, self.handle_http_request)
+        httpd = self.config.server_class(server_address, self.legacy_handle_http_request)
         httpd.serve_forever()
 
     def handle_http_request(self, *args):
+        def callback(url, post, client):
+            request = self.http_request_parser(url, post)
+            request.client = client
+            document = self.process_request(request)
+            return document
+
+        return self.config.http_request_handler(callback, *args)
+
+    def legacy_handle_http_request(self, *args):
         def http_callback(url, client):
             return BasicHandler(url, client)
 
@@ -51,4 +62,10 @@ class MainApp(Application):
         os.chdir(self.config.basedir)
 
     def process_request(self, request):
+        return self.decorate_response(self.create_view(request))
+
+    def create_view(self, request):
+        pass
+
+    def decorate_response(self, response):
         pass

@@ -1,11 +1,11 @@
-from core.handlers.base import ContentCompiler
+from core.handlers.base import AbstractContentCompiler
 from modules.comp.html_elements import ContainerElement
 from modules.comp.page import Component
 
 __author__ = 'justusadam'
 
 
-class Field(ContentCompiler):
+class Field(AbstractContentCompiler):
     _query = {}
     db_ops = None
 

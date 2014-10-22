@@ -7,7 +7,7 @@ __author__ = 'justusadam'
 ADMIN_PATH = '/admin'
 
 
-class Overview(handlers.base.ContentCompiler):
+class Overview(handlers.base.AbstractContentCompiler):
     classes = {'admin-menu', 'overview'}
 
     def __init__(self):
@@ -56,8 +56,8 @@ class Overview(handlers.base.ContentCompiler):
 class OverviewPage(handlers.content.Content, Overview):
     permission = 'access admin pages'
 
-    def __init__(self, url, client):
-        super().__init__(url, client)
+    def __init__(self, request, client):
+        super().__init__(request, client)
         Overview.__init__(self)
         self.classes = {'admin-menu', 'overview', 'admin-page'}
 
@@ -85,21 +85,21 @@ class CategoryPage(OverviewPage):
     classes = {'admin-menu', 'category'}
 
     def base_path(self):
-        return self.url.path.prt_to_str(0, -1)
+        return self.request.path.prt_to_str(0, -1)
 
     def get_parents_data(self):
-        return self.ops.get_categories(self.url.tail[0])
+        return self.ops.get_categories(self.request.tail[0])
 
     def get_children_data(self):
-        return self.ops.get_subcategories(self.url.tail[0])
+        return self.ops.get_subcategories(self.request.tail[0])
 
 
 class SubcategoryPage(CategoryPage):
     classes = {'admin-menu', 'subcategory'}
 
-    def __init__(self, url, client):
-        super().__init__(url, client)
-        self.name = self.url.tail[1]
+    def __init__(self, request, client):
+        super().__init__(request, client)
+        self.name = self.request.tail[1]
 
     def get_parents_data(self):
         return self.ops.get_subcategories_info(self.name)

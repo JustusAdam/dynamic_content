@@ -75,10 +75,10 @@ class CreateUser(Content, RedirectMixIn):
             self.message, self.user_form())
 
     def target_url(self):
-        if 'destination' in self.url.get_query:
-            target_url = str(self.url)
+        if 'destination' in self.request.get_query:
+            target_url = str(self.request)
         else:
-            target_url = str(self.url) + '?destination=' + self.destination + ''
+            target_url = str(self.request) + '?destination=' + self.destination + ''
         return target_url
 
     def user_form(self, **kwargs):
@@ -97,17 +97,17 @@ class CreateUser(Content, RedirectMixIn):
             ), action=self.target_url(), element_id='admin_form'
         )
 
-    def _process_post(self):
-        if 'password' in self.url.post:
-            if self.url.post['confirm-password'] != self.url.post['password']:
+    def _process_query(self):
+        if 'password' in self.request.post:
+            if self.request.post['confirm-password'] != self.request.post['password']:
                 self.message = ContainerElement('Your passwords did not match.', classes='alert')
                 return
         args = dict()
         for key in ['username', 'password', 'email', 'last_name', 'first_name', 'middle_name']:
-            if key in self.url.post:
-                args[key] = self.url.post[key][0]
+            if key in self.request.post:
+                args[key] = self.request.post[key][0]
         self.action(**args)
-        self.redirect(str(self.url.path))
+        self.redirect(str(self.request.path))
 
 
     def action(self, **kwargs):
@@ -120,11 +120,11 @@ class EditUser(CreateUser):
     message = ''
 
     def action(self, **kwargs):
-        users.edit_user(self.url.page_id, **kwargs)
+        users.edit_user(self.request.page_id, **kwargs)
 
     def user_form(self, **kwargs):
         (user_id, username, email, first_name, middle_name, last_name, date_created) = users.get_single_user(
-            self.url.page_id)
+            self.request.page_id)
         return super().user_form(user_id=user_id,
                                  username=username,
                                  email=email,
@@ -139,8 +139,8 @@ class UsersOverview(Content):
     permission = 'access users overview'
 
     def process_content(self):
-        if 'selection' in self.url.get_query:
-            selection = self.url.get_query['selection'][0]
+        if 'selection' in self.request.get_query:
+            selection = self.request.get_query['selection'][0]
         else:
             selection = '0,50'
         all_users = users.get_info(selection)
@@ -231,15 +231,15 @@ class EditPermissions(PermissionOverview):
 
     def permission_table(self):
         return SecureForm(
-            TableElement(*self.compile_the_list()), action=str(self.url.path)
+            TableElement(*self.compile_the_list()), action=str(self.request.path)
         )
 
     def checkbox(self, value, name):
         return Checkbox(name=name, value=name, checked=value)
 
-    def _process_post(self):
+    def _process_query(self):
         new_perm = []
-        for item in self.url.post:
+        for item in self.request.post:
             m = re.fullmatch(permission_structure, item)
             if m:
                 g = m.groups()
