@@ -1,14 +1,7 @@
+from application.fragments import AppFragment
 from .config import ApplicationConfig
 
 __author__ = 'justusadam'
-
-
-class AppFragment(object):
-    def __init__(self, config):
-        self.config = config
-
-    def setup_fragment(self):
-        pass
 
 
 class Application(AppFragment):

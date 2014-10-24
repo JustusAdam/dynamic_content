@@ -1,6 +1,6 @@
-from application.app import AppFragment
 from application.config import ModuleConfig
 from .admin_actions import CreateUser, UsersOverview, factory, PermissionOverview, EditPermissions
+from application.fragments import AppFragment
 from .login import LoginHandler, LoginCommonHandler, LogoutHandler, login_prefix, logout_prefix
 from . import user_information
 

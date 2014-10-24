@@ -1,5 +1,5 @@
-from application.app import AppFragment
 from application.config import ModuleConfig
+from application.fragments import AppFragment
 from core.urlparser import Parser
 from core.modules import Modules
 from .admin_pages import *

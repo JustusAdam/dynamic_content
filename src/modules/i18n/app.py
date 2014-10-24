@@ -1,5 +1,5 @@
 from application.config import ModuleConfig
-from application.app import AppFragment
+from application.fragments import AppFragment
 from .database_operations import DisplayNamesOperations
 
 __author__ = 'justusadam'

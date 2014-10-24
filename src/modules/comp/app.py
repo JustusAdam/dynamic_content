@@ -1,4 +1,4 @@
-from application.app import AppFragment
+from application.fragments import AppFragment
 from modules.comp import database_operations as dbo
 
 __author__ = 'justusadam'

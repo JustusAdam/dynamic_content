@@ -1,5 +1,5 @@
-from application.app import AppFragment
 from application.config import ModuleConfig
+from application.fragments import AppFragment
 from .content_handler import FieldBasedPageContent, EditFieldBasedContent, AddFieldBasedContentHandler
 from .field import *
 from . import database_operations as dbo

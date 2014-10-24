@@ -1,6 +1,6 @@
-from application.app import AppFragment
 from application.config import ModuleConfig
 from . import tokens
+from application.fragments import AppFragment
 
 __author__ = 'justusadam'
 

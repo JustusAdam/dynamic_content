@@ -1,4 +1,4 @@
-from application.app import AppFragment
+from application.fragments import AppFragment
 from .commons import TextCommons
 from modules.commons.menus import Handler
 
