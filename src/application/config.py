@@ -9,14 +9,18 @@ class ApplicationConfig:
 
 
 class ModuleConfig:
+    """
+    Amongst other things this class holds all important connections, such as a connection to the base application.
+    """
     hooks = {}
 
-    def __init__(self, ar_connection):
+    def __init__(self, base_app, ar_connection):
         self.ar_connection = ar_connection
+        self.base_app = base_app
 
 class JsonBasedConfig(object):
     _path = ''
-    __restricted_keys = ['__restricted_keys', '_path']
+    __restricted_keys = ['__restricted_keys', '_path', 'ar_connection', 'base_app', 'reset', 'hooks']
 
     def __init__(self):
         """

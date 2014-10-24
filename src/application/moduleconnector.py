@@ -22,6 +22,15 @@ class Modules(dict):
         dict.__setitem__(self, key, value)
         self.updated = True
 
+    def __getitem__(self, item):
+        return super()[item].module
+
+    def get_connector(self, item):
+        return super()[item]
+
+    def get_config(self, item):
+        return super()[item].moduleconf
+
     @property
     def hooks(self):
         if not self._hooks or self.updated:
