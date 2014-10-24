@@ -8,13 +8,14 @@ from util.config import read_config
 __author__ = 'justusadam'
 
 
-class Page(ContentCompiler):
-    def __init__(self, request, client):
+class Decorator(ContentCompiler):
+    def __init__(self, request, client, content):
         super().__init__(request)
         self._client = client
         self.page_type = None
         self.content_type = 'text/html'
         self.encoding = sys.getfilesystemencoding()
+        self.content = content
 
     @property
     def encoded(self):
@@ -25,11 +26,11 @@ class Page(ContentCompiler):
         return self._client
 
 
-class TemplateBasedPage(Page, TemplateBasedContentCompiler):
+class TemplateBasedDecorator(Decorator, TemplateBasedContentCompiler):
     template_name = 'page'
 
-    def __init__(self, request, client):
-        super().__init__(request, client)
+    def __init__(self, request, client, content):
+        super().__init__(request, client, content)
         self.module_config = read_config(self._get_config_folder() + '/config.json')
         if 'active_theme' in self.module_config:
             self._theme = self.module_config['active_theme']

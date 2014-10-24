@@ -16,8 +16,8 @@ class RequestMapper(dict):
 
     Calling this class always returns he parser, called with the full, original path, query and post query
     """
-    def __init__(self, ar_table):
-        self.ar_table = ar_table
+    def __init__(self, storage):
+        self.ar_table = storage.table('content_handlers')
         super().__init__()
 
     def register(self, name, parser):
@@ -30,7 +30,7 @@ class RequestMapper(dict):
 
     def __getitem__(self, item):
         if not item in self:
-            return dict.__getitem__(self, self.ar_table[item])
+            return dict.__getitem__(self, self.storage_resolve(item))
         else:
             return dict.__getitem__(self, item)
 
@@ -41,6 +41,10 @@ class RequestMapper(dict):
         (address, network_location, path, query, fragment) = p.urlsplit(url)
         path = path.split('/')
         return self[path[1]](path, query, post)
+
+    def storage_resolve(self, name):
+        row = self.ar_table.row(path_prefix=name)
+        return row['handler_name']
 
 
 class Parser:

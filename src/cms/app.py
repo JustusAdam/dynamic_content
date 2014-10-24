@@ -1,11 +1,11 @@
 import os
 
 from application.app import Application
-from backend.ar.base import VirtualStorage
+from backend.ar.base import VirtualDatabase
 from core.module_operations import ModuleController
 from backend.database import Database
 from backend.connector import Connector
-from modules.comp.page_handler import BasicHandler
+from modules.comp.decorator import Decorator
 from core.urlparser import RequestMapper
 from application.moduleconnector import Modules
 
@@ -35,9 +35,9 @@ class MainApp(Application):
         self.run_http_server_loop()
 
     def run_http_server_loop(self):
-        self.http_request_parser = RequestMapper(self.shell['v_storage'])
+        self.http_request_parser = RequestMapper(self.shell['v_storage'].connection)
         server_address = (self.config.server_arguments['host'], self.config.server_arguments['port'])
-        httpd = self.config.server_class(server_address, self.legacy_handle_http_request)
+        httpd = self.config.server_class(server_address, self.handle_http_request)
         httpd.serve_forever()
 
     def handle_http_request(self, *args):
@@ -51,7 +51,7 @@ class MainApp(Application):
 
     def legacy_handle_http_request(self, *args):
         def http_callback(url, client):
-            return BasicHandler(url, client)
+            return Decorator(url, client, '')
 
         return self.config.http_request_handler(http_callback, *args)
 
@@ -69,7 +69,7 @@ class MainApp(Application):
 
     def load_ar_database(self):
         db = Database()
-        ar = VirtualStorage(db)
+        ar = VirtualDatabase(db)
         self.load_external('v_storage', ar)
 
     def set_working_directory(self):
@@ -82,4 +82,4 @@ class MainApp(Application):
         pass
 
     def decorate_response(self, response):
-        pass
+        return self.modules['comp'].basic_decorator(response)

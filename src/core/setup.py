@@ -5,7 +5,7 @@ Currently uses the framework to dynamically create elements, once the basic site
 and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
 """
 from core import Modules
-from core.handlers.page import TemplateBasedPage
+from core.handlers.decorator import TemplateBasedDecorator
 from core.handlers.base import RedirectMixIn
 from backend.database import DatabaseError, Database
 from . import module_operations
@@ -42,9 +42,9 @@ def try_database_connection():
             'reload this page', html_type='p')
 
 
-class SetupHandler(TemplateBasedPage, RedirectMixIn):
-    def __init__(self, request):
-        super().__init__(request, None)
+class SetupHandler(TemplateBasedDecorator, RedirectMixIn):
+    def __init__(self, request, client, content):
+        super().__init__(request, None, '')
 
     def _fill_template(self):
         config = read_config('cms/config')

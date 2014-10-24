@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import quote_plus
 import mimetypes
 
-from core.handlers.page import Page, TemplateBasedPage
+from core.handlers.decorator import Decorator, TemplateBasedDecorator
 from core.handlers.base import RedirectMixIn
 from includes import bootstrap
 from modules.comp.html_elements import ContainerElement, List
@@ -19,9 +19,9 @@ __author__ = 'justusadam'
 _template_path = 'themes/default_theme/template/page.html'
 
 
-class PathHandler(Page, RedirectMixIn):
-    def __init__(self, request):
-        super().__init__(request, None)
+class PathHandler(RedirectMixIn):
+    def __init__(self, url):
+        super().__init__(url)
         self.page_type = 'file'
         self._document = ''
 
@@ -68,7 +68,7 @@ class PathHandler(Page, RedirectMixIn):
             self.request.path.trailing_slash = True
             self.redirect(str(self.request))
         else:
-            return DirectoryHandler(self.request, self._client, directory).encoded
+            return DirectoryHandler(self.request)
 
     def serve_file(self, file):
         if self.request.path.trailing_slash:
@@ -78,9 +78,8 @@ class PathHandler(Page, RedirectMixIn):
         return file.open('rb').read()
 
 
-class DirectoryHandler(TemplateBasedPage):
-    def __init__(self, request, client, real_dir):
-        super().__init__(request, client)
+class DirectoryHandler:
+    def __init__(self, real_dir):
         if not isinstance(real_dir, Path):
             Path(real_dir)
         self.directory = real_dir
@@ -93,13 +92,8 @@ class DirectoryHandler(TemplateBasedPage):
     def _render_file_list(self):
         return List(
             *[ContainerElement(
-                str(a.name), html_type='a', additionals={'href': str(self.request.path) + quote_plus(str(a.name), )},
+                str(a.name), html_type='a', additionals={'href': str(self.directory) + '/' + quote_plus(str(a.name), )},
                 classes={'file-link'}
             ) for a in self._files()
             ], classes={'directory-index'}, item_classes={'directory-content'}
         )
-
-    def _fill_template(self):
-        self._template['title'] = self.directory.name
-        self._template['content'] = self._render_file_list()
-        super()._fill_template()

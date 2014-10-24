@@ -1,7 +1,7 @@
-from core.handlers.page import TemplateBasedPage
+from core.handlers.decorator import TemplateBasedDecorator
 
 __author__ = 'justusadam'
 
 
-class DirectoryMusicPage(TemplateBasedPage):
+class DirectoryMusicPage(TemplateBasedDecorator):
     pass

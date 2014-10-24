@@ -54,15 +54,12 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         # construct Url object from path for accessibility
         url = Url(self.path, post_query)
-        if not form.validation_hook(url):
-            self.send_error(403)
-            return 0
 
         return self.do_any(url)
 
     def do_GET(self):
         # construct Url object from path for accessibility
-        url = Url(self.path, False)
+        url = Url(self.path, None)
         return self.do_any(url)
 
     def do_any(self, url):
@@ -175,11 +172,11 @@ class RequestHandler(BaseHTTPRequestHandler):
         if len(url.path) == 0:
             raise HTTPError(str(url), 404, None, None, None)
 
-        return self.callback(url, client_info)
+        return self.callback(str(url), url.post, client_info)
 
     def start_setup(self, url):
         if not read_config('cms/config.json')['setup']:
             raise HTTPError(str(url), 403, 'Request disabled via server config', None, None)
         from core.setup import SetupHandler
 
-        return SetupHandler(url)
+        return SetupHandler(url, '', '')
