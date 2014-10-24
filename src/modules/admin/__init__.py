@@ -1,3 +1,4 @@
+from modules.admin.app import AdminApp
 from modules.admin.database_operations import AdminOperations
 from modules.admin.admin_pages import OverviewPage, CategoryPage, SubcategoryPage, OverviewCommon
 from core import Modules
@@ -5,6 +6,9 @@ from core import Modules
 __author__ = 'justusadam'
 
 name = 'admin'
+
+
+module_class = AdminApp
 
 
 def content_handler(url):

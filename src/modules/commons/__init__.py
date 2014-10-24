@@ -1,12 +1,15 @@
 from .commons import TextCommons
 from . import database_operations as dbo
 from modules.commons.menus import Handler
+from .app import CommonsApp
 
 __author__ = 'justusadam'
 
 name = 'commons_engine'
 
 role = 'block_manager'
+
+module_class = CommonsApp
 
 
 def common_handler(item_type):

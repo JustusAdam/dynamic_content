@@ -64,8 +64,8 @@ class Parser(tuple):
         super().__init__(item_list)
 
     def _parse(self, path, query, post):
-        if not hasattr(self, 'url') or not hasattr(self, 'post'):
-            raise UninitializedValueError
+        if path[0] == '':
+            path = path[1:]
 
         mapping = dict(zip(self, path))
 

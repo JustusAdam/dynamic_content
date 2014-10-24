@@ -13,7 +13,7 @@ class Modules(dict):
         self.ignore_module_overwrite = ignore_overwrite
 
     def __setitem__(self, key, value):
-        assert isinstance(value, Module)
+        assert isinstance(value, ModuleConnector)
         assert isinstance(key, str)
         if key in self:
             log.write_warning(segment='Modules', message='overwriting registered module ' + key)
@@ -32,7 +32,7 @@ class Modules(dict):
         pass
 
 
-class Module(callable):
+class ModuleConnector(callable):
     def __init__(self, moduleconf, module):
         assert isinstance(moduleconf, ModuleConfig)
         self.config = moduleconf
