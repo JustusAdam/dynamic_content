@@ -1,4 +1,4 @@
-from util.config import read_config, write_config
+from util.config import read_config
 from errors.exceptions import InvalidInputError
 
 __author__ = 'justusadam'
@@ -10,6 +10,9 @@ class ApplicationConfig:
 
 class ModuleConfig:
     hooks = {}
+
+    def __init__(self, ar_connection):
+        self.ar_connection = ar_connection
 
 class JsonBasedConfig(object):
     _path = ''

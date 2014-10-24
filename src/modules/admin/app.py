@@ -1,4 +1,5 @@
 from application.app import AppFragment
+from application.config import ModuleConfig
 from core.urlparser import Parser
 from core.modules import Modules
 from .admin_pages import *
@@ -12,7 +13,8 @@ class AdminApp(AppFragment):
         'menu': OverviewCommon
     }
 
-    def __init__(self):
+    def __init__(self, config):
+        super().__init__(config)
         self.modules = Modules()
         self.url_parser = Parser('target', 'category', 'subcategory', 'page')
         self.ar_conn = AdminOperations()
@@ -46,3 +48,7 @@ class AdminApp(AppFragment):
         from core.database_operations import ContentHandlers
 
         ContentHandlers().add_new('admin', 'admin', 'admin')
+
+
+class AdminAppConfig(ModuleConfig):
+    pass

@@ -1,17 +1,9 @@
-from .database_operations import FormOperations
-from . import tokens
+from .app import FormApp, FormConfig
 
 
 __author__ = 'justusadam'
 
 
-def prepare():
-    fo = FormOperations()
-    fo.init_tables()
+module_class = FormApp
 
-
-def validation_hook(url):
-    if 'form_token' in url.post:
-        print(str(url.get_query))
-        return tokens.validate(str(url), url.post['form_token'][0])
-    return True
+default_config = FormConfig
