@@ -43,7 +43,7 @@ class RequestMapper(dict):
         return self[path[1]](path, query, post)
 
 
-class Parser(tuple):
+class Parser:
     """
     Url parser class.
 
@@ -54,20 +54,20 @@ class Parser(tuple):
 
     If they clash, an error is thrown
 
-    If you want the arguments of the query or url to receive custom treating, create a subclass of this class and
+    If you want the arguments of the query or url to receive custom treatment, create a subclass of this class and
     add a method called _process_{your attribute name} it will be called INSTEAD of setattr()
     """
     def __init__(self, *item_list):
         for item in item_list:
             if not isinstance(item, str):
                 raise InvalidInputError
-        super().__init__(item_list)
+        self._pathargs = tuple(item_list)
 
     def _parse(self, path, query, post):
         if path[0] == '':
             path = path[1:]
 
-        mapping = dict(zip(self, path))
+        mapping = dict(zip(self._pathargs, path))
 
         if not isinstance(query, dict):
             query = p.parse_qs(query)

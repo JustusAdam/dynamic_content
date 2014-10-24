@@ -1,8 +1,9 @@
 from application.config import ModuleConfig
-from .admin_actions import CreateUser, UsersOverview, factory, PermissionOverview, EditPermissions
+from .admin_actions import CreateUser, UsersOverview, PermissionOverview, EditPermissions, EditUser
 from application.fragments import AppFragment
 from .login import LoginHandler, LoginCommonHandler, LogoutHandler, login_prefix, logout_prefix
 from . import user_information
+from modules.users.user_information import UserInformation
 
 __author__ = 'justusadam'
 
@@ -23,8 +24,7 @@ class Users(AppFragment):
     }
     content_handlers = {
         login_prefix: LoginHandler,
-        logout_prefix: LogoutHandler,
-        'users': factory(url)
+        logout_prefix: LogoutHandler
     }
     common_handlers = {
         login_prefix: LoginCommonHandler,
@@ -35,6 +35,17 @@ class Users(AppFragment):
         return self.admin_handlers[h_name]
 
     def content_handler(self, url):
+        if url.page_type == 'users':
+            if url.page_id == 0:
+                if url.page_modifier == 'new':
+                    return CreateUser
+                return UsersOverview
+            handlers = {
+                'edit': EditUser,
+                'overview': UsersOverview,
+                'show': UserInformation
+            }
+            return handlers[url.page_modifier]
         return self.content_handlers[url.page_type]
 
     def common_handler(self, item_type):

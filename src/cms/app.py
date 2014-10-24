@@ -1,31 +1,41 @@
 import os
 
 from application.app import Application
-from core.modules import Modules
-from core.module_operations import register_installed_modules
+from backend.ar.base import VirtualStorage
+from core.module_operations import ModuleController
 from backend.database import Database
 from backend.connector import Connector
 from modules.comp.page_handler import BasicHandler
 from core.urlparser import RequestMapper
+from application.moduleconnector import Modules
+
 
 
 __author__ = 'justusadam'
 
 
 class MainApp(Application):
+    _module_controller = None
+
     def __init__(self, config):
         super().__init__(config)
 
+    @property
+    def module_controller(self):
+        if not self._module_controller:
+            self._module_controller = ModuleController(self, self.shell['v_storage'].connection)
+        return self._module_controller
+
     def load(self):
+        self.load_ar_database()
         self.register_modules()
         self.load_modules()
-        self.load_database()
 
     def run(self):
         self.run_http_server_loop()
 
     def run_http_server_loop(self):
-        self.http_request_parser = RequestMapper(self.shell['database'])
+        self.http_request_parser = RequestMapper(self.shell['v_storage'])
         server_address = (self.config.server_arguments['host'], self.config.server_arguments['port'])
         httpd = self.config.server_class(server_address, self.legacy_handle_http_request)
         httpd.serve_forever()
@@ -46,17 +56,21 @@ class MainApp(Application):
         return self.config.http_request_handler(http_callback, *args)
 
     def register_modules(self):
-        register_installed_modules()
+        self.module_controller.register_installed_modules()
 
     def load_modules(self):
-        self.modules = Modules()
-        self.modules.reload()
+        wrapper = Modules(ignore_overwrite=False)
+        for name, _class in self.module_controller.load_modules():
+            wrapper[name] = _class
+        self.modules = wrapper
 
     def load_external(self, name, connection):
         self.shell[name] = Connector(name, connection)
 
-    def load_database(self):
-        self.load_external('database', Database())
+    def load_ar_database(self):
+        db = Database()
+        ar = VirtualStorage(db)
+        self.load_external('v_storage', ar)
 
     def set_working_directory(self):
         os.chdir(self.config.basedir)

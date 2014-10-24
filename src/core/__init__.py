@@ -1,6 +1,5 @@
 __author__ = 'justusadam'
 
-from .module_operations import register_installed_modules
 from .modules import Modules
 from . import database_operations as dbo
 

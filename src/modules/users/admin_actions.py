@@ -3,7 +3,6 @@ from core.handlers.base import RedirectMixIn
 from modules.comp.html_elements import TableElement, Input, ContainerElement, Label, Checkbox
 from . import users
 from modules.form.secure import SecureForm
-from modules.users.user_information import UserInformation
 import re
 import copy
 
@@ -36,19 +35,6 @@ _edit_user_table_order = [
     ('Password', 'password'),
     ('Confirm Password', 'confirm-password')
 ]
-
-
-def factory(url):
-    if url.page_id == 0:
-        if url.page_modifier == 'new':
-            return CreateUser
-        return UsersOverview
-    handlers = {
-        'edit': EditUser,
-        'overview': UsersOverview,
-        'show': UserInformation
-    }
-    return handlers[url.page_modifier]
 
 
 def split_list(l, func):

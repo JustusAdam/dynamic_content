@@ -14,9 +14,10 @@ class ModuleConfig:
     """
     hooks = {}
 
-    def __init__(self, base_app, ar_connection):
-        self.ar_connection = ar_connection
+    def __init__(self, base_app, storage):
+        self.storage = storage
         self.base_app = base_app
+
 
 class JsonBasedConfig(object):
     _path = ''

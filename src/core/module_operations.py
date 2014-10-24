@@ -1,10 +1,11 @@
 from importlib import import_module
 from pathlib import Path
+from application.fragments import AppFragment
 
 from core import database_operations
-from util.config import read_config
 from backend.database import DatabaseError
 from includes import bootstrap
+from application.config import ModuleConfig
 
 
 __author__ = 'justusadam'
@@ -22,31 +23,86 @@ class ModuleNotFoundError(ModuleError):
         return 'ModuleNotFoundError, module ' + self.module_name + ' could not be found in the Database'
 
 
-def activate_module(module_name):
-    print('Activating module: ' + module_name)
-    if is_active(module_name):
-        print('Module ' + module_name + ' is already active.')
+class ModuleController:
+    def __init__(self, app, storage):
+        self.base_app = app
+        self.storage = storage
+
+    def activate_module(self, module_name):
+        print('Activating module: ' + module_name)
+        if is_active(module_name):
+            print('Module ' + module_name + ' is already active.')
+            return True
+        path = get_module_path(module_name)
+
+        if path is None:
+            print('Module ' + module_name + ' could not be activated')
+            return False
+        module = import_module(path.replace('/', '.'))
+
+        return self._activate_module(module_name, module)
+
+
+    def _activate_module(self, module_name, module):
+        try:
+            self.init_module(module)
+        except DatabaseError as error:
+            print(error)
+            return False
+
+        _set_module_active(module_name)
         return True
-    path = get_module_path(module_name)
 
-    if path is None:
-        print('Module ' + module_name + ' could not be activated')
-        return False
-    module_conf = read_config(path + '/config.json')
-    module_conf['path'] = path
+    def init_module(self, module):
+        try:
+            module.module_class(ModuleConfig(self.config.base_app, self.config.storage))
+            module.setup_fragment()
+        except ModuleError as error:
+            print(error)
+            print('it seems no setup_fragment() method could be found')
 
-    return _activate_module(module_conf)
+    def load_modules(self):
+        modules = get_active_modules()
+        for m in modules:
+            if not hasattr(modules[m], 'module_class'):
+                continue
+            if hasattr(modules[m], 'default_config'):
+                conf = modules[m].default_config(self, self.storage)
+            else:
+                conf = ModuleConfig(self, self.storage)
+            yield m, modules[m].module_class(conf)
 
+    def register_installed_modules(self):
+        self.register_modules(self.discover_modules())
 
-def _activate_module(module_conf):
-    try:
-        init_module(module_conf['path'])
-    except DatabaseError as error:
-        print(error)
-        return False
+    def discover_modules(self):
+        filename = '__init__.py'
+        accumulator = []
+        for directory in bootstrap.MODULES_DIRECTORIES + bootstrap.COREMODULES_DIRECTORIES:
+            for file in Path(directory).iterdir():
+                if file.is_dir():
+                    configpath = file / filename
+                    if configpath.exists():
+                        accumulator.append(file)
+        return accumulator
 
-    _set_module_active(module_conf['name'])
-    return True
+    def register_modules(self, r_modules):
+        if isinstance(r_modules, (list, tuple)):
+            for module in r_modules:
+                self.register_single_module(module)
+        else:
+            self.register_single_module(r_modules)
+
+    def register_single_module(self, module):
+        assert isinstance(module, Path)
+        print('registering module ' + module.name)
+        db_op = database_operations.ModuleOperations()
+        try:
+            path = db_op.get_path(module.name)
+            if path[0] != module.name:
+                db_op.update_path(module.name, str(module))
+        except (DatabaseError, TypeError):
+            db_op.add_module(module.name, str(module), 'deprecated')
 
 
 def register_content_handler(module_conf):
@@ -66,15 +122,6 @@ def get_module_id(module_name):
     return database_operations.ModuleOperations().get_id(module_name)
 
 
-def init_module(module_path):
-    module = import_module(module_path.replace('/', '.'))
-    try:
-        module.prepare()
-    except ModuleError as error:
-        print(error)
-        print('it seems no prepare() method could be found')
-
-
 def get_module_path(module):
     return database_operations.ModuleOperations().get_path(module)
 
@@ -90,46 +137,6 @@ def is_active(module_name):
         return False
     return result == 1
 
-
-def register_installed_modules():
-    register_modules(discover_modules())
-
-
-def discover_modules():
-    filename = bootstrap.MODULE_CONFIG_NAME
-    accumulator = []
-    for directory in bootstrap.MODULES_DIRECTORIES + bootstrap.COREMODULES_DIRECTORIES:
-        for file in Path(directory).iterdir():
-            if file.is_dir():
-                configpath = file / filename
-                if configpath.exists():
-                    info = read_config(str(configpath))
-                    if check_info(info):
-                        info['path'] = str(file)
-                        accumulator.append(info)
-    return accumulator
-
-
-def register_modules(r_modules):
-    if isinstance(r_modules, (list, tuple)):
-        for module in r_modules:
-            register_single_module(module)
-    else:
-        register_single_module(r_modules)
-
-
-def register_single_module(moduleconf):
-    assert isinstance(moduleconf, dict)
-    print('registering module ' + moduleconf['name'])
-    db_op = database_operations.ModuleOperations()
-    try:
-        path = db_op.get_path(moduleconf['name'])
-        if path[0] != moduleconf['path']:
-            db_op.update_path(moduleconf['name'], moduleconf['path'])
-    except (DatabaseError, TypeError):
-        db_op.add_module(moduleconf['name'], moduleconf['path'], moduleconf['role'])
-
-
 def check_info(info):
     keys = info.keys()
     necessary_attributes = bootstrap.NECESSARY_MODULE_ATTRIBUTES
@@ -144,5 +151,4 @@ def get_active_modules():
     for item in database_operations.ModuleOperations().get_enabled():
         print('loading module ' + item['name'])
         modules[item['name']] = import_module(item['path'].replace('/', '.'))
-
     return modules
