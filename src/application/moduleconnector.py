@@ -43,6 +43,7 @@ class Modules(dict):
                     else:
                         acc[i] = [self[item].hooks[i]]
         self._hooks = acc
+
 #
 #
 # class ModuleConnector(callable):

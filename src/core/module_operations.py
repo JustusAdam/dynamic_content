@@ -1,6 +1,5 @@
 from importlib import import_module
 from pathlib import Path
-from application.fragments import AppFragment
 
 from core import database_operations
 from backend.database import DatabaseError
@@ -55,7 +54,7 @@ class ModuleController:
 
     def init_module(self, module):
         try:
-            module.module_class(ModuleConfig(self.config.base_app, self.config.storage))
+            module.module_class(ModuleConfig(self.base_app, self.storage))
             module.setup_fragment()
         except ModuleError as error:
             print(error)

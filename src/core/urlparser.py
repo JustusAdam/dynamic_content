@@ -14,14 +14,21 @@ class RequestMapper(dict):
     If a path prefix is not found in this dictionary this class will ask an external AR connection for a mapping of that
     prefix to a parser. If none is found an error is raised.
 
-    Calling this class always returns he parser, called with the full, original path, query and post query
+    Calling this class always returns the parser, called with the full, original path, query and post query
     """
     def __init__(self, storage):
         self.ar_table = storage.table('content_handlers')
         super().__init__()
 
-    def register(self, name, parser):
-        self.__setitem__(name, parser)
+    def register(self, parser_or_list):
+        if isinstance(parser_or_list, Parser):
+            for i in parser_or_list.names:
+                self.__setitem__(i, parser_or_list)
+        elif hasattr(parser_or_list, '__iter__'):
+            for p in parser_or_list:
+                self.register(p)
+        else:
+            raise InvalidInputError
 
     def __setitem__(self, key, value):
         if not isinstance(key, str) or not isinstance(value, Parser):
@@ -61,11 +68,27 @@ class Parser:
     If you want the arguments of the query or url to receive custom treatment, create a subclass of this class and
     add a method called _process_{your attribute name} it will be called INSTEAD of setattr()
     """
-    def __init__(self, *item_list):
+    _names = []
+
+    def __init__(self, names, item_list):
+        self.names = names
         for item in item_list:
             if not isinstance(item, str):
                 raise InvalidInputError
         self._pathargs = tuple(item_list)
+
+    @property
+    def names(self):
+        return self._names
+
+    @names.setter
+    def names(self, value):
+        if isinstance(value, str):
+            self._names = [value]
+        elif hasattr(value, '__iter__'):
+            self._names = list(value)
+        else:
+            raise InvalidInputError
 
     def _parse(self, path, query, post):
         if path[0] == '':
@@ -75,9 +98,7 @@ class Parser:
 
         if not isinstance(query, dict):
             query = p.parse_qs(query)
-        if isinstance(post, dict):
-            post = post
-        else:
+        if not isinstance(post, dict):
             post = p.parse_qs(post)
 
         request = Request(path[1], *path[2:])

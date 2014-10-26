@@ -16,7 +16,7 @@ class AdminApp(AppFragment):
     def __init__(self, config):
         super().__init__(config)
         self.modules = Modules()
-        self.url_parser = Parser('target', 'category', 'subcategory', 'page')
+        self.url_parser = Parser('admin', ['target', 'category', 'subcategory', 'page'])
         self.ar_conn = AdminOperations()
 
     def handle_request(self, request):

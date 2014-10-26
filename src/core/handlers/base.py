@@ -2,11 +2,12 @@ from http import cookies
 from pathlib import Path
 import sys
 from urllib.error import HTTPError
+from core.request import Request
 
 from modules.comp.template import Template
 from util.config import read_config
 from modules.comp.page import Component
-from util.url import Url
+
 from errors.exceptions import InvalidInputError
 
 
@@ -14,12 +15,18 @@ __author__ = 'justusadam'
 
 
 class AbstractContentCompiler:
+    encoding = 'utf-8'
+
     @property
     def compiled(self):
         return ''
 
     def __str__(self):
         return str(self.compiled)
+
+    @property
+    def encoded(self):
+        return str(self.compiled).encode(self.encoding)
 
 
 class ContentCompiler(AbstractContentCompiler):
@@ -38,8 +45,8 @@ class ContentCompiler(AbstractContentCompiler):
 
     @request.setter
     def request(self, val):
-        if not isinstance(val, Url):
-            self._request = Url(val)
+        if not isinstance(val, Request):
+            raise InvalidInputError
         else:
             self._request = val
 
@@ -92,7 +99,6 @@ class ContentCompiler(AbstractContentCompiler):
         """
         This method gets called if there is a valid post query present.
 
-        Inheriting classes should overwrite this method rather than 'process_queries'.
         :return:
         """
         pass

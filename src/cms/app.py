@@ -6,16 +6,31 @@ from core.module_operations import ModuleController
 from backend.database import Database
 from backend.connector import Connector
 from modules.comp.decorator import Decorator
-from core.urlparser import RequestMapper
 from application.moduleconnector import Modules
+from core.urlparser import RequestMapper
 
 
 
 __author__ = 'justusadam'
 
 
+__http_request_parser_attribute_name = 'url_parser'
+
+
+def _assign_http_request_parsers(modules, parser_container):
+    assert isinstance(modules, dict)
+    assert isinstance(parser_container, RequestMapper)
+    for name in modules:
+        if hasattr(modules[name], __http_request_parser_attribute_name):
+            if getattr(modules[name], __http_request_parser_attribute_name):
+                parser_container.register(getattr(modules[name], __http_request_parser_attribute_name))
+    return parser_container
+
+
+
 class MainApp(Application):
     _module_controller = None
+    _url_parser = None
 
     def __init__(self, config):
         super().__init__(config)
@@ -26,16 +41,33 @@ class MainApp(Application):
             self._module_controller = ModuleController(self, self.shell['v_storage'].connection)
         return self._module_controller
 
+    @property
+    def http_request_parser(self):
+        if not self._url_parser:
+            self._url_parser = RequestMapper(self.shell['v_storage'].connection)
+        return self._url_parser
+
+    @http_request_parser.setter
+    def http_request_parser(self, value):
+        assert isinstance(value, RequestMapper)
+        self._url_parser = value
+
     def load(self):
         self.load_ar_database()
         self.register_modules()
         self.load_modules()
+        self.assign_request_handlers()
+
+    def assign_request_handlers(self):
+        self.assign_http_request_handlers()
+
+    def assign_http_request_handlers(self):
+        self.http_request_parser = _assign_http_request_parsers(self.modules, self.http_request_parser)
 
     def run(self):
         self.run_http_server_loop()
 
     def run_http_server_loop(self):
-        self.http_request_parser = RequestMapper(self.shell['v_storage'].connection)
         server_address = (self.config.server_arguments['host'], self.config.server_arguments['port'])
         httpd = self.config.server_class(server_address, self.handle_http_request)
         httpd.serve_forever()
@@ -57,6 +89,7 @@ class MainApp(Application):
 
     def register_modules(self):
         self.module_controller.register_installed_modules()
+
 
     def load_modules(self):
         wrapper = Modules(ignore_overwrite=False)

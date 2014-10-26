@@ -14,7 +14,6 @@ import traceback
 import copy
 
 from includes import bootstrap
-from core.handlers.file import PathHandler
 from util.url import Url
 from util.config import read_config
 from modules.users import client
@@ -164,8 +163,6 @@ class RequestHandler(BaseHTTPRequestHandler):
         if url.page_type == 'setup':
             self.check_path(url)
             return self.start_setup(url)
-        elif url.page_type in bootstrap.FILE_DIRECTORIES:
-            return PathHandler(url)
 
         self.check_path(url)
 
