@@ -91,8 +91,8 @@ class Parser:
             raise InvalidInputError
 
     def _parse(self, path, query, post):
-        if path[0] == '':
-            path = path[1:]
+
+        path = list(filter(lambda b: b != '', path))
 
         mapping = dict(zip(self._pathargs, path))
 
@@ -101,8 +101,8 @@ class Parser:
         if not isinstance(post, dict):
             post = p.parse_qs(post)
 
-        request = Request(path[1], *path[2:])
-        request.type = 'HTTP'
+        request = Request(*path)
+        request.request_type = 'HTTP'
         request.post = post
         request.get_query = query
         for a in [mapping, query, post]:
@@ -116,5 +116,6 @@ class Parser:
         for i in arguments:
             if hasattr(self, '_process_' + i):
                 getattr(self, '_process_' + i)(request, i, arguments[i])
-            setattr(request, i, arguments[i])
+            else:
+                setattr(request, i, arguments[i])
         return request

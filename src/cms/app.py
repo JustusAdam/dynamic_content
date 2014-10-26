@@ -57,6 +57,7 @@ class MainApp(Application):
         self.register_modules()
         self.load_modules()
         self.assign_request_handlers()
+        print('done')
 
     def assign_request_handlers(self):
         self.assign_http_request_handlers()
@@ -76,6 +77,7 @@ class MainApp(Application):
         def callback(url, post, client):
             request = self.http_request_parser(url, post)
             request.client = client
+            print(request)
             document = self.process_request(request)
             return document
 

@@ -38,4 +38,9 @@ class UninitializedValueError(DynamicContentError):
 
 
 class OverwriteProhibitedError(DynamicContentError):
-    pass
+    def __init__(self, attribute_or_key, value):
+        self.key = attribute_or_key
+        self.value = value
+
+    def __str__(self):
+        super().__str__() + '\n ({}, {})'.format(str(self.key), str(self.value))

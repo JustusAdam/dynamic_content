@@ -19,11 +19,13 @@ from util.config import read_config
 from modules.users import client
 from includes import log
 import core
-from modules import form
 from errors.exceptions import *
 
 
 __author__ = 'justusadam'
+
+
+catch_errors = False
 
 
 class RequestWrapper:
@@ -100,7 +102,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                 log.write_error('Unexpected error ' + str(exception))
                 self.send_error(500, *self.responses[500])
 
-        return wrapped
+        if catch_errors:
+            return wrapped
+        else:
+            return function
 
     def process_http_error(self, error, page_handler=None):
         print(error)
