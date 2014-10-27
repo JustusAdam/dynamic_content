@@ -12,7 +12,6 @@ class DecoratorApp(AppFragment):
     def add_commons_config(self, machine_name, commons_type, handler_module, show_title=True, access_type=0):
         self.dbo.add_item_conf(machine_name, commons_type, handler_module, show_title, access_type)
 
-
     def assign_common(self, common_name, region, weight, theme):
         self.dbo.add_item(common_name, region, weight, theme)
 

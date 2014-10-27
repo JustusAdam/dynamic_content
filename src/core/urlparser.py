@@ -1,4 +1,4 @@
-from errors.exceptions import InvalidInputError, UninitializedValueError
+from errors.exceptions import InvalidInputError
 from urllib import parse as p
 from .request import Request
 
@@ -16,6 +16,9 @@ class RequestMapper(dict):
 
     Calling this class always returns the parser, called with the full, original path, query and post query
     """
+    query_target_argument = None
+    path_target_identifier_pos = 0
+
     def __init__(self, storage):
         self.ar_table = storage.table('content_handlers')
         super().__init__()
@@ -25,8 +28,8 @@ class RequestMapper(dict):
             for i in parser_or_list.names:
                 self.__setitem__(i, parser_or_list)
         elif hasattr(parser_or_list, '__iter__'):
-            for p in parser_or_list:
-                self.register(p)
+            for p_l in parser_or_list:
+                self.register(p_l)
         else:
             raise InvalidInputError
 
@@ -46,12 +49,20 @@ class RequestMapper(dict):
 
     def _parse_url(self, url, post):
         (address, network_location, path, query, fragment) = p.urlsplit(url)
-        path = path.split('/')
-        return self[path[1]](path, query, post)
+        path = path.split('/')[1:]
+        return self[self.find_target_identifier(path, query, post)](path, query, post)
 
     def storage_resolve(self, name):
         row = self.ar_table.row(path_prefix=name)
         return row['handler_name']
+
+    def find_target_identifier(self, path, query, post):
+        if self.query_target_argument:
+            if self.query_target_argument in query:
+                return query[self.query_target_argument][0]
+            elif self.query_target_argument in post:
+                return query[self.query_target_argument][0]
+        return path[self.path_target_identifier_pos]
 
 
 class Parser:
