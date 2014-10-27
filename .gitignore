@@ -87,4 +87,4 @@ src/cms/config.json
 src/cms/custom/scripts/
 
 # sass/scss
-*/.sass-cache/
+.sass-cache/
