@@ -37,7 +37,8 @@ class MainApp(Application):
 
     def handle_http_request(self, *args):
         def http_callback(url, client):
-            return self.controllers(url)(url, client)
+            model = self.controllers(url)(url, client)
+            return ''
 
         return self.config.http_request_handler(http_callback, *args)
 

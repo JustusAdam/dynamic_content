@@ -16,7 +16,6 @@ class ControllerMapper(dict):
             if inspect.isclass(attr):
                 if issubclass(attr, Controller):
                     c = attr()
-                    self.controllers.add(c)
                     self.register_controller(c)
 
     def register_controller(self, controller):
@@ -25,7 +24,6 @@ class ControllerMapper(dict):
 
     def __setitem__(self, key, value):
         assert isinstance(key, str)
-        assert isinstance(value, Controller)
         if key in self:
             raise OverwriteProhibitedError
         super().__setitem__(key, value)

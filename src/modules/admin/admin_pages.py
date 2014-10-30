@@ -2,6 +2,7 @@ from core import handlers
 from modules.admin.database_operations import AdminOperations
 from modules.comp.html_elements import ContainerElement, List
 from core.mvc.controller import Controller
+from core.modules import Modules
 
 __author__ = 'justusadam'
 
