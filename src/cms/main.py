@@ -4,6 +4,15 @@ Main file that runs the application.
 
 from pathlib import Path
 import os
+import sys
+
+
+#ensure the correct directory is used
+basedir = str(Path(__file__).parent.parent.resolve())
+os.chdir(basedir)
+#add framework to pythonpath
+sys.path.append(basedir)
+
 
 from core.handlers import request
 from core.handlers.server import ThreadedHTTPServer
@@ -13,10 +22,6 @@ from cms.app import MainApp
 
 
 __author__ = 'justusadam'
-
-basedir = str(Path(__file__).parent.parent.resolve())
-
-os.chdir(basedir)
 
 
 def main():

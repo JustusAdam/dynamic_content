@@ -18,7 +18,6 @@ class MainApp(Application):
     def load(self):
         self.register_modules()
         self.load_modules()
-        self.load_database()
 
     def run(self):
         self.run_http_server_loop()
@@ -40,12 +39,6 @@ class MainApp(Application):
     def load_modules(self):
         self.modules = Modules()
         self.modules.reload()
-
-    def load_external(self, name, connection):
-        self.shell[name] = Connector(name, connection)
-
-    def load_database(self):
-        self.load_external('database', Database())
 
     def set_working_directory(self):
         os.chdir(self.config.basedir)

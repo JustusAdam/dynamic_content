@@ -1,4 +1,4 @@
-__author__ = 'justus2'
+__author__ = 'justusadam'
 
 
 class DynamicContentError(Exception):

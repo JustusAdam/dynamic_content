@@ -27,15 +27,6 @@ from errors.exceptions import *
 __author__ = 'justusadam'
 
 
-class RequestWrapper:
-    def __init__(self, class_, callback):
-        self.wrapped_class = class_
-        self.callback = callback
-
-    def __call__(self, *args, **kwargs):
-        return self.wrapped_class(self.callback, *args, **kwargs)
-
-
 class RequestHandler(BaseHTTPRequestHandler):
     def __init__(self, callback_function, request, client_address, server):
         self.callback = callback_function
