@@ -17,17 +17,14 @@ __author__ = 'justusadam'
 
 
 @singleton
-class Modules:
-    _modules = None
-
+class Modules(dict):
     def reload(self):
-        self._modules = self.load()
+        self.load()
 
     def load(self):
-        return get_active_modules()
-
-    def __getitem__(self, item):
-        return self._modules[item]
+    	all_ = get_active_modules()
+    	for item in all_:
+    		self[item] = all_[item]
 
     def __str__(self):
         return str(self._modules)

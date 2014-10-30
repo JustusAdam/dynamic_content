@@ -1,10 +1,30 @@
 from core import handlers
 from modules.admin.database_operations import AdminOperations
 from modules.comp.html_elements import ContainerElement, List
+from core.mvc.controller import Controller
 
 __author__ = 'justusadam'
 
 ADMIN_PATH = '/admin'
+
+
+class AdminController(Controller):
+    def __init__(self):
+        super().__init__()
+        self['admin'] = self.handle
+
+    def handle(self, url, client):
+        tail = url.path[1:]
+        if not tail:
+            handler = OverviewPage
+        elif len(tail) == 1:
+            handler = CategoryPage
+        elif len(tail) == 2:
+            handler = SubcategoryPage
+        else:
+            handler_name = AdminOperations().get_page(tail[2])
+            handler = Modules()[handler_name].admin_handler(tail[2])
+        return handler(url, client)
 
 
 class Overview(handlers.base.ContentCompiler):

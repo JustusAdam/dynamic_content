@@ -155,10 +155,10 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         url.path = core.translate_alias(str(url.path))
 
-        if url.page_type == 'setup':
+        if url.path[0] == 'setup':
             self.check_path(url)
             return self.start_setup(url)
-        elif url.page_type in bootstrap.FILE_DIRECTORIES:
+        elif url.path[0] in bootstrap.FILE_DIRECTORIES:
             return PathHandler(url)
 
         self.check_path(url)

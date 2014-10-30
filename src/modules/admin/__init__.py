@@ -1,23 +1,10 @@
 from modules.admin.database_operations import AdminOperations
 from modules.admin.admin_pages import OverviewPage, CategoryPage, SubcategoryPage, OverviewCommon
-from core import Modules
+from .admin_pages import AdminController
 
 __author__ = 'justusadam'
 
 name = 'admin'
-
-
-def content_handler(url):
-    if not url.tail:
-        handler = OverviewPage
-    elif len(url.tail) == 1:
-        handler = CategoryPage
-    elif len(url.tail) == 2:
-        handler = SubcategoryPage
-    else:
-        handler_name = AdminOperations().get_page(url.tail[2])
-        handler = Modules()[handler_name].admin_handler(url.tail[2])
-    return handler
 
 
 def common_handler(item_type):

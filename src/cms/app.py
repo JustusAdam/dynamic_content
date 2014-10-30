@@ -6,6 +6,7 @@ from core.module_operations import register_installed_modules
 from backend.database import Database
 from backend.connector import Connector
 from modules.comp.page_handler import BasicHandler
+from core.mvc.controller import ControllerMapper
 
 
 __author__ = 'justusadam'
@@ -14,13 +15,20 @@ __author__ = 'justusadam'
 class MainApp(Application):
     def __init__(self, config):
         super().__init__(config)
+        self.load()
 
     def load(self):
         self.register_modules()
         self.load_modules()
+        self.initialize_controller_mapper()
 
     def run(self):
         self.run_http_server_loop()
+
+    def initialize_controller_mapper(self):
+        self.controllers = ControllerMapper()
+        for item in self.modules.values():
+            self.controllers.register_module(item)
 
     def run_http_server_loop(self):
         server_address = (self.config.server_arguments['host'], self.config.server_arguments['port'])
@@ -29,7 +37,7 @@ class MainApp(Application):
 
     def handle_http_request(self, *args):
         def http_callback(url, client):
-            return BasicHandler(url, client)
+            return self.controllers(url)(url, client)
 
         return self.config.http_request_handler(http_callback, *args)
 
