@@ -25,7 +25,7 @@ class AdminController(Controller):
         else:
             handler_name = AdminOperations().get_page(tail[2])
             handler = Modules()[handler_name].admin_handler(tail[2])
-        return handler(url, client)
+        return handler(url, client).compiled
 
 
 class Overview(handlers.base.ContentCompiler):

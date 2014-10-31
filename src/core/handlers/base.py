@@ -3,7 +3,7 @@ from pathlib import Path
 import sys
 from urllib.error import HTTPError
 
-from modules.comp.template import Template
+from core.mvc.model import Model
 from util.config import read_config
 from modules.comp.page import Component
 from util.url import Url
@@ -118,48 +118,24 @@ class RedirectMixIn(WebObject):
                         [('Location', destination), ('Connection', 'close')], None)
 
 
-class TemplateBasedContentCompiler(ContentCompiler):
+class ModelBasedContentCompiler(ContentCompiler):
     _theme = 'default_theme'
 
-    template_name = ''
+    view_name = ''
 
     def __init__(self):
         super().__init__()
-        self.theme_config = read_config(self.theme_path + '/config.json')
-        self._template = Template(self._get_template_path())
+        self._model = Model(self.view_name)
+        self._model.theme = self.theme
 
     @property
     def theme(self):
         return self._theme
 
     @property
-    def theme_path(self):
-        return 'themes/' + self.theme
-
-    @property
-    def theme_path_alias(self):
-        return '/theme/' + self.theme
-
-    @property
     def compiled(self):
-        # TODO add callback function instead of rendering page directly
-        self._fill_template()
-        page = Component(str(self._template))
-        return page
+        self._fill_model()
+        return self._model
 
-    def _get_template_path(self):
-        path = self.theme_path
-        if 'template_directory' in self.theme_config:
-            path += '/' + self.theme_config['template_directory']
-        else:
-            path += '/' + 'templates'
-        return path + '/' + self.template_name + '.html'
-
-    def _get_my_folder(self):
-        return str(Path(sys.modules[self.__class__.__module__].__file__).parent)
-
-    def _get_config_folder(self):
-        return self._get_my_folder()
-
-    def _fill_template(self):
+    def _fill_model(self):
         pass

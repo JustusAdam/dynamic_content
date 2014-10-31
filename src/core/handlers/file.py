@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import quote_plus
 import mimetypes
 
-from core.handlers.page import Page, TemplateBasedPage
+from core.handlers.content import Content
 from core.handlers.base import RedirectMixIn
 from includes import bootstrap
 from modules.comp.html_elements import ContainerElement, List
@@ -19,7 +19,7 @@ __author__ = 'justusadam'
 _template_path = 'themes/default_theme/template/page.html'
 
 
-class PathHandler(Page, RedirectMixIn):
+class PathHandler(Content, RedirectMixIn):
     def __init__(self, url):
         super().__init__(url, None)
         self.page_type = 'file'
@@ -68,7 +68,7 @@ class PathHandler(Page, RedirectMixIn):
             self.url.path.trailing_slash = True
             self.redirect(str(self.url))
         else:
-            return DirectoryHandler(self.url, self._client, directory).encoded
+            return DirectoryHandler(self.url, self._client, directory).compiled
 
     def serve_file(self, file):
         if self.url.path.trailing_slash:
@@ -78,14 +78,14 @@ class PathHandler(Page, RedirectMixIn):
         return file.open('rb').read()
 
 
-class DirectoryHandler(TemplateBasedPage):
+class DirectoryHandler(Content):
     def __init__(self, url, client, real_dir):
         super().__init__(url, client)
         if not isinstance(real_dir, Path):
             Path(real_dir)
         self.directory = real_dir
 
-    template_name = 'page'
+    view_name = 'page'
 
     def _files(self):
         return filter(lambda a: not str(a.name).startswith('.'), self.directory.iterdir())
@@ -99,7 +99,7 @@ class DirectoryHandler(TemplateBasedPage):
             ], classes={'directory-index'}, item_classes={'directory-content'}
         )
 
-    def _fill_template(self):
-        self._template['title'] = self.directory.name
-        self._template['content'] = self._render_file_list()
-        super()._fill_template()
+    def _fill_model(self):
+        self._model['title'] = self.directory.name
+        self._model['content'] = self._render_file_list()
+        super()._fill_model()

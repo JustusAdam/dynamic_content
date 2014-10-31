@@ -3,8 +3,6 @@ import os
 from application.app import Application
 from core.modules import Modules
 from core.module_operations import register_installed_modules
-from backend.database import Database
-from backend.connector import Connector
 from modules.comp.page_handler import BasicHandler
 from core.mvc.controller import ControllerMapper
 
@@ -38,7 +36,9 @@ class MainApp(Application):
     def handle_http_request(self, *args):
         def http_callback(url, client):
             model = self.controllers(url)(url, client)
-            return ''
+            decorator = BasicHandler(model, url, client)
+            print('')
+            return decorator
 
         return self.config.http_request_handler(http_callback, *args)
 

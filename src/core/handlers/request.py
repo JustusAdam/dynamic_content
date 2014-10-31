@@ -27,6 +27,9 @@ from errors.exceptions import *
 __author__ = 'justusadam'
 
 
+_catch_errors = False
+
+
 class RequestHandler(BaseHTTPRequestHandler):
     def __init__(self, callback_function, request, client_address, server):
         self.callback = callback_function
@@ -94,8 +97,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                 traceback.print_tb(sys.exc_info()[2])
                 log.write_error('Unexpected error ' + str(exception))
                 self.send_error(500, *self.responses[500])
-
-        return wrapped
+        if _catch_errors:
+            return wrapped
+        else:
+            return function
 
     def process_http_error(self, error, page_handler=None):
         print(error)
