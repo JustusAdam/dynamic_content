@@ -7,8 +7,8 @@ from pathlib import Path
 from urllib.parse import quote_plus
 import mimetypes
 
-from core.handlers.content import Content
-from core.handlers.base import RedirectMixIn
+from core.mvc.controller import Controller
+from core.mvc.model import Model
 from includes import bootstrap
 from modules.comp.html_elements import ContainerElement, List
 from errors.exceptions import MissingFileError, AccessDisabled
@@ -19,28 +19,22 @@ __author__ = 'justusadam'
 _template_path = 'themes/default_theme/template/page.html'
 
 
-class PathHandler(Content, RedirectMixIn):
-    def __init__(self, url):
-        super().__init__(url, None)
-        self.page_type = 'file'
-        self._document = ''
+class PathHandler(Controller):
 
-    @property
-    def compiled(self):
-        return self.parse_path()
+    def __init__(self):
+        super().__init__(public=self.handle, theme=self.handle)
 
-    @property
-    def encoded(self):
-        return self.compiled
+    def handle(self, url, *args):
+        return self.parse_path(url)
 
-    def parse_path(self):
-        if len(self._url.path) < 1:
+    def parse_path(self, url):
+        if len(url.path) < 1:
             raise MissingFileError
-        basedirs = bootstrap.FILE_DIRECTORIES[self._url.path[0]]
+        basedirs = bootstrap.FILE_DIRECTORIES[url.path[0]]
         if isinstance(basedirs, str):
             basedirs = (basedirs,)
         for basedir in basedirs:
-            filepath = '/'.join([basedir] + self._url.path[1:])
+            filepath = '/'.join([basedir] + url.path[1:])
             filepath = Path(filepath)
 
             if not filepath.exists():
@@ -55,37 +49,37 @@ class PathHandler(Content, RedirectMixIn):
             if basedir not in filepath.parents and basedir != filepath:
                 raise AccessDisabled
             if filepath.is_dir():
-                return self.serve_directory(filepath)
+                if not bootstrap.ALLOW_INDEXING:
+                    raise AccessDisabled
+                elif not url.path.trailing_slash:
+                    url.path.trailing_slash = True
+                    return Model(':redirect:' + str(url))
+                else:
+                    return DirectoryHandler(url, filepath).compiled
             else:
-                return self.serve_file(filepath)
+                if url.path.trailing_slash:
+                    url.path.trailing_slash = False
+                    return Model(':redirect:' + str(url))
+                model = Model(':no-view:', content=filepath.open('rb').read())
+                model.decorator_attributes.add('no-view')
+                model.content_type, model.encoding = mimetypes.guess_type(str(filepath.name))
+                return model
 
         raise MissingFileError
 
-    def serve_directory(self, directory):
-        if not bootstrap.ALLOW_INDEXING:
-            raise AccessDisabled
-        elif not self.url.path.trailing_slash:
-            self.url.path.trailing_slash = True
-            self.redirect(str(self.url))
-        else:
-            return DirectoryHandler(self.url, self._client, directory).compiled
 
-    def serve_file(self, file):
-        if self.url.path.trailing_slash:
-            self.url.path.trailing_slash = False
-            self.redirect(str(self.url))
-        self.content_type, self.encoding = mimetypes.guess_type(str(file.name))
-        return file.open('rb').read()
-
-
-class DirectoryHandler(Content):
-    def __init__(self, url, client, real_dir):
-        super().__init__(url, client)
+class DirectoryHandler:
+    def __init__(self, url, real_dir):
+        self._url = url
         if not isinstance(real_dir, Path):
             Path(real_dir)
         self.directory = real_dir
 
     view_name = 'page'
+
+    @property
+    def url(self):
+        return self._url
 
     def _files(self):
         return filter(lambda a: not str(a.name).startswith('.'), self.directory.iterdir())
@@ -99,7 +93,9 @@ class DirectoryHandler(Content):
             ], classes={'directory-index'}, item_classes={'directory-content'}
         )
 
-    def _fill_model(self):
-        self._model['title'] = self.directory.name
-        self._model['content'] = self._render_file_list()
-        super()._fill_model()
+    @property
+    def compiled(self):
+        model = Model('page')
+        model['title'] = self.directory.name
+        model['content'] = self._render_file_list()
+        return model

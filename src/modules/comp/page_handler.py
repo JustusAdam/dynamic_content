@@ -1,6 +1,5 @@
 from urllib.error import HTTPError
 
-from core import Modules
 from modules.comp.regions import RegionHandler
 from core.handlers.page import Page
 
@@ -13,8 +12,7 @@ class BasicHandler(Page):
     _theme = None
     view_name = 'page'
 
-    def __init__(self,model, url, client_info):
-        self.modules = Modules()
+    def __init__(self, model, url, client_info):
         super().__init__(model, url, client_info)
 
     @property

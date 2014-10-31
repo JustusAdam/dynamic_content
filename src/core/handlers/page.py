@@ -17,12 +17,16 @@ _default_theme = 'default_theme'
 class Page:
     _theme = _default_theme
     view_name = 'page'
+    content_type = 'text/html'
+    encoding = sys.getfilesystemencoding()
 
     def __init__(self, model, url, client):
         self._url = url
         self._client = client
-        self.content_type = 'text/html'
-        self.encoding = sys.getfilesystemencoding()
+        if hasattr(model, 'content_type') and model.content_type:
+            self.content_type = model.content_type
+        if hasattr(model, 'encoding') and model.encoding:
+            self.encoding = model.encoding
         self._model = model
         self.module_config = read_config(self._get_config_folder() + '/config.json')
         if 'active_theme' in self.module_config:
@@ -34,16 +38,25 @@ class Page:
         return self._url
 
     @property
+    def compiled(self):
+        if 'no-view' in self.model.decorator_attributes:
+            return self.model['content']
+        self._fill_model()
+        file = open(self.view_path).read()
+        for a in VAR_REGEX.finditer(file):
+            if a.group(1) not in self.model:
+                dict.__setitem__(self.model, a.group(1), '')
+        return file.format(**self.model)
+
+    @property
     def encoded(self):
+        if 'no-view' in self.model.decorator_attributes:
+            return self.model['content']
         return str(self.compiled).encode(self.encoding)
 
     @property
     def client(self):
         return self._client
-
-    @property
-    def compiled(self):
-        return ''
 
     @property
     def model(self):
@@ -58,7 +71,7 @@ class Page:
 
     @property
     def view_path(self):
-        return self.theme_path + '/' + self.model.name
+        return self.theme_path + '/template/' + self.model.view + '.html'
 
     @property
     def theme_path(self):
@@ -71,7 +84,7 @@ class Page:
     @property
     def headers(self):
         headers = set()
-        if self.model.headers:
+        if hasattr(self.model, 'headers') and self.model.headers:
             for header in self.model.headers:
                 headers.add(header)
         return headers
@@ -133,11 +146,3 @@ class Page:
                 ContainerElement(self.breadcrumb_separator(), html_type='span', classes={'breadcrumb-separator'}))
             acc.append(ContainerElement(name, html_type='a', classes={'breadcrumb'}, additionals={'href': location}))
         return ContainerElement(*acc, classes={'breadcrumbs'})
-
-    @property
-    def compiled(self):
-        file = open(self.view_path).read()
-        for a in VAR_REGEX.finditer(file):
-            if a.group(1) not in self.model:
-                dict.__setitem__(self.model, a.group(1), '')
-        return file.format(**self.model)

@@ -4,7 +4,7 @@ __author__ = 'justusadam'
 
 class Model(dict):
     __final = False
-    decorator_attributes = []
+    decorator_attributes = set()
 
     def __init__(self, name, **kwargs):
         super().__init__(**kwargs)

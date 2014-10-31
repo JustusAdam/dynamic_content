@@ -39,3 +39,13 @@ class UninitializedValueError(DynamicContentError):
 
 class OverwriteProhibitedError(DynamicContentError):
     pass
+
+
+class ModuleError(DynamicContentError):
+    def __init__(self, module_name):
+        self.module_name = module_name
+
+
+class ModuleNotFoundError(ModuleError):
+    def __repr__(self):
+        return 'ModuleNotFoundError, module ' + self.module_name + ' could not be found in the Database'

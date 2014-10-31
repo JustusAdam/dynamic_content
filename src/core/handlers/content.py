@@ -1,14 +1,14 @@
 from core.handlers.base import WebObject, ModelBasedContentCompiler
+from core.mvc.model import Model
 from errors import html_message
 from modules.comp.html_elements import List, ContainerElement
-from modules.comp.page import Component
 
 __author__ = 'justusadam'
 
 
 class Content(WebObject, ModelBasedContentCompiler):
     theme = 'default_theme'
-    view_name = 'content'
+    view_name = 'page'
     page_title = 'Dynamic Page'
     permission = 'access pages'
     published = True
@@ -61,8 +61,6 @@ class Content(WebObject, ModelBasedContentCompiler):
     def compiled(self):
         if self.check_own_permission():
             self._process_queries()
-            self._fill_model()
-            page = Component(str(self._model), title=self.page_title)
-            return page
+            return super().compiled
         else:
-            return Component(str(html_message.error_message(401)))
+            return Model('page', content=str(html_message.error_message(401)))

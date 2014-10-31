@@ -2,6 +2,7 @@ from importlib import import_module
 from pathlib import Path
 
 from core import database_operations
+from errors.exceptions import ModuleError
 from util.config import read_config
 from backend.database import DatabaseError
 from includes import bootstrap
@@ -10,16 +11,6 @@ from includes import bootstrap
 __author__ = 'justusadam'
 
 basedir = str(Path(__file__).parent.parent.resolve())
-
-
-class ModuleError(Exception):
-    def __init__(self, module_name):
-        self.module_name = module_name
-
-
-class ModuleNotFoundError(ModuleError):
-    def __repr__(self):
-        return 'ModuleNotFoundError, module ' + self.module_name + ' could not be found in the Database'
 
 
 def activate_module(module_name):

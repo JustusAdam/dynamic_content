@@ -10,7 +10,7 @@ __author__ = 'justusadam'
 
 # the order in this list dictates the order in which these modules will be activated
 DEFAULT_MODULES = [
-    'form', 'admin', 'comp', 'users', 'commons',
+    'form', 'admin', 'comp', 'users', 'commons', 'file',
     'iris',
     'i18n'
 ]
