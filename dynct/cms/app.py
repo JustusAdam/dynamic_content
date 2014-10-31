@@ -37,7 +37,7 @@ class MainApp(Application):
             model = self.controllers(url)(url, client)
             decorator = BasicHandler(model, url, client)
             print('')
-            return decorator
+            return decorator.encoded
 
         return self.config.http_request_handler(http_callback, *args)
 

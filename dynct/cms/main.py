@@ -8,14 +8,15 @@ import sys
 
 
 #ensure the correct directory is used
+from dynct.http import request
+
 basedir = Path(__file__).parent.parent.resolve()
 os.chdir(str(basedir))
 #add framework to pythonpath
-sys.path.append(str(basedir.parent))
+if not str(basedir.parent) in sys.path:
+    sys.path.append(str(basedir.parent))
 
-
-from dynct.core.handlers import request
-from dynct.core.handlers.server import ThreadedHTTPServer
+from dynct.http.server import ThreadedHTTPServer
 from dynct.util.config import read_config
 from dynct.application.app import ApplicationConfig
 from dynct.cms.app import MainApp

@@ -4,6 +4,7 @@ import sys
 
 from dynct.modules.comp.html_elements import Stylesheet, Script, LinkElement, ContainerElement
 from dynct.util.config import read_config
+from dynct.http.response import Response
 
 
 __author__ = 'justusadam'
@@ -50,9 +51,21 @@ class Page:
 
     @property
     def encoded(self):
-        if 'no-view' in self.model.decorator_attributes:
-            return self.model['content']
-        return str(self.compiled).encode(self.encoding)
+        code = 200
+        headers = set()
+        if self.model.view.startswith(':redirect:'):
+            body = None
+            code = 301
+            headers.add(("Location", self.model.view.lstrip(':redirect:')))
+        elif 'no-view' in self.model.decorator_attributes:
+            body = self.model['content']
+        else:
+            body = str(self.compiled).encode(self.encoding)
+        r = Response(body, code, headers)
+        for attr in ['content_type', 'encoding']:
+            if hasattr(self.model, attr):
+                setattr(r, attr, getattr(self.model, attr))
+        return r
 
     @property
     def client(self):

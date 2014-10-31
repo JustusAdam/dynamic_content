@@ -17,7 +17,7 @@ class Model(dict):
 
     def assign_key_safe(self, key, value):
         if key in self and self[key]:
-            print('key ' + key + ' already exists in template')
+            print('key ' + key + ' already exists in model')
         else:
             self.__setitem__(key, value)
 

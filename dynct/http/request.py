@@ -63,14 +63,14 @@ class RequestHandler(BaseHTTPRequestHandler):
         client_information = client.ClientInfoImpl(self.headers)
 
         try:
-            page_handler = self.error_wrapper(self.get_handler)(url, client_information)
+            response = self.error_wrapper(self.get_response)(url, client_information)
         except HTTPError as error:
             return self.process_http_error(error)
 
         try:
-            self.error_wrapper(self.send_document)(page_handler)
+            self.error_wrapper(self.send_document)(response)
         except HTTPError as error:
-            return self.process_http_error(error, page_handler)
+            return self.process_http_error(error, response)
         return 0
 
     def error_wrapper(self, function):
@@ -126,26 +126,31 @@ class RequestHandler(BaseHTTPRequestHandler):
         for header in headers:
             self.send_header(*header)
 
-    def send_document(self, page_handler):
-        document = page_handler.encoded
-        headers = page_handler.headers
+    def send_document(self, response):
+        document = response.body
+        headers = response.headers
 
-        self.send_response(200)
-        self.send_header("Content-type", "{content_type}; charset={encoding}".format(
-            content_type=page_handler.content_type, encoding=page_handler.encoding))
-        self.send_header("Content-Length", str(len(document)))
+        if response.code >= 400:
+            self.send_error(response.code)
+        else:
+            self.send_response(response.code)
+        if document:
+            self.send_header("Content-type", "{content_type}; charset={encoding}".format(
+                content_type=response.content_type, encoding=response.encoding))
+            self.send_header("Content-Length", str(len(document)))
         if headers:
             self.process_headers(*headers)
         if not bootstrap.BROWSER_CACHING:
             self.send_header('Cache-Control', 'no-cache')
         self.end_headers()
-        stream = BytesIO()
-        stream.write(document)
-        stream.seek(0)
-        try:
-            shutil.copyfileobj(stream, self.wfile)
-        finally:
-            stream.close()
+        if document:
+            stream = BytesIO()
+            stream.write(document)
+            stream.seek(0)
+            try:
+                shutil.copyfileobj(stream, self.wfile)
+            finally:
+                stream.close()
 
     def check_path(self, url):
 
@@ -154,16 +159,11 @@ class RequestHandler(BaseHTTPRequestHandler):
             new_dest.path.trailing_slash = False
             raise HTTPError(str(url), 301, 'Destination invalid', [("Location", str(new_dest))], None)
 
-    def get_handler(self, url, client_info):
-        # raise HTTPError(str(url), 500, 'Database unreachable', None, None)
+    def get_response(self, url, client_info):
 
         url.path = core.translate_alias(str(url.path))
 
-        if url.path[0] == 'setup':
-            self.check_path(url)
-            return self.start_setup(url)
-
-        self.check_path(url)
+        #self.check_path(url)
 
         if len(url.path) == 0:
             raise HTTPError(str(url), 404, None, None, None)
