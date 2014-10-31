@@ -3,11 +3,10 @@ __author__ = 'justusadam'
 
 
 class Model(dict):
-    __final = False
-    decorator_attributes = set()
-
     def __init__(self, name, **kwargs):
         super().__init__(**kwargs)
+        self.__final = False
+        self.decorator_attributes = set()
         self.view = name
 
     def __setitem__(self, key, value):

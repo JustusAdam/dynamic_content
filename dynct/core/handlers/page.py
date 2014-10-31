@@ -16,12 +16,11 @@ _default_theme = 'default_theme'
 
 
 class Page:
-    _theme = _default_theme
-    view_name = 'page'
-    content_type = 'text/html'
-    encoding = sys.getfilesystemencoding()
-
     def __init__(self, model, url, client):
+        self._theme = _default_theme
+        self.view_name = 'page'
+        self.content_type = 'text/html'
+        self.encoding = sys.getfilesystemencoding()
         self._url = url
         self._client = client
         if hasattr(model, 'content_type') and model.content_type:

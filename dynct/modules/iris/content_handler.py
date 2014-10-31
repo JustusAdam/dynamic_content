@@ -232,6 +232,8 @@ class IrisController(Controller):
                 if not url.path[1] == _add_modifier:
                     raise InvalidInputError
                 url.page_modifier = _add_modifier
+                # This is dirty and should not be done this way
+                url.page_id = 0
         else:
             raise InvalidInputError
         url.page_type = url.path[0]

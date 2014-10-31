@@ -21,6 +21,7 @@ from dynct.includes import log
 from dynct import core
 from dynct.modules import form
 from dynct.errors.exceptions import *
+from .response import Response
 
 
 __author__ = 'justusadam'

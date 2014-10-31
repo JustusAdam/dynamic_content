@@ -1,5 +1,6 @@
 from dynct.core.handlers.content import Content
 from dynct.core.handlers.base import RedirectMixIn
+from dynct.core.mvc.controller import Controller
 from dynct.modules.comp.html_elements import TableElement, Input, ContainerElement, Label, Checkbox
 from . import users
 from dynct.modules.form.secure import SecureForm
