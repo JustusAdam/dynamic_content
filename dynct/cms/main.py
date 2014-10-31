@@ -1,0 +1,41 @@
+"""
+Main file that runs the application.
+"""
+
+from pathlib import Path
+import os
+import sys
+
+
+#ensure the correct directory is used
+basedir = Path(__file__).parent.parent.resolve()
+os.chdir(str(basedir))
+#add framework to pythonpath
+sys.path.append(str(basedir.parent))
+
+
+from dynct.core.handlers import request
+from dynct.core.handlers.server import ThreadedHTTPServer
+from dynct.util.config import read_config
+from dynct.application.app import ApplicationConfig
+from dynct.cms.app import MainApp
+
+
+__author__ = 'justusadam'
+
+
+def main():
+    config = read_config('cms/config')
+    app_config = ApplicationConfig()
+    app_config.server_arguments = config['server_arguments']
+    app_config.server_class = ThreadedHTTPServer
+    app_config.http_request_handler = request.RequestHandler
+    app_config.basedir = basedir
+
+    app = MainApp(app_config)
+
+    app.run()
+
+
+if __name__ == '__main__':
+    main()
