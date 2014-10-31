@@ -16,6 +16,8 @@ _access_modifier = 'access'
 _edit_modifier = 'edit'
 _add_modifier = 'add'
 
+_publishing_flag = 'published'
+
 
 def wrap_compiler(class_):
     def wrapped(*args, **kwargs):
@@ -137,7 +139,7 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
     @property
     def admin_options(self):
         return Label('Published', label_for='toggle-published'), \
-               Checkbox(element_id='toggle-published', value='published', name='published',
+               Checkbox(element_id='toggle-published', value=_publishing_flag, name=_publishing_flag,
                         checked=self.published)
 
     def process_fields(self, fields):
@@ -158,7 +160,7 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
             raise ValueError
         if self.url.post['title'] != self.page_title:
             self.page_title = parse.unquote_plus(self.url.post['title'][0])
-        if 'publish' in self.url.post:
+        if _publishing_flag in self.url.post:
             published = True
         else:
             published = False
@@ -189,7 +191,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
 
     def process_page(self):
         self.page_title = parse.unquote_plus(self.url.post['title'][0])
-        if 'publish' in self.url.post:
+        if _publishing_flag in self.url.post:
             published = True
         else:
             published = False
@@ -221,7 +223,7 @@ class IrisController(Controller):
 
     def handle(self, url, client):
         if len(url.path) == 3:
-            if url.path[1].isdigit():
+            if not url.path[1].isdigit():
                 raise InvalidInputError
             url.page_id = int(url.path[1])
             url.page_modifier = url.path[2]
