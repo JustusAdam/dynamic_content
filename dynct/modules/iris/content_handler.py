@@ -23,35 +23,6 @@ def wrap_compiler(class_):
     return wrapped
 
 
-class IrisController(Controller):
-    handler_map = {
-        _access_modifier: FieldBasedPageContent,
-        _edit_modifier: EditFieldBasedContent,
-        _add_modifier: AddFieldBasedContentHandler
-    }
-
-    def __init__(self):
-        super().__init__(iris=self.handle)
-
-    def handle(self, url, client):
-        if len(url.path) == 3:
-            if not isinstance(url.path[1], int):
-                raise InvalidInputError
-            url.page_id = url.path[1]
-            url.page_modifier = url.path[2]
-        elif len(url.path) == 2:
-            if isinstance(url.path[1], int):
-                url.page_modifier = _access_modifier
-            else:
-                if not url.path[1] == _add_modifier:
-                    raise InvalidInputError
-                url.page_modifier = _add_modifier
-        else:
-            raise InvalidInputError
-        return self.handler_map[url.page_modifier](url, client).compiled
-
-
-
 class FieldBasedPageContent(handlers.content.Content):
     modifier = _access_modifier
     _editorial_list_base = edits = [('edit', _edit_modifier)]
@@ -237,3 +208,31 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
         return [Label('Title', label_for='edit-title'), Input(element_id='edit-title', name='title', required=True)]
 
 
+class IrisController(Controller):
+    handler_map = {
+        _access_modifier: FieldBasedPageContent,
+        _edit_modifier: EditFieldBasedContent,
+        _add_modifier: AddFieldBasedContentHandler
+    }
+
+    def __init__(self):
+        super().__init__(iris=self.handle)
+
+    def handle(self, url, client):
+        if len(url.path) == 3:
+            if url.path[1].isdigit():
+                raise InvalidInputError
+            url.page_id = int(url.path[1])
+            url.page_modifier = url.path[2]
+        elif len(url.path) == 2:
+            if url.path[1].isdigit():
+                url.page_id = int(url.path[1])
+                url.page_modifier = _access_modifier
+            else:
+                if not url.path[1] == _add_modifier:
+                    raise InvalidInputError
+                url.page_modifier = _add_modifier
+        else:
+            raise InvalidInputError
+        url.page_type = url.path[0]
+        return self.handler_map[url.page_modifier](url, client).compiled
