@@ -58,7 +58,9 @@ def check_permission(pos, name):
             if '-' in examine:
                 raise ValueError
             return func(*args, **kwargs)
+
         return wrapped
+
     return dec
 
 
@@ -73,13 +75,15 @@ def acc_grp(user):
 def add_acc_grp(name, aid=-1):
     AccessOperations().add_group(aid, name)
 
-#@check_permission(1, 'permission')
+
+# @check_permission(1, 'permission')
 @check_aid
 def check_permission(aid, permission, strict=False):
     if aid != GUEST_GRP and not strict:
         return AccessOperations().check_permission(aid, AUTH, permission)
     else:
         return AccessOperations().check_permission(aid, None, permission)
+
 
 #@check_permission(1, 'permission')
 @check_aid
@@ -97,6 +101,7 @@ def assign_permission(aid, permission):
     else:
         AccessOperations().add_permission(aid, permission)
 
+
 #@check_permission(1, 'permission')
 @check_aid
 def revoke_permission(aid, permission):
@@ -105,9 +110,11 @@ def revoke_permission(aid, permission):
     else:
         AccessOperations().remove_permission(aid, permission)
 
+
 #@check_permission(0, 'permission')
 def new_permission(permission):
     AccessOperations().add_permission(CONTROL_GROUP, permission)
+
 
 #@check_permission(0, 'permission')
 def remove_permission(permission):

@@ -15,7 +15,7 @@ class Content(WebObject, ModelBasedContentCompiler):
     permission_for_unpublished = 'access unpublished pages'
 
     def __init__(self, url, client):
-        #assert isinstance(client, ClientInformation)
+        # assert isinstance(client, ClientInformation)
         super().__init__(url)
         ModelBasedContentCompiler.__init__(self)
         self._client = client

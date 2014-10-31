@@ -20,6 +20,7 @@ _add_modifier = 'add'
 def wrap_compiler(class_):
     def wrapped(*args, **kwargs):
         return class_(*args, **kwargs).compiled
+
     return wrapped
 
 
@@ -137,7 +138,7 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
     def admin_options(self):
         return Label('Published', label_for='toggle-published'), \
                Checkbox(element_id='toggle-published', value='published', name='published',
-                     checked=self.published)
+                        checked=self.published)
 
     def process_fields(self, fields):
         for field in fields:

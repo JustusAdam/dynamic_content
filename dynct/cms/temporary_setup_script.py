@@ -56,7 +56,8 @@ permissions = [
     ], [
         ADMIN_GRP, 'admin',
         ['edit user accounts', 'access users overview', 'edit content type article', 'add content type article',
-         'access common ' + admin_menu_common, 'access admin pages', 'view other user info', 'view permissions', 'edit permissions']
+         'access common ' + admin_menu_common, 'access admin pages', 'view other user info', 'view permissions',
+         'edit permissions']
     ]
 ]
 
@@ -70,7 +71,7 @@ for (access_group, name, permission_list) in permissions:
 
         # aliases = [
         # ('/', '/iris/1'),
-        #   ('/welcome', '/iris/1')
+        # ('/welcome', '/iris/1')
         # ]
         #
         # for alias, source in aliases:

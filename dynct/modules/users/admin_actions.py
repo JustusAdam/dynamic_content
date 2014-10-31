@@ -1,12 +1,13 @@
+import re
+import copy
+
 from dynct.core.handlers.content import Content
 from dynct.core.handlers.base import RedirectMixIn
-from dynct.core.mvc.controller import Controller
 from dynct.modules.comp.html_elements import TableElement, Input, ContainerElement, Label, Checkbox
 from . import users
 from dynct.modules.form.secure import SecureForm
 from .user_information import UserInformation
-import re
-import copy
+
 
 __author__ = 'justusadam'
 
@@ -160,10 +161,10 @@ class UsersOverview(Content):
                                                      additionals={'style': 'padding:10px;text-align:center;'}),
                                     ContainerElement('Would you like to ', ContainerElement('create one', html_type='a',
                                                                                             additionals={
-                                                                                            'href': '/users/new',
-                                                                                            'style': 'color:rgb(255, 199, 37);text-decoration:none;'}),
+                                                                                                'href': '/users/new',
+                                                                                                'style': 'color:rgb(255, 199, 37);text-decoration:none;'}),
                                                      '?', additionals={'style': 'padding:10px;'}), additionals={
-                'style': 'padding:15px; text-align:center; background-color: cornflowerblue;color:white;border-radius:20px;font-size:20px;'})
+                    'style': 'padding:15px; text-align:center; background-color: cornflowerblue;color:white;border-radius:20px;font-size:20px;'})
         return TableElement(*acc, classes={'user-overview'})
 
 
@@ -174,8 +175,10 @@ class PermissionOverview(Content):
 
     def process_content(self):
         return ContainerElement(
-            ContainerElement('Please note, that permissions assigned to the group \'any authorized user\' automatically apply to any other group as well as any authenticated user', classes={'alert'}), self.permission_table()
-            )
+            ContainerElement(
+                'Please note, that permissions assigned to the group \'any authorized user\' automatically apply to any other group as well as any authenticated user',
+                classes={'alert'}), self.permission_table()
+        )
 
     def permission_table(self):
         return TableElement(*self.compile_the_list())
@@ -209,7 +212,8 @@ class PermissionOverview(Content):
 
         for p in permissions:
             row = sorted(permissions[p])
-            l.append([p] + list(map(lambda a: self.checkbox(a[0] in row, '-'.join([str(a[0]), p.replace(' ', '-')])), access_groups)))
+            l.append([p] + list(
+                map(lambda a: self.checkbox(a[0] in row, '-'.join([str(a[0]), p.replace(' ', '-')])), access_groups)))
         l.sort(key=lambda a: a[0])
         return l
 
@@ -244,7 +248,7 @@ class EditPermissions(PermissionOverview):
             m = re.fullmatch(permission_structure, item)
             if m:
                 g = m.groups()
-                #print('assigning permission ' + ' '.join([g[1].replace('-', ' '), 'to', str(g[0])]))
+                # print('assigning permission ' + ' '.join([g[1].replace('-', ' '), 'to', str(g[0])]))
                 new_perm.append([int(g[0]), g[1].replace('-', ' ')])
         new_perm = self._sort_perm_list(new_perm)
         old_perm, control_perm = split_list(self.permissions_list, lambda a: int(a[0]) != users.CONTROL_GROUP, )

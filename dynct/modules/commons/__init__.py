@@ -33,4 +33,4 @@ def prepare():
 
     # do.add_item('welcome', 'menu_items', ('english', 'Welcome'))
     # do.add_item('testpage', 'menu_items', ('english', 'XKCD'))
-    #do.add_item('setup', 'menu_items', ('english', 'Restart Setup'))
+    # do.add_item('setup', 'menu_items', ('english', 'Restart Setup'))

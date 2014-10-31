@@ -70,7 +70,7 @@ def prepare():
     # add user information common
     ro.add_item_conf('user_information', 'user_information', name, True, 1)
     ro.add_item('user_information', START_REGION, 1, START_THEME)
-    #dn.add_item('user_information', 'user_management', ('english', 'Your Account Information'))
+    # dn.add_item('user_information', 'user_management', ('english', 'Your Account Information'))
 
     # add admin pages
     admin.new_category('user', 'Users')

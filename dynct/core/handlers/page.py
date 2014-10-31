@@ -9,7 +9,6 @@ from dynct.http.response import Response
 
 __author__ = 'justusadam'
 
-
 VAR_REGEX = re.compile("\{([\w_-]*?)\}")
 
 _default_theme = 'default_theme'
@@ -46,7 +45,7 @@ class Page:
         for a in VAR_REGEX.finditer(file):
             if a.group(1) not in self.model:
                 dict.__setitem__(self.model, a.group(1), '')
-        return file.format(**{a:str(self.model[a]) for a in self.model})
+        return file.format(**{a: str(self.model[a]) for a in self.model})
 
     @property
     def encoded(self):
@@ -138,8 +137,8 @@ class Page:
         self._model.assign_key_safe('meta', self.compile_meta())
         self._model.assign_key_safe('breadcrumbs', self.render_breadcrumbs())
         self._model.assign_key_safe('pagetitle',
-                                       ContainerElement('dynamic_content - fast, python and extensible', html_type='a',
-                                                        additionals='href="/"'))
+                                    ContainerElement('dynamic_content - fast, python and extensible', html_type='a',
+                                                     additionals='href="/"'))
         self._model.assign_key_safe('footer', str(
             ContainerElement(ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', html_type='p'),
                              element_id='powered_by', classes={'common', 'copyright'})))

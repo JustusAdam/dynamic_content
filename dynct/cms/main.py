@@ -7,7 +7,7 @@ import os
 import sys
 
 
-#ensure the correct directory is used
+# ensure the correct directory is used
 from dynct.http import request
 
 basedir = Path(__file__).parent.parent.resolve()

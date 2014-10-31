@@ -21,11 +21,9 @@ from dynct.includes import log
 from dynct import core
 from dynct.modules import form
 from dynct.errors.exceptions import *
-from .response import Response
 
 
 __author__ = 'justusadam'
-
 
 _catch_errors = False
 
@@ -97,6 +95,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 traceback.print_tb(sys.exc_info()[2])
                 log.write_error('Unexpected error ' + str(exception))
                 self.send_error(500, *self.responses[500])
+
         if _catch_errors:
             return wrapped
         else:
@@ -164,7 +163,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         url.path = core.translate_alias(str(url.path))
 
-        #self.check_path(url)
+        # self.check_path(url)
 
         if len(url.path) == 0:
             raise HTTPError(str(url), 404, None, None, None)

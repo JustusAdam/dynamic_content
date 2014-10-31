@@ -161,8 +161,8 @@ class SetupHandler(Content):
             write_config(config, 'cms/config.json')
             self.redirect('/iris/1')
         self._model['content'] = self._model['content'].format(this=self._url.path,
-                                                                     next_page=self._url.page_id + 1,
-                                                                     message=message)
+                                                               next_page=self._url.page_id + 1,
+                                                               message=message)
         super()._fill_model()
 
     def setup(self):

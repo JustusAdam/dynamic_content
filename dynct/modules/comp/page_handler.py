@@ -2,7 +2,6 @@ from dynct.modules.comp.regions import RegionHandler
 from dynct.core.handlers.page import Page
 
 
-
 __author__ = 'justusadam'
 
 

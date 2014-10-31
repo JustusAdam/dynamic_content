@@ -1,5 +1,7 @@
 import inspect
+
 from dynct.errors.exceptions import OverwriteProhibitedError
+
 
 __author__ = 'justusadam'
 

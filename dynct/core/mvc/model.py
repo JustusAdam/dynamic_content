@@ -1,7 +1,6 @@
 __author__ = 'justusadam'
 
 
-
 class Model(dict):
     def __init__(self, name, **kwargs):
         super().__init__(**kwargs)

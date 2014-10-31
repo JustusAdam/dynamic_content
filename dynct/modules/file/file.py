@@ -20,7 +20,6 @@ _template_path = 'themes/default_theme/template/page.html'
 
 
 class PathHandler(Controller):
-
     def __init__(self):
         super().__init__(public=self.handle, theme=self.handle)
 
