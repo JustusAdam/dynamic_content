@@ -2,10 +2,12 @@ from urllib import parse
 
 from dynct.core import handlers
 from dynct.core.modules import Modules
+from dynct.core.mvc.controller import Controller
 from dynct.modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement, Checkbox
 from dynct.util.url import UrlQuery
 from . import database_operations
 from dynct.core.database_operations import ContentTypes
+from dynct.errors import InvalidInputError
 
 
 __author__ = 'justusadam'
@@ -13,6 +15,41 @@ __author__ = 'justusadam'
 _access_modifier = 'access'
 _edit_modifier = 'edit'
 _add_modifier = 'add'
+
+
+def wrap_compiler(class_):
+    def wrapped(*args, **kwargs):
+        return class_(*args, **kwargs).compiled
+    return wrapped
+
+
+class IrisController(Controller):
+    handler_map = {
+        _access_modifier: FieldBasedPageContent,
+        _edit_modifier: EditFieldBasedContent,
+        _add_modifier: AddFieldBasedContentHandler
+    }
+
+    def __init__(self):
+        super().__init__(iris=self.handle)
+
+    def handle(self, url, client):
+        if len(url.path) == 3:
+            if not isinstance(url.path[1], int):
+                raise InvalidInputError
+            url.page_id = url.path[1]
+            url.page_modifier = url.path[2]
+        elif len(url.path) == 2:
+            if isinstance(url.path[1], int):
+                url.page_modifier = _access_modifier
+            else:
+                if not url.path[1] == _add_modifier:
+                    raise InvalidInputError
+                url.page_modifier = _add_modifier
+        else:
+            raise InvalidInputError
+        return self.handler_map[url.page_modifier](url, client).compiled
+
 
 
 class FieldBasedPageContent(handlers.content.Content):

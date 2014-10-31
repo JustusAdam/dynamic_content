@@ -134,6 +134,6 @@ def get_active_modules():
     modules = {}
     for item in database_operations.ModuleOperations().get_enabled():
         print('loading module ' + item['name'])
-        modules[item['name']] = import_module(item['path'].replace('/', '.'))
+        modules[item['name']] = import_module('dynct.' + item['path'].replace('/', '.'))
 
     return modules

@@ -1,5 +1,3 @@
-from urllib.error import HTTPError
-
 from dynct.modules.comp.regions import RegionHandler
 from dynct.core.handlers.page import Page
 

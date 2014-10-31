@@ -46,7 +46,7 @@ class Page:
         for a in VAR_REGEX.finditer(file):
             if a.group(1) not in self.model:
                 dict.__setitem__(self.model, a.group(1), '')
-        return file.format(**self.model)
+        return file.format(**{a:str(self.model[a]) for a in self.model})
 
     @property
     def encoded(self):

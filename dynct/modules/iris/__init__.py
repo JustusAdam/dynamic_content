@@ -1,4 +1,4 @@
-from .content_handler import FieldBasedPageContent, EditFieldBasedContent, AddFieldBasedContentHandler
+from .content_handler import IrisController
 from . import field
 from . import database_operations as dbo
 
@@ -13,16 +13,6 @@ path_prefix = 'iris'
 
 def admin_handler(h_name):
     return None
-
-
-def content_handler(url):
-    handlers = {
-        'edit': EditFieldBasedContent,
-        'show': FieldBasedPageContent,
-        'access': FieldBasedPageContent,
-        'add': AddFieldBasedContentHandler
-    }
-    return handlers[url.page_modifier]
 
 
 def field_handler(field_name, prefix, page_id, modifier):
