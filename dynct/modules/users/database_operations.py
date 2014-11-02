@@ -255,7 +255,7 @@ class AccessOperations(Operations):
         condition = ';'
         if aid >= 0:
             condition = 'where aid=' + str(aid) + condition
-        result = self.db.select(['aid', 'machine_name'], 'access_groups', condition)
+        result = self.db.get_one(['aid', 'machine_name'], 'access_groups', condition)
         return result.fetchall()
 
     def get_permissions(self, aid=-1):
@@ -263,5 +263,5 @@ class AccessOperations(Operations):
         condition = ';'
         if aid >= 0:
             condition = 'where aid=' + str(aid) + condition
-        result = self.db.select(['aid', 'permission'], 'access_group_permissions', condition)
+        result = self.db.get_one(['aid', 'permission'], 'access_group_permissions', condition)
         return result.fetchall()

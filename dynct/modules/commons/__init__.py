@@ -1,6 +1,7 @@
 from .commons import TextCommons
 from . import database_operations as dbo
 from .menus import Handler
+from .admin import MenuAdminController
 
 __author__ = 'justusadam'
 
