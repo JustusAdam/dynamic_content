@@ -39,10 +39,10 @@ class Operations:
     def queries(self):
         return self._queries[self.db.db_type.lower()]
 
-    def execute(self, query_name, *format_args, **format_kwargs):
-        query = self.queries[query_name].format(*format_args, **format_kwargs)
+    def execute(self, query_name, **params):
+        query = self.queries[query_name]
         try:
-            self.cursor.execute(query)
+            self.cursor.execute(query, **params)
         except DatabaseError as error:
             raise DBOperationError(query, error)
 
@@ -82,8 +82,8 @@ class Operations:
 class ContentHandlers(Operations):
     _queries = {
         'mysql': {
-            'add_new': 'replace into content_handlers (handler_module, handler_name, path_prefix) values ({handler_module}, {handler_name}, {path_prefix});',
-            'get_by_prefix': 'select handler_module from content_handlers where path_prefix={path_prefix};'
+            'add_new': 'replace into content_handlers (handler_module, handler_name, path_prefix) values (:handler_module, :handler_name, :path_prefix);',
+            'get_by_prefix': 'select handler_module from content_handlers where path_prefix=:path_prefix;'
         }
     }
 
@@ -106,12 +106,12 @@ class ModuleOperations(Operations):
     # TODO load this from file
     _queries = {
         'mysql': {
-            'get_id': 'select id from modules where module_name={module_name};',
-            'get_path': 'select module_path from modules where module_name={module_name};',
-            'set_active': 'update modules set enabled=1 where module_name={module_name};',
-            'add_module': 'insert into modules (module_name, module_path, module_role) values ({module_name},{module_path},{module_role});',
-            'update_path': 'update modules set module_path={module_path} where module_name={module_name};',
-            'ask_active': 'select enabled from modules where module_name={module_name};',
+            'get_id': 'select id from modules where module_name=:module_name;',
+            'get_path': 'select module_path from modules where module_name=:module_name;',
+            'set_active': 'update modules set enabled=1 where module_name=:module_name;',
+            'add_module': 'insert into modules (module_name, module_path, module_role) values (:module_name,:module_path,:module_role);',
+            'update_path': 'update modules set module_path=:module_path where module_name=:module_name;',
+            'ask_active': 'select enabled from modules where module_name=:module_name;',
             'get_enabled': 'select module_name, module_path from modules where enabled=1;'
         }
     }
@@ -122,7 +122,7 @@ class ModuleOperations(Operations):
         self.add_module('core', 'core', 'core')
 
     def get_id(self, module_name):
-        self.execute('get_id', module_name=escape(module_name))
+        self.execute('get_id', module_name=module_name)
         return self.cursor.fetchone()[0]
 
     def create_multiple_tables(self, *tables):
@@ -134,21 +134,21 @@ class ModuleOperations(Operations):
                 print(error)
 
     def get_path(self, module):
-        self.execute('get_path', module_name=escape(module))
+        self.execute('get_path', module_name=module)
         return self.cursor.fetchone()[0]
 
     def set_active(self, module):
-        self.execute('set_active', module_name=escape(module))
+        self.execute('set_active', module_name=module)
 
     def add_module(self, module_name, module_path, module_role):
-        self.execute('add_module', module_name=escape(module_name), module_path=escape(module_path),
-                     module_role=escape(module_role))
+        self.execute('add_module', module_name=module_name, module_path=module_path,
+                     module_role=module_role)
 
     def update_path(self, module_name, path):
-        self.execute('update_path', module_path=escape(path), module_name=escape(module_name))
+        self.execute('update_path', module_path=path, module_name=module_name)
 
     def ask_active(self, module):
-        self.execute('ask_active', module_name=escape(module))
+        self.execute('ask_active', module_name=module)
         result = self.cursor.fetchone()
         if result:
             return result[0]
@@ -166,24 +166,24 @@ class ModuleOperations(Operations):
 class Alias(Operations):
     _queries = {
         'mysql': {
-            'by_alias': 'select source_url from alias where alias={alias};',
-            'by_source': 'select alias from alias where source_url={source};',
-            'add_alias': 'insert into alias (alias, source_url) values ({alias}, {source});'
+            'by_alias': 'select source_url from alias where alias=:alias;',
+            'by_source': 'select alias from alias where source_url=:source;',
+            'add_alias': 'insert into alias (alias, source_url) values (:alias, :source);'
         }
     }
 
     _tables = {'alias'}
 
     def get_by_alias(self, alias):
-        self.execute('by_alias', alias=escape(alias))
+        self.execute('by_alias', alias=alias)
         return self.cursor.fetchone()[0]
 
     def get_by_source(self, source):
-        self.execute('by_source', source=escape(source))
+        self.execute('by_source', source=source)
         return [a[0] for a in self.cursor.fetchall()]
 
     def add_alias(self, source, alias):
-        self.execute('add_alias', source=escape(source), alias=escape(alias))
+        self.execute('add_alias', source=source, alias=alias)
 
 
 class ContentTypes(Operations):
@@ -191,19 +191,19 @@ class ContentTypes(Operations):
 
     _queries = {
         'mysql': {
-            'add': 'insert into content_types (content_type_name, display_name, content_handler, theme, description) values ({content_type_name}, {display_name}, {content_handler}, {theme}, {description});',
-            'get_theme': 'select theme from content_types where content_type_name={content_type};',
+            'add': 'insert into content_types (content_type_name, display_name, content_handler, theme, description) values (:content_type_name, :display_name, :content_handler, :theme, :description);',
+            'get_theme': 'select theme from content_types where content_type_name=:content_type;',
             'get_content_types': 'select content_type_name, display_name from content_types;',
-            'get_display_name': 'select display_name from content_types where content_type_name={content_type_name};'
+            'get_display_name': 'select display_name from content_types where content_type_name=:content_type_name;'
         }
     }
 
     def add(self, content_type_name, display_name, content_handler, theme, description=''):
-        self.execute('add', display_name=escape(display_name), content_type_name=escape(content_type_name),
-                     content_handler=escape(content_handler), theme=escape(theme), description=escape(description))
+        self.execute('add', display_name=display_name, content_type_name=content_type_name,
+                     content_handler=content_handler, theme=theme, description=description)
 
     def get_theme(self, content_type):
-        self.execute('get_theme', content_type=escape(content_type))
+        self.execute('get_theme', content_type=content_type)
         return self.cursor.fetchone()[0]
 
     def get_content_types(self):
@@ -211,7 +211,7 @@ class ContentTypes(Operations):
         return self.cursor.fetchall()
 
     def get_ct_display_name(self, ct_name):
-        self.execute('get_display_name', content_type_name=escape(ct_name))
+        self.execute('get_display_name', content_type_name=ct_name)
         return self.cursor.fetchone()[0]
 
 

@@ -6,11 +6,11 @@ __author__ = 'justusadam'
 class AdminOperations(Operations):
     _queries = {
         'mysql': {
-            'get_categories_info': 'select machine_name, display_name from admin_categories {cond} order by weight;',
-            'get_subcategories': 'select machine_name, display_name, category from admin_subcategories {cond} order by category, weight;',
-            'get_page': 'select handler_module from admin_pages where machine_name={machine_name};',
-            'get_cat_pages': 'select machine_name, display_name, subcategory from admin_pages where subcategory={category};',
-            'get_subcategories_info': 'select machine_name, display_name from admin_subcategories {cond} order by weight;'
+            'get_categories_info': 'select machine_name, display_name from admin_categories :cond order by weight;',
+            'get_subcategories': 'select machine_name, display_name, category from admin_subcategories :cond order by category, weight;',
+            'get_page': 'select handler_module from admin_pages where machine_name=:machine_name;',
+            'get_cat_pages': 'select machine_name, display_name, subcategory from admin_pages where subcategory=:category;',
+            'get_subcategories_info': 'select machine_name, display_name from admin_subcategories :cond order by weight;'
         }
     }
 
@@ -51,7 +51,7 @@ class AdminOperations(Operations):
         return self.cursor.fetchone()[0]
 
     def get_cat_pages(self, category):
-        self.execute('get_cat_pages', category=escape(category))
+        self.execute('get_cat_pages', category=category)
         return self.cursor.fetchall()
 
     def add_category(self, machine_name, display_name, description, weight):
