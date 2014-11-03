@@ -5,7 +5,7 @@ from dynct.core.handlers.page import Page
 __author__ = 'justusadam'
 
 
-class BasicHandler(Page):
+class DecoratorWithRegions(Page):
     _theme = None
     view_name = 'page'
 
@@ -21,6 +21,7 @@ class BasicHandler(Page):
         return r
 
     def _fill_model(self):
-        for region in self.regions:
-            self._model[region.name] = str(region.compiled)
+        if not 'no-commons' in self.model.decorator_attributes:
+            for region in self.regions:
+                self._model[region.name] = str(region.compiled)
         super()._fill_model()

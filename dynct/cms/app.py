@@ -3,7 +3,7 @@ import os
 from dynct.application.app import Application
 from dynct.core.modules import Modules
 from dynct.core.module_operations import register_installed_modules
-from dynct.modules.comp.page_handler import BasicHandler
+from dynct.modules.comp.page_handler import DecoratorWithRegions
 from dynct.core.mvc.controller import ControllerMapper
 
 
@@ -36,7 +36,7 @@ class MainApp(Application):
         def http_callback(url, client):
             model = self.controllers(url)(url, client)
             print(model.decorator_attributes)
-            decorator = BasicHandler(model, url, client)
+            decorator = DecoratorWithRegions(model, url, client)
             print('')
             return decorator.encoded
 

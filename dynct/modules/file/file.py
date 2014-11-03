@@ -94,7 +94,6 @@ class DirectoryHandler:
 
     @property
     def compiled(self):
-        model = Model('page')
-        model['title'] = self.directory.name
-        model['content'] = self._render_file_list()
+        model = Model('page', title=self.directory.name, content=self._render_file_list())
+        model.decorator_attributes.add('no-commons')
         return model
