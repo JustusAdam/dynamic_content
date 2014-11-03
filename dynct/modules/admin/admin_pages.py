@@ -20,7 +20,7 @@ class AdminController(Controller):
 
     def handle(self, url, client:ClientInfoImpl):
         if client.user == GUEST:
-            return Model('page', content='Not authorized.')
+            return Model('page', content='Not authorized.', title='Not Authorized.')
         tail = url.path[1:]
         if not tail:
             handler = OverviewPage

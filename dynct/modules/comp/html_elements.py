@@ -15,7 +15,7 @@ class BaseElement:
     your inheriting class, unless you require a more complex setter
     """
 
-    def __init__(self, html_type, additionals=dict()):
+    def __init__(self, html_type, additionals:dict=None):
         self.html_type = html_type
         if isinstance(additionals, str):
             additionals = [additionals]
@@ -67,7 +67,7 @@ class BaseElement:
 class BaseClassIdElement(BaseElement):
     _classes = None
 
-    def __init__(self, html_type, classes=set(), element_id='', additionals={}):
+    def __init__(self, html_type, classes:set=None, element_id:str=None, additionals:dict=None):
         super().__init__(html_type, additionals)
         self.classes = classes
         self.element_id = element_id
@@ -103,7 +103,7 @@ class BaseClassIdElement(BaseElement):
 
 
 class ContainerElement(BaseClassIdElement):
-    def __init__(self, *content, html_type='div', classes=set(), element_id='', additionals={}):
+    def __init__(self, *content, html_type='div', classes:set=None, element_id:str=None, additionals:dict=None):
         super().__init__(html_type, classes, element_id, additionals)
         self._content = list(content)
 
@@ -127,13 +127,19 @@ class ContainerElement(BaseClassIdElement):
         return '<' + self.render_head() + '>' + self.render_content() + '</' + self.html_type + '>'
 
 
+class A(ContainerElement):
+    def __init__(self, href, *content, classes:set=None, element_id:str=None, additionals:dict=None):
+        super().__init__(*content, html_type='a', classes=classes, element_id=element_id, additionals=additionals)
+        self._customs['href'] = href
+
+
 class HTMLPage(ContainerElement):
     _stylesheets = None
     _metatags = None
     _scripts = None
 
-    def __init__(self, title, *content, classes=set(), element_id='', additionals={}, metatags=set(), stylesheets=set(),
-                 scripts=set()):
+    def __init__(self, title, *content, classes:set=None, element_id:str=None, additionals:dict=None, metatags:set=None,
+                 stylesheets:set=None, scripts:set=None):
         super().__init__(title, *content, html_type='html', classes=classes, element_id=element_id,
                          additionals=additionals)
         self.stylesheets = stylesheets
@@ -187,7 +193,7 @@ class HTMLPage(ContainerElement):
 
 
 class LinkElement(BaseElement):
-    def __init__(self, href, rel, element_type='', additionals={}):
+    def __init__(self, href, rel, element_type:str=None, additionals:dict=None):
         super().__init__('link', additionals)
         self._customs['rel'] = rel
         self._customs['href'] = href
@@ -195,7 +201,7 @@ class LinkElement(BaseElement):
 
 
 class Stylesheet(BaseElement):
-    def __init__(self, href, media='all', typedec='text/css', rel='stylesheet', additionals={}):
+    def __init__(self, href, media='all', typedec='text/css', rel='stylesheet', additionals:dict=None):
         super().__init__('link', additionals)
         self.href = href
         self.media = media
@@ -214,15 +220,15 @@ class Stylesheet(BaseElement):
 
 
 class Script(BaseElement):
-    def __init__(self, src, prop_type='text/javascript', additionals={}):
+    def __init__(self, src, prop_type='text/javascript', additionals:dict=None):
         super().__init__('script', additionals)
         self._customs['type'] = prop_type
         self._customs['src'] = src
 
 
 class List(ContainerElement):
-    def __init__(self, *content, list_type='ul', classes=set(), element_id='', additionals={}, item_classes=set(),
-                 item_additional_properties={}):
+    def __init__(self, *content, list_type='ul', classes:set=None, element_id:str=None, additionals:dict=None,
+                 item_classes:set=None, item_additional_properties:dict=None):
         super().__init__(*content, html_type=list_type, classes=classes, element_id=element_id, additionals=additionals)
         self.item_classes = item_classes
         self.item_additionals = item_additional_properties
@@ -245,7 +251,7 @@ class List(ContainerElement):
 
 
 class TableElement(ContainerElement):
-    def __init__(self, *content, classes=set(), element_id='', additionals={}, table_head=False):
+    def __init__(self, *content, classes:set=None, element_id:str=None, additionals:dict=None, table_head=False):
         super().__init__(*content, html_type='table', classes=classes, element_id=element_id, additionals=additionals)
         self.table_head = table_head
 
@@ -282,8 +288,8 @@ class TableElement(ContainerElement):
 
 
 class Input(BaseClassIdElement):
-    def __init__(self, classes=set(), element_id='', input_type='text', name='', form='', value='', required=False,
-                 additionals={}):
+    def __init__(self, classes:set=None, element_id:str=None, input_type='text', name:str=None, form:str=None,
+                 value:str=None, required=False, additionals:dict=None):
         super().__init__('input', classes=classes, element_id=element_id, additionals=additionals)
         self._customs['name'] = name
         self._customs['type'] = input_type
@@ -303,8 +309,8 @@ class Input(BaseClassIdElement):
 
 
 class Radio(Input):
-    def __init__(self, classes=set(), element_id='', name='', form='', value='', required=False,
-                 checked=False, additionals={}):
+    def __init__(self, classes:set=None, element_id:str=None, name:str=None, form:str=None, value:str=None,
+                 required=False, checked=False, additionals:dict=None):
         super().__init__(classes=classes, element_id=element_id, input_type='radio', name=name, form=form,
                          value=value,
                          required=required, additionals=additionals)
@@ -313,8 +319,8 @@ class Radio(Input):
 
 
 class Checkbox(Input):
-    def __init__(self, classes=set(), element_id='', name='', form='', value='', required=False,
-                 checked=False, additionals={}):
+    def __init__(self, classes:set=None, element_id:str=None, name:str=None, form:str=None, value:str=None,
+                 required=False, checked=False, additionals:dict=None):
         super().__init__(classes=classes, element_id=element_id, input_type='checkbox', name=name, form=form,
                          value=value,
                          required=required, additionals=additionals)
@@ -323,8 +329,8 @@ class Checkbox(Input):
 
 
 class Textarea(ContainerElement):
-    def __init__(self, *content, classes=set(), element_id='', name='', form='', required=False, rows=0, cols=0,
-                 additionals={}):
+    def __init__(self, *content, classes:set=None, element_id:str=None, name:str=None, form:str=None, required=False,
+                 rows=0, cols=0, additionals:dict=None):
         super().__init__(*content, html_type='textarea', classes=classes, element_id=element_id,
                          additionals=additionals)
         self._customs['name'] = name
@@ -342,21 +348,21 @@ class Textarea(ContainerElement):
 
 
 class Label(ContainerElement):
-    def __init__(self, *content, label_for='', classes=set(), element_id='', additionals={}):
+    def __init__(self, *content, label_for:str=None, classes:set=None, element_id:str=None, additionals:dict=None):
         super().__init__(*content, html_type='label', classes=classes, element_id=element_id, additionals=additionals)
         self._customs['label'] = label_for
 
 
 class SubmitButton(Input):
-    def __init__(self, value='Submit', classes=set(), element_id='', name='', form='',
-                 additionals={}):
+    def __init__(self, value='Submit', classes:set=None, element_id:str=None, name:str=None, form:str=None,
+                 additionals:dict=None):
         super().__init__(value=value, classes=classes, element_id=element_id, name=name, input_type='submit', form=form,
                          additionals=additionals)
 
 
 class FormElement(ContainerElement):
-    def __init__(self, *content, action='{this}', classes=set(), element_id='', method='post', charset='UTF-8',
-                 submit=SubmitButton(), target='', additionals={}):
+    def __init__(self, *content, action='{this}', classes:set=None, element_id:str=None, method='post', charset='UTF-8',
+                 submit=SubmitButton(), target:str=None, additionals:dict=None):
         super().__init__(*content, html_type='form', classes=classes, element_id=element_id, additionals=additionals)
         self._customs['method'] = method
         self._customs['charset'] = charset

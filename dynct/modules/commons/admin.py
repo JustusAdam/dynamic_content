@@ -1,7 +1,8 @@
 from dynct.backend.ar.base import SimpleVirtualDBTable, VirtualDatabase
 from dynct.core.mvc.controller import Controller
 from dynct.core.mvc.model import Model
-from dynct.modules.comp.html_elements import TableElement, List
+from dynct.modules.comp.html_elements import TableElement, List, A
+from dynct.modules.i18n import get_display_name
 from .menus import MenuRenderer
 
 __author__ = 'justusadam'
@@ -14,21 +15,29 @@ class MenuAdminController(Controller):
 
     def handle_menus(self, url, client):
         if len(url.path) == 1:
-            return self.overview()
+            return self.overview(url)
         elif len(url.path) == 2:
             return self.a_menu(url, client)
 
-    def overview(self):
+    def overview(self, url):
         menus = list(self.table.rows())
-        order = list(menus[0].keys())
-        l = [order]
+        menu_id, machine_name, enabled = ['id', 'machine_name', 'enabled']
+        l = [[menu_id, machine_name, enabled]]
         for item in menus:
-            l.append([item[a] for a in order])
+            l.append(
+                [
+                    A(str(url.path) + '/' + item[machine_name], item[menu_id]),
+                    A(str(url.path) + '/' + item[machine_name], get_display_name(item[machine_name], 'menus', 'english')),
+                    str(bool(item[enabled]))
+                ]
+            )
         return Model('page', content=TableElement(*l), title='Menus Overview')
 
     def a_menu(self, url, client):
-        menu = MenuRenderer(url.path[1]).menu().render()
-        return Model('page', content=List(*menu, additionals={'style': 'list-style-type: none;'}))
+        menu_name = url.path[1]
+        menu = MenuRenderer(menu_name).menu().render()
+        return Model('page', content=List(*menu, additionals={'style': 'list-style-type: none;'}),
+                     title=get_display_name(menu_name, 'menus', 'english'))
 
 
 class Menus(SimpleVirtualDBTable):
