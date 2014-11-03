@@ -22,7 +22,7 @@ class MenuAdminController(Controller):
     def overview(self, url):
         menus = list(self.table.rows())
         menu_id, machine_name, enabled = ['id', 'machine_name', 'enabled']
-        l = [[menu_id, machine_name, enabled]]
+        l = []
         for item in menus:
             l.append(
                 [

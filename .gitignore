@@ -60,7 +60,7 @@ Apache License.txt
 sandbox.py
 
 # the individual config made from example.config.json
-dynct/cms/config.json
+dynct/modules/cms/config.json
 
 # intellij project configs
 .idea/
@@ -84,4 +84,4 @@ dynct/cms/config.json
 *.mp3
 
 # custom scripts
-dynct/cms/custom/scripts/
+dynct/modules/cms/custom/scripts/
