@@ -1,5 +1,5 @@
 from .commons import database_operations
-from dynct.core import handlers
+from dynct.core import handlers, Modules
 from dynct.modules.comp.html_elements import ContainerElement, List
 
 __author__ = 'justusadam'
@@ -73,8 +73,28 @@ class Handler(handlers.common.Commons):
     source_table = 'menu_items'
 
     def __init__(self, machine_name, show_title, access_type, client):
-        self.mo = database_operations.MenuOperations()
+
         super().__init__(machine_name, show_title, access_type, client)
+
+    def get_content(self, name):
+        renderer = MenuRenderer(self.name, self.language)
+        ul_list = renderer.menu(HTMLMenuItem).render_children(0)
+        ul_list.element_id = name
+        return ul_list
+
+
+class MenuRenderer:
+    source_table = 'menu_items'
+
+    def __init__(self, name, language='english'):
+        self.mo = database_operations.MenuOperations()
+        self.name = name
+        self.language = language
+
+    def get_display_name(self, item, language='english'):
+        if not self.dn_ops:
+            self.dn_ops = Modules()['i18n'].Operations()
+        return self.dn_ops.get_display_name(item, self.source_table, language)
 
     def get_items(self, item_class=MenuItem):
         """
@@ -133,8 +153,3 @@ class Handler(handlers.common.Commons):
 
     def menu(self, item_class=MenuItem):
         return self.order_items(self.get_items(item_class), item_class)
-
-    def get_content(self, name):
-        ul_list = self.menu(HTMLMenuItem).render_children(0)
-        ul_list.element_id = name
-        return ul_list
