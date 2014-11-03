@@ -1,8 +1,12 @@
 from dynct.core import handlers
-from dynct.modules.admin.database_operations import AdminOperations
-from dynct.modules.comp.html_elements import ContainerElement, List
 from dynct.core.mvc.controller import Controller
+from dynct.core.mvc.model import Model
 from dynct.core.modules import Modules
+from dynct.modules.comp.html_elements import ContainerElement, List
+from dynct.modules.users.users import GUEST
+from dynct.modules.users.client import ClientInfoImpl
+
+from .database_operations import AdminOperations
 
 __author__ = 'justusadam'
 
@@ -14,7 +18,9 @@ class AdminController(Controller):
         super().__init__()
         self['admin'] = self.handle
 
-    def handle(self, url, client):
+    def handle(self, url, client:ClientInfoImpl):
+        if client.user == GUEST:
+            return Model('page', content='Not authorized.')
         tail = url.path[1:]
         if not tail:
             handler = OverviewPage

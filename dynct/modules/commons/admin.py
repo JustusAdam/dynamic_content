@@ -1,7 +1,7 @@
 from dynct.backend.ar.base import SimpleVirtualDBTable, VirtualDatabase
 from dynct.core.mvc.controller import Controller
 from dynct.core.mvc.model import Model
-from dynct.modules.comp.html_elements import TableElement
+from dynct.modules.comp.html_elements import TableElement, List
 from .menus import MenuRenderer
 
 __author__ = 'justusadam'
@@ -27,7 +27,8 @@ class MenuAdminController(Controller):
         return Model('page', content=TableElement(*l), title='Menus Overview')
 
     def a_menu(self, url, client):
-        menu = MenuRenderer(url.path[1])
+        menu = MenuRenderer(url.path[1]).menu().render()
+        return Model('page', content=List(*menu, additionals={'style': 'list-style-type: none;'}))
 
 
 class Menus(SimpleVirtualDBTable):

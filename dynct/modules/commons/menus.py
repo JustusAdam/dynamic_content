@@ -1,3 +1,4 @@
+import itertools
 from .commons import database_operations
 from dynct.core import handlers, Modules
 from dynct.modules.comp.html_elements import ContainerElement, List
@@ -25,19 +26,19 @@ class MenuItem:
         self.children = []
 
     def render(self, depth=0):
-        return (self.render_self(depth)) + self.render_children(depth + 1)
+        return [self.render_self(depth)] + self.render_children(depth + 1)
 
     def render_self(self, depth):
         if depth == 0:
-            return '<' + self.display_name + '>'
+            return self.display_name
         else:
             return '-' * depth + '  ' + self.display_name
 
     def render_children(self, depth=0):
         if not self.children:
-            return ''
+            return []
         else:
-            return (a.render() for a in self.children)
+            return list(itertools.chain(*[a.render(depth) for a in self.children]))
 
     def __str__(self):
         return ''.join(str(a) for a in self.render(0))
@@ -90,10 +91,9 @@ class MenuRenderer:
         self.mo = database_operations.MenuOperations()
         self.name = name
         self.language = language
+        self.dn_ops = Modules()['i18n'].Operations()
 
     def get_display_name(self, item, language='english'):
-        if not self.dn_ops:
-            self.dn_ops = Modules()['i18n'].Operations()
         return self.dn_ops.get_display_name(item, self.source_table, language)
 
     def get_items(self, item_class=MenuItem):
