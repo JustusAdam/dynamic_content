@@ -19,10 +19,10 @@ FILE_DIRECTORIES = {
         'custom/themes',
         'themes'
     ],
-    'private': 'cms/custom/files/private',
-    'public': 'cms/custom/files/public'
+    'private': 'custom/files/private',
+    'public': 'custom/files/public'
 }
-MODULES_DIRECTORIES = ['cms/custom/modules', 'modules']
+MODULES_DIRECTORIES = ['custom/modules', 'modules']
 NECESSARY_MODULE_ATTRIBUTES = [
     'name',
     'role'

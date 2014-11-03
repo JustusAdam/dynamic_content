@@ -84,4 +84,4 @@ dynct/modules/cms/config.json
 *.mp3
 
 # custom scripts
-dynct/modules/cms/custom/scripts/
+dynct/custom/scripts/

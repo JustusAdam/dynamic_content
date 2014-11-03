@@ -3,6 +3,8 @@ from dynct.core.mvc.controller import Controller
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.html_elements import TableElement, List, A
 from dynct.modules.i18n import get_display_name
+from dynct.modules.form.secure import SecureForm
+from dynct.modules.comp.html_elements import Checkbox
 from .menus import MenuRenderer
 
 __author__ = 'justusadam'
@@ -28,10 +30,10 @@ class MenuAdminController(Controller):
                 [
                     A(str(url.path) + '/' + item[machine_name], item[menu_id]),
                     A(str(url.path) + '/' + item[machine_name], get_display_name(item[machine_name], 'menus', 'english')),
-                    str(bool(item[enabled]))
+                    Checkbox(checked=bool(item[enabled]))
                 ]
             )
-        return Model('page', content=TableElement(*l), title='Menus Overview')
+        return Model('page', content=SecureForm(TableElement(*l, classes={'menu-overview'})), title='Menus Overview')
 
     def a_menu(self, url, client):
         menu_name = url.path[1]

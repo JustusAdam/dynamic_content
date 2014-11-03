@@ -17,27 +17,18 @@ class BaseElement:
 
     def __init__(self, html_type, additionals:dict=None):
         self.html_type = html_type
-        if isinstance(additionals, str):
-            additionals = [additionals]
-        self._additionals = additionals
+        self.additionals = additionals
         self._customs = {}
 
-    @property
-    def additionals(self):
-        return self._additionals
-
-    @additionals.setter
-    def additionals(self, value):
-        if isinstance(value, str):
-            self._additionals = [value]
-        else:
-            self._additionals = value
 
     def render_additionals(self):
-        if isinstance(self.additionals, dict):
-            return list(k + '="' + html.escape(v) + '"' for k, v in self.additionals.items())
+        if not self.additionals:
+            return ''
+        elif isinstance(self.additionals, str):
+            return self.additionals
         else:
-            return self._additionals
+            return list(k + '="' + html.escape(v) + '"' for k, v in self.additionals.items())
+
 
     def render_customs(self):
         def render(item):
@@ -58,7 +49,12 @@ class BaseElement:
         return str(self) + str(other)
 
     def render(self):
-        return '<' + ' '.join([self.html_type] + self.render_customs() + self.render_additionals()) + '>'
+        l = [self.html_type]
+        if self._customs:
+            l += self.render_customs()
+        if self.additionals:
+            l += self.render_additionals()
+        return '<' + ' '.join(l) + '>'
 
     def __str__(self):
         return self.render()
@@ -203,20 +199,10 @@ class LinkElement(BaseElement):
 class Stylesheet(BaseElement):
     def __init__(self, href, media='all', typedec='text/css', rel='stylesheet', additionals:dict=None):
         super().__init__('link', additionals)
-        self.href = href
-        self.media = media
-        self.typedec = typedec
-        self.rel = rel
-
-    def render(self):
-        elements = [
-            self.html_type,
-            'rel="' + self.rel + '"',
-            'type="' + self.typedec + '"',
-            'media="' + self.media + '"',
-            'href="' + self.href + '"'
-        ]
-        return '<' + ' '.join(elements + self.render_additionals() + self.render_customs()) + '>'
+        self._customs['href'] = href
+        self._customs['media'] = media
+        self._customs['type'] = typedec
+        self._customs['rel'] = rel
 
 
 class Script(BaseElement):

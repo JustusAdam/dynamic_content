@@ -27,7 +27,7 @@ def get_my_folder():
 # TODO let the config be read when calling Database()
 # TODO before that make Database() be only called once and not be a singleton!!!
 # HACK setting config path here (hard), needs to be changed
-config = read_config(str(get_my_folder()) + '/../../cms/config')
+config = read_config(str(get_my_folder()) + '/../../modules/cms/config')
 
 db_types = {
     'mysql': 'mysql'

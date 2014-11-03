@@ -353,32 +353,40 @@ input[type='text'], input[type='email'], input[type='password'], textarea {
 }
 
 $filelink-highlight-border-width: 6px;
-$filelink-padding-horiz: 25px;
-$filelink-padding-vert: 20px;
+$bright-row-base-padding-horiz: 25px;
+$bright-row-padding-vert: 20px;
 
-@mixin white-link-box-animation {
+@mixin bright-row-hover-animation {
   transition-delay: 0ms;
   transition-timing-function: ease;
   transition-property: background-color, padding, border-width;
   transition-duration: 300ms;
 }
 
-a.file-link {
-  @include white-link-box-animation;
-  display: block;
-  padding: $filelink-padding-vert $filelink-padding-horiz;
-  border: 0px solid #999999;
+@mixin nice-bright-row {
   background-color: rgb(247, 247, 247);
+  display: block;
+  padding: $bright-row-padding-vert $bright-row-base-padding-horiz;
   text-decoration: none;
   font-weight: bold;
   color: #2e4c11;
+  border: 0px solid #999999;
+}
+
+@mixin bright-row-highlighted {
+  color: #c3a762;
+  border-width: 0px 0px + $filelink-highlight-border-width;
+  padding: $bright-row-padding-vert $bright-row-base-padding-horiz - $filelink-highlight-border-width;
+}
+
+a.file-link {
+  @include bright-row-hover-animation;
+  @include nice-bright-row;
 }
 
 a.file-link:hover, a.file-link:visited:hover {
-  @include white-link-box-animation;
-  color: #c3a762;
-  border-width: 0px 0px + $filelink-highlight-border-width;
-  padding: $filelink-padding-vert $filelink-padding-horiz - $filelink-highlight-border-width;
+  @include bright-row-hover-animation;
+  @include bright-row-highlighted;
 }
 
 a.file-link:visited {
@@ -395,7 +403,7 @@ ul.editorial-list {
   display: block;
   overflow: hidden;
   a {
-    @include white-link-box-animation;
+    @include bright-row-hover-animation;
     color: black;
     text-decoration: none;
     background-color: white;
@@ -408,8 +416,27 @@ ul.editorial-list {
     color: inherit;
   }
   a:hover {
-    @include white-link-box-animation;
+    @include bright-row-hover-animation;
     border-width: 0 3px;
     padding: 5px 12px;
+  }
+}
+
+.menu-overview{
+  tr{
+    @include bright-row-hover-animation;
+    @include nice-bright-row;
+  }
+  tr:hover {
+    @include bright-row-hover-animation;
+    @include bright-row-highlighted;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  a:visited {
+    color: inherit;
+    text-decoration: none;
   }
 }
