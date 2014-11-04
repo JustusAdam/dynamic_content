@@ -14,7 +14,7 @@ __author__ = 'justusadam'
 from pymysql import DatabaseError, connect
 from pymysql.converters import escape_item
 
-from dynct.backend.database._abs import AbstractDatabase
+from ._abs import AbstractDatabase
 
 
 def unwrap_pairing(pairing, charset):

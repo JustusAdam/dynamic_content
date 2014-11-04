@@ -29,19 +29,28 @@ def get_my_folder():
 # HACK setting config path here (hard), needs to be changed
 config = read_config(str(get_my_folder()) + '/../../modules/cms/config')
 
-db_types = {
-    'mysql': 'mysql'
+# db_types = {
+#     'mysql': 'mysql'
+# }
+
+new_db_types = {
+    'mysql': 'pymysql'
 }
 
-db_imp = importlib.import_module('.' + db_types[config['database_type']], __name__)
+db_mod = importlib.import_module(new_db_types[config['database_type']])
 
+def connection():
+    return db_mod.connect(**config['database_connection_arguments'])
 
-def database_factory():
-    return db_imp.Database(config)
-
-
-escape = db_imp.escape
-
-Database = database_factory
-
-DatabaseError = db_imp.DatabaseError
+# db_imp = importlib.import_module('.' + db_types[config['database_type']], __name__)
+#
+#
+# def database_factory():
+#     return db_imp.Database(config)
+#
+#
+# escape = db_imp.escape
+#
+# Database = database_factory
+#
+# DatabaseError = db_imp.DatabaseError
