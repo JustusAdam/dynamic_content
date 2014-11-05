@@ -188,9 +188,13 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
 
     def get_page_information(self):
         ops = database_operations.Pages()
-        if not 'ct' in self.url.get_query:
-            raise ValueError
-        content_type = self.url.get_query['ct'][0]
+        if 'ct' in self.url.get_query:
+            content_type = self.url.get_query['ct'][0]
+        elif self.url.path[2]:
+            content_type = self.url.path[2]
+        else:
+            raise InvalidInputError
+
         display_name = ContentTypes().get_ct_display_name(content_type)
         title = 'Add new ' + display_name + ' page'
         theme = ops.get_theme(content_type=content_type)
@@ -231,9 +235,14 @@ class IrisController(Controller):
     def handle(self, url, client):
         if len(url.path) == 3:
             if not url.path[1].isdigit():
-                raise InvalidInputError
-            url.page_id = int(url.path[1])
-            url.page_modifier = url.path[2]
+                if url.path[1] == _add_modifier:
+                    url.page_modifier = _add_modifier
+                    url.page_id = 0
+                else:
+                    raise InvalidInputError
+            else:
+                url.page_id = int(url.path[1])
+                url.page_modifier = url.path[2]
         elif len(url.path) == 2:
             if url.path[1].isdigit():
                 url.page_id = int(url.path[1])

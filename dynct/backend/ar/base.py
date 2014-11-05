@@ -9,13 +9,6 @@ class ARObject:
 
     def __init__(self):
         self._is_real = False
-        self._updated = False
-
-    def __setattr__(self, key, value):
-        if key in self.values():
-            if not self._updated:
-                self._updated = True
-        super().__setattr__(key, value)
 
     @classmethod
     def get(cls, **descriptor):
@@ -25,7 +18,7 @@ class ARObject:
         :return:
         """
         cursor = cls._get(descriptor)
-        return cls(cursor.fetchone())
+        return cls(*cursor.fetchone())
 
     @classmethod
     def get_many(cls, range_, sort_by=None, **descriptors):
@@ -55,13 +48,10 @@ class ARObject:
 
     @classmethod
     def _get(cls, descriptors, _tail:str=''):
-        return cls.database.select(cls.values(), cls._table, ' and '.join([a + ':=' + a for a in descriptors]) + _tail, descriptors)
+        return cls.database.select(cls.values(), cls._table, ' and '.join([a + '=%(' + a + ')s' for a in descriptors]) + _tail, descriptors)
 
     def save(self):
-        if self._updated or not self._is_real:
-            if self._is_real:
-                v = {}
-                self.database.update(self._table, {a:getattr(self, a) for a in self.values()})
+        self.database.update(self._table, {a:getattr(self, a) for a in self.values()})
 
     @classmethod
     def values(cls) -> list:

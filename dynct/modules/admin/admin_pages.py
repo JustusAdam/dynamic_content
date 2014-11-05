@@ -5,8 +5,7 @@ from dynct.core.modules import Modules
 from dynct.modules.comp.html_elements import ContainerElement, List
 from dynct.modules.users.users import GUEST
 from dynct.modules.users.client import ClientInfoImpl
-
-from .database_operations import AdminOperations
+from . import ar
 
 __author__ = 'justusadam'
 
@@ -29,8 +28,8 @@ class AdminController(Controller):
         elif len(tail) == 2:
             handler = SubcategoryPage
         else:
-            handler_name = AdminOperations().get_page(tail[2])
-            handler = Modules()[handler_name].admin_handler(tail[2])
+            page = ar.AdminPage.get(machine_name=tail[2])
+            handler = Modules()[page.handler_module].admin_handler(tail[2])
         return handler(url, client).compiled
 
 
@@ -38,14 +37,14 @@ class Overview(handlers.base.ContentCompiler):
     classes = {'admin-menu', 'overview'}
 
     def __init__(self):
-        self.ops = AdminOperations()
+        # self.ops = AdminOperations()
         self.page_title = 'Website Administration'
 
     def get_children_data(self):
-        return self.ops.get_subcategories()
+        return ar.Subcategory.get_all()
 
     def get_parents_data(self):
-        return self.ops.get_categories()
+        return ar.Category.get_all()
 
     def base_path(self):
         return ADMIN_PATH
@@ -72,11 +71,11 @@ class Overview(handlers.base.ContentCompiler):
                 mapping[item.parent].append(item)
             else:
                 mapping[item.parent] = [item]
-        return [Category(machine_name, display_name, None, mapping.get(machine_name, None)) for
-                (machine_name, display_name) in parents]
+        return [Category(parent.machine_name, parent.display_name, None, mapping.get(parent.machine_name, None)) for
+                parent in parents]
 
     def get_children(self, child_class):
-        return [child_class(machine_name, display_name, category, None) for (machine_name, display_name, category) in
+        return [child_class(child.machine_name, child.display_name, child.category, None) for child in
                 self.get_children_data()]
 
 
@@ -111,14 +110,18 @@ class OverviewCommon(handlers.common.Commons, Overview):
 class CategoryPage(OverviewPage):
     classes = {'admin-menu', 'category'}
 
+    def __init__(self, url, client):
+        super().__init__(url, client)
+        self.name = url.path[1]
+
     def base_path(self):
         return self.url.path.prt_to_str(0, -1)
 
     def get_parents_data(self):
-        return self.ops.get_categories(self.url.tail[0])
+        return [ar.Category.get(machine_name=self.name)]
 
     def get_children_data(self):
-        return self.ops.get_subcategories(self.url.tail[0])
+        return ar.Subcategory.get_all(category=self.name)
 
 
 class SubcategoryPage(CategoryPage):
@@ -126,13 +129,13 @@ class SubcategoryPage(CategoryPage):
 
     def __init__(self, url, client):
         super().__init__(url, client)
-        self.name = self.url.tail[1]
+        self.name = self.url.path[2]
 
     def get_parents_data(self):
-        return self.ops.get_subcategories_info(self.name)
+        return [ar.Subcategory.get(machine_name=self.name)]
 
     def get_children_data(self):
-        return self.ops.get_cat_pages(self.name)
+        return ar.AdminPage.get_all(subcategory=self.name)
 
 
 class Category:

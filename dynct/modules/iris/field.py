@@ -37,9 +37,9 @@ class EditBaseFieldHandler(BaseFieldHandler):
 class AddBaseFieldHandler(EditBaseFieldHandler):
     def process_content(self):
         if self.machine_name in self._query:
-            return Textarea(self._query[self.machine_name][0], name=self.machine_name, rows=7, cols=50,
+            return WysiwygTextarea(self._query[self.machine_name][0], name=self.machine_name, rows=7, cols=50,
                             classes={self.machine_name} | self.xtra_classes)
-        return Textarea(name=self.machine_name, rows=7, cols=50, classes={self.machine_name} | self.xtra_classes)
+        return WysiwygTextarea(name=self.machine_name, rows=7, cols=50, classes={self.machine_name} | self.xtra_classes)
 
     def process_post(self):
         self.db_ops.add_field(self.machine_name, self.path_prefix, self.page_id, self.query[self.machine_name][0])

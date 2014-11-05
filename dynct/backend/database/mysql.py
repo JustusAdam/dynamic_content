@@ -82,9 +82,11 @@ class Database(AbstractDatabase):
     # cursor = self._connection.cursor()
     # return cursor.execute('select id from modules where module_name = ' + module_name + ';')[0]
 
-    def select(self, columns, from_table, query_tail, params):
+    def select(self, columns, from_table, query_tail:str, params):
         if isinstance(columns, (list, tuple)):
             columns = ', '.join(columns)
+        if query_tail and not query_tail.startswith('where '):
+            query_tail = 'where ' + query_tail
         if not query_tail.endswith(';'):
             query_tail += ';'
         cursor = self._connection.cursor()
@@ -97,7 +99,7 @@ class Database(AbstractDatabase):
         keys = pairing.keys()
 
         cursor = self._connection.cursor()
-        query = 'insert into ' + ' '.join([into_table, keys, 'values', [':' + a for a in keys]]) + ';'
+        query = 'insert into ' + ' '.join([into_table, keys, 'values', ['%(' + a + ')s' for a in keys]]) + ';'
         print(query)
         cursor.execute(query, pairing)
         cursor.close()
@@ -107,7 +109,7 @@ class Database(AbstractDatabase):
         keys = pairing.keys()
 
         cursor = self._connection.cursor()
-        query = 'replace into ' + ' '.join([into_table, keys, 'values', [':' + a for a in keys]]) + ';'
+        query = 'replace into ' + ' '.join([into_table, keys, 'values', ['%(' + a + ')s' for a in keys]]) + ';'
         print(query)
         cursor.execute(query, pairing)
         cursor.close()
@@ -119,7 +121,7 @@ class Database(AbstractDatabase):
         cursor.execute('drop table ' + ', '.join(tables) + ';')
 
     def update(self, table, pairing:dict, where_condition, params):
-        set_clause = ', '.join([a + '=:' + a for a in pairing])
+        set_clause = ', '.join([a + '=%(' + a + ')s' for a in pairing])
         if where_condition and not where_condition.startswith('where '):
             where_condition = 'where ' + where_condition + ';'
         else:
