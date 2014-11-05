@@ -11,16 +11,16 @@ class AbstractDatabase:
     def insert(self, into_table, pairing:dict):
         pass
 
-    def select(self, columns, from_table, query_tail=';', **params):
+    def select(self, columns, from_table, query_tail, params):
         pass
 
     def show_columns(self, table=''):
         pass
 
-    def remove(self, from_table, where_condition, **params):
+    def remove(self, from_table, where_condition, params):
         pass
 
-    def update(self, table, pairing, where_condition='', **params):
+    def update(self, table, pairing, where_condition, params):
         pass
 
     def drop_tables(self, *tables):

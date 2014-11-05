@@ -82,14 +82,14 @@ class Database(AbstractDatabase):
     # cursor = self._connection.cursor()
     # return cursor.execute('select id from modules where module_name = ' + module_name + ';')[0]
 
-    def select(self, columns, from_table, query_tail=';', **params):
+    def select(self, columns, from_table, query_tail, params):
         if isinstance(columns, (list, tuple)):
             columns = ', '.join(columns)
         if not query_tail.endswith(';'):
             query_tail += ';'
         cursor = self._connection.cursor()
         query = 'select ' + columns + ' from ' + from_table + ' ' + query_tail
-        cursor.execute(query, **params)
+        cursor.execute(query, params)
         return cursor
 
     def insert(self, into_table:str, pairing:dict):
@@ -99,7 +99,7 @@ class Database(AbstractDatabase):
         cursor = self._connection.cursor()
         query = 'insert into ' + ' '.join([into_table, keys, 'values', [':' + a for a in keys]]) + ';'
         print(query)
-        cursor.execute(query, **pairing)
+        cursor.execute(query, pairing)
         cursor.close()
         return
 
@@ -109,7 +109,7 @@ class Database(AbstractDatabase):
         cursor = self._connection.cursor()
         query = 'replace into ' + ' '.join([into_table, keys, 'values', [':' + a for a in keys]]) + ';'
         print(query)
-        cursor.execute(query, **pairing)
+        cursor.execute(query, pairing)
         cursor.close()
         return
 
@@ -118,7 +118,7 @@ class Database(AbstractDatabase):
         cursor = self._connection.cursor()
         cursor.execute('drop table ' + ', '.join(tables) + ';')
 
-    def update(self, table, pairing:dict, where_condition='', **params):
+    def update(self, table, pairing:dict, where_condition, params):
         set_clause = ', '.join([a + '=:' + a for a in pairing])
         if where_condition and not where_condition.startswith('where '):
             where_condition = 'where ' + where_condition + ';'
@@ -126,12 +126,12 @@ class Database(AbstractDatabase):
             where_condition += ';'
         cursor = self.cursor()
         # print(' '.join(['update', table, 'set', set_clause, where_condition]))
-        cursor.execute(' '.join(['update', table, 'set', set_clause, where_condition]))
+        cursor.execute(' '.join(['update', table, 'set', set_clause, where_condition]), params)
 
     def alter_table(self, table, add=None, alter=None):
         pass
 
-    def remove(self, from_table, where_condition, **params):
+    def remove(self, from_table, where_condition, params):
         if where_condition:
             if not where_condition.startswith('where '):
                 where_condition = 'where ' + where_condition
@@ -139,7 +139,7 @@ class Database(AbstractDatabase):
                 where_condition += ';'
         query = 'delete from ' + from_table + ' ' + where_condition
         cursor = self.cursor()
-        return cursor.execute(query, **params)
+        return cursor.execute(query, params)
 
     def check_connection(self):
         """

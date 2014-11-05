@@ -26,8 +26,8 @@ class MenuAdminController(Controller):
         for item in menus:
             l.append(
                 [
-                    A(str(url.path) + '/' + item.machine_name, item._id),
-                    A(str(url.path) + '/' + item.machine_name, get_display_name(item._name, 'menus', 'english')),
+                    A(str(url.path) + '/' + item.machine_name, item.id),
+                    A(str(url.path) + '/' + item.machine_name, get_display_name(item.machine_name, 'menus', 'english')),
                     Checkbox(checked=bool(item.enabled))
                 ]
             )
@@ -41,6 +41,7 @@ class MenuAdminController(Controller):
 
 
 class Menus(ARObject):
+    _table = 'menus'
 
     def __init__(self, id, machine_name, enabled):
         super().__init__()

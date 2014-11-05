@@ -12,7 +12,7 @@ class ARObject:
         self._updated = False
 
     def __setattr__(self, key, value):
-        if key in self.values:
+        if key in self.values():
             if not self._updated:
                 self._updated = True
         super().__setattr__(key, value)
@@ -24,7 +24,7 @@ class ARObject:
         :param descriptor: Should be one ore more table keys.
         :return:
         """
-        cursor = cls._get(**descriptor)
+        cursor = cls._get(descriptor)
         return cls(cursor.fetchone())
 
     @classmethod
@@ -39,7 +39,7 @@ class ARObject:
         return [cls()]
 
     @classmethod
-    def get_all(cls, sort_by=None, **descriptors):
+    def get_all(cls, sort_by='', **descriptors):
         """
         Retrieves all objects described by descriptors.
         :param sort_by:
@@ -50,19 +50,21 @@ class ARObject:
             True: 'order by ' + sort_by,
             False: ''
         }[bool(sort_by)]
-        cursor = cls._get(tail, **descriptors)
+        cursor = cls._get(descriptors, tail)
         return [cls(*a) for a in cursor.fetchall()]
 
     @classmethod
-    def _get(cls, _tail:str='', **descriptors):
-        return cls.database.select(cls.values(), cls._table, ' and '.join([a + ':=' + a for a in descriptors]), descriptors)
+    def _get(cls, descriptors, _tail:str=''):
+        return cls.database.select(cls.values(), cls._table, ' and '.join([a + ':=' + a for a in descriptors]) + _tail, descriptors)
 
     def save(self):
         if self._updated or not self._is_real:
             if self._is_real:
-                v = ', '.join([a + '=:' + a for a in self.values()])
-                connection.execute('update ' + self._table + ' set ' + v + ' where ')
+                v = {}
+                self.database.update(self._table, {a:getattr(self, a) for a in self.values()})
 
     @classmethod
     def values(cls) -> list:
-        return inspect.getargspec(cls.__init__)[0][1:]
+        if not hasattr(cls, '_values'):
+            cls._values = inspect.getargspec(cls.__init__)[0][1:]
+        return cls._values
