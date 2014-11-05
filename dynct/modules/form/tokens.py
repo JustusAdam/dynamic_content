@@ -1,13 +1,29 @@
 import binascii
-
-from dynct.modules.form.database_operations import FormOperations
+import os
+from dynct.backend.ar.base import ARObject
 
 
 __author__ = 'justusadam'
 
 
+class ARToken(ARObject):
+    _table = 'form_tokens'
+    
+    def __init__(self, url, token):
+        super().__init__()
+        self.url = url
+        self.token = token
+        
+
+TOKEN_SIZE = 16
+
+
+def gen_token():
+    return os.urandom(TOKEN_SIZE)
+
+
 def _validate(form, token):
-    return FormOperations().validate(form, binascii.unhexlify(token))
+    return bool(ARObject.get(url=form, token=binascii.unhexlify(token)))
 
 
 def validate(form, query_or_token):
@@ -19,4 +35,6 @@ def validate(form, query_or_token):
 
 
 def new(form):
-    return binascii.hexlify(FormOperations().new_token(form)).decode()
+    token = gen_token()
+    ARToken(form, token).save()
+    return binascii.hexlify(token).decode()

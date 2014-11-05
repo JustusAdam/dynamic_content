@@ -2,7 +2,6 @@ from dynct.backend.database import Database
 from dynct.core.database_operations import Alias, ModuleOperations, ContentHandlers, ContentTypes
 from dynct.modules.iris.database_operations import Pages, Fields
 from dynct.modules.commons.database_operations import MenuOperations, CommonsOperations
-from dynct.modules.comp.database_operations import RegionOperations
 from dynct.modules.users.database_operations import UserOperations, SessionOperations, AccessOperations
 
 __author__ = 'justusadam'

@@ -15,7 +15,7 @@ class ControllerMapper(dict):
     controllers = set()
 
     def register_module(self, module):
-        for attr in module.__dict__.values():
+        for attr in module.__dict__._values():
             if inspect.isclass(attr):
                 if issubclass(attr, Controller):
                     c = attr()

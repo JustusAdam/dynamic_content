@@ -3,7 +3,7 @@ import inspect
 
 
 
-class ARObject:
+class ARObject(object):
     _table = ''
     database = Database()
 
@@ -48,13 +48,33 @@ class ARObject:
 
     @classmethod
     def _get(cls, descriptors, _tail:str=''):
-        return cls.database.select(cls.values(), cls._table, ' and '.join([a + '=%(' + a + ')s' for a in descriptors]) + _tail, descriptors)
+        return cls.database.select(cls._values(), cls._table, ' and '.join([a + '=%(' + a + ')s' for a in descriptors]) + _tail, descriptors)
 
     def save(self):
-        self.database.update(self._table, {a:getattr(self, a) for a in self.values()})
+        self.database.update(self._table, {a:getattr(self, a) for a in self._values()})
 
     @classmethod
-    def values(cls) -> list:
-        if not hasattr(cls, '_values'):
-            cls._values = inspect.getargspec(cls.__init__)[0][1:]
-        return cls._values
+    def _values(cls) -> list:
+        if not hasattr(cls, '_values_'):
+            cls._values_ = set(inspect.getargspec(cls.__init__)[0][1:])
+        return cls._values_
+
+
+class PartiallyLazyARObject(ARObject):
+    _lazy_values = set()
+
+    def __getattribute__(self, item):
+        a = super().__getattribute__(item)
+        if not a:
+            if item in self._lazy_values:
+                existing = {f:getattr(self, f) for f in self._values()}
+                a = self.database.select(item, self._table, ' and '.join([b + '=%(' + b + ')s' for b in existing]), existing)
+                # execute query to get value
+                self.__setattr__(item, a)
+        return a
+
+    @classmethod
+    def _values(cls):
+        if not hasattr(cls, '_values_'):
+            cls._values_ = set(inspect.getargspec(cls.__init__)[0][1:]) - cls._lazy_values
+        return cls._values_
