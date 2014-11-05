@@ -56,7 +56,7 @@ class ARObject(object):
     @classmethod
     def _values(cls) -> list:
         if not hasattr(cls, '_values_'):
-            cls._values_ = set(inspect.getargspec(cls.__init__)[0][1:])
+            cls._values_ = inspect.getargspec(cls.__init__)[0][1:]
         return cls._values_
 
 
@@ -76,5 +76,6 @@ class PartiallyLazyARObject(ARObject):
     @classmethod
     def _values(cls):
         if not hasattr(cls, '_values_'):
-            cls._values_ = set(inspect.getargspec(cls.__init__)[0][1:]) - cls._lazy_values
+            # TODO test this
+            cls._values_ = inspect.getargspec(cls.__init__)[0][1:] - cls._lazy_values
         return cls._values_
