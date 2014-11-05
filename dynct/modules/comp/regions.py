@@ -2,6 +2,7 @@ from dynct.core.modules import Modules
 from .html_elements import ContainerElement
 from .page import Component
 from . import database_operations
+from . import ar
 
 __author__ = 'justusadam'
 
@@ -11,30 +12,25 @@ class RegionHandler:
 
     def __init__(self, region_name, region_config, theme, client):
         self.client = client
-        self.operations = database_operations.RegionOperations()
+        # self.operations = database_operations.RegionOperations()
         self.name = region_name
         self.theme = theme
         self.commons = self.get_all_commons(region_name, theme)
         self.config = region_config
 
     def get_all_commons(self, name, theme):
-        region_info = self.operations.get_commons(name, theme)
-        acc = []
-        if region_info:
-            info = {a[0]: a[1:] for a in self.get_items_info(region_info)}
-
-            for item in region_info:
-                acc.append(self.get_item(item, *info[item]))
+        region_info = ar.Common.get_all(region=name, theme=theme)
+        acc = [self.get_item(a) for a in self.get_items_info(region_info)]
         return acc
 
-    def get_item(self, item_name, handler_module, item_type, show_title, access_type):
-        show_title = show_title == 1
-        handler = self.modules[handler_module].common_handler(item_type)(item_name, show_title, access_type,
+    def get_item(self, item:ar.CommonsConfig):
+        show_title = item.show_title == 1
+        handler = self.modules[item.handler_module].common_handler(item.element_type)(item.element_name, show_title, item.access_type,
                                                                          self.client)
-        return Common(item_name, handler, item_type)
+        return Common(item.element_name, handler, item.element_type)
 
     def get_items_info(self, items):
-        return self.operations.get_all_items_info(items)
+        return [ar.CommonsConfig.get(element_name=a.item_name) for a in items]
 
     def wrap(self, value):
         classes = ['region', 'region-' + self.name.replace('_', '-')]

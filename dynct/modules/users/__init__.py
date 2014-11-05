@@ -37,12 +37,11 @@ def common_handler(item_type):
 def prepare():
     from dynct import core
     from .database_operations import UserOperations, SessionOperations, AccessOperations
-    from dynct.modules.comp.database_operations import RegionOperations
+    from dynct.modules import comp
 
     # from coremodules.i18n.database_operations import DisplayNamesOperations
     so = SessionOperations()
     uo = UserOperations()
-    ro = RegionOperations()
     aa = AccessOperations()
     # dn = DisplayNamesOperations()
     so.init_tables()
@@ -55,13 +54,13 @@ def prepare():
     core.add_content_handler('users', name, 'users')
 
     # add login common
-    ro.add_item_conf('login', 'login', name, True, 1)
-    ro.add_item('login', START_REGION, 0, START_THEME)
+    comp.add_commons_config('login', 'login', name, True, 1)
+    comp.add_commons_config('login', START_REGION, 0, START_THEME)
     # dn.add_item('login', 'user_management', ('english', 'User Login'))
 
     # add user information common
-    ro.add_item_conf('user_information', 'user_information', name, True, 1)
-    ro.add_item('user_information', START_REGION, 1, START_THEME)
+    comp.add_commons_config('user_information', 'user_information', name, True, 1)
+    comp.assign_common('user_information', START_REGION, 1, START_THEME)
     # dn.add_item('user_information', 'user_management', ('english', 'Your Account Information'))
 
     # add admin pages

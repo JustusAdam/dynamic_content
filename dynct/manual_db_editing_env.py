@@ -1,4 +1,3 @@
-from dynct.modules.admin.database_operations import AdminOperations
 from dynct.backend.database import Database
 from dynct.core.database_operations import Alias, ModuleOperations, ContentHandlers, ContentTypes
 from dynct.modules.iris.database_operations import Pages, Fields
@@ -35,9 +34,6 @@ info.append('Pages editing object: pa_dbo')
 men_dbo = MenuOperations()
 info.append('Menu editing object: men_dbo')
 
-ro_dbo = RegionOperations()
-info.append('Region editing object: ro_dbo')
-
 com_dbo = CommonsOperations()
 info.append('Commons editing object: com_dbo')
 
@@ -49,6 +45,3 @@ info.append('Session Operations: ses_dbo')
 
 ac_dbo = AccessOperations()
 info.append('Access Operations: ac_dbo')
-
-ad_dbo = AdminOperations()
-info.append('Admin Pages Operations: ad_dbo')
