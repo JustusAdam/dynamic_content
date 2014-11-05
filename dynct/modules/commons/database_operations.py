@@ -6,10 +6,10 @@ __author__ = 'justusadam'
 class MenuOperations(Operations):
     _queries = {
         'mysql': {
-            'get_items': 'select item_name, item_path, parent_item, weight from menu_items where enabled=true and menu=:menu_name;',
-            'add_menu_item': 'insert into menu_items (item_name, item_path, menu, enabled, tooltip, parent_item, weight) values (:item_name, :item_path, :menu, :enabled, :tooltip, :parent_item, :weight);',
-            'toggle_enabled': 'update menu_items set enabled=:enabled where item_name=:item_name and menu=:menu;',
-            'add_menu': 'insert into menus (machine_name, enabled) values (:machine_name, :enabled);'
+            'get_items': 'select item_name, item_path, parent_item, weight from menu_items where enabled=true and menu={menu_name};',
+            'add_menu_item': 'insert into menu_items (item_name, item_path, menu, enabled, tooltip, parent_item, weight) values ({item_name}, {item_path}, {menu}, {enabled}, {tooltip}, {parent_item}, {weight});',
+            'toggle_enabled': 'update menu_items set enabled={enabled} where item_name={item_name} and menu={menu};',
+            'add_menu': 'insert into menus (machine_name, enabled) values ({machine_name}, {enabled});'
         }
     }
 

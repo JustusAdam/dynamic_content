@@ -82,38 +82,34 @@ class Database(AbstractDatabase):
     # cursor = self._connection.cursor()
     # return cursor.execute('select id from modules where module_name = ' + module_name + ';')[0]
 
-    def select(self, columns, from_table, query_tail=';'):
+    def select(self, columns, from_table, query_tail=';', **params):
         if isinstance(columns, (list, tuple)):
             columns = ', '.join(columns)
         if not query_tail.endswith(';'):
             query_tail += ';'
         cursor = self._connection.cursor()
         query = 'select ' + columns + ' from ' + from_table + ' ' + query_tail
-        cursor.execute(query)
+        cursor.execute(query, **params)
         return cursor
 
-    def insert(self, into_table, pairing, charset=None):
-        if not charset:
-            charset = self.charset
+    def insert(self, into_table:str, pairing:dict):
 
-        into_cols, values = unwrap_pairing(pairing, charset)
+        keys = pairing.keys()
 
         cursor = self._connection.cursor()
-        query = 'insert into ' + ' '.join([into_table, into_cols, 'values', values]) + ';'
+        query = 'insert into ' + ' '.join([into_table, keys, 'values', [':' + a for a in keys]]) + ';'
         print(query)
-        cursor.execute(query)
+        cursor.execute(query, **pairing)
         cursor.close()
         return
 
-    def replace(self, into_table, pairing, charset=None):
-        if not charset:
-            charset = self.charset
-
-        into_cols, values = unwrap_pairing(pairing, charset)
+    def replace(self, into_table, pairing):
+        keys = pairing.keys()
 
         cursor = self._connection.cursor()
-        query = 'replace into ' + ' '.join([into_table, into_cols, 'values', values]) + ';'
-        cursor.execute(query)
+        query = 'replace into ' + ' '.join([into_table, keys, 'values', [':' + a for a in keys]]) + ';'
+        print(query)
+        cursor.execute(query, **pairing)
         cursor.close()
         return
 
@@ -122,15 +118,8 @@ class Database(AbstractDatabase):
         cursor = self._connection.cursor()
         cursor.execute('drop table ' + ', '.join(tables) + ';')
 
-    def update(self, table, pairing, where_condition='', charset=None):
-        if not charset:
-            charset = self.charset
-        if not isinstance(pairing, dict):
-            return False
-        set_clause = []
-        for key in pairing.keys():
-            set_clause.append(key + '=' + escape_item(pairing[key], charset))
-        set_clause = ', '.join(set_clause)
+    def update(self, table, pairing:dict, where_condition='', **params):
+        set_clause = ', '.join([a + '=:' + a for a in pairing])
         if where_condition and not where_condition.startswith('where '):
             where_condition = 'where ' + where_condition + ';'
         else:
@@ -142,7 +131,7 @@ class Database(AbstractDatabase):
     def alter_table(self, table, add=None, alter=None):
         pass
 
-    def remove(self, from_table, where_condition):
+    def remove(self, from_table, where_condition, **params):
         if where_condition:
             if not where_condition.startswith('where '):
                 where_condition = 'where ' + where_condition
@@ -150,7 +139,7 @@ class Database(AbstractDatabase):
                 where_condition += ';'
         query = 'delete from ' + from_table + ' ' + where_condition
         cursor = self.cursor()
-        return cursor.execute(query)
+        return cursor.execute(query, **params)
 
     def check_connection(self):
         """

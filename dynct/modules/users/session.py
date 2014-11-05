@@ -9,7 +9,6 @@ __author__ = 'justusadam'
 def start_session(username, password):
     m = UserOperations()
     s = SessionOperations()
-    assert isinstance(m, UserOperations)
     if not authenticate_user(username, password):
         return None
     uid = m.get_uid(username)

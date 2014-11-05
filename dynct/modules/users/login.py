@@ -62,6 +62,8 @@ class LoginHandler(handlers.content.Content, handlers.base.RedirectMixIn):
             self.message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
 
 
+
+
 class LoginCommonHandler(handlers.common.Commons):
     source_table = 'user_management'
 

@@ -8,19 +8,19 @@ class AbstractDatabase:
     """
     pass
 
-    def insert(self, into_table, pairing, charset=None):
+    def insert(self, into_table, pairing:dict):
         pass
 
-    def select(self, columns, from_table, query_tail=';'):
+    def select(self, columns, from_table, query_tail=';', **params):
         pass
 
     def show_columns(self, table=''):
         pass
 
-    def remove(self, from_table, where_condition):
+    def remove(self, from_table, where_condition, **params):
         pass
 
-    def update(self, table, pairing, where_condition='', charset=None):
+    def update(self, table, pairing, where_condition='', **params):
         pass
 
     def drop_tables(self, *tables):

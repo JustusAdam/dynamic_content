@@ -1,10 +1,11 @@
-from dynct.backend import database
+from dynct.backend.database import Database
 import inspect
 
-connection = database.connection()
+
 
 class ARObject:
     _table = ''
+    database = Database()
 
     def __init__(self):
         self._is_real = False
@@ -54,7 +55,7 @@ class ARObject:
 
     @classmethod
     def _get(cls, _tail:str='', **descriptors):
-        return connection.execute('select (' + ', '.join(cls.values()) + ') from ' + cls._table + ' where ' + ' and '.join([a + '=:' + a for a in descriptors]) + _tail +';', **descriptors)
+        return cls.database.select(cls.values(), cls._table, ' and '.join([a + ':=' + a for a in descriptors]), descriptors)
 
     def save(self):
         if self._updated or not self._is_real:

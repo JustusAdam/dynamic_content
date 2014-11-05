@@ -50,7 +50,8 @@ class Page:
     @property
     def encoded(self):
         code = 200
-        headers = set()
+        headers = self.model.headers
+        cookies = self.model.cookies
         if self.model.view.startswith(':redirect:'):
             body = None
             code = 301
@@ -59,7 +60,7 @@ class Page:
             body = self.model['content']
         else:
             body = str(self.compiled).encode(self.encoding)
-        r = Response(body, code, headers)
+        r = Response(body, code, headers, cookies)
         for attr in ['content_type', 'encoding']:
             if hasattr(self.model, attr):
                 setattr(r, attr, getattr(self.model, attr))
@@ -107,22 +108,28 @@ class Page:
         return self._get_my_folder()
 
     def compile_stylesheets(self):
-        s = []
+        s = self._list_from_model('stylesheets')
         if 'stylesheets' in self.theme_config:
-            s += list(str(Stylesheet(
-                self.theme_path_alias + '/' + self.theme_config['stylesheet_directory'] + '/' + a)) for
+            s += list(Stylesheet(
+                self.theme_path_alias + '/' + self.theme_config['stylesheet_directory'] + '/' + a) for
                       a
                       in self.theme_config['stylesheets'])
-        return ''.join(s)
+        return ''.join([str(a) for a in s])
+
+    def _list_from_model(self, ident):
+        if ident in self.model:
+            return self.model[ident]
+        else:
+            return []
 
     def compile_scripts(self):
-        s = []
+        s = self._list_from_model('scripts')
         if 'scripts' in self.theme_config:
             s += list(
-                str(Script(self.theme_path_alias + '/' + self.theme_config['script_directory'] + '/' + a)) for
+                Script(self.theme_path_alias + '/' + self.theme_config['script_directory'] + '/' + a) for
                 a
                 in self.theme_config['scripts'])
-        return ''.join(s)
+        return ''.join([str(a) for a in s])
 
     def compile_meta(self):
         if 'favicon' in self.theme_config:
@@ -138,7 +145,7 @@ class Page:
         self._model.assign_key_safe('breadcrumbs', self.render_breadcrumbs())
         self._model.assign_key_safe('pagetitle',
                                     ContainerElement('dynamic_content - fast, python and extensible', html_type='a',
-                                                     additionals='href="/"'))
+                                                     additionals={'href':'/'}))
         self._model.assign_key_safe('footer', str(
             ContainerElement(ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', html_type='p'),
                              element_id='powered_by', classes={'common', 'copyright'})))

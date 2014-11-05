@@ -61,6 +61,9 @@ class Content(WebObject, ModelBasedContentCompiler):
     def compiled(self):
         if self.check_own_permission():
             self._process_queries()
-            return super().compiled
+            model = super().compiled
+            if self.cookies:
+                model.cookies = self.cookies
+            return model
         else:
             return Model('page', content=str(html_message.error_message(401)))

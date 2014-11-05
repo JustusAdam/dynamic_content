@@ -1,3 +1,5 @@
+from http.cookies import SimpleCookie
+
 __author__ = 'justusadam'
 
 
@@ -7,6 +9,8 @@ class Model(dict):
         self.__final = False
         self.decorator_attributes = set()
         self.view = name
+        self.headers = set()
+        self.cookies = SimpleCookie()
 
     def __setitem__(self, key, value):
         if self.__final:

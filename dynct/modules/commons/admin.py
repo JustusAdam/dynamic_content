@@ -1,4 +1,4 @@
-from dynct.backend.ar.base import SimpleVirtualDBTable, VirtualDatabase
+from dynct.backend.ar.base import ARObject
 from dynct.core.mvc.controller import Controller
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.html_elements import TableElement, List, A
@@ -12,7 +12,6 @@ __author__ = 'justusadam'
 
 class MenuAdminController(Controller):
     def __init__(self):
-        self.table = Menus(VirtualDatabase())
         super().__init__(menus=self.handle_menus)
 
     def handle_menus(self, url, client):
@@ -22,15 +21,14 @@ class MenuAdminController(Controller):
             return self.a_menu(url, client)
 
     def overview(self, url):
-        menus = list(self.table.rows())
-        menu_id, machine_name, enabled = ['id', 'machine_name', 'enabled']
+        menus = Menus.get_all()
         l = []
         for item in menus:
             l.append(
                 [
-                    A(str(url.path) + '/' + item[machine_name], item[menu_id]),
-                    A(str(url.path) + '/' + item[machine_name], get_display_name(item[machine_name], 'menus', 'english')),
-                    Checkbox(checked=bool(item[enabled]))
+                    A(str(url.path) + '/' + item.machine_name, item._id),
+                    A(str(url.path) + '/' + item.machine_name, get_display_name(item._name, 'menus', 'english')),
+                    Checkbox(checked=bool(item.enabled))
                 ]
             )
         return Model('page', content=SecureForm(TableElement(*l, classes={'menu-overview'})), title='Menus Overview')
@@ -42,7 +40,10 @@ class MenuAdminController(Controller):
                      title=get_display_name(menu_name, 'menus', 'english'))
 
 
-class Menus(SimpleVirtualDBTable):
+class Menus(ARObject):
 
-    def __init__(self, ar_database):
-        super().__init__(ar_database, 'menus')
+    def __init__(self, id, machine_name, enabled):
+        super().__init__()
+        self.id = id
+        self.machine_name = machine_name
+        self.enabled = enabled

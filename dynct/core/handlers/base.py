@@ -111,7 +111,7 @@ class RedirectMixIn(WebObject):
         elif not destination:
             destination = str(self.url.path.prt_to_str(0, -1))
         raise HTTPError(str(self.url), 302, 'Redirect',
-                        [('Location', destination), ('Connection', 'close')], None)
+                        {('Location', destination), ('Connection', 'close')} | self.headers, None)
 
 
 class ModelBasedContentCompiler(ContentCompiler):

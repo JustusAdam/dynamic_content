@@ -1,6 +1,7 @@
 from . import database_operations
 from dynct.core import handlers
 from dynct.modules.comp.html_elements import Textarea
+from dynct.modules.wysiwyg import WysiwygTextarea
 
 __author__ = 'justusadam'
 
@@ -22,7 +23,7 @@ class EditBaseFieldHandler(BaseFieldHandler):
             content = self._query[self.machine_name][0]
         else:
             content = self.get_content()
-        return Textarea(content, name=self.machine_name, rows=20, cols=50,
+        return WysiwygTextarea(content, name=self.machine_name, rows=20, cols=50,
                         classes={self.machine_name} | self.xtra_classes)
 
     @property

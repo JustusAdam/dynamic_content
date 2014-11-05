@@ -1,8 +1,9 @@
-from .login import LoginHandler, LoginCommonHandler, LogoutHandler, login_prefix, logout_prefix
+from .login import LoginCommonHandler, login_prefix, logout_prefix
 from dynct.modules import admin
 from . import users, session
 from .admin_actions import CreateUser, UsersOverview, factory, PermissionOverview, EditPermissions
 from . import user_information
+from .controller import UserController
 
 __author__ = 'justusadam'
 
@@ -23,15 +24,6 @@ def admin_handler(h_name):
         'edit_permissions': EditPermissions
     }
     return handlers[h_name]
-
-
-def content_handler(url):
-    handlers = {
-        login_prefix: LoginHandler,
-        logout_prefix: LogoutHandler,
-        'users': factory(url)
-    }
-    return handlers[url.page_type]
 
 
 def common_handler(item_type):

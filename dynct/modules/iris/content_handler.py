@@ -4,6 +4,7 @@ from dynct.core import handlers
 from dynct.core.modules import Modules
 from dynct.core.mvc.controller import Controller
 from dynct.modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement, Checkbox
+from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery
 from . import database_operations
 from dynct.core.database_operations import ContentTypes
@@ -174,6 +175,12 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
             self.redirect(page)
         except ValueError:
             pass
+
+    @property
+    def compiled(self):
+        c = super().compiled
+        decorator_hook(c)
+        return c
 
 
 class AddFieldBasedContentHandler(EditFieldBasedContent):

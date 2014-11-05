@@ -56,7 +56,6 @@ target/
 
 
 # custom additions
-Apache License.txt
 sandbox.py
 
 # the individual config made from example.config.json
@@ -65,9 +64,6 @@ dynct/modules/cms/config.json
 # intellij project configs
 .idea/
 *.iml
-
-# fonts
-*.ttf
 
 # misc resources
 *.odg
@@ -80,8 +76,6 @@ dynct/modules/cms/config.json
 
 # large media file only intended for testing
 *.png
-*.ogg
-*.mp3
 
-# custom scripts
-dynct/custom/scripts/
+# custom files
+dynct/custom/
