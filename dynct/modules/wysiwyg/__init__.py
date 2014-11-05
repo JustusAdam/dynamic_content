@@ -1,8 +1,15 @@
 from dynct.core.mvc.model import Model
-from dynct.modules.comp.html_elements import Script, ContainerElement
+from dynct.modules.comp.html_elements import Script
 from ._elements import identifier, WysiwygTextarea
 
 __author__ = 'justusadam'
+
+basic_script = Script(src='/public/tinymce/tinymce.min.js')
+
+apply_script = Script(
+        'tinymce.init({selector: "textarea#' + identifier + '"});',
+        additionals={'type': 'text/javascript'}
+    )
 
 
 def init(model:Model):
@@ -13,9 +20,6 @@ def init(model:Model):
 
 def decorator_hook(model:Model):
     if 'scripts' in model:
-        model['scripts'] += [Script('/public/tinymce/js/tinymce.min.js'), ContainerElement(
-            'tinymce.init({selector: "textarea#' + identifier + '"});',
-            html_type='script', additionals={'type': 'text/javascript'}
-        )]
+        model['scripts'] += [basic_script, apply_script]
     else:
-        model['scripts'] = [Script('/public/tinymce/js/tinymce.min.js')]
+        model['scripts'] = [basic_script, apply_script]

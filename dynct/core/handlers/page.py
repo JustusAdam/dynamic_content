@@ -139,9 +139,9 @@ class Page:
         return str(LinkElement('/theme/' + self.theme + '/' + favicon, rel='shortcut icon', element_type='image/png'))
 
     def _fill_model(self):
-        self._model.assign_key_safe('scripts', self.compile_scripts())
-        self._model.assign_key_safe('stylesheets', self.compile_stylesheets())
-        self._model.assign_key_safe('meta', self.compile_meta())
+        self._model['scripts'] = self.compile_scripts()
+        self._model['stylesheets'] = self.compile_stylesheets()
+        self._model['meta'] = self.compile_meta()
         self._model.assign_key_safe('breadcrumbs', self.render_breadcrumbs())
         self._model.assign_key_safe('pagetitle',
                                     ContainerElement('dynamic_content - fast, python and extensible', html_type='a',

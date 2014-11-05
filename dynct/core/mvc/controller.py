@@ -1,4 +1,5 @@
 import inspect
+from urllib.error import HTTPError
 
 from dynct.errors.exceptions import OverwriteProhibitedError
 
@@ -31,4 +32,7 @@ class ControllerMapper(dict):
         super().__setitem__(key, value)
 
     def __call__(self, url):
-        return self[url.path[0]]
+        if url.path[0] in self:
+            return self[url.path[0]]
+        else:
+            raise HTTPError(str(url), 404, None, None, None)

@@ -205,9 +205,9 @@ class Stylesheet(BaseElement):
         self._customs['rel'] = rel
 
 
-class Script(BaseElement):
-    def __init__(self, src, prop_type='text/javascript', additionals:dict=None):
-        super().__init__('script', additionals)
+class Script(ContainerElement):
+    def __init__(self, *content, src:str=None, prop_type='text/javascript', additionals:dict=None):
+        super().__init__(*content, html_type='script', additionals=additionals)
         self._customs['type'] = prop_type
         self._customs['src'] = src
 

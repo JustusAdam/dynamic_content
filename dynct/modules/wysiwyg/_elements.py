@@ -1,4 +1,4 @@
-from dynct.modules.comp.html_elements import Textarea
+from dynct.modules.comp.html_elements import Textarea, Script
 
 __author__ = 'justusadam'
 
