@@ -8,7 +8,11 @@ def prepare():
 
 
 def get_display_name(item, source_table, language):
-    return getattr(DisplayName.get(machine_name=item, source_table=source_table), language)
+    data = DisplayName.get(machine_name=item, source_table=source_table)
+    if data:
+        return getattr(data, language)
+    else:
+        return item
 
 
 def edit_display_name(item, source_table, language, value):

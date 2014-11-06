@@ -39,10 +39,10 @@ class ARObject(object):
         :param descriptors:
         :return:
         """
-        tail = {
-            True: 'order by ' + sort_by,
-            False: ''
-        }[bool(sort_by)]
+        if sort_by:
+            tail = 'order by ' + sort_by
+        else:
+            tail = ''
         cursor = cls._get(descriptors, tail)
         return [cls(*a) for a in cursor.fetchall()]
 
