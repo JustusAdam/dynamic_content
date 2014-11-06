@@ -11,7 +11,6 @@ class RegionHandler:
 
     def __init__(self, region_name, region_config, theme, client):
         self.client = client
-        # self.operations = database_operations.RegionOperations()
         self.name = region_name
         self.theme = theme
         self.commons = self.get_all_commons(region_name, theme)
@@ -19,8 +18,11 @@ class RegionHandler:
 
     def get_all_commons(self, name, theme):
         region_info = ar.Common.get_all(region=name, theme=theme)
-        acc = [self.get_item(a) for a in self.get_items_info(region_info)]
-        return acc
+        if region_info:
+            acc = [self.get_item(a) for a in self.get_items_info(region_info)]
+            return acc
+        else:
+            return []
 
     def get_item(self, item:ar.CommonsConfig):
         show_title = item.show_title == 1

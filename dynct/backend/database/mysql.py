@@ -8,10 +8,11 @@ It is recommended to escape all values but not table and column names using the 
 thus the escaping will be custom to the database type.
 """
 from dynct.util.singleton import singleton
+from dynct import errors
 
 __author__ = 'justusadam'
 
-from pymysql import DatabaseError, connect
+from pymysql import DatabaseError, connect, ProgrammingError, InterfaceError
 from pymysql.converters import escape_item
 
 from ._abs import AbstractDatabase
@@ -96,23 +97,32 @@ class Database(AbstractDatabase):
 
     def insert(self, into_table:str, pairing:dict):
 
-        keys = pairing.keys()
+        keys = list(pairing.keys())
 
-        cursor = self._connection.cursor()
-        query = 'insert into ' + ' '.join([into_table, keys, 'values', ['%(' + a + ')s' for a in keys]]) + ';'
-        print(query)
-        cursor.execute(query, pairing)
-        cursor.close()
+        rows = '(' + ', '.join(keys) + ')'
+        values = '(' + ', '.join(['%(' + a + ')s' for a in keys]) + ')'
+        try:
+            cursor = self._connection.cursor()
+            query = 'insert into ' + ' '.join([into_table, rows, 'values', values]) + ';'
+            cursor.execute(query, pairing)
+            cursor.close()
+        except (DatabaseError, InterfaceError, ProgrammingError):
+            raise errors.DatabaseError
         return
 
     def replace(self, into_table, pairing):
-        keys = pairing.keys()
+        keys = list(pairing.keys())
 
-        cursor = self._connection.cursor()
-        query = 'replace into ' + ' '.join([into_table, keys, 'values', ['%(' + a + ')s' for a in keys]]) + ';'
-        print(query)
-        cursor.execute(query, pairing)
-        cursor.close()
+        rows = '(' + ', '.join(keys) + ')'
+        values = '(' + ', '.join(['%(' + a + ')s' for a in keys]) + ')'
+        try:
+            cursor = self._connection.cursor()
+            query = 'replace into ' + ' '.join([into_table, rows, 'values', values]) + ';'
+            print(query)
+            cursor.execute(query, pairing)
+            cursor.close()
+        except (DatabaseError, InterfaceError, ProgrammingError):
+            raise errors.DatabaseError
         return
 
     def drop_tables(self, *tables):
@@ -126,9 +136,12 @@ class Database(AbstractDatabase):
             where_condition = 'where ' + where_condition + ';'
         else:
             where_condition += ';'
-        cursor = self.cursor()
-        # print(' '.join(['update', table, 'set', set_clause, where_condition]))
-        cursor.execute(' '.join(['update', table, 'set', set_clause, where_condition]), params)
+        try:
+            cursor = self.cursor()
+            # print(' '.join(['update', table, 'set', set_clause, where_condition]))
+            cursor.execute(' '.join(['update', table, 'set', set_clause, where_condition]), params)
+        except (InterfaceError, ProgrammingError, DatabaseError):
+            raise errors.DatabaseError
 
     def alter_table(self, table, add=None, alter=None):
         pass

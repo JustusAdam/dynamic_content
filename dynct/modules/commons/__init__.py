@@ -1,7 +1,7 @@
 from .commons import TextCommons
-from . import database_operations as dbo
 from .menus import Handler
 from .admin import MenuAdminController
+from . import ar
 
 __author__ = 'justusadam'
 
@@ -19,19 +19,10 @@ def common_handler(item_type):
 
 
 def prepare():
-    mo = dbo.MenuOperations()
-    co = dbo.CommonsOperations()
-    co.init_tables()
-    mo.init_tables()
 
-    mo.add_menu('start_menu', True)
-    mo.add_menu_item('welcome', '/iris/1', 'start_menu', True, '<root>', 1)
-    mo.add_menu_item('testpage', '/iris/2', 'start_menu', True, '<root>', 2)
-    mo.add_menu_item('setup', '/setup', 'start_menu', True, 'welcome', 1)
-    co.add_content('text', 'copyright', '<p>\"dynamic_content\" CMS - © Justus Adam 2014</p>')
-
-    # do = DisplayNamesOperations()
-
-    # do.add_item('welcome', 'menu_items', ('english', 'Welcome'))
-    # do.add_item('testpage', 'menu_items', ('english', 'XKCD'))
-    # do.add_item('setup', 'menu_items', ('english', 'Restart Setup'))
+    ar.Menu('start_menu', True).save()
+    ar.MenuItem('welcome', '/iris/1', 'start_menu', True, '<root>', 1).save()
+    ar.MenuItem('welcome', '/iris/1', 'start_menu', True, '<root>', 1).save()
+    ar.MenuItem('testpage', '/iris/2', 'start_menu', True, '<root>', 2).save()
+    ar.MenuItem('setup', '/setup', 'start_menu', True, 'welcome', 1).save()
+    ar.com('text')('copyright', '<p>\"dynamic_content\" CMS - © Justus Adam 2014</p>').save()

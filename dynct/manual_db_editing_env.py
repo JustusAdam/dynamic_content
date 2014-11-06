@@ -1,7 +1,6 @@
 from dynct.backend.database import Database
 from dynct.core.database_operations import Alias, ModuleOperations, ContentHandlers, ContentTypes
 from dynct.modules.iris.database_operations import Pages, Fields
-from dynct.modules.commons.database_operations import MenuOperations, CommonsOperations
 from dynct.modules.users.database_operations import UserOperations, SessionOperations, AccessOperations
 
 __author__ = 'justusadam'
@@ -29,12 +28,6 @@ info.append('Fields editing object: fi_dbo')
 
 pa_dbo = Pages()
 info.append('Pages editing object: pa_dbo')
-
-men_dbo = MenuOperations()
-info.append('Menu editing object: men_dbo')
-
-com_dbo = CommonsOperations()
-info.append('Commons editing object: com_dbo')
 
 us_dbo = UserOperations()
 info.append('User operations: us_dbo')

@@ -1,8 +1,8 @@
 import itertools
-from .commons import database_operations
 from dynct.core import handlers
 from dynct.modules.comp.html_elements import ContainerElement, List
 from dynct.modules import i18n
+from . import ar
 
 __author__ = 'justusadam'
 
@@ -89,7 +89,6 @@ class MenuRenderer:
     source_table = 'menu_items'
 
     def __init__(self, name, language='english'):
-        self.mo = database_operations.MenuOperations()
         self.name = name
         self.language = language
 
@@ -98,8 +97,14 @@ class MenuRenderer:
         Calls the database operation obtaining data about the menu items and casts them onto MenuItems for convenience
         :return: List of MenuItems
         """
-        db_result = self.mo.get_items(self.name)
-        return [item_class(a[0], i18n.get_display_name(a[0], self.source_table, self.language), *a[1:]) for a in db_result]
+        items = ar.MenuItem.get_all(menu=self.name)
+        return [item_class(
+            a.item_name,
+            i18n.get_display_name(a.item_name, a._table, self.language),
+            a.item_path,
+            a.parent_item,
+            a.weight
+        ) for a in items]
 
     def order_items(self, items, root_class=MenuItem):
         """

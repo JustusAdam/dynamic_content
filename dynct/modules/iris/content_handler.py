@@ -6,10 +6,10 @@ from dynct.core.mvc.controller import Controller
 from dynct.modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement, Checkbox
 from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery
-from . import database_operations
 from dynct.core.database_operations import ContentTypes
 from dynct.errors import InvalidInputError
-
+from . import ar
+from . import database_operations
 
 __author__ = 'justusadam'
 
@@ -187,7 +187,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
     modifier = 'add'
 
     def get_page_information(self):
-        ops = database_operations.Pages()
+        ops = ContentTypes()
         if 'ct' in self.url.get_query:
             content_type = self.url.get_query['ct'][0]
         elif self.url.path[2]:
@@ -206,8 +206,11 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
             published = True
         else:
             published = False
-        page_id = database_operations.Pages().add_page(self.url.page_type, self.content_type,
-                                                       self.page_title, self.user, published)
+        page = ar.page(self.url.page_type)(self.content_type, self.page_title, self.user, published)
+        page.save()
+        page_id = page.get_id()
+        # page_id = database_operations.Pages().add_page(self.url.page_type, self.content_type,
+        #                                                self.page_title, self.user, published)
         self.update_field_page_id(page_id)
         self.url.page_id = page_id
         return self.url.path.prt_to_str(0, -1) + '/' + str(self.url.page_id)
