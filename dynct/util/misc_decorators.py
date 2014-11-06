@@ -17,3 +17,11 @@ class requiredir:
             os.chdir(self.curr_dir)
 
         return wrapper
+
+
+def implicit(arg):
+    def w(func):
+        def wrapped(*args, **kwargs):
+            return func(arg, *args, **kwargs)
+        return wrapped
+    return w

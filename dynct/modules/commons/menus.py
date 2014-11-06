@@ -1,7 +1,8 @@
 import itertools
 from .commons import database_operations
-from dynct.core import handlers, Modules
+from dynct.core import handlers
 from dynct.modules.comp.html_elements import ContainerElement, List
+from dynct.modules import i18n
 
 __author__ = 'justusadam'
 
@@ -63,8 +64,8 @@ class HTMLMenuItem(MenuItem):
     def render_children(self, depth=0):
         if not self.children:
             return ''
-        return List(*[a.render(depth) for a in self.children], list_type='ul', item_classes='layer-' + str(depth),
-                    classes=['layer-' + str(depth), 'menu'])
+        return List(*[a.render(depth) for a in self.children], list_type='ul', item_classes={'layer-' + str(depth)},
+                    classes={'layer-' + str(depth), 'menu'})
 
     def render(self, depth=0):
         return self.render_self(depth), self.render_children(depth + 1)
@@ -91,10 +92,6 @@ class MenuRenderer:
         self.mo = database_operations.MenuOperations()
         self.name = name
         self.language = language
-        self.dn_ops = Modules()['i18n'].Operations()
-
-    def get_display_name(self, item, language='english'):
-        return self.dn_ops.get_display_name(item, self.source_table, language)
 
     def get_items(self, item_class=MenuItem):
         """
@@ -102,7 +99,7 @@ class MenuRenderer:
         :return: List of MenuItems
         """
         db_result = self.mo.get_items(self.name)
-        return [item_class(a[0], self.get_display_name(a[0], self.language), *a[1:]) for a in db_result]
+        return [item_class(a[0], i18n.get_display_name(a[0], self.source_table, self.language), *a[1:]) for a in db_result]
 
     def order_items(self, items, root_class=MenuItem):
         """
@@ -112,7 +109,7 @@ class MenuRenderer:
         :return: Root for menu tree
         """
         mapping = {}
-        root = root_class('<root>', self.get_display_name(self.name), '/', None, 0)
+        root = root_class('<root>', i18n.get_display_name(self.name, self.source_table, self.language), '/', None, 0)
 
         def order():
             """

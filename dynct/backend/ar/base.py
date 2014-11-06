@@ -61,7 +61,7 @@ class ARObject(object):
 
 
 class PartiallyLazyARObject(ARObject):
-    _lazy_values = set()
+    _lazy_values = list()
 
     def __getattribute__(self, item):
         a = super().__getattribute__(item)

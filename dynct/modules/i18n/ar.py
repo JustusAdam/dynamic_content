@@ -21,5 +21,5 @@ class DisplayName(ARObject):
     @classmethod
     def _values(cls):
         if not hasattr(cls, '_values_'):
-            cls._values_ = {a[0] for a in cls.database.show_columns(cls._table)}
+            cls._values_ = [a[0] for a in cls.database.show_columns(cls._table)][1:]
         return cls._values_

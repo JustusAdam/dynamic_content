@@ -1,4 +1,4 @@
-from dynct.core import Modules
+from dynct.modules import i18n
 from dynct.modules.comp.html_elements import ContainerElement
 from dynct.modules.comp.page import Component
 
@@ -24,14 +24,9 @@ class Commons:
         self.name = machine_name
         self.show_title = show_title
 
-    def get_display_name(self, item, language='english'):
-        if not self.dn_ops:
-            self.dn_ops = Modules()['i18n'].Operations()
-        return self.dn_ops.get_display_name(item, self.source_table, language)
-
     @property
     def title(self):
-        return self.get_display_name(self.name)
+        return i18n.get_display_name(self.name, self.source_table, self.language)
 
     def wrap_content(self, content):
         if self.show_title:
