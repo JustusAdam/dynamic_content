@@ -5,7 +5,7 @@ from dynct.core.modules import Modules
 from dynct.core.mvc.controller import Controller
 from dynct.modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement, Checkbox
 from dynct.modules.wysiwyg import decorator_hook
-from dynct.util.url import UrlQuery
+from dynct.util.url import UrlQuery, Url
 from dynct.core.database_operations import ContentTypes
 from dynct.errors import InvalidInputError
 from . import ar
@@ -212,11 +212,29 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
         return [Label('Title', label_for='edit-title'), Input(element_id='edit-title', name='title', required=True)]
 
 
+class Overview(handlers.content.Content):
+    def __init__(self, url, client):
+        super().__init__(url, client)
+        self.page_title = 'Overview'
+        self.permission = ' '.join(['access', self.url.page_type, 'overview'])
+
+    def process_content(self):
+        pages = []
+        for a in ar.page(self.url.page_type).get_all():
+            u = Url(str(self.url.path) + '/' + str(a.id))
+            u.page_type = self.url.page_type
+            u.page_id = str(a.id)
+            pages.append(FieldBasedPageContent(u, self.client))
+        content = [ContainerElement(ContainerElement(b.page_title, html_type='h2'), ContainerElement(b.compile()['content'])) for b in pages]
+        return ContainerElement(*content)
+
+
 class IrisController(Controller):
     handler_map = {
         _access_modifier: FieldBasedPageContent,
         _edit_modifier: EditFieldBasedContent,
-        _add_modifier: AddFieldBasedContentHandler
+        _add_modifier: AddFieldBasedContentHandler,
+        'overview': Overview
     }
 
     def __init__(self):
@@ -244,7 +262,8 @@ class IrisController(Controller):
                 # This is dirty and should not be done this way
                 url.page_id = 0
         elif len(url.path) == 1:
-            pass
+            page_modifier = 'overview'
+            url.page_type = url.path[0]
         else:
             raise InvalidInputError
         url.page_type = url.path[0]
