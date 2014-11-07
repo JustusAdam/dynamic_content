@@ -1,6 +1,7 @@
+from pathlib import Path
 from .content_handler import IrisController
-from . import field
-from . import database_operations as dbo
+from . import field, ar
+from dynct.util.config import read_config
 
 __author__ = 'justusadam'
 
@@ -35,27 +36,26 @@ def post_handler(url):
 def prepare():
     from dynct.core.database_operations import ContentHandlers, ContentTypes
 
-    ct = dbo.Pages()
-    ct.init_tables()
-    f = dbo.Fields()
-    f.init_tables()
-    conf = ct.config
-
-    # add basic content handlers etc
+    conf = read_config(Path(__file__).parent / 'config.json')
     ContentHandlers().add_new('iris', name, path_prefix)
     ContentTypes().add('article', 'Simple Article', 'iris', 'active')
-    f.add_field_type('body', 'Body', 'article', 'iris')
+    ar.FieldConfig('body', 'Body', 'article', 'iris', 1, '')
 
     # add admin pages
 
     # add some initial pages
 
-    page_id = ct.add_page(
-        **{k: conf['startpage'][k] for k in ['content_type', 'creator', 'page_title', 'published', 'page_type']})
-    f.add_field(table='body', page_id=page_id, path_prefix=conf['startpage']['page_type'],
-                content=conf['startpage']['body'])
 
-    page_id = ct.add_page('iris', 'article', 'Wuhuuu', 1, True)
-    f.add_field('body', 'iris', page_id,
-                '<p>More content is good</p><iframe src="http://www.xkcd.com" height="840px" width="600px" seamless></iframe>')
+    p = ar.page(conf['startpage']['page_type'])(
+        **{k: conf['startpage'][k] for k in ['content_type', 'page_title', 'creator', 'published']})
+    p.save()
+    page_id = p.get_id()
+    ar.field('body')(page_id=page_id, path_prefix=conf['startpage']['page_type'],
+                content=conf['startpage']['body']).save()
+
+    p = ar.page('iris')('article', 'Wuhuuu', 1, True)
+    p.save()
+    page_id = p.get_id()
+    ar.field('body')(page_id,
+                '<p>More content is good</p><iframe src="http://www.xkcd.com" height="840px" width="600px" seamless></iframe>', 'iris').save()
 
