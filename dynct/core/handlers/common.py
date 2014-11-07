@@ -49,8 +49,7 @@ class Commons:
     def check_access(self):
         return self.check_permission('access common ' + self.name)
 
-    @property
-    def compiled(self):
+    def compile(self):
         if self.check_access():
             obj = Component(self.wrap_content(self.get_content(self.name)))
             return obj

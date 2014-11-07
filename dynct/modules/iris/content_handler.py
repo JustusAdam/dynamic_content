@@ -22,7 +22,7 @@ _publishing_flag = 'published'
 
 def wrap_compiler(class_):
     def wrapped(*args, **kwargs):
-        return class_(*args, **kwargs).compiled
+        return class_(*args, **kwargs).compile()
 
     return wrapped
 
@@ -83,7 +83,7 @@ class FieldBasedPageContent(handlers.content.Content):
     def field_content(self, fields):
         content = []
         for field in fields:
-            content.append(field.compiled.content)
+            content.append(field.compile().content)
         return content
 
     def process_content(self):
@@ -128,7 +128,7 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
         content = []
         for field in fields:
             identifier = self.make_field_identifier(field.machine_name)
-            c_fragment = field.compiled
+            c_fragment = field.compile()
             c_fragment.content.classes.add(self.content_type)
             c_fragment.content.element_id = identifier
             content.append((Label(field.machine_name, label_for=identifier), str(c_fragment.content)))
@@ -166,6 +166,7 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
         else:
             published = False
         database_operations.Pages().edit_page(self.url.page_type, self.page_title, published, self.url.page_id)
+        return self.url.path.prt_to_str(0,1) + '/' + str(self.url.page_id)
 
     def _process_post(self):
         self.assign_inputs(self.fields)
@@ -176,9 +177,8 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
         except ValueError:
             pass
 
-    @property
-    def compiled(self):
-        c = super().compiled
+    def compile(self):
+        c = super().compile()
         decorator_hook(c)
         return c
 
@@ -190,7 +190,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
         ops = ContentTypes()
         if 'ct' in self.url.get_query:
             content_type = self.url.get_query['ct'][0]
-        elif self.url.path[2]:
+        elif len(self.url.path) == 3:
             content_type = self.url.path[2]
         else:
             raise InvalidInputError
@@ -213,7 +213,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
         #                                                self.page_title, self.user, published)
         self.update_field_page_id(page_id)
         self.url.page_id = page_id
-        return self.url.path.prt_to_str(0, -1) + '/' + str(self.url.page_id)
+        return self.url.path.prt_to_str(0,1) + '/' + str(self.url.page_id)
 
 
     def update_field_page_id(self, page_id):
@@ -259,4 +259,4 @@ class IrisController(Controller):
         else:
             raise InvalidInputError
         url.page_type = url.path[0]
-        return self.handler_map[url.page_modifier](url, client).compiled
+        return self.handler_map[url.page_modifier](url, client).compile()

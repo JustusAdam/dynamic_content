@@ -9,12 +9,11 @@ __author__ = 'justusadam'
 
 
 class ContentCompiler:
-    @property
-    def compiled(self):
+    def compile(self):
         return ''
 
     def __str__(self):
-        return str(self.compiled)
+        return str(self.compile())
 
 
 class WebObject(ContentCompiler):
@@ -128,8 +127,7 @@ class ModelBasedContentCompiler(ContentCompiler):
     def theme(self):
         return self._theme
 
-    @property
-    def compiled(self):
+    def compile(self):
         self._fill_model()
         return self._model
 

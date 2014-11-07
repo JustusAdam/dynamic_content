@@ -36,8 +36,7 @@ class Page:
     def url(self):
         return self._url
 
-    @property
-    def compiled(self):
+    def compile(self):
         if 'no-view' in self.model.decorator_attributes:
             return self.model['content']
         self._fill_model()
@@ -47,8 +46,7 @@ class Page:
                 dict.__setitem__(self.model, a.group(1), '')
         return file.format(**{a: str(self.model[a]) for a in self.model})
 
-    @property
-    def encoded(self):
+    def encode(self):
         code = 200
         headers = self.model.headers
         cookies = self.model.cookies
@@ -59,7 +57,7 @@ class Page:
         elif 'no-view' in self.model.decorator_attributes:
             body = self.model['content']
         else:
-            body = str(self.compiled).encode(self.encoding)
+            body = str(self.compile()).encode(self.encoding)
         r = Response(body, code, headers, cookies)
         for attr in ['content_type', 'encoding']:
             if hasattr(self.model, attr):

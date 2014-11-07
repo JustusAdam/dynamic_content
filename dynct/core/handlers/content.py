@@ -57,13 +57,13 @@ class Content(WebObject, ModelBasedContentCompiler):
     def check_permission(self, permission):
         return self.client.check_permission(permission)
 
-    @property
-    def compiled(self):
+    def compile(self):
         if self.check_own_permission():
             self._process_queries()
-            model = super().compiled
+            model = super().compile()
             if self.cookies:
                 model.cookies = self.cookies
-            return model
+            c = model
         else:
-            return Model('page', content=str(html_message.error_message(401)))
+            c = Model('page', content=str(html_message.error_message(401)))
+        return c

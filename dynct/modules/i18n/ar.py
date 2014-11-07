@@ -6,9 +6,10 @@ __author__ = 'justusadam'
 class DisplayName(ARObject):
     _table = 'display_names'
 
-    def __init__(self, machine_name, source_table, translations:dict):
+    def __init__(self, machine_name, source_table, translations:dict, id=-1):
         assert isinstance(translations, dict)
         super().__init__()
+        self.id = id
         self.machine_name = machine_name
         self.source_table = source_table
         for tr in translations:

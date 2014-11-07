@@ -3,14 +3,17 @@ import inspect
 from dynct.errors import DatabaseError
 
 
-
 class ARObject(object):
+    """
+    _saved is a value designed to prevent debuggers automatic execution of @property code
+    from accidentally saving the object multiple times, especially if it doesn't have
+    any unique values and thus creates new rows all the time.
+    """
     _table = ''
     database = Database()
-    _protected_values = ['exists']
 
-    def __init__(self, exists=False):
-        self._exists = exists
+    def __init__(self):
+        self._saved = False
 
     @classmethod
     def get(cls, **descriptor):
@@ -21,7 +24,7 @@ class ARObject(object):
         """
         data = cls._get(descriptor).fetchone()
         if data:
-            return cls(*data, exists=True)
+            return cls(*data)
         else:
             return None
 
@@ -34,7 +37,7 @@ class ARObject(object):
         :return:
         """
 
-        return [cls(exists=True)]
+        return [cls()]
 
     @classmethod
     def get_all(cls, sort_by='', **descriptors):
@@ -50,7 +53,7 @@ class ARObject(object):
             tail = ''
         data = cls._get(descriptors, tail).fetchall()
         if data:
-            return [cls(*a, exists=True) for a in data]
+            return [cls(*a) for a in data]
         else:
             return None
 
@@ -58,28 +61,53 @@ class ARObject(object):
     def _get(cls, descriptors, _tail:str=''):
         return cls.database.select(cls._values(), cls._table, ' and '.join([a + '=%(' + a + ')s' for a in descriptors]) + _tail, descriptors)
 
-    def save(self):
-        if self._exists:
-            self._update()
+    def save(self, **descriptors):
+        print(self.primary_key())
+        if not descriptors and getattr(self, self.primary_key()) == inspect.signature(self.__init__).parameters[self.primary_key()].default:
+            self.insert()
         else:
-            self._insert()
+            try:
+                self.update(**descriptors)
+            except DatabaseError:
+                self.insert()
 
-    def _update(self):
-        pass
+    def update(self, **descriptors):
+        if descriptors:
+            d = descriptors
+        else:
+            d = {self.primary_key(): getattr(self, self.primary_key())}
+        condition = ' and '.join([a + '=%(' + a + ')s' for a in d])
+        pairing = {a:getattr(self, a) for a in self._values()}
+        self.database.update(self._table, pairing, condition, d)
 
-    def _insert(self):
-        pass
+    def insert(self):
+        values = self._values()[:]
+        if not hasattr(self, self.primary_key()) or getattr(self, self.primary_key()) == inspect.signature(self.__init__).parameters[self.primary_key()].default:
+            values.remove(self.primary_key())
+        self.database.insert(self._table, {a:getattr(self, a) for a in values})
 
+    @classmethod
+    def primary_key(cls):
+        if not hasattr(cls, '_primary_key'):
+            def c(l):
+                for i in l:
+                    if i[3] == 'PRI':
+                        return i[0]
+                return None
+            cls._primary_key = c(cls.database.show_columns(cls._table))
+        return cls._primary_key
 
     @classmethod
     def _values(cls) -> list:
         if not hasattr(cls, '_values_'):
-            cls._values_ = list(filter(lambda a: a not in cls._protected_values, inspect.getargspec(cls.__init__)[0][1:]))
+            cls._values_ = inspect.getargspec(cls.__init__)[0][1:]
         return cls._values_
 
     def _get_one_special_value(self, name, q_tail):
-        descriptors = {a:getattr(self, a) for a in self._values()}
-        return self.database.select(name, self._table, ' and '.join([a + '=%(' + a + ')s' for a in descriptors] + q_tail), descriptors)
+        values = self._values()[:]
+        values.remove(name)
+        descriptors = {a:getattr(self, a) for a in values}
+        return self.database.select(name, self._table, ' and '.join([a + '=%(' + a + ')s' for a in descriptors]) + ' ' + q_tail, descriptors).fetchone()[0]
 
 
 class PartiallyLazyARObject(ARObject):
@@ -99,5 +127,5 @@ class PartiallyLazyARObject(ARObject):
     def _values(cls):
         if not hasattr(cls, '_values_'):
             # TODO test this
-            cls._values_ = filter(lambda a: a not in cls._protected_values and a not in cls._lazy_values, inspect.getargspec(cls.__init__)[0][1:] - cls._lazy_values)
+            cls._values_ = filter(lambda a: a not in cls._lazy_values, inspect.getargspec(cls.__init__)[0][1:] - cls._lazy_values)
         return cls._values_

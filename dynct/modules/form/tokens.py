@@ -9,8 +9,9 @@ __author__ = 'justusadam'
 class ARToken(ARObject):
     _table = 'form_tokens'
     
-    def __init__(self, url, token):
+    def __init__(self, url, token, id=-1):
         super().__init__()
+        self.id = id
         self.url = url
         self.token = token
         

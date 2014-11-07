@@ -78,11 +78,6 @@ class Database(AbstractDatabase):
         print('created table ' + table_name)
         cursor.close()
 
-    #
-    # def get_module_id(self, module_name):
-    # cursor = self._connection.cursor()
-    # return cursor.execute('select id from modules where module_name = ' + module_name + ';')[0]
-
     def select(self, columns, from_table, query_tail:str, params):
         if isinstance(columns, (list, tuple)):
             columns = ', '.join(columns)
@@ -106,9 +101,10 @@ class Database(AbstractDatabase):
             query = 'insert into ' + ' '.join([into_table, rows, 'values', values]) + ';'
             cursor.execute(query, pairing)
             cursor.close()
-        except (DatabaseError, InterfaceError, ProgrammingError):
+        except (DatabaseError, InterfaceError, ProgrammingError) as error:
+            print(error)
             raise errors.DatabaseError
-        return
+        return None
 
     def replace(self, into_table, pairing):
         keys = list(pairing.keys())
@@ -121,25 +117,38 @@ class Database(AbstractDatabase):
             print(query)
             cursor.execute(query, pairing)
             cursor.close()
-        except (DatabaseError, InterfaceError, ProgrammingError):
+        except (DatabaseError, InterfaceError, ProgrammingError) as error:
+            print(error)
             raise errors.DatabaseError
-        return
+        return None
 
     def drop_tables(self, *tables):
         print('dropping' + str(tables))
         cursor = self._connection.cursor()
         cursor.execute('drop table ' + ', '.join(tables) + ';')
 
-    def update(self, table, pairing:dict, where_condition, params):
-        set_clause = ', '.join([a + '=%(' + a + ')s' for a in pairing])
+    def update(self, table, pairing:dict, where_condition, params:dict):
+        set_clause = ', '.join([a + '=%(set_' + a + ')s' for a in pairing])
+        p = {'set_' + b:pairing[b] for b in pairing}
+        s = True
+        while s:
+            s = False
+            for key in p.keys():
+                if key in params:
+                    s = True
+                    set_clause.replace(key, 's' + key)
+                    p['s' + key] = p[key]
+                    del p[key]
+        params.update(p)
         if where_condition and not where_condition.startswith('where '):
             where_condition = 'where ' + where_condition + ';'
         else:
             where_condition += ';'
+        query = ' '.join(['update', table, 'set', set_clause, where_condition])
         try:
             cursor = self.cursor()
-            # print(' '.join(['update', table, 'set', set_clause, where_condition]))
-            cursor.execute(' '.join(['update', table, 'set', set_clause, where_condition]), params)
+            print(query)
+            cursor.execute(query, params)
         except (InterfaceError, ProgrammingError, DatabaseError):
             raise errors.DatabaseError
 

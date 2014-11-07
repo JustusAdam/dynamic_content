@@ -6,8 +6,9 @@ __author__ = 'justusadam'
 class CommonsConfig(ARObject):
     _table = 'commons_config'
 
-    def __init__(self, element_name, element_type, handler_module, show_title, access_type):
+    def __init__(self, element_name, element_type, handler_module, show_title, access_type, cid=-1):
         super().__init__()
+        self.cid = cid
         self.element_name = element_name
         self.element_type = element_type
         self.handler_module = handler_module
@@ -18,8 +19,9 @@ class CommonsConfig(ARObject):
 class Common(ARObject):
     _table = 'regions'
 
-    def __init__(self, item_name, region, weight, theme):
+    def __init__(self, item_name, region, weight, theme, rid=-1):
         super().__init__()
+        self.rid = rid
         self.item_name = item_name
         self.region = region
         self.weight = weight

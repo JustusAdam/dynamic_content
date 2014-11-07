@@ -29,8 +29,8 @@ def try_database_connection():
         if test_database.check_connection():
             return ContainerElement(
                 'The connection with the database was successfully established, you may continue with this setup',
-                html_type='p') + ContainerElement('Continue', html_type='a', classes=['continue', 'button'],
-                                                  additionals=['href="/setup/{next_page}"'])
+                html_type='p') + ContainerElement('Continue', html_type='a', classes={'continue', 'button'},
+                                                  additionals={'href':'/setup/{next_page}'})
         else:
             return ContainerElement(
                 'The connection with the database could not be established. Please review your settings '
@@ -63,8 +63,8 @@ class SetupHandler(Content):
                             html_type='p'),
                         ContainerElement(
                             'I hope that you will enjoy and be pleased with \'dynamic_content\'.', html_type='p'),
-                        ContainerElement('Continue', html_type='a', classes=['continue', 'button'],
-                                         additionals=['href="/setup/{next_page}"'])
+                        ContainerElement('Continue', html_type='a', classes={'continue', 'button'},
+                                         additionals={'href':'/setup/{next_page}'})
                     )
                 )
             },
@@ -79,8 +79,8 @@ class SetupHandler(Content):
                             'Set up an admin user',
                             list_type='ul'
                         ),
-                        ContainerElement('Continue', html_type='a', classes=['continue', 'button'],
-                                         additionals=['href="/setup/{next_page}"'])
+                        ContainerElement('Continue', html_type='a', classes={'continue', 'button'},
+                                         additionals={'href':'/setup/{next_page}'})
                     )
                 )
             },
@@ -113,8 +113,8 @@ class SetupHandler(Content):
                         ContainerElement(
                             'If you are certain, that the database has been properly configured to allow sufficient access to \'dynamic_content\' and are content with this software making changes to your database please click \'Continue\'',
                             html_type='p'),
-                        ContainerElement('Continue', html_type='a', classes=['button', 'continue'],
-                                         additionals='href="/setup/{next_page}"')
+                        ContainerElement('Continue', html_type='a', classes={'button', 'continue'},
+                                         additionals={'href':'/setup/{next_page}'})
                     )
                 )
             },
@@ -123,8 +123,8 @@ class SetupHandler(Content):
                 'content': str(
                     ContainerElement(
                         '{message}',
-                        ContainerElement('{link}', html_type='a', classes=['continue', 'button'],
-                                         additionals=['href="{target}"'])))
+                        ContainerElement('{link}', html_type='a', classes={'continue', 'button'},
+                                         additionals={'href':'{target}'})))
             },
             5: {
                 'title': 'Create an admin account',
@@ -154,7 +154,7 @@ class SetupHandler(Content):
         elif self._url.page_id == 5:
             handler = InitialUser(self._url, None)
             handler.destination = '/setup/6'
-            content = handler.compiled
+            content = handler.compile()
             self._model['content'] = self._model['content'].format(user_form=content.content)
         elif self._url.page_id == 6:
             config['setup'] = False
@@ -212,8 +212,8 @@ class SetupHandler(Content):
                         ContainerElement(
                             'You may delete all existing tables that should be created by clicking reset',
                             html_type='p'),
-                        ContainerElement('Reset', html_type='a', classes='button',
-                                         additionals=['href="{this}?reset=True"']))),
+                        ContainerElement('Reset', html_type='a', classes={'button'},
+                                         additionals={'href':'{this}?reset=True'}))),
                 'target': '/setup',
                 'link': 'Restart'
             }

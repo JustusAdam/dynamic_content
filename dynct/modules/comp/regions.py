@@ -42,14 +42,13 @@ class RegionHandler:
                 classes += self.config['classes']
         return ContainerElement(ContainerElement(*value, classes={'region-wrapper', 'wrapper'}), classes=set(classes))
 
-    @property
-    def compiled(self):
+    def compile(self):
         stylesheets = []
         meta = []
         scripts = []
         cont_acc = []
         if self.commons:
-            c = [item.handler.compiled for item in self.commons]
+            c = [item.handler.compile() for item in self.commons]
             for comp_item in c:
                 if comp_item:
                     stylesheets += comp_item.stylesheets

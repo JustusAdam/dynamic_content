@@ -23,5 +23,5 @@ class DecoratorWithRegions(Page):
     def _fill_model(self):
         if not 'no-commons' in self.model.decorator_attributes:
             for region in self.regions:
-                self._model[region.name] = str(region.compiled)
+                self._model[region.name] = str(region.compile())
         super()._fill_model()

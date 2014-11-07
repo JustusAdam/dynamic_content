@@ -9,7 +9,7 @@ class UserController(Controller):
         super().__init__(**{login_prefix:self.login, logout_prefix: self.logout})
 
     def login(self, url, client):
-        return LoginHandler(url, client).compiled
+        return LoginHandler(url, client).compile
 
     def logout(self, url, client):
-        return LogoutHandler(url, client).compiled
+        return LogoutHandler(url, client).compile

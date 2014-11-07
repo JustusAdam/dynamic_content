@@ -30,7 +30,7 @@ class AdminController(Controller):
         else:
             page = ar.AdminPage.get(machine_name=tail[2])
             handler = Modules()[page.handler_module].admin_handler(tail[2])
-        return handler(url, client).compiled
+        return handler(url, client).compile()
 
 
 class Overview(handlers.base.ContentCompiler):
