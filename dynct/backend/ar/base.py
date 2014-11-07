@@ -36,8 +36,20 @@ class ARObject(object):
         :param descriptors:
         :return:
         """
-
-        return [cls()]
+        if sort_by:
+            order = 'order by ' + sort_by
+        else:
+            order = ''
+        if range_:
+            limit = 'limit ' + range_
+        else:
+            limit = ''
+        tail = ' '.join([order, limit])
+        data = cls._get(descriptors, tail).fetchall()
+        if data:
+            return [cls(*a) for a in data]
+        else:
+            return None
 
     @classmethod
     def get_all(cls, sort_by='', **descriptors):
@@ -59,7 +71,8 @@ class ARObject(object):
 
     @classmethod
     def _get(cls, descriptors, _tail:str=''):
-        return cls.database.select(cls._values(), cls._table, ' and '.join([a + '=%(' + a + ')s' for a in descriptors]) + _tail, descriptors)
+        return cls.database.select(cls._values(), cls._table,
+                                   ' and '.join([a + '=%(' + a + ')s' for a in descriptors]),  _tail, descriptors)
 
     def save(self, **descriptors):
         print(self.primary_key())
@@ -107,7 +120,9 @@ class ARObject(object):
         values = self._values()[:]
         values.remove(name)
         descriptors = {a:getattr(self, a) for a in values}
-        return self.database.select(name, self._table, ' and '.join([a + '=%(' + a + ')s' for a in descriptors]) + ' ' + q_tail, descriptors).fetchone()[0]
+        return self.database.select(name, self._table, '',
+                                    ' and '.join([a + '=%(' + a + ')s' for a in descriptors]) + ' ' + q_tail,
+                                    descriptors).fetchone()[0]
 
 
 class PartiallyLazyARObject(ARObject):
@@ -118,7 +133,8 @@ class PartiallyLazyARObject(ARObject):
         if not a:
             if item in self._lazy_values:
                 existing = {f:getattr(self, f) for f in self._values()}
-                a = self.database.select(item, self._table, ' and '.join([b + '=%(' + b + ')s' for b in existing]), existing)
+                a = self.database.select(item, self._table, ' and '.join([b + '=%(' + b + ')s' for b in existing]),
+                                         params=existing)
                 # execute query to get value
                 self.__setattr__(item, a)
         return a

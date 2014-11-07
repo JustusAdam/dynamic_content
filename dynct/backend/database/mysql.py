@@ -78,15 +78,20 @@ class Database(AbstractDatabase):
         print('created table ' + table_name)
         cursor.close()
 
-    def select(self, columns, from_table, query_tail:str, params):
-        if isinstance(columns, (list, tuple)):
+    def select(self, columns, from_table, where_condition, query_tail:str='', params:dict=None):
+        acc = ['select']
+        if isinstance(columns, (list, tuple, set)):
             columns = ', '.join(columns)
-        if query_tail and not query_tail.startswith('where '):
-            query_tail = 'where ' + query_tail
+        acc += [columns, 'from', from_table]
+        if where_condition:
+            if not where_condition.startswith('where '):
+                where_condition = 'where ' + where_condition
+            acc.append(where_condition)
         if not query_tail.endswith(';'):
             query_tail += ';'
+        acc.append(query_tail)
         cursor = self._connection.cursor()
-        query = 'select ' + columns + ' from ' + from_table + ' ' + query_tail
+        query = ' '.join(acc)
         cursor.execute(query, params)
         return cursor
 

@@ -3,7 +3,7 @@ from urllib import parse
 from dynct.core import handlers
 from dynct.core.modules import Modules
 from dynct.core.mvc.controller import Controller
-from dynct.modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement, Checkbox
+from dynct.modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement, Checkbox, A
 from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery, Url
 from dynct.core.database_operations import ContentTypes
@@ -17,6 +17,11 @@ _edit_modifier = 'edit'
 _add_modifier = 'add'
 
 _publishing_flag = 'published'
+
+_step = 7
+
+_scroll_left = '<'
+_scroll_right = '>'
 
 
 def wrap_compiler(class_):
@@ -218,14 +223,46 @@ class Overview(handlers.content.Content):
         self.page_title = 'Overview'
         self.permission = ' '.join(['access', self.url.page_type, 'overview'])
 
+    def get_range(self):
+        acc = []
+        if 'from' in self.url.get_query:
+            acc.append(int(self.url.get_query['from'][0]))
+        else:
+            acc.append(0)
+        if 'to' in self.url.get_query:
+            acc.append(int(self.url.get_query['to'][0]))
+        else:
+            acc.append(_step)
+        return acc
+
+    def max(self):
+        return ar.page(self.url.page_type).get_many('1', 'id desc')[0].id
+
+    def scroll(self, range):
+        acc = []
+        if not range[0] == 0:
+            before = range[0] - _step
+            if before < 0 :
+                before = 0
+            acc.append(A(''.join([str(self.url.path), '?from=', str(before), '&to=', str(range[0])]), _scroll_left, classes={'page-tabs'}))
+        maximum = self.max()
+        if not range[1] == maximum:
+            after = range[1] + _step
+            if after > maximum:
+                after = maximum
+            acc.append(A(''.join([str(self.url.path), '?from=', str(range[1]), '&to=', str(after)]), _scroll_right, classes={'page-tabs'}))
+        return ContainerElement(*acc)
+
     def process_content(self):
+        range = self.get_range()
         pages = []
-        for a in ar.page(self.url.page_type).get_all():
+        for a in ar.page(self.url.page_type).get_many(','.join([str(a) for a in [range[0], range[1] - range[0]]]), 'date_created desc'):
             u = Url(str(self.url.path) + '/' + str(a.id))
             u.page_type = self.url.page_type
             u.page_id = str(a.id)
             pages.append(FieldBasedPageContent(u, self.client))
-        content = [ContainerElement(ContainerElement(b.page_title, html_type='h2'), ContainerElement(b.compile()['content'])) for b in pages]
+        content = [ContainerElement(A(str(b.url.path), ContainerElement(b.page_title, html_type='h2')), ContainerElement(b.compile()['content'])) for b in pages]
+        content.append(self.scroll(range))
         return ContainerElement(*content)
 
 

@@ -11,7 +11,7 @@ class AbstractDatabase:
     def insert(self, into_table, pairing:dict):
         pass
 
-    def select(self, columns, from_table, query_tail, params):
+    def select(self, columns, from_table, where_condition, query_tail='', params:dict=None):
         pass
 
     def show_columns(self, table=''):
