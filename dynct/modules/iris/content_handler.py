@@ -18,10 +18,21 @@ _add_modifier = 'add'
 
 _publishing_flag = 'published'
 
-_step = 7
+_step = 5
 
 _scroll_left = '<'
 _scroll_right = '>'
+
+def not_over(a, val):
+    if a > val:
+        return val
+    else:
+        return a
+def not_under(a, val=0):
+    if a < val:
+        return val
+    else:
+        return a
 
 
 def wrap_compiler(class_):
@@ -241,22 +252,20 @@ class Overview(handlers.content.Content):
     def scroll(self, range):
         acc = []
         if not range[0] == 0:
-            before = range[0] - _step
-            if before < 0 :
-                before = 0
-            acc.append(A(''.join([str(self.url.path), '?from=', str(before), '&to=', str(range[0])]), _scroll_left, classes={'page-tabs'}))
+            after = not_under(range[0] - 1, 0)
+            before = not_under(range[0] - _step, 0)
+            acc.append(A(''.join([str(self.url.path), '?from=', str(before), '&to=', str(after)]), _scroll_left, classes={'page-tabs'}))
         maximum = self.max()
         if not range[1] == maximum:
-            after = range[1] + _step
-            if after > maximum:
-                after = maximum
-            acc.append(A(''.join([str(self.url.path), '?from=', str(range[1]), '&to=', str(after)]), _scroll_right, classes={'page-tabs'}))
+            before = not_over(range[1] + 1, maximum)
+            after = not_over(range[1] + _step, maximum)
+            acc.append(A(''.join([str(self.url.path), '?from=', str(before), '&to=', str(after)]), _scroll_right, classes={'page-tabs'}))
         return ContainerElement(*acc)
 
     def process_content(self):
         range = self.get_range()
         pages = []
-        for a in ar.page(self.url.page_type).get_many(','.join([str(a) for a in [range[0], range[1] - range[0]]]), 'date_created desc'):
+        for a in ar.page(self.url.page_type).get_many(','.join([str(a) for a in [range[0], range[1] - range[0] + 1]]), 'date_created desc'):
             u = Url(str(self.url.path) + '/' + str(a.id))
             u.page_type = self.url.page_type
             u.page_id = str(a.id)

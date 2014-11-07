@@ -120,8 +120,8 @@ class ARObject(object):
         values = self._values()[:]
         values.remove(name)
         descriptors = {a:getattr(self, a) for a in values}
-        return self.database.select(name, self._table, '',
-                                    ' and '.join([a + '=%(' + a + ')s' for a in descriptors]) + ' ' + q_tail,
+        return self.database.select(name, self._table,
+                                    ' and '.join([a + '=%(' + a + ')s' for a in descriptors]), q_tail,
                                     descriptors).fetchone()[0]
 
 
