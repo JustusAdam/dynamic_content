@@ -117,7 +117,16 @@ class ARObject(object):
                                     descriptors).fetchone()[0]
 
     def delete(self, **descriptors):
-        pass
+        """
+        Deletes rows that fit the values in 'descriptors'.
+        If descriptors isn't specified it deletes the row
+        that matches all of its own values.
+        :param descriptors:
+        :return:
+        """
+        if not descriptors:
+            descriptors = {a:getattr(self, a) for a in self._values()}
+        self.database.remove(self._table, ' and '.join([a + '=%(' + a + ')s' for a in descriptors]), descriptors)
 
 
 class PartiallyLazyARObject(ARObject):
