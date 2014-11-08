@@ -60,7 +60,7 @@ class PathHandler(Controller):
                     url.path.trailing_slash = False
                     return Model(':redirect:' + str(url))
                 model = Model(':no-view:', content=filepath.open('rb').read())
-                model.decorator_attributes.add('no-view')
+                model.decorator_attributes.add('no-encode')
                 model.content_type, model.encoding = mimetypes.guess_type(str(filepath.name))
                 return model
 

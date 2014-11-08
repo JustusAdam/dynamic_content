@@ -38,7 +38,7 @@ class MainApp(Application):
             print(model.decorator_attributes)
             decorator = DecoratorWithRegions(model, url, client)
             print('')
-            return decorator.encode()
+            return decorator.compile_response()
 
         return self.config.http_request_handler(http_callback, *args)
 

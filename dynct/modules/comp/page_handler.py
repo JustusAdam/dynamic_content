@@ -20,8 +20,8 @@ class DecoratorWithRegions(Page):
             r.append(RegionHandler(region, config[region], self.theme, self.client))
         return r
 
-    def _fill_model(self):
+    def initial_pairing(self):
         if not 'no-commons' in self.model.decorator_attributes:
             for region in self.regions:
                 self._model[region.name] = str(region.compile())
-        super()._fill_model()
+        return super().initial_pairing()

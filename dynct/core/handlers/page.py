@@ -11,6 +11,8 @@ __author__ = 'justusadam'
 
 VAR_REGEX = re.compile("\{([\w_-]*?)\}")
 
+ARG_REGEX = re.compile(":(\w+?):")
+
 _default_theme = 'default_theme'
 
 
@@ -32,32 +34,53 @@ class Page:
             self._theme = self.module_config['active_theme']
         self.theme_config = read_config(self.theme_path + '/config.json')
 
+    def redirect(self, attr):
+        if not attr:
+            attr = '/'
+        body = None
+        code = 301
+        headers = self.headers
+        headers.add(("Location", attr))
+        return code, body, headers
+
+    def document(self):
+        return 200, self.compile_body(self.model.view), self.headers
+
+    _map = {
+        'redirect': redirect
+    }
+
     @property
     def url(self):
         return self._url
 
-    def compile(self):
-        if 'no-view' in self.model.decorator_attributes:
+    def compile_body(self, view_name):
+        if 'no-encode' in self.model.decorator_attributes:
             return self.model['content']
-        self._fill_model()
-        file = open(self.view_path).read()
-        for a in VAR_REGEX.finditer(file):
-            if a.group(1) not in self.model:
-                dict.__setitem__(self.model, a.group(1), '')
-        return file.format(**{a: str(self.model[a]) for a in self.model})
-
-    def encode(self):
-        code = 200
-        headers = self.model.headers
-        cookies = self.model.cookies
-        if self.model.view.startswith(':redirect:'):
-            body = None
-            code = 301
-            headers.add(("Location", self.model.view.lstrip(':redirect:')))
-        elif 'no-view' in self.model.decorator_attributes:
-            body = self.model['content']
+        if 'no_view' in self.model.decorator_attributes:
+            content = self.model['content']
         else:
-            body = str(self.compile()).encode(self.encoding)
+            pairing = self.initial_pairing()
+            file = open(self.view_path(view_name)).read()
+            for a in VAR_REGEX.finditer(file):
+                if a.group(1) not in pairing:
+                    pairing.__setitem__(a.group(1), '')
+            content = file.format(**{a: str(pairing[a]) for a in pairing})
+        if hasattr(self.model, 'encoding'):
+            encoding = self.model.encoding
+        else:
+            encoding = self.encoding
+        return content.encode(encoding)
+
+    def compile_response(self):
+        cookies = self.model.cookies
+        c = ARG_REGEX.match(self._model.view)
+        if not c:
+            code, body, headers = self.document()
+        else:
+            b= c.group(1)
+            code, body, headers = self._map.get(b, self.compile_body)(self, self._model.view.lstrip(':' + b + ':'))
+        headers |= self.model.headers
         r = Response(body, code, headers, cookies)
         for attr in ['content_type', 'encoding']:
             if hasattr(self.model, attr):
@@ -79,9 +102,8 @@ class Page:
                 return self._model.theme
         return self._theme
 
-    @property
-    def view_path(self):
-        return self.theme_path + '/template/' + self.model.view + '.html'
+    def view_path(self, name):
+        return self.theme_path + '/template/' + name + '.html'
 
     @property
     def theme_path(self):
@@ -136,17 +158,21 @@ class Page:
             favicon = 'favicon.icon'
         return str(LinkElement('/theme/' + self.theme + '/' + favicon, rel='shortcut icon', element_type='image/png'))
 
-    def _fill_model(self):
-        self._model['scripts'] = self.compile_scripts()
-        self._model['stylesheets'] = self.compile_stylesheets()
-        self._model['meta'] = self.compile_meta()
-        self._model.assign_key_safe('breadcrumbs', self.render_breadcrumbs())
-        self._model.assign_key_safe('pagetitle',
-                                    ContainerElement('dynamic_content - fast, python and extensible', html_type='a',
-                                                     additionals={'href':'/'}))
-        self._model.assign_key_safe('footer', str(
+    def initial_pairing(self) -> dict:
+        a = self.model.copy()
+        a.update({
+            'scripts': self.compile_scripts(),
+            'stylesheets': self.compile_stylesheets(),
+            'meta': self.compile_meta()
+        })
+        a.setdefault('breadcrumbs', self.render_breadcrumbs())
+        a.setdefault('pagetitle',
+                     ContainerElement('dynamic_content - fast, python and extensible', html_type='a',
+                                      additionals={'href':'/'}))
+        a.setdefault('footer', str(
             ContainerElement(ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', html_type='p'),
                              element_id='powered_by', classes={'common', 'copyright'})))
+        return a
 
     def breadcrumb_separator(self):
         return '>>'

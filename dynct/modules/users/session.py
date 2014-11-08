@@ -56,4 +56,8 @@ def authenticate_user(username_or_uid, password):
 def validate_session(token):
     if not isinstance(token, bytes):
         token = binascii.unhexlify(token)
-    return ar.Session.get(sess_token=token).uid
+    x = ar.Session.get(sess_token=token)
+    if x:
+        return x.uid
+    else:
+        return None

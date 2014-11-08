@@ -70,21 +70,3 @@ class LoginCommonHandler(handlers.common.Commons):
 
     def get_content(self, name):
         return LOGIN_COMMON
-
-
-class LogoutHandler(handlers.content.Content, handlers.base.RedirectMixIn):
-    permission = 'access logout'
-
-    def process_content(self):
-        self.logout()
-
-    def logout(self):
-        user = self.client.user
-        if user == GUEST:
-            self.redirect('/login')
-        else:
-            session.close_session(user)
-            time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
-            self.add_morsels({'SESS': ''})
-            self.cookies['SESS']['expires'] = time.strftime(_cookie_time_format)
-            self.redirect('/login')

@@ -16,10 +16,7 @@ class Content(ModelBasedContentCompiler):
     permission_for_unpublished = 'access unpublished pages'
 
     def __init__(self, client):
-        # assert isinstance(client, ClientInformation)
-        # super().__init__(url)
         super().__init__()
-        # ModelBasedContentCompiler.__init__(self)
         self._client = client
         self._cookies = None
 
@@ -49,9 +46,6 @@ class Content(ModelBasedContentCompiler):
     def editorial_list(self):
         return []
 
-    # def has_url_query(self):
-    #     return bool(self._url.get_query)
-
     def _fill_model(self):
         self._model['editorial'] = self.editorial()
         self._model['content'] = self.process_content()
@@ -68,7 +62,6 @@ class Content(ModelBasedContentCompiler):
 
     def compile(self):
         if self.check_own_permission():
-            # self._process_queries()
             model = super().compile()
             if self.cookies:
                 model.cookies = self.cookies
