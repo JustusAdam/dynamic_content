@@ -36,17 +36,7 @@ def common_handler(item_type):
 
 def prepare():
     from dynct import core
-    from .database_operations import UserOperations, SessionOperations, AccessOperations
     from dynct.modules import comp
-
-    # from coremodules.i18n.database_operations import DisplayNamesOperations
-    so = SessionOperations()
-    uo = UserOperations()
-    aa = AccessOperations()
-    # dn = DisplayNamesOperations()
-    so.init_tables()
-    uo.init_tables()
-    aa.init_tables()
 
     # add login page
     core.add_content_handler('login', name, login_prefix)

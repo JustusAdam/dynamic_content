@@ -1,6 +1,5 @@
 from dynct.core import handlers
 from dynct.modules.comp.html_elements import TableElement, ContainerElement
-from .database_operations import UserOperations
 from .login import LOGOUT_BUTTON
 from . import users
 
@@ -12,7 +11,6 @@ class UserInformationCommon(handlers.common.Commons):
 
     def __init__(self, machine_name, show_title, access_type, client):
         super().__init__(machine_name, show_title, access_type, client)
-        self.ops = UserOperations()
 
     def get_content(self, name):
         return ContainerElement(
@@ -26,12 +24,12 @@ class UserInformationCommon(handlers.common.Commons):
     def get_username(self, user):
         if user == users.GUEST:
             return 'Anonymous'
-        return self.ops.get_username(user)
+        return users.get_user(user).username
 
     def get_date_joined(self, user):
         if user == users.GUEST:
             return 'Not joined yet.'
-        return str(self.ops.get_date_joined(user))
+        return users.get_user(user).date_created
 
 
 class UserInformation(handlers.content.Content):
@@ -39,7 +37,8 @@ class UserInformation(handlers.content.Content):
     page_title = 'User Information'
 
     def __init__(self, url, client):
-        super().__init__(url, client)
+        super().__init__(client)
+        self.url = url
         if self.url.page_id == self.client.user:
             self.permission = 'view own user info'
 

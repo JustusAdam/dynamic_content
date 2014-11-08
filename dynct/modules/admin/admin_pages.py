@@ -83,9 +83,10 @@ class OverviewPage(handlers.content.Content, Overview):
     permission = 'access admin pages'
 
     def __init__(self, url, client):
-        super().__init__(url, client)
+        super().__init__(client)
         Overview.__init__(self)
         self.classes = {'admin-menu', 'overview', 'admin-page'}
+        self.url = url
 
     def process_content(self):
         return self.render_categories(*self.element_tree())

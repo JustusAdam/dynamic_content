@@ -42,7 +42,8 @@ class LoginHandler(handlers.content.Content, handlers.base.RedirectMixIn):
     permission = 'access login page'
 
     def __init__(self, url, client):
-        super().__init__(url, client)
+        super().__init__(client)
+        self.url = url
         self.message = ''
         self.page_title = 'Login'
 

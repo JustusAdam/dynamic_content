@@ -1,4 +1,5 @@
-from dynct.core.handlers.base import WebObject, ModelBasedContentCompiler
+from http import cookies
+from dynct.core.handlers.base import ModelBasedContentCompiler
 from dynct.core.mvc.model import Model
 from dynct.errors import html_message
 from dynct.modules.comp.html_elements import List, ContainerElement
@@ -6,7 +7,7 @@ from dynct.modules.comp.html_elements import List, ContainerElement
 __author__ = 'justusadam'
 
 
-class Content(WebObject, ModelBasedContentCompiler):
+class Content(ModelBasedContentCompiler):
     theme = 'default_theme'
     view_name = 'page'
     page_title = 'Dynamic Page'
@@ -14,11 +15,19 @@ class Content(WebObject, ModelBasedContentCompiler):
     published = True
     permission_for_unpublished = 'access unpublished pages'
 
-    def __init__(self, url, client):
+    def __init__(self, client):
         # assert isinstance(client, ClientInformation)
-        super().__init__(url)
-        ModelBasedContentCompiler.__init__(self)
+        # super().__init__(url)
+        super().__init__()
+        # ModelBasedContentCompiler.__init__(self)
         self._client = client
+        self._cookies = None
+
+    @property
+    def cookies(self):
+        if not self._cookies:
+            self._cookies = cookies.SimpleCookie()
+        return self._cookies
 
     @property
     def client(self):
@@ -40,8 +49,8 @@ class Content(WebObject, ModelBasedContentCompiler):
     def editorial_list(self):
         return []
 
-    def has_url_query(self):
-        return bool(self._url.get_query)
+    # def has_url_query(self):
+    #     return bool(self._url.get_query)
 
     def _fill_model(self):
         self._model['editorial'] = self.editorial()
@@ -59,7 +68,7 @@ class Content(WebObject, ModelBasedContentCompiler):
 
     def compile(self):
         if self.check_own_permission():
-            self._process_queries()
+            # self._process_queries()
             model = super().compile()
             if self.cookies:
                 model.cookies = self.cookies

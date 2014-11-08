@@ -1,6 +1,5 @@
 from dynct.backend.database import Database
 from dynct.core.database_operations import Alias, ModuleOperations, ContentHandlers, ContentTypes
-from dynct.modules.users.database_operations import UserOperations, SessionOperations, AccessOperations
 
 __author__ = 'justusadam'
 
@@ -21,12 +20,3 @@ info.append('Content handlers editing object: ch_dbo')
 
 ct_dbo = ContentTypes()
 info.append('Content types editing object: ct_dbo')
-
-us_dbo = UserOperations()
-info.append('User operations: us_dbo')
-
-ses_dbo = SessionOperations()
-info.append('Session Operations: ses_dbo')
-
-ac_dbo = AccessOperations()
-info.append('Access Operations: ac_dbo')

@@ -1,5 +1,8 @@
-from .database_operations import UserOperations, AccessOperations
+import hashlib
+import os
 from dynct.includes import log
+from . import ar
+from dynct.includes import bootstrap
 
 __author__ = 'justusadam'
 
@@ -64,25 +67,51 @@ def check_permission(pos, name):
     return dec
 
 
+def hash_password(password, salt):
+    return hashlib.pbkdf2_hmac(bootstrap.HASHING_ALGORITHM, password, salt, bootstrap.HASHING_ROUNDS,
+                               bootstrap.HASH_LENGTH)
+
+
+def check_ident(password, salt, comp_hash):
+    hashed = hash_password(password.encode(), salt)
+    return hashed == bytes(comp_hash)
+
+
+def hash_and_new_salt(password):
+    salt = os.urandom(bootstrap.SALT_LENGTH)
+    hashed = hash_password(password.encode(), salt)
+    return hashed, salt
+
+
+def get_user(user:str):
+    if isinstance(user, int) or user.isdigit():
+        return ar.User.get(uid=user)
+    else:
+        return ar.User.get(username=user)
+
+
 def acc_grp(user):
-    result = UserOperations().get_acc_grp(user)
+    result = get_user(user)
     if result:
-        return result[0]
+        return result.access_group
     else:
         return AUTH
 
 
 def add_acc_grp(name, aid=-1):
-    AccessOperations().add_group(aid, name)
+    if aid != -1:
+        ar.AccessGroup(name, aid).save()
+    else:
+        ar.AccessGroup(name).save()
 
 
 # @check_permission(1, 'permission')
 @check_aid
 def check_permission(aid, permission, strict=False):
     if aid != GUEST_GRP and not strict:
-        return AccessOperations().check_permission(aid, AUTH, permission)
+        return bool(ar.AccessGroupPermission.get(aid=aid, permission=permission)) or bool(ar.AccessGroupPermission.get(aid=AUTH, permission=permission))
     else:
-        return AccessOperations().check_permission(aid, None, permission)
+        return bool(ar.AccessGroupPermission(aid, permission))
 
 
 #@check_permission(1, 'permission')
@@ -99,7 +128,7 @@ def assign_permission(aid, permission):
         new_permission(permission)
         assign_permission(aid, permission)
     else:
-        AccessOperations().add_permission(aid, permission)
+        ar.AccessGroupPermission(aid, permission).save()
 
 
 #@check_permission(1, 'permission')
@@ -108,36 +137,38 @@ def revoke_permission(aid, permission):
     if aid == CONTROL_GROUP:
         log.write_error('users', 'permissions', 'assign_permission', 'cannot revoke permissions from control group')
     else:
-        AccessOperations().remove_permission(aid, permission)
+        ar.AccessGroupPermission(aid, permission).delete()
 
 
 #@check_permission(0, 'permission')
 def new_permission(permission):
-    AccessOperations().add_permission(CONTROL_GROUP, permission)
+    ar.AccessGroupPermission(CONTROL_GROUP, permission).save()
 
 
 #@check_permission(0, 'permission')
 def remove_permission(permission):
-    AccessOperations().remove_all_permissions(permission)
+    ar.AccessGroupPermission(0, '').delete(permission=permission)
 
 
 def add_user(username, password, email, first_name='', middle_name='', last_name=''):
-    UserOperations().add_user(username, password, email, AUTH, first_name, middle_name, last_name)
+    ar.User(username, email, first_name, last_name, GUEST_GRP, middle_name).save()
+    passwd, salt = hash_and_new_salt(password)
+    ar.UserAuth(ar.User.get(username=username).uid, passwd, salt).save()
 
 
 def get_info(selection):
-    return UserOperations().get_users(selection)
+    return ar.User.get_many(selection)
 
 
 def get_single_user(uname_or_uid):
-    return UserOperations().get_single_user(uname_or_uid)
+    return get_user(uname_or_uid)
 
 
 def edit_user(user_id, **kwargs):
-    acc = dict()
+    user = ar.User.get(uid=user_id)
     for argument in kwargs:
         if argument in _value_mapping:
-            acc[_value_mapping[argument]] = kwargs[argument]
+            setattr(user, _value_mapping[argument], kwargs[argument])
         else:
-            acc[argument] = kwargs[argument]
-    UserOperations().edit_user(user_id, **acc)
+            setattr(user, argument, kwargs[argument])
+    user.save()

@@ -43,7 +43,8 @@ def try_database_connection():
 
 class SetupHandler(Content):
     def __init__(self, url):
-        super().__init__(url, None)
+        super().__init__(None)
+        self.url = url
 
     def _fill_model(self):
         config = read_config('cms/config')

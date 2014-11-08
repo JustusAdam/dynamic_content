@@ -4,16 +4,8 @@ from dynct.errors import DatabaseError
 
 
 class ARObject(object):
-    """
-    _saved is a value designed to prevent debuggers automatic execution of @property code
-    from accidentally saving the object multiple times, especially if it doesn't have
-    any unique values and thus creates new rows all the time.
-    """
     _table = ''
     database = Database()
-
-    def __init__(self):
-        self._saved = False
 
     @classmethod
     def get(cls, **descriptor):
@@ -123,6 +115,9 @@ class ARObject(object):
         return self.database.select(name, self._table,
                                     ' and '.join([a + '=%(' + a + ')s' for a in descriptors]), q_tail,
                                     descriptors).fetchone()[0]
+
+    def delete(self, **descriptors):
+        pass
 
 
 class PartiallyLazyARObject(ARObject):

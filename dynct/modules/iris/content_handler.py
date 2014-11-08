@@ -47,7 +47,8 @@ class FieldBasedPageContent(handlers.content.Content):
     _editorial_list_base = edits = [('edit', _edit_modifier)]
 
     def __init__(self, url, client, cut_content=False):
-        super().__init__(url, client)
+        super().__init__(client)
+        self.url = url
         self.cut_content = cut_content
         self.modules = Modules()
         self.page = self.get_page()
@@ -230,7 +231,8 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
 
 class Overview(handlers.content.Content):
     def __init__(self, url, client):
-        super().__init__(url, client)
+        super().__init__(client)
+        self.url = url
         self.page_title = 'Overview'
         self.permission = ' '.join(['access', self.url.page_type, 'overview'])
 
@@ -251,12 +253,12 @@ class Overview(handlers.content.Content):
 
     def scroll(self, range):
         acc = []
-        if not range[0] == 0:
+        if not range[0] <= 0:
             after = not_under(range[0] - 1, 0)
             before = not_under(range[0] - _step, 0)
             acc.append(A(''.join([str(self.url.path), '?from=', str(before), '&to=', str(after)]), _scroll_left, classes={'page-tabs'}))
         maximum = self.max()
-        if not range[1] == maximum:
+        if not range[1] >= maximum:
             before = not_over(range[1] + 1, maximum)
             after = not_over(range[1] + _step, maximum)
             acc.append(A(''.join([str(self.url.path), '?from=', str(before), '&to=', str(after)]), _scroll_right, classes={'page-tabs'}))

@@ -71,6 +71,10 @@ class CreateUser(Content, RedirectMixIn):
     permission = 'edit user accounts'
     published = True
 
+    def __init__(self, url, client):
+        super().__init__(client)
+        self.url = url
+
     def process_content(self):
 
         return ContainerElement(
@@ -139,6 +143,10 @@ class EditUser(CreateUser):
 class UsersOverview(Content):
     page_title = 'User Overview'
     permission = 'access users overview'
+
+    def __init__(self, url, client):
+        super().__init__(client)
+        self.url = url
 
     def process_content(self):
         if 'selection' in self.url.get_query:
@@ -233,6 +241,10 @@ permission_structure = re.compile('(\d)+-([0-9a-zA-Z_-]+)')
 class EditPermissions(PermissionOverview):
     page_title = 'Edit Permissions'
     permission = 'edit permissions'
+
+    def __init__(self, url, client):
+        super().__init__(client)
+        self.url = url
 
     def permission_table(self):
         return SecureForm(
