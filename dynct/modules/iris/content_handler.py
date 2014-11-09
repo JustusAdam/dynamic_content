@@ -133,9 +133,8 @@ class EditFieldBasedContent(FieldBasedPageContent):
     def concatenate_content(self, fields):
         content = [self.title_options]
         content += self.field_content(fields)
-        content.append(self.admin_options())
         table = TableElement(*content, classes={'edit', self.page.content_type, 'edit-form'})
-        return FormElement(table, action=str(self.url))
+        return FormElement(table, self.admin_options(), action=str(self.url))
 
     def field_content(self, fields):
         content = []
@@ -151,13 +150,13 @@ class EditFieldBasedContent(FieldBasedPageContent):
         return self.modifier + self.field_identifier_separator + name
 
     def admin_options(self):
-        publishing_options = ContainerElement(
+        publishing_options = (
             Label('Published', label_for='toggle-published'),
                Checkbox(element_id='toggle-published', value=_publishing_flag, name=_publishing_flag,
                         checked=self.published))
-        menu_options = ContainerElement(
+        menu_options = (
             Label('Menu Parent', label_for='parent-menu') , menu_chooser('parent-menu'))
-        return ContainerElement(publishing_options, menu_options)
+        return TableElement(publishing_options, menu_options)
 
     def process_fields(self, fields):
         for field in fields:

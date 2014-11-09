@@ -50,7 +50,10 @@ class ClientInformation:
         return self._cookies
 
     def check_permission(self, permission):
-        return users.check_permission(self.access_group, permission)
+        result = users.check_permission(self.access_group, permission)
+        if not result:
+            print(permission)
+        return result
 
 
 class ClientInfoImpl(ClientInformation):

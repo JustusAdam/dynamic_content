@@ -78,7 +78,7 @@ class ARObject(object):
         :return:
         """
         print(self.primary_key())
-        if not descriptors and getattr(self, self.primary_key()) == inspect.signature(self.__init__).parameters[self.primary_key()].default:
+        if not descriptors and (not self.primary_key() or (getattr(self, self.primary_key()) == inspect.signature(self.__init__).parameters[self.primary_key()].default)):
             self.insert()
         else:
             try:
@@ -97,8 +97,9 @@ class ARObject(object):
 
     def insert(self):
         values = self._values()[:]
-        if not hasattr(self, self.primary_key()) or getattr(self, self.primary_key()) == inspect.signature(self.__init__).parameters[self.primary_key()].default:
-            values.remove(self.primary_key())
+        if self.primary_key():
+            if not hasattr(self, self.primary_key()) or getattr(self, self.primary_key()) == inspect.signature(self.__init__).parameters[self.primary_key()].default:
+                values.remove(self.primary_key())
         self.database.insert(self._table, {a:getattr(self, a) for a in values})
 
     @classmethod

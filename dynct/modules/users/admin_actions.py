@@ -7,6 +7,7 @@ from dynct.modules.comp.html_elements import TableElement, Input, ContainerEleme
 from . import users
 from dynct.modules.form.secure import SecureForm
 from .user_information import UserInformation
+from . import ar
 
 
 __author__ = 'justusadam'
@@ -106,7 +107,7 @@ class CreateUser(Content, RedirectMixIn):
     def _process_post(self):
         if 'password' in self.url.post:
             if self.url.post['confirm-password'] != self.url.post['password']:
-                self.message = ContainerElement('Your passwords did not match.', classes='alert')
+                self.message = ContainerElement('Your passwords did not match.', classes={'alert'})
                 return
         args = dict()
         for key in ['username', 'password', 'email', 'last_name', 'first_name', 'middle_name']:
@@ -194,7 +195,7 @@ class PermissionOverview(Content):
     @property
     def permissions_list(self):
         if not self._perm_list:
-            l = self._get_permissions()
+            l = [(a.aid, a.permission) for a in ar.AccessGroupPermission.get_all()]
             self._perm_list = self._sort_perm_list(l)
         return self._perm_list
 
@@ -209,8 +210,8 @@ class PermissionOverview(Content):
 
     def compile_the_list(self):
         l = []
-        access_groups = sorted([a for a in self.get_acc_groups()], key=lambda a: a[0])
-        l.append(['Permissions'] + [a[1] for a in access_groups])
+        access_groups = sorted(ar.AccessGroup.get_all(), key=lambda a: a.aid)
+        l.append(['Permissions'] + [a.machine_name for a in access_groups])
         permissions = {}
         for aid, per in self.permissions_list:
             if per in permissions:
@@ -221,18 +222,12 @@ class PermissionOverview(Content):
         for p in permissions:
             row = sorted(permissions[p])
             l.append([p] + list(
-                map(lambda a: self.checkbox(a[0] in row, '-'.join([str(a[0]), p.replace(' ', '-')])), access_groups)))
+                map(lambda a: self.checkbox(a.aid in row, '-'.join([str(a.aid), p.replace(' ', '-')])), access_groups)))
         l.sort(key=lambda a: a[0])
         return l
 
     def checkbox(self, value, name):
         return {True: '&#x2713;', False: '&#x2718;'}[value]
-
-    def _get_permissions(self):
-        return [list(a) for a in users.AccessOperations().get_permissions()]
-
-    def get_acc_groups(self):
-        return users.AccessOperations().get_access_group()
 
 
 permission_structure = re.compile('(\d)+-([0-9a-zA-Z_-]+)')
@@ -245,6 +240,11 @@ class EditPermissions(PermissionOverview):
     def __init__(self, url, client):
         super().__init__(client)
         self.url = url
+
+    def compile(self):
+        if self.url.post:
+            self._process_post()
+        return super().compile()
 
     def permission_table(self):
         return SecureForm(
@@ -261,7 +261,7 @@ class EditPermissions(PermissionOverview):
             if m:
                 g = m.groups()
                 # print('assigning permission ' + ' '.join([g[1].replace('-', ' '), 'to', str(g[0])]))
-                new_perm.append([int(g[0]), g[1].replace('-', ' ')])
+                new_perm.append((int(g[0]), g[1].replace('-', ' ')))
         new_perm = self._sort_perm_list(new_perm)
         old_perm, control_perm = split_list(self.permissions_list, lambda a: int(a[0]) != users.CONTROL_GROUP, )
         self.permissions_list = copy.copy(new_perm) + control_perm

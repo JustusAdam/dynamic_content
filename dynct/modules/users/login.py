@@ -7,6 +7,8 @@ from dynct.modules.form.secure import SecureForm
 from dynct.core import handlers
 from dynct.modules.users import session
 
+from .users import GUEST
+
 
 __author__ = 'justusadam'
 
@@ -69,7 +71,7 @@ def login(url, client):
 
 def logout(url, client):
     user = client.user
-    if user == client.GUEST:
+    if user == GUEST:
         m = Model(':redirect:/login')
         return m
     else:
