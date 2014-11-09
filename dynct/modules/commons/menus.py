@@ -1,10 +1,15 @@
 import itertools
 from dynct.core import handlers
-from dynct.modules.comp.html_elements import ContainerElement, List
+from dynct.modules.comp.html_elements import ContainerElement, List, Select
 from dynct.modules import i18n
 from . import ar
 
 __author__ = 'justusadam'
+
+
+def menu_chooser(name='menu_chooser'):
+    menus = [[('none', 'None')]] + [[(menu.machine_name + '-' + a[0], a[1]) for a in MenuRenderer(menu.machine_name).menu(MenuChooseItem).render()] for menu in ar.Menu.get_all(enabled=True)]
+    return Select(*list(itertools.chain(*menus)), name=name)
 
 
 class MenuItem:
@@ -43,6 +48,11 @@ class MenuItem:
 
     def __str__(self):
         return ''.join(str(a) for a in self.render(0))
+
+
+class MenuChooseItem(MenuItem):
+    def render_self(self, depth):
+        return self.item_name, super().render_self(depth)
 
 
 class HTMLMenuItem(MenuItem):

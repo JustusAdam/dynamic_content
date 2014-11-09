@@ -52,5 +52,3 @@ def database_factory():
 escape = db_imp.escape
 
 Database = database_factory
-
-DatabaseError = db_imp.DatabaseError

@@ -1,4 +1,5 @@
 from urllib import parse
+from urllib.error import HTTPError
 
 from dynct.core import handlers
 from dynct.core.modules import Modules
@@ -8,6 +9,9 @@ from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery, Url
 from dynct.core.ar import ContentTypes
 from dynct.errors import InvalidInputError
+from dynct.modules.commons.menus import menu_chooser
+from dynct.modules.commons.ar import MenuItem
+
 from . import ar
 
 __author__ = 'justusadam'
@@ -116,7 +120,7 @@ class FieldBasedPageContent(handlers.content.Content):
         return s
 
 
-class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
+class EditFieldBasedContent(FieldBasedPageContent):
     modifier = _edit_modifier
     _editorial_list_base = [('show', _access_modifier)]
     field_identifier_separator = '-'
@@ -129,7 +133,7 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
     def concatenate_content(self, fields):
         content = [self.title_options]
         content += self.field_content(fields)
-        content.append(self.admin_options)
+        content.append(self.admin_options())
         table = TableElement(*content, classes={'edit', self.page.content_type, 'edit-form'})
         return FormElement(table, action=str(self.url))
 
@@ -146,11 +150,14 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
     def make_field_identifier(self, name):
         return self.modifier + self.field_identifier_separator + name
 
-    @property
     def admin_options(self):
-        return Label('Published', label_for='toggle-published'), \
+        publishing_options = ContainerElement(
+            Label('Published', label_for='toggle-published'),
                Checkbox(element_id='toggle-published', value=_publishing_flag, name=_publishing_flag,
-                        checked=self.published)
+                        checked=self.published))
+        menu_options = ContainerElement(
+            Label('Menu Parent', label_for='parent-menu') , menu_chooser('parent-menu'))
+        return ContainerElement(publishing_options, menu_options)
 
     def process_fields(self, fields):
         for field in fields:
@@ -175,6 +182,18 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
             published = False
         self.page.published = published
         self.page.save()
+        if 'parent-menu' in self.url.post:
+            a = MenuItem.get(item_path=str(self.url.path))
+            if self.url.post['parent-menu'][0] == 'none':
+                if a:
+                    a.delete()
+            else:
+                menu_name, parent = self.url.post['parent-menu'][0].split('-', 1)
+                if a:
+                    a.parent_item = parent
+                else:
+                    a = MenuItem(self.page_title, self.url.path.prt_to_str(0,1) + '/' + str(self.url.page_id), menu_name, True, parent, 10)
+                a.save()
         return self.url.path.prt_to_str(0,1) + '/' + str(self.url.page_id)
 
     def _process_post(self):
@@ -187,9 +206,19 @@ class EditFieldBasedContent(FieldBasedPageContent, handlers.base.RedirectMixIn):
             pass
 
     def compile(self):
+        if self.url.post:
+            self._process_post()
         c = super().compile()
         decorator_hook(c)
         return c
+
+    def redirect(self, destination=None):
+        if 'destination' in self.url.get_query:
+            destination = self.url.get_query['destination'][0]
+        elif not destination:
+            destination = str(self.url.path.prt_to_str(0, -1))
+        raise HTTPError(str(self.url), 302, 'Redirect',
+                        {('Location', destination), ('Connection', 'close')}, None)
 
 
 class AddFieldBasedContentHandler(EditFieldBasedContent):

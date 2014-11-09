@@ -1,9 +1,8 @@
 from importlib import import_module
 from pathlib import Path
 
-from dynct.errors.exceptions import ModuleError
+from dynct.errors import ModuleError, DatabaseError
 from dynct.util.config import read_config
-from dynct.backend.database import DatabaseError
 from dynct.includes import bootstrap
 from . import ar
 
@@ -134,4 +133,4 @@ def check_info(info):
 
 
 def get_active_modules():
-    return {item.module_name: 'dynct.' + item.module_path.replace('/', '.') for item in ar.Module.get_all(enabled=True)}
+    return {item.module_name: import_module('dynct.' + item.module_path.replace('/', '.')) for item in ar.Module.get_all(enabled=True)}

@@ -236,6 +236,32 @@ class List(ContainerElement):
         return ''.join(tuple(self.render_list_element(element) for element in self.content))
 
 
+class Select(ContainerElement):
+    def __init__(self, *content, classes:set=None, element_id:str=None, additionals:dict=None, form:str=None, required:bool=False, disabled=False, name:str=None):
+        super().__init__(*content, html_type='select', classes=classes, element_id=element_id, additionals=additionals)
+        self._customs['form'] = form
+        self._customs['name'] = name
+        self.required = required
+        self.disabled = disabled
+
+    def render_head(self):
+        head = [super().render_head()]
+        if self.required:
+            head.append('required')
+        if self.disabled:
+            head.append('disabled')
+        return ' '.join(head)
+
+    def render_option_element(self, element):
+        if isinstance(element, ContainerElement):
+            if element.html_type == 'option':
+                return str(element)
+        return str(ContainerElement(element[1], html_type='option', additionals={'value': element[0]}))
+
+    def render_content(self):
+        return ''.join(tuple(self.render_option_element(element) for element in self.content))
+
+
 class TableElement(ContainerElement):
     def __init__(self, *content, classes:set=None, element_id:str=None, additionals:dict=None, table_head=False):
         super().__init__(*content, html_type='table', classes=classes, element_id=element_id, additionals=additionals)

@@ -27,9 +27,9 @@ def prepare():
 
 
 def translate_alias(alias):
-    query_result = ar.Alias.get(alias=alias).source_url
+    query_result = ar.Alias.get(alias=alias)
     if query_result:
-        return query_result
+        return query_result.source_url
     else:
         return alias
 

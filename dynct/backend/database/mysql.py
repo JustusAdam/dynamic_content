@@ -24,7 +24,7 @@ class Database(SQLDatabase):
     """
 
     def __init__(self, config):
-        super().__init__(connect)
+        super().__init__(config)
         self.charset = 'utf-8'
         self.db_type = self.config['database_type']
 
