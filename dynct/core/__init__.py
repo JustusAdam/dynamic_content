@@ -2,7 +2,7 @@ __author__ = 'justusadam'
 
 from .module_operations import register_installed_modules
 from .modules import Modules
-from . import database_operations as dbo
+from . import ar
 
 name = 'olymp'
 
@@ -18,27 +18,21 @@ def load_modules():
 
 
 def add_content_handler(handler_name, handler, prefix):
-    dbo.ContentHandlers().add_new(handler_name, handler, prefix)
+    ar.ContentHandler(handler, handler_name, prefix).save()
 
 
 def prepare():
-    dbo.ContentHandlers().init_tables()
-    a = dbo.Alias()
-    a.init_tables()
-    a.add_alias('/iris/1', '/welcome')
-    a.add_alias('/iris/1', '/')
-    mo = dbo.ModuleOperations()
-    mo.init_tables()
-    dbo.ContentTypes().init_tables()
+    ar.Alias('/iris/1', '/welcome').save()
+    ar.Alias('/iris/1', '/').save()
 
 
 def translate_alias(alias):
-    try:
-        query_result = dbo.Alias().get_by_alias(alias)
+    query_result = ar.Alias.get(alias=alias).source_url
+    if query_result:
         return query_result
-    except (dbo.DBOperationError, TypeError):
+    else:
         return alias
 
 
 def add_alias(source, alias):
-    dbo.Alias().add_alias(source, alias)
+    ar.Alias(source, alias).save()

@@ -67,6 +67,16 @@ class ARObject(object):
                                    ' and '.join([a + '=%(' + a + ')s' for a in descriptors]),  _tail, descriptors)
 
     def save(self, **descriptors):
+        """
+        If no descriptors are provided saves the current ARObject in the database.
+
+        If no primary key value was given, aka the default value was used, the object will be saved without specifying
+        the primary key (to allow for auto_increment etc.)
+
+        If descriptors are provided updates all rows that match the descriptors.
+        :param descriptors:
+        :return:
+        """
         print(self.primary_key())
         if not descriptors and getattr(self, self.primary_key()) == inspect.signature(self.__init__).parameters[self.primary_key()].default:
             self.insert()

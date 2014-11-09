@@ -6,7 +6,7 @@ from dynct.core.mvc.controller import Controller
 from dynct.modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement, Checkbox, A
 from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery, Url
-from dynct.core.database_operations import ContentTypes
+from dynct.core.ar import ContentTypes
 from dynct.errors import InvalidInputError
 from . import ar
 
@@ -52,8 +52,7 @@ class FieldBasedPageContent(handlers.content.Content):
         self.cut_content = cut_content
         self.modules = Modules()
         self.page = self.get_page()
-        ops = ContentTypes()
-        self._theme = ops.get_theme(content_type=self.page.content_type)
+        self._theme = ContentTypes.get(content_type_name=self.page.content_type).theme
         self.fields = self.get_fields()
         self.permission = self.join_permission(self.modifier, self.page.content_type)
         self.permission_for_unpublished = self.join_permission('access unpublished', self.page.content_type)
@@ -203,8 +202,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
             content_type = self.url.path[2]
         else:
             raise InvalidInputError
-
-        display_name = ContentTypes().get_ct_display_name(content_type)
+        display_name = ContentTypes.get(content_type_name=content_type).display_name
         title = 'Add new ' + display_name + ' page'
         return ar.page(self.url.page_type)(content_type, title, self.client.user, True)
 

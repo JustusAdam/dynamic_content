@@ -34,11 +34,11 @@ def post_handler(url):
 
 
 def prepare():
-    from dynct.core.database_operations import ContentHandlers, ContentTypes
+    from dynct.core.ar import ContentTypes, ContentHandler
 
     conf = read_config(Path(__file__).parent / 'config.json')
-    ContentHandlers().add_new('iris', name, path_prefix)
-    ContentTypes().add('article', 'Simple Article', 'iris', 'active')
+    ContentHandler('iris', name, path_prefix).save()
+    ContentTypes('article', 'Simple Article', 'iris', 'active').save()
     ar.FieldConfig('body', 'Body', 'article', 'iris', 1, '')
 
     # add admin pages

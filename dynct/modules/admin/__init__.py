@@ -28,7 +28,6 @@ def new_page(machine_name, display_name, subcategory, handler_module, descriptio
 
 
 def prepare():
+    from dynct.core.ar import ContentHandler
 
-    from dynct.core.database_operations import ContentHandlers
-
-    ContentHandlers().add_new('admin', 'admin', 'admin')
+    ContentHandler('admin', 'admin', 'admin').save()

@@ -1,11 +1,11 @@
 from importlib import import_module
 from pathlib import Path
 
-from dynct.core import database_operations
 from dynct.errors.exceptions import ModuleError
 from dynct.util.config import read_config
 from dynct.backend.database import DatabaseError
 from dynct.includes import bootstrap
+from . import ar
 
 
 __author__ = 'justusadam'
@@ -47,14 +47,14 @@ def register_content_handler(module_conf):
     else:
         path_prefix = module_conf['name']
     try:
-        database_operations.ContentHandlers().add_new(module_conf['name'], module_conf['name'], path_prefix)
+        ar.ContentHandler(module_conf['name'], module_conf['name'], path_prefix).save()
     except DatabaseError as error:
         print('Failed to register page handler ' + module_conf['name'])
         print(error)
 
 
 def get_module_id(module_name):
-    return database_operations.ModuleOperations().get_id(module_name)
+    return ar.Module.get(module_name=module_name).id
 
 
 def init_module(module_path):
@@ -67,19 +67,22 @@ def init_module(module_path):
 
 
 def get_module_path(module):
-    return database_operations.ModuleOperations().get_path(module)
+    return ar.Module.get(module_name=module).module_path
 
 
 def _set_module_active(module_name):
-    database_operations.ModuleOperations().set_active(module_name)
+    a = ar.Module.get(module_name=module_name)
+    a.enabled = True
+    a.save()
 
 
 def is_active(module_name):
-    try:
-        result = database_operations.ModuleOperations().ask_active(module_name)
-    except DatabaseError:
+    result = ar.Module.get(module_name=module_name)
+    if result:
+        return bool(result.enabled)
+    else:
         return False
-    return result == 1
+
 
 
 def register_installed_modules():
@@ -112,13 +115,13 @@ def register_modules(r_modules):
 def register_single_module(moduleconf):
     assert isinstance(moduleconf, dict)
     print('registering module ' + moduleconf['name'])
-    db_op = database_operations.ModuleOperations()
-    try:
-        path = db_op.get_path(moduleconf['name'])
-        if path[0] != moduleconf['path']:
-            db_op.update_path(moduleconf['name'], moduleconf['path'])
-    except (DatabaseError, TypeError):
-        db_op.add_module(moduleconf['name'], moduleconf['path'], moduleconf['role'])
+    module = ar.Module.get(module_name=moduleconf['name'])
+    if module:
+        if module.module_path != moduleconf['path']:
+            module.module_path = moduleconf['path']
+            module.save()
+    else:
+        ar.Module(moduleconf['name'], moduleconf['path'], moduleconf['role']).save()
 
 
 def check_info(info):
@@ -131,9 +134,4 @@ def check_info(info):
 
 
 def get_active_modules():
-    modules = {}
-    for item in database_operations.ModuleOperations().get_enabled():
-        print('loading module ' + item['name'])
-        modules[item['name']] = import_module('dynct.' + item['path'].replace('/', '.'))
-
-    return modules
+    return {item.module_name: 'dynct.' + item.module_path.replace('/', '.') for item in ar.Module.get_all(enabled=True)}

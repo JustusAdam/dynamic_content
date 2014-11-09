@@ -1,4 +1,4 @@
-from dynct.backend.ar.base import ARObject
+from dynct.backend.ar import ARObject
 
 __author__ = 'justusadam'
 
