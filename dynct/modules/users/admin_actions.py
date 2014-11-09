@@ -6,6 +6,7 @@ from dynct.core.handlers.base import RedirectMixIn
 from dynct.modules.comp.html_elements import TableElement, Input, ContainerElement, Label, Checkbox
 from . import users
 from dynct.modules.form.secure import SecureForm
+from dynct.modules.users.user_information import UsersOverview
 from .user_information import UserInformation
 from . import ar
 
@@ -139,42 +140,6 @@ class EditUser(CreateUser):
                                  middle_name=middle_name,
                                  last_name=last_name,
                                  date_created=date_created)
-
-
-class UsersOverview(Content):
-    page_title = 'User Overview'
-    permission = 'access users overview'
-
-    def __init__(self, url, client):
-        super().__init__(client)
-        self.url = url
-
-    def process_content(self):
-        if 'selection' in self.url.get_query:
-            selection = self.url.get_query['selection'][0]
-        else:
-            selection = '0,50'
-        all_users = users.get_info(selection)
-        acc = [['UID', 'Username', 'Name (if provided)', 'Date created', 'Actions']]
-
-        for (user_id, username, user_first_name, user_middle_name, user_last_name, date_created) in all_users:
-            acc.append([ContainerElement(str(user_id), html_type='a', additionals={'href': '/users/' + str(user_id)}),
-                        ContainerElement(username, html_type='a', additionals={'href': '/users/' + str(user_id)}),
-                        ' '.join([user_first_name, user_middle_name, user_last_name]),
-                        date_created,
-                        ContainerElement('edit', html_type='a',
-                                         additionals={'href': '/users/' + str(user_id) + '/edit'})])
-
-        if len(acc) == 1 or acc == []:
-            return ContainerElement(ContainerElement('It seems you do not have any users yet.',
-                                                     additionals={'style': 'padding:10px;text-align:center;'}),
-                                    ContainerElement('Would you like to ', ContainerElement('create one', html_type='a',
-                                                                                            additionals={
-                                                                                                'href': '/users/new',
-                                                                                                'style': 'color:rgb(255, 199, 37);text-decoration:none;'}),
-                                                     '?', additionals={'style': 'padding:10px;'}), additionals={
-                    'style': 'padding:15px; text-align:center; background-color: cornflowerblue;color:white;border-radius:20px;font-size:20px;'})
-        return TableElement(*acc, classes={'user-overview'})
 
 
 class PermissionOverview(Content):
