@@ -3,6 +3,7 @@ from . import ar
 import datetime
 import os
 from dynct.util.time import utcnow
+from .users import check_ident
 
 
 __author__ = 'justusadam'
@@ -50,7 +51,10 @@ def close_session(uid_or_username):
 def authenticate_user(username_or_uid, password):
     if not isinstance(username_or_uid, int) or username_or_uid.isdigit():
         username_or_uid = ar.User.get(username=username_or_uid).uid
-    return bool(ar.UserAuth.get(username=username_or_uid, password=password))
+    auth = ar.UserAuth.get(uid=username_or_uid)
+    if not auth:
+        return False
+    return check_ident(password, auth.salt, auth.password)
 
 
 def validate_session(token):

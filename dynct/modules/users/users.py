@@ -111,7 +111,7 @@ def check_permission(aid, permission, strict=False):
     if aid != GUEST_GRP and not strict:
         return bool(ar.AccessGroupPermission.get(aid=aid, permission=permission)) or bool(ar.AccessGroupPermission.get(aid=AUTH, permission=permission))
     else:
-        return bool(ar.AccessGroupPermission(aid, permission))
+        return bool(ar.AccessGroupPermission.get(aid=aid, permission=permission))
 
 
 #@check_permission(1, 'permission')

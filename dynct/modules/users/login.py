@@ -1,10 +1,11 @@
 import datetime
-
+from http.cookies import SimpleCookie
+from urllib.error import HTTPError
+from dynct.core.mvc.model import Model
 from dynct.modules.comp.html_elements import TableElement, ContainerElement, Label, Input, SubmitButton
 from dynct.modules.form.secure import SecureForm
 from dynct.core import handlers
-from dynct.modules.users.users import GUEST
-from . import session
+from dynct.modules.users import session
 
 
 __author__ = 'justusadam'
@@ -38,35 +39,48 @@ LOGIN_COMMON = SecureForm(
 )
 
 
-class LoginHandler(handlers.content.Content, handlers.base.RedirectMixIn):
-    permission = 'access login page'
-
-    def __init__(self, url, client):
-        super().__init__(client)
-        self.url = url
-        self.message = ''
-        self.page_title = 'Login'
-
-    def process_content(self):
-        return ContainerElement(self.message, LOGIN_FORM)
-
-    def _process_post(self):
-        if not self.url.post['username'] or not self._url.post['password']:
-            raise ValueError
-        username = self.url.post['username'][0]
-        password = self.url.post['password'][0]
-        token = session.start_session(username, password)
-        if token:
-            self.add_morsels({'SESS': token})
-            self.redirect('/iris/1')
-        else:
-            self.message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
-
-
-
-
 class LoginCommonHandler(handlers.common.Commons):
     source_table = 'user_management'
 
     def get_content(self, name):
         return LOGIN_COMMON
+
+
+def login(url, client):
+    if not client.check_permission('access login page'):
+        raise HTTPError(str(url.path), 403, None, None, None)
+    if url.post:
+        if not url.post['username'] or not url.post['password']:
+            raise ValueError
+        username = url.post['username'][0]
+        password = url.post['password'][0]
+        token = session.start_session(username, password)
+        if token:
+            cookie = SimpleCookie({'SESS': token})
+            m = Model(':redirect:/')
+            m.cookies = cookie
+            return m
+        else:
+            message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
+    else:
+        message = ''
+    return Model('page', content=ContainerElement(message, LOGIN_FORM))
+
+
+def logout(url, client):
+    user = client.user
+    if user == client.GUEST:
+        m = Model(':redirect:/login')
+        return m
+    else:
+        session.close_session(user)
+        time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+
+        if 'destination' in url.get_query:
+            dest = url.get_query['destination'][0]
+        else:
+            dest = '/'
+        m = Model(':redirect:' + dest)
+        m.cookies.load({'SESS': ''})
+        m.cookies['SESS']['expires'] = time.strftime(_cookie_time_format)
+        return m

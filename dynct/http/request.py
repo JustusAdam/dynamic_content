@@ -12,6 +12,7 @@ from urllib.error import HTTPError
 import sys
 import traceback
 import copy
+import re
 
 from dynct.includes import bootstrap
 from dynct.util.url import Url
@@ -26,6 +27,8 @@ from dynct.errors.exceptions import *
 __author__ = 'justusadam'
 
 _catch_errors = False
+
+HEADER_SPLIT_REGEX = re.compile("(\S+?)\s*:\s*(\S+)")
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -101,7 +104,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         else:
             return function
 
-    def process_http_error(self, error, page_handler=None):
+    def process_http_error(self, error, response=None):
         print(error)
         if error.code >= 400:
             if error.reason:
@@ -114,17 +117,23 @@ class RequestHandler(BaseHTTPRequestHandler):
             return 0
         else:
             self.send_response(error.code)
-            if page_handler:
-                if page_handler.headers:
-                    self.process_headers(*page_handler.headers)
+            if response:
+                if response.headers:
+                    self.process_headers(*response.headers)
             if error.headers:
                 self.process_headers(*error.headers)
         self.end_headers()
         return 0
 
-    def process_headers(self, *headers):
+    def process_headers(self, *headers:tuple):
         for header in headers:
-            self.send_header(*header)
+            if isinstance(header, str):
+                self.send_header(*HEADER_SPLIT_REGEX.match(header).groups())
+            elif hasattr(header, '__iter__') and len(header) == 2:
+                self.send_header(*header)
+            else:
+                print(header)
+                raise InvalidInputError
 
     def send_document(self, response):
         document = response.body

@@ -26,7 +26,20 @@ class PageNotFoundError(DynamicContentError):
 
 
 class InvalidInputError(DynamicContentError):
-    pass
+    def __init__(self, attribute:str=None, expected:str=None, received:str=None):
+        self.attribute = attribute
+        self.expected = expected
+        self.received = received
+
+    def __str__(self):
+        acc = [self.__class__.__name__ + ':', 'invalid value']
+        if self.attribute:
+            acc.append('for attribute ' + str(self.attribute))
+        if self.expected:
+            acc.append(str(self.expected) + ' was expected')
+        if self.received:
+            acc.append('received ' + str(self.received))
+        return ' '.join(acc)
 
 
 class AccessDisabled(DynamicContentError):

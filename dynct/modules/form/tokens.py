@@ -24,7 +24,12 @@ def gen_token():
 
 
 def _validate(form, token):
-    return bool(ARObject.get(url=form, token=binascii.unhexlify(token)))
+    a = ARToken.get(url=form, token=binascii.unhexlify(token))
+    if a:
+        a.delete()
+        return True
+    else:
+        return False
 
 
 def validate(form, query_or_token):
