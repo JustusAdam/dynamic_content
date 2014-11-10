@@ -1,8 +1,8 @@
 import re
 import copy
+from urllib.error import HTTPError
 
 from dynct.core.handlers.content import Content
-from dynct.core.handlers.base import RedirectMixIn
 from dynct.modules.comp.html_elements import TableElement, Input, ContainerElement, Label, Checkbox
 from . import users
 from dynct.modules.form.secure import SecureForm
@@ -66,7 +66,7 @@ def split_list(l, func):
     return true, false
 
 
-class CreateUser(Content, RedirectMixIn):
+class CreateUser(Content):
     page_title = 'Create User'
     destination = '/'
     message = ''
@@ -120,6 +120,14 @@ class CreateUser(Content, RedirectMixIn):
 
     def action(self, **kwargs):
         users.add_user(**kwargs)
+
+    def redirect(self, destination=None):
+        if 'destination' in self.url.get_query:
+            destination = self.url.get_query['destination'][0]
+        elif not destination:
+            destination = str(self.url.path.prt_to_str(0, -1))
+        raise HTTPError(str(self.url), 302, 'Redirect',
+                        {('Location', destination), ('Connection', 'close')}, None)
 
 
 class EditUser(CreateUser):
