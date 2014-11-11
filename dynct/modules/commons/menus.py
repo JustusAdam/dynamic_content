@@ -31,8 +31,11 @@ class MenuItem:
         self.weight = int(weight)
         self.children = []
 
-    def render(self, depth=0):
-        return [self.render_self(depth)] + self.render_children(depth + 1)
+    def render(self, depth=0, max_depth=-1):
+        if 0 <= max_depth >= depth:
+            return [self.render_self(depth)]
+        else:
+            return [self.render_self(depth)] + self.render_children(depth + 1, max_depth)
 
     def render_self(self, depth):
         if depth == 0:
@@ -40,11 +43,11 @@ class MenuItem:
         else:
             return '-' * depth + '  ' + self.display_name
 
-    def render_children(self, depth=0):
+    def render_children(self, depth=0, max_depth=-1):
         if not self.children:
             return []
         else:
-            return list(itertools.chain(*[a.render(depth) for a in self.children]))
+            return list(itertools.chain(*[a.render(depth, max_depth) for a in self.children]))
 
     def __str__(self):
         return ''.join(str(a) for a in self.render(0))
@@ -71,14 +74,17 @@ class HTMLMenuItem(MenuItem):
             return ContainerElement(self.display_name, html_type='span', classes={'layer-' + str(depth), 'menu'},
                                     element_id=self.item_name)
 
-    def render_children(self, depth=0):
+    def render_children(self, depth=0, max_depth=-1):
         if not self.children:
             return ''
-        return List(*[a.render(depth) for a in self.children], list_type='ul', item_classes={'layer-' + str(depth)},
+        return List(*[a.render(depth, max_depth) for a in self.children], list_type='ul', item_classes={'layer-' + str(depth)},
                     classes={'layer-' + str(depth), 'menu'})
 
-    def render(self, depth=0):
-        return self.render_self(depth), self.render_children(depth + 1)
+    def render(self, depth=0, max_depth=-1):
+        if 0 <= max_depth >= depth:
+            return self.render_self(depth)
+        else:
+            return self.render_self(depth), self.render_children(depth + 1)
 
 
 class Handler(handlers.common.Commons):
