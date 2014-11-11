@@ -117,6 +117,11 @@ class CreateUser(Content):
         self.action(**args)
         self.redirect(str(self.url.path))
 
+    def compile(self):
+        if self.url.post:
+            self._process_post()
+        return super().compile()
+
 
     def action(self, **kwargs):
         users.add_user(**kwargs)
@@ -154,6 +159,9 @@ class PermissionOverview(Content):
     page_title = 'Permissions Overview'
     permission = 'view permissions'
     _perm_list = None
+
+    def __init__(self, url, client):
+        super().__init__(client)
 
     def process_content(self):
         return ContainerElement(

@@ -114,6 +114,7 @@ class CategoryPage(OverviewPage):
     def __init__(self, url, client):
         super().__init__(url, client)
         self.name = url.path[1]
+        self.page_title = self.name
 
     def base_path(self):
         return self.url.path.prt_to_str(0, -1)
@@ -131,6 +132,7 @@ class SubcategoryPage(CategoryPage):
     def __init__(self, url, client):
         super().__init__(url, client)
         self.name = self.url.path[2]
+        self.page_title = self.name
 
     def get_parents_data(self):
         return [ar.Subcategory.get(machine_name=self.name)]
