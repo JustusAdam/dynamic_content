@@ -1,4 +1,4 @@
-from dynct.core.handlers.common import Commons
+from .base import Commons
 from . import ar
 
 __author__ = 'justusadam'

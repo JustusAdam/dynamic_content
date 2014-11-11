@@ -1,5 +1,5 @@
-from . import base, common, content, page
+from . import base, content, page
 
 __author__ = 'justusadam'
 
-__all__ = ['base', 'common', 'content', 'page']
+__all__ = ['base', 'content', 'page']

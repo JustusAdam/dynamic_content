@@ -1,8 +1,8 @@
 import itertools
-from dynct.core import handlers
 from dynct.modules.comp.html_elements import ContainerElement, List, Select
 from dynct.modules import i18n
 from . import ar
+from .base import Commons
 
 __author__ = 'justusadam'
 
@@ -87,7 +87,7 @@ class HTMLMenuItem(MenuItem):
             return self.render_self(depth), self.render_children(depth + 1)
 
 
-class Handler(handlers.common.Commons):
+class Handler(Commons):
     source_table = 'menu_items'
 
     def __init__(self, machine_name, show_title, access_type, client):
