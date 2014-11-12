@@ -1,6 +1,6 @@
-from dynct.core import handlers
 from dynct.core.handlers.content import Content
 from dynct.modules.comp.html_elements import TableElement, ContainerElement
+from dynct.modules.commons.commons import Commons
 from .login import LOGOUT_BUTTON
 from . import users
 from . import ar
@@ -8,7 +8,7 @@ from . import ar
 __author__ = 'justusadam'
 
 
-class UserInformationCommon(handlers.common.Commons):
+class UserInformationCommon(Commons):
     source_table = 'user_management'
 
     def __init__(self, machine_name, show_title, access_type, client):
@@ -34,7 +34,7 @@ class UserInformationCommon(handlers.common.Commons):
         return users.get_user(user).date_created
 
 
-class UserInformation(handlers.content.Content):
+class UserInformation(Content):
     permission = 'view other user info'
     page_title = 'User Information'
 

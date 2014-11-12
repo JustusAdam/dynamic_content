@@ -12,7 +12,6 @@ from dynct.util.singleton import singleton
 __author__ = 'justusadam'
 
 from pymysql import connect
-from pymysql.converters import escape_item
 
 from ._abs_sql import SQLDatabase
 
@@ -31,16 +30,3 @@ class Database(SQLDatabase):
     def connect(self):
         self.close()
         self._connection = connect(**self.config['database_connection_arguments'])
-
-
-def escape(item, charset='utf-8'):
-    """
-    Escapes a value so that it can be used in a Query. The actual escape function invoked will depend on the type of
-    database.
-
-    This function can escape structures but does return a representation of them, not just the elements.
-    :param item:
-    :param charset: optional, specify the charset of your input
-    :return:
-    """
-    return escape_item(item, charset)

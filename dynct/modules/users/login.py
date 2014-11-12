@@ -4,7 +4,7 @@ from urllib.error import HTTPError
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.html_elements import TableElement, ContainerElement, Label, Input, SubmitButton
 from dynct.modules.form.secure import SecureForm
-from dynct.core import handlers
+from dynct.modules.commons.commons import Commons
 from dynct.modules.users import session
 
 from .users import GUEST
@@ -41,7 +41,7 @@ LOGIN_COMMON = SecureForm(
 )
 
 
-class LoginCommonHandler(handlers.common.Commons):
+class LoginCommonHandler(Commons):
     source_table = 'user_management'
 
     def get_content(self, name):

@@ -5,6 +5,7 @@ from dynct.core.modules import Modules
 from dynct.modules.comp.html_elements import ContainerElement, List
 from dynct.modules.users.users import GUEST
 from dynct.modules.users.client import ClientInfoImpl
+from dynct.modules.commons.commons import Commons
 from . import ar
 
 __author__ = 'justusadam'
@@ -92,7 +93,7 @@ class OverviewPage(handlers.content.Content, Overview):
         return self.render_categories(*self.element_tree())
 
 
-class OverviewCommon(handlers.common.Commons, Overview):
+class OverviewCommon(Commons, Overview):
     source_table = 'admin'
 
     def __init__(self, machine_name, show_title, access_type, client):

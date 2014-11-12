@@ -49,6 +49,4 @@ def database_factory():
     return db_imp.Database(config)
 
 
-escape = db_imp.escape
-
 Database = database_factory
