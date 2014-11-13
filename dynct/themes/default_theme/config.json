@@ -5,13 +5,17 @@
     "show_powered_by": true,
     "favicon": "favicon.png",
     "regions": {
-        "navigation": {},
-        "footer": {},
+        "navigation": {
+            "classes": ["horizontal"]
+        },
+        "footer": {
+            "classes": ["horizontal"]
+        },
         "sidebar_left": {
-            "classes": ["sidebar"]
+            "classes": ["sidebar", "vertical"]
         },
         "sidebar_right": {
-            "classes": ["sidebar"]
+            "classes": ["sidebar", "vertical"]
         }
     }
 }

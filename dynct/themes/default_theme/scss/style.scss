@@ -160,15 +160,18 @@ ul.menu {
     margin: 0;
   }
   li a, ul.menu li span {
-    padding: 14px;
     text-decoration: none;
   }
 }
 
-#start_menu {
+.horizontal ul.menu {
   overflow: hidden;
   padding: 0;
   margin: 0;
+
+  li a, ul.menu li span {
+    padding: 14px;
+  }
 
   a.layer-0, #start_menu span.layer-0 {
     font-size: 15px;
@@ -298,7 +301,7 @@ form.login-form {
     }
   }
   ul {
-    padding-left: 25px;
+    padding-left: 10px;
   }
 }
 
