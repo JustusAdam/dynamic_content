@@ -1,3 +1,4 @@
+from dynct.backend.ar import ARObject
 from dynct.backend.ar.base import ARObject
 
 __author__ = 'justusadam'
@@ -38,3 +39,16 @@ class MenuItem(ARObject):
         self.menu = menu
         self.enabled = enabled
         self.tooltip = tooltip
+
+
+class CommonsConfig(ARObject):
+    _table = 'commons_config'
+
+    def __init__(self, element_name, element_type, handler_module, show_title, access_type, cid=-1):
+        super().__init__()
+        self.cid = cid
+        self.element_name = element_name
+        self.element_type = element_type
+        self.handler_module = handler_module
+        self.show_title = show_title
+        self.access_type = access_type

@@ -90,10 +90,6 @@ class HTMLMenuItem(MenuItem):
 class Handler(Commons):
     source_table = 'menu_items'
 
-    def __init__(self, machine_name, show_title, access_type, client):
-
-        super().__init__(machine_name, show_title, access_type, client)
-
     def get_content(self, name):
         renderer = MenuRenderer(self.name, self.language)
         ul_list = renderer.menu(HTMLMenuItem).render_children(0)

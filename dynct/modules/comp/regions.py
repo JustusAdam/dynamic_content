@@ -1,4 +1,5 @@
 from dynct.core.modules import Modules
+from dynct.modules.commons.ar import CommonsConfig
 from .html_elements import ContainerElement
 from .page import Component
 from . import ar
@@ -24,14 +25,12 @@ class RegionHandler:
         else:
             return []
 
-    def get_item(self, item:ar.CommonsConfig):
-        show_title = item.show_title == 1
-        handler = self.modules[item.handler_module].common_handler(item.element_type)(item.element_name, show_title, item.access_type,
-                                                                         self.client)
+    def get_item(self, item:CommonsConfig):
+        handler = self.modules[item.handler_module].common_handler(item.element_type)(item, self.client)
         return Common(item.element_name, handler, item.element_type)
 
     def get_items_info(self, items):
-        return [ar.CommonsConfig.get(element_name=a.item_name) for a in items]
+        return [CommonsConfig.get(element_name=a.item_name) for a in items]
 
     def wrap(self, value):
         classes = ['region', 'region-' + self.name.replace('_', '-')]

@@ -2,17 +2,13 @@ from dynct.core.handlers.content import Content
 from dynct.modules.comp.html_elements import TableElement, ContainerElement
 from dynct.modules.commons.commons import Commons
 from .login import LOGOUT_BUTTON
-from . import users
-from . import ar
+from . import users, ar
 
 __author__ = 'justusadam'
 
 
 class UserInformationCommon(Commons):
     source_table = 'user_management'
-
-    def __init__(self, machine_name, show_title, access_type, client):
-        super().__init__(machine_name, show_title, access_type, client)
 
     def get_content(self, name):
         return ContainerElement(

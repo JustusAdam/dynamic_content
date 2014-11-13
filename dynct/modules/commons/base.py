@@ -1,6 +1,7 @@
 from dynct.modules import i18n
 from dynct.modules.comp.html_elements import ContainerElement
 from dynct.modules.comp.page import Component
+from .ar import CommonsConfig
 
 __author__ = 'justusadam'
 
@@ -18,18 +19,17 @@ class Commons:
     # temporary
     language = 'english'
 
-    def __init__(self, machine_name, show_title, access_type, client):
-        self.access_type = access_type
+    def __init__(self, conf:CommonsConfig, client):
         self.client = client
-        self.name = machine_name
-        self.show_title = show_title
+        self.conf = conf
+        self.name = self.conf.element_name
 
     @property
     def title(self):
         return i18n.get_display_name(self.name, self.source_table, self.language)
 
     def wrap_content(self, content):
-        if self.show_title:
+        if self.conf.show_title:
             title = ContainerElement(self.title, html_type='h3')
         else:
             title = ''
@@ -42,7 +42,7 @@ class Commons:
         return ''
 
     def check_permission(self, permission):
-        if self.access_type == ACCESS_DEFAULT_GRANTED:
+        if self.conf.access_type == ACCESS_DEFAULT_GRANTED:
             return True
         return self.client.check_permission(permission)
 

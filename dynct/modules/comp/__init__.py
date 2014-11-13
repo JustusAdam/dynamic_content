@@ -1,4 +1,5 @@
-from .ar import CommonsConfig, Common
+from .ar import Common
+from dynct.modules.commons.ar import CommonsConfig
 
 __author__ = 'justusadam'
 
