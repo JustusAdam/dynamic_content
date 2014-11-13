@@ -55,7 +55,7 @@ class MenuItem:
 
 class MenuChooseItem(MenuItem):
     def render_self(self, depth):
-        return self.display_name, super().render_self(depth)
+        return str(self.item_id), super().render_self(depth)
 
 
 class HTMLMenuItem(MenuItem):

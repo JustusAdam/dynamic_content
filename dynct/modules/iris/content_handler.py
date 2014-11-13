@@ -182,7 +182,7 @@ class EditFieldBasedContent(FieldBasedPageContent):
         self.page.published = published
         self.page.save()
         if 'parent-menu' in self.url.post:
-            a = MenuItem.get(item_path=str(self.url.path))
+            a = MenuItem.get(item_path=self.url.path.prt_to_str(0, -1))
             if self.url.post['parent-menu'][0] == 'none':
                 if a:
                     a.delete()
@@ -191,7 +191,12 @@ class EditFieldBasedContent(FieldBasedPageContent):
                 if a:
                     a.parent_item = parent
                 else:
-                    a = MenuItem(self.page_title, self.url.path.prt_to_str(0,1) + '/' + str(self.url.page_id), menu_name, True, parent, 10)
+                    a = MenuItem(self.page_title,
+                                 self.url.path.prt_to_str(0,1) + '/' + str(self.url.page_id),
+                                 menu_name,
+                                 True,
+                                 parent,
+                                 10)
                 a.save()
         return self.url.path.prt_to_str(0,1) + '/' + str(self.url.page_id)
 
