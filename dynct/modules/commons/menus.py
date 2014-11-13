@@ -23,13 +23,13 @@ class MenuItem:
     in a list.
     """
 
-    def __init__(self, item_name, display_name, item_path, parent_item, weight):
-        self.item_name = item_name
+    def __init__(self, display_name, item_path, parent_item, weight, item_id):
         self.display_name = display_name
         self.item_path = item_path
-        self.parent_item = parent_item
+        self.parent_item = int(parent_item)
         self.weight = int(weight)
         self.children = []
+        self.item_id = item_id
 
     def render(self, depth=0, max_depth=-1):
         if 0 <= max_depth >= depth:
@@ -55,7 +55,7 @@ class MenuItem:
 
 class MenuChooseItem(MenuItem):
     def render_self(self, depth):
-        return self.item_name, super().render_self(depth)
+        return self.display_name, super().render_self(depth)
 
 
 class HTMLMenuItem(MenuItem):
@@ -69,10 +69,9 @@ class HTMLMenuItem(MenuItem):
     def render_self(self, depth):
         if self.item_path:
             return ContainerElement(self.display_name, html_type='a', classes={'layer-' + str(depth), 'menu'},
-                                    element_id=self.item_name, additionals={'href': self.item_path})
+                                    additionals={'href': self.item_path})
         else:
-            return ContainerElement(self.display_name, html_type='span', classes={'layer-' + str(depth), 'menu'},
-                                    element_id=self.item_name)
+            return ContainerElement(self.display_name, html_type='span', classes={'layer-' + str(depth), 'menu'})
 
     def render_children(self, depth=0, max_depth=-1):
         if not self.children:
@@ -109,13 +108,13 @@ class MenuRenderer:
         Calls the database operation obtaining data about the menu items and casts them onto MenuItems for convenience
         :return: List of MenuItems
         """
-        items = ar.MenuItem.get_all(menu=self.name)
+        items = ar.MenuItem.get_all(menu=self.name, enabled=True)
         return [item_class(
-            a.item_name,
-            i18n.get_display_name(a.item_name, a._table, self.language),
+            a.display_name,
             a.item_path,
             a.parent_item,
-            a.weight
+            a.weight,
+            a.item_id
         ) for a in items]
 
     def order_items(self, items, root_class=MenuItem):
@@ -126,7 +125,7 @@ class MenuRenderer:
         :return: Root for menu tree
         """
         mapping = {}
-        root = root_class('<root>', i18n.get_display_name(self.name, self.source_table, self.language), '/', None, 0)
+        root = root_class(i18n.get_display_name(self.name, self.source_table, self.language), '/', 0, 0, 0)
 
         def order():
             """
@@ -142,8 +141,8 @@ class MenuRenderer:
             items.append(root)
 
             for item in items:
-                if item.item_name in mapping:
-                    item.children = sorted(mapping[item.item_name], key=lambda s: s.weight)
+                if item.item_id in mapping:
+                    item.children = sorted(mapping[item.item_id], key=lambda s: s.weight)
             return root
 
         def alt_order():

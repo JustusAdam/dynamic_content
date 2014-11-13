@@ -1,5 +1,4 @@
 from dynct.backend.ar import ARObject
-from dynct.backend.ar.base import ARObject
 
 __author__ = 'justusadam'
 
@@ -29,10 +28,10 @@ class Menu(ARObject):
 class MenuItem(ARObject):
     _table = 'menu_items'
 
-    def __init__(self, item_name, item_path, menu, enabled, parent_item, weight, tooltip='', id=-1):
+    def __init__(self, display_name, item_path, menu, enabled, parent_item, weight, tooltip='', item_id=-1):
         super().__init__()
-        self.id = id
-        self.item_name = item_name
+        self.display_name = display_name
+        self.item_id = item_id
         self.item_path = item_path
         self.parent_item = parent_item
         self.weight = weight

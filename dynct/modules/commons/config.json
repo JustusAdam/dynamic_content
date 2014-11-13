@@ -3,14 +3,13 @@
     "role": "common_page_element_manager",
     "tables": {
         "menu_items": [
-            "id int unsigned not null unique auto_increment primary key",
-            "item_name varchar(200) not null",
+            "item_id int unsigned not null unique auto_increment primary key",
             "display_name varchar(200)",
             "item_path varchar(200) not null",
             "menu varchar(200) not null references menus (machine_name) on delete cascade on update cascade",
             "enabled boolean default false",
             "tooltip text",
-            "parent_item varchar(200) not null references menu_items (item_name)",
+            "parent_item int references menu_items (item_id)",
             "weight smallint"
         ],
         "menus": [
