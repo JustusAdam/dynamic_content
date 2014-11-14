@@ -7,9 +7,9 @@ from .base import Commons
 __author__ = 'justusadam'
 
 
-def menu_chooser(name='menu_chooser'):
+def menu_chooser(name='menu_chooser', **kwargs):
     menus = [[('none', 'None')]] + [[(menu.machine_name + '-' + a[0], a[1]) for a in MenuRenderer(menu.machine_name).menu(MenuChooseItem).render()] for menu in ar.Menu.get_all(enabled=True)]
-    return Select(*list(itertools.chain(*menus)), name=name)
+    return Select(*list(itertools.chain(*menus)), name=name, **kwargs)
 
 
 root_ident = -1

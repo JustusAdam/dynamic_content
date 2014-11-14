@@ -126,6 +126,10 @@ class EditFieldBasedContent(FieldBasedPageContent):
     field_identifier_separator = '-'
     theme = 'admin_theme'
 
+    def __init__(self, url, client):
+        super().__init__(url, client)
+        self.menu_item = MenuItem.get(item_path=self.url.path.prt_to_str(0, -1))
+
     @property
     def title_options(self):
         return [Label('Title', label_for='edit-title'),
@@ -151,12 +155,19 @@ class EditFieldBasedContent(FieldBasedPageContent):
         return self.modifier + self.field_identifier_separator + name
 
     def admin_options(self):
+        if self.menu_item:
+            parent = {False: self.menu_item.parent_item, True: str(-1)}[self.menu_item.parent_item is None]
+            selected = '-'.join([self.menu_item.menu, str(parent)])
+            m_c = menu_chooser('parent-menu', selected=selected)
+        else:
+            m_c = menu_chooser('parent-menu')
+        menu_options = TableRow(
+            Label('Menu Parent', label_for='parent-menu') , m_c, classes={'menu-parent'})
         publishing_options = TableRow(
             Label('Published', label_for='toggle-published'),
                Checkbox(element_id='toggle-published', value=_publishing_flag, name=_publishing_flag,
                         checked=self.published), classes={'toggle-published'})
-        menu_options = TableRow(
-            Label('Menu Parent', label_for='parent-menu') , menu_chooser('parent-menu'), classes={'menu-parent'})
+
         return TableElement(publishing_options, menu_options, classes={'admin-options'})
 
     def process_fields(self, fields):
@@ -183,25 +194,24 @@ class EditFieldBasedContent(FieldBasedPageContent):
         self.page.published = published
         self.page.save()
         if 'parent-menu' in self.url.post:
-            a = MenuItem.get(item_path=self.url.path.prt_to_str(0, -1))
             if self.url.post['parent-menu'][0] == 'none':
-                if a:
-                    a.delete()
+                if self.menu_item:
+                    self.menu_item.delete()
             else:
                 menu_name, parent = self.url.post['parent-menu'][0].split('-', 1)
                 if parent == str(root_ident):
                     parent = None
-                if a:
-                    a.parent_item = parent
-                    a.menu = menu_name
+                if self.menu_item:
+                    self.menu_item.parent_item = parent
+                    self.menu_item.menu = menu_name
                 else:
-                    a = MenuItem(self.page_title,
+                    self.menu_item = MenuItem(self.page_title,
                                  self.url.path.prt_to_str(0,1) + '/' + str(self.url.page_id),
                                  menu_name,
                                  True,
                                  parent,
                                  10)
-                a.save()
+                self.menu_item.save()
         return self.url.path.prt_to_str(0,1) + '/' + str(self.url.page_id)
 
     def _process_post(self):

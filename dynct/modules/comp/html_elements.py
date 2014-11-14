@@ -281,7 +281,8 @@ class List(AbstractList):
 
 class Select(AbstractList):
     _subtypes = ['option']
-    def __init__(self, *content, classes:set=None, element_id:str=None, additionals:dict=None, form:str=None, required:bool=False, disabled=False, name:str=None):
+    def __init__(self, *content, classes:set=None, element_id:str=None, additionals:dict=None, form:str=None, required:bool=False, disabled=False, name:str=None, selected:str=None):
+        self.selected = selected
         super().__init__(*content, html_type='select', classes=classes, element_id=element_id, additionals=additionals)
         self._customs['form'] = form
         self._customs['name'] = name
@@ -289,7 +290,7 @@ class Select(AbstractList):
         self.disabled = disabled
 
     def subtype_wrapper(self, value, content):
-        return ContainerElement(content, html_type=self._subtypes[0], additionals={'value': value})
+        return Option(content, value=value, selected=self.selected == value)
 
     def render_head(self):
         head = [super().render_head()]
@@ -298,6 +299,19 @@ class Select(AbstractList):
         if self.disabled:
             head.append('disabled')
         return ' '.join(head)
+
+
+class Option(ContainerElement):
+    def __init__(self, *content, selected=False, value:str=None):
+        super().__init__(*content, html_type='option')
+        self._customs['value'] = value
+        self.selected = selected
+
+    def render_head(self):
+        if self.selected:
+            return super().render_head() + ' selected'
+        else:
+            return super().render_head()
 
 
 class TableElement(ContainerElement):
