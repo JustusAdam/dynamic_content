@@ -82,6 +82,7 @@ class Overview(handlers.base.ContentCompiler):
 
 class OverviewPage(handlers.content.Content, Overview):
     permission = 'access admin pages'
+    theme = 'admin_theme'
 
     def __init__(self, url, client):
         super().__init__(client)

@@ -72,6 +72,7 @@ class CreateUser(Content):
     message = ''
     permission = 'edit user accounts'
     published = True
+    theme = 'admin_theme'
 
     def __init__(self, url, client):
         super().__init__(client)
@@ -159,6 +160,7 @@ class PermissionOverview(Content):
     page_title = 'Permissions Overview'
     permission = 'view permissions'
     _perm_list = None
+    theme = 'admin_theme'
 
     def __init__(self, url, client):
         super().__init__(client)
@@ -219,7 +221,7 @@ class EditPermissions(PermissionOverview):
     permission = 'edit permissions'
 
     def __init__(self, url, client):
-        super().__init__(client)
+        super().__init__(url, client)
         self.url = url
 
     def compile(self):

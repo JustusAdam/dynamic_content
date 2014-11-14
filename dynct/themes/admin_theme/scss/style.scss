@@ -13,12 +13,13 @@ $header-padding: 10px;
 nav, header {
   background-color: #474d4a;
   color: white;
-  z-index: 3;
   a {
     color: #ffffff;
     text-decoration: none;
     background-color: inherit;
     @include header-link-animation;
+    display: block;
+    float: left;
   }
   a:hover {
     @include header-link-animation;
@@ -27,15 +28,16 @@ nav, header {
 }
 nav {
   position: fixed;
+  z-index: 3;
   left: 0px;
-  top: $header-height + 2* $header-padding;
+  padding-top: $header-height + 2* $header-padding;
   width: 100px;
   height: 100%;
 }
 header {
   position: fixed;
+  z-index: 4;
   top: 0;
-  height: $header-height + 2 * $header-padding;
   width: 100%;
   a, span, p {
     padding: $header-padding;
@@ -58,4 +60,10 @@ body {
 }
 #title {
   color: dodgerblue;
+}
+
+.alert {
+  padding: 10px 15px;
+  background-color: rgba(255, 82, 0, 0.3);
+  box-shadow: 0 0 9px #bbb;
 }

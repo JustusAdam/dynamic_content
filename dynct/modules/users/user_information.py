@@ -59,6 +59,7 @@ class UserInformation(Content):
 class UsersOverview(Content):
     page_title = 'User Overview'
     permission = 'access users overview'
+    theme = 'admin_theme'
 
     def __init__(self, url, client):
         super().__init__(client)
