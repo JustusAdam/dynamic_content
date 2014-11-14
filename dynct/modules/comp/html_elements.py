@@ -101,15 +101,15 @@ class BaseClassIdElement(BaseElement):
 
 
 class ContainerElement(BaseClassIdElement):
-    _listreplace = None
+    _list_replacement = None
     def __init__(self, *content, html_type='div', classes:set=None, element_id:str=None, additionals:dict=None):
         super().__init__(html_type, classes, element_id, additionals)
         self.content = content
 
     @property
-    def listreplace(self):
-        if self._listreplace:
-            return self._listreplace
+    def list_replacement(self):
+        if self._list_replacement:
+            return self._list_replacement
         else:
             return ContainerElement
 
@@ -127,14 +127,11 @@ class ContainerElement(BaseClassIdElement):
             self._content = value
 
     def ensure_type(self, value):
-        if isinstance(value, str):
-            return value
-        elif isinstance(value, (list, tuple)):
-            return self.listreplace(*value)
-        elif isinstance(value, BaseElement):
-            return value
+        if isinstance(value, (list, tuple)):
+            return self.list_replacement(*value)
         else:
-            raise InvalidInputError
+            return value
+
 
     def render_content(self):
         return ''.join(list(str(a) for a in self._content))
@@ -266,9 +263,20 @@ class Script(ContainerElement):
 class List(AbstractList):
     def __init__(self, *content, list_type='ul', classes:set=None, element_id:str=None, additionals:dict=None,
                  item_classes:set=None, item_additional_properties:dict=None):
-        super().__init__(*content, html_type=list_type, classes=classes, element_id=element_id, additionals=additionals)
         self.item_classes = item_classes
         self.item_additionals = item_additional_properties
+        super().__init__(*content, html_type=list_type, classes=classes, element_id=element_id, additionals=additionals)
+
+    def ensure_subtype(self, value):
+        if isinstance(value, BaseClassIdElement) and value.html_type in self._subtypes:
+            value.classes |= self.item_classes
+            value.additionals.update(self.item_additionals)
+            return value
+        else:
+            return super().ensure_subtype(value)
+
+    def subtype_wrapper(self, *args):
+        return ContainerElement(*args, html_type=self._subtypes[0], classes=self.item_classes, additionals=self.item_additionals)
 
 
 class Select(AbstractList):
