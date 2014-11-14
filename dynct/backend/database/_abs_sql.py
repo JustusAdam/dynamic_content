@@ -37,26 +37,23 @@ class SQLDatabase(AbstractDatabase):
         if isinstance(columns, (list, tuple)):
             columns = ', '.join(columns)
 
-        cursor = self.cursor()
-        cursor.execute('create table ' + ' '.join([table_name, '(' + columns + ')']) + ';')
+        self._execute('CREATE TABLE ' + ' '.join([table_name, '(' + columns + ')']) + ';')
         print('created table ' + table_name)
-        cursor.close()
 
     def select(self, columns, from_table, where_condition, query_tail:str='', params:dict=None):
-        acc = ['select']
+        acc = ['SELECT']
         if isinstance(columns, (list, tuple, set)):
             columns = ', '.join(columns)
-        acc += [columns, 'from', from_table]
+        acc += [columns, 'FROM', from_table]
         if where_condition:
-            if not where_condition.startswith('where '):
-                where_condition = 'where ' + where_condition
+            if not where_condition.startswith('WHERE '):
+                where_condition = 'WHERE ' + where_condition
             acc.append(where_condition)
         if not query_tail.endswith(';'):
             query_tail += ';'
         acc.append(query_tail)
-        cursor = self._connection.cursor()
         query = ' '.join(acc)
-        cursor.execute(query, params)
+        cursor = self._execute(query, params)
         return cursor
 
     def insert(self, into_table:str, pairing:dict):
@@ -66,10 +63,9 @@ class SQLDatabase(AbstractDatabase):
         rows = '(' + ', '.join(keys) + ')'
         values = '(' + ', '.join(['%(' + a + ')s' for a in keys]) + ')'
         try:
-            cursor = self.cursor()
-            query = 'insert into ' + ' '.join([into_table, rows, 'values', values]) + ';'
-            cursor.execute(query, pairing)
-            cursor.close()
+            query = 'INSERT INTO ' + ' '.join([into_table, rows, 'VALUES', values]) + ';'
+            self._execute(query, pairing)
+
         except (DatabaseError, InterfaceError, ProgrammingError) as error:
             print(error)
             raise errors.DatabaseError
@@ -81,20 +77,15 @@ class SQLDatabase(AbstractDatabase):
         rows = '(' + ', '.join(keys) + ')'
         values = '(' + ', '.join(['%(' + a + ')s' for a in keys]) + ')'
         try:
-            cursor = self._connection.cursor()
-            query = 'replace into ' + ' '.join([into_table, rows, 'values', values]) + ';'
-            print(query)
-            cursor.execute(query, pairing)
-            cursor.close()
+            query = 'REPLACE INTO ' + ' '.join([into_table, rows, 'VALUES', values]) + ';'
+            self._execute(query, pairing)
         except (DatabaseError, InterfaceError, ProgrammingError) as error:
             print(error)
             raise errors.DatabaseError
-        return None
 
     def drop_tables(self, *tables):
         print('dropping' + str(tables))
-        cursor = self._connection.cursor()
-        cursor.execute('drop table ' + ', '.join(tables) + ';')
+        self._execute(('DROP TABLE ' + ', '.join(tables) + ';'))
 
     def update(self, table, pairing:dict, where_condition, params:dict):
         set_clause = ', '.join([a + '=%(set_' + a + ')s' for a in pairing])
@@ -109,15 +100,13 @@ class SQLDatabase(AbstractDatabase):
                     p['s' + key] = p[key]
                     del p[key]
         params.update(p)
-        if where_condition and not where_condition.startswith('where '):
-            where_condition = 'where ' + where_condition + ';'
+        if where_condition and not where_condition.startswith('WHERE '):
+            where_condition = 'WHERE ' + where_condition + ';'
         else:
             where_condition += ';'
-        query = ' '.join(['update', table, 'set', set_clause, where_condition])
+        query = ' '.join(['UPDATE', table, 'SET', set_clause, where_condition])
         try:
-            cursor = self.cursor()
-            print(query)
-            cursor.execute(query, params)
+            self._execute(query, params)
         except (InterfaceError, ProgrammingError, DatabaseError):
             raise errors.DatabaseError
 
@@ -126,13 +115,12 @@ class SQLDatabase(AbstractDatabase):
 
     def remove(self, from_table, where_condition, params):
         if where_condition:
-            if not where_condition.startswith('where '):
-                where_condition = 'where ' + where_condition
+            if not where_condition.startswith('WHERE '):
+                where_condition = 'WHERE ' + where_condition
             if not where_condition.endswith(';'):
                 where_condition += ';'
         query = 'delete from ' + from_table + ' ' + where_condition
-        cursor = self.cursor()
-        return cursor.execute(query, params)
+        return self._execute(query, params)
 
     def check_connection(self):
         """
@@ -142,15 +130,25 @@ class SQLDatabase(AbstractDatabase):
         self.connect()
         cursor = self.cursor()
         try:
-            cursor.execute('show tables')
+            cursor.execute('SHOW TABLES')
             return True
         except DatabaseError:
             return False
 
     def show_columns(self, table=''):
         if table:
-            table = ' from ' + table
+            table = ' FROM ' + table
         cursor = self.cursor()
-        query = 'show columns' + table + ';'
+        query = 'SHOW COLUMNS' + table + ';'
         cursor.execute(query)
         return cursor.fetchall()
+
+    def _execute(self, query, params=None):
+        cursor = self.cursor()
+        print(query)
+        print(params)
+        if params:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+        return cursor

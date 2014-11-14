@@ -128,12 +128,18 @@ class EditFieldBasedContent(FieldBasedPageContent):
 
     def __init__(self, url, client):
         super().__init__(url, client)
-        self.menu_item = MenuItem.get(item_path=self.url.path.prt_to_str(0, -1))
+        self.menu_item = MenuItem.get_all(item_path=self.url.path.prt_to_str(0, -1))
+        if self.menu_item:
+            self.menu_item = self.menu_item[0]
+
+    @property
+    def page_title(self):
+        return ' '.join([self.modifier, self.page.content_type, 'page'])
 
     @property
     def title_options(self):
         return [Label('Title', label_for='edit-title'),
-                TextInput(element_id='edit-title', name='title', value=self.page_title, required=True, size=100)]
+                TextInput(element_id='edit-title', name='title', value=self.page.page_title, required=True, size=100)]
 
     def concatenate_content(self, fields):
         content = [self.title_options]

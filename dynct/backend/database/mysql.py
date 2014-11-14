@@ -12,6 +12,7 @@ from dynct.util.singleton import singleton
 __author__ = 'justusadam'
 
 from mysql.connector import connect
+from mysql.connector import InternalError
 
 from ._abs_sql import SQLDatabase
 
@@ -26,7 +27,19 @@ class Database(SQLDatabase):
         super().__init__(config)
         self.charset = 'utf-8'
         self.db_type = self.config['database_type']
+        self._cursors = []
+
+    def cursor(self):
+        c = super().cursor()
+        self._cursors.append(c)
+        return c
 
     def connect(self):
         self.close()
         self._connection = connect(**self.config['database_connection_arguments'])
+
+    def _execute(self, query, params=None):
+        try:
+            return super()._execute(query,params)
+        except InternalError as e:
+            raise e

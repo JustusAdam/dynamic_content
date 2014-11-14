@@ -118,7 +118,10 @@ body {
 }
 #title {
   color: #666666;
-  margin: 40px;
+}
+
+#main {
+  padding: 20px;
 }
 
 .alert {
@@ -170,8 +173,8 @@ a.breadcrumb:visited {
 }
 
 .breadcrumbs {
-  padding: 0 20px 20px;
   margin: 20px;
+  display: block;
 }
 
 table.admin-table {
@@ -191,4 +194,9 @@ table.permission-table {
     text-align: center;
     width: 150px;
   }
+}
+
+h1 {
+  font-size: larger;
+  margin-top: 0;
 }
