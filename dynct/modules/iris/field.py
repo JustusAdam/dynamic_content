@@ -72,11 +72,8 @@ class EditBaseFieldHandler(BaseFieldHandler):
         super().__init__(path_prefix, page_id, machine_name)
 
     def process_content(self):
-        # if self.machine_name in self._query:
-        #     content = self._query[self.machine_name][0]
-        # else:
         content = self.get_content()
-        return WysiwygTextarea(content, name=self.machine_name, rows=20, cols=50,
+        return WysiwygTextarea(content, name=self.machine_name, rows=30, cols=50,
                         classes={self.machine_name} | self.xtra_classes)
 
     @property
@@ -92,9 +89,9 @@ class EditBaseFieldHandler(BaseFieldHandler):
 class AddBaseFieldHandler(EditBaseFieldHandler):
     def process_content(self):
         if self.machine_name in self._query:
-            return WysiwygTextarea(self._query[self.machine_name][0], name=self.machine_name, rows=7, cols=50,
+            return WysiwygTextarea(self._query[self.machine_name][0], name=self.machine_name, rows=30, cols=50,
                             classes={self.machine_name} | self.xtra_classes)
-        return WysiwygTextarea(name=self.machine_name, rows=7, cols=50, classes={self.machine_name} | self.xtra_classes)
+        return WysiwygTextarea(name=self.machine_name, rows=30, cols=50, classes={self.machine_name} | self.xtra_classes)
 
     def process_post(self):
         ar.field(self.machine_name)(self.page_id, self._query[self.machine_name][0], self.path_prefix).save()

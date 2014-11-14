@@ -9,7 +9,7 @@ from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery, Url
 from dynct.core.ar import ContentTypes
 from dynct.errors import InvalidInputError
-from dynct.modules.commons.menus import menu_chooser
+from dynct.modules.commons.menus import menu_chooser, root_ident
 from dynct.modules.commons.ar import MenuItem
 
 from . import ar
@@ -189,8 +189,11 @@ class EditFieldBasedContent(FieldBasedPageContent):
                     a.delete()
             else:
                 menu_name, parent = self.url.post['parent-menu'][0].split('-', 1)
+                if parent == str(root_ident):
+                    parent = None
                 if a:
                     a.parent_item = parent
+                    a.menu = menu_name
                 else:
                     a = MenuItem(self.page_title,
                                  self.url.path.prt_to_str(0,1) + '/' + str(self.url.page_id),
@@ -258,7 +261,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
 
     @property
     def title_options(self):
-        return [Label('Title', label_for='edit-title'), Input(element_id='edit-title', name='title', required=True)]
+        return [Label('Title', label_for='edit-title'), TextInput(element_id='edit-title', name='title', size=100, required=True)]
 
 
 class Overview(handlers.content.Content):

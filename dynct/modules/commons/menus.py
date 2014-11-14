@@ -12,6 +12,9 @@ def menu_chooser(name='menu_chooser'):
     return Select(*list(itertools.chain(*menus)), name=name)
 
 
+root_ident = -1
+
+
 class MenuItem:
     """
     MenuItem base implementation.
@@ -26,7 +29,10 @@ class MenuItem:
     def __init__(self, display_name, item_path, parent_item, weight, item_id):
         self.display_name = display_name
         self.item_path = item_path
-        self.parent_item = int(parent_item)
+        if parent_item is None:
+            self.parent_item = parent_item
+        else:
+            self.parent_item = int(parent_item)
         self.weight = int(weight)
         self.children = []
         self.item_id = item_id
@@ -125,18 +131,23 @@ class MenuRenderer:
         :return: Root for menu tree
         """
         mapping = {}
-        root = root_class(i18n.get_display_name(self.name, self.source_table, self.language), '/', 0, 0, 0)
+        root = root_class(i18n.get_display_name(self.name, self.source_table, self.language), '/', 0, 0, root_ident)
 
         def order():
             """
             Implementation of the tree construction. Uses two loops. Child item lists are sorted
             :return:
             """
-            for item in items:
-                if item.parent_item in mapping:
-                    mapping[item.parent_item].append(item)
+            def assign_to(key, val):
+                if key in mapping:
+                    mapping[key].append(val)
                 else:
-                    mapping[item.parent_item] = [item]
+                    mapping[key] = [val]
+            for item in items:
+                if not item.parent_item:
+                    assign_to(root_ident, item)
+                else:
+                    assign_to(item.parent_item, item)
 
             items.append(root)
 
