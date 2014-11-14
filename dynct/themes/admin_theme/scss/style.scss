@@ -1,6 +1,7 @@
 $header-height: 20px;
 $header-padding: 10px;
-$nav-width: 130px;
+$nav-text-width: 110px;
+$nav-width: $nav-text-width + 2 * $header-padding;
 $admin-options-width: 170px;
 
 @import "../../scss_base/scss/transition";
@@ -29,28 +30,29 @@ nav, header {
     @include header-link-animation;
     background-color: $dark-color;
   }
+  ul {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+  }
 }
 nav {
   position: fixed;
   z-index: 3;
   left: 0px;
-  padding-top: $header-height + 2* $header-padding;
+  padding: $header-height + 2* $header-padding 0 0;
   width: $nav-width;
   height: 100%;
   a, span, p {
     padding: $header-padding;
+    width: $nav-text-width;
+
   }
   ul {
     padding: 0;
     margin: 0;
     list-style-type: none;
     width: 100%;
-  }
-  li {
-    width: 100%;
-    a {
-      width: 100%;
-    }
   }
 }
 header {
