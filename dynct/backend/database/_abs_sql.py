@@ -31,9 +31,7 @@ class SQLDatabase(AbstractDatabase):
             self._connection = None
 
     def _check_connection(self):
-        if not self._connection:
-            return False
-        return bool(self._connection.socket)
+        return bool(self._connection)
 
     def create_table(self, table_name, columns):
         if isinstance(columns, (list, tuple)):

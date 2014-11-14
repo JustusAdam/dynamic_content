@@ -11,7 +11,7 @@ from dynct.util.singleton import singleton
 
 __author__ = 'justusadam'
 
-from pymysql import connect
+from mysql.connector import connect
 
 from ._abs_sql import SQLDatabase
 
