@@ -4,6 +4,7 @@
     "active_theme_path": "themes/default_theme",
     "active_theme": "default_theme",
     "default_theme": "default_theme",
+    "admin_theme": "admin_theme",
     "tables": {
         "commons_config": [
             "cid int unsigned not null unique auto_increment primary key",

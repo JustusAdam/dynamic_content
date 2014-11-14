@@ -6,13 +6,15 @@
     "favicon": "favicon.png",
     "regions": {
         "navigation": {
-            "classes": ["horizontal"]
+            "classes": ["horizontal"],
+            "menu_depth": 2
         },
         "footer": {
             "classes": ["horizontal"]
         },
         "sidebar_left": {
-            "classes": ["sidebar", "vertical"]
+            "classes": ["sidebar", "vertical"],
+            "menu_depth": 2
         },
         "sidebar_right": {
             "classes": ["sidebar", "vertical"]

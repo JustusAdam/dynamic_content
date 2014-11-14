@@ -1,13 +1,14 @@
 from pathlib import Path
 import re
 import sys
-
-from dynct.modules.comp.html_elements import Stylesheet, Script, LinkElement, ContainerElement
-from dynct.util.config import read_config
 from dynct.http.response import Response
+from dynct.modules.comp.html_elements import Stylesheet, Script, LinkElement, ContainerElement
+from dynct.modules.comp.regions import RegionHandler
+from dynct.util.config import read_config
 
 
 __author__ = 'justusadam'
+
 
 VAR_REGEX = re.compile("\{([\w_-]*?)\}")
 
@@ -16,7 +17,7 @@ ARG_REGEX = re.compile(":(\w+?):")
 _default_theme = 'default_theme'
 
 
-class Page:
+class Decorator:
     def __init__(self, model, url, client):
         self._theme = _default_theme
         self.view_name = 'page'
@@ -188,3 +189,25 @@ class Page:
                 ContainerElement(self.breadcrumb_separator(), html_type='span', classes={'breadcrumb-separator'}))
             acc.append(ContainerElement(name, html_type='a', classes={'breadcrumb'}, additionals={'href': location}))
         return ContainerElement(*acc, classes={'breadcrumbs'})
+
+
+class DecoratorWithRegions(Decorator):
+    _theme = None
+    view_name = 'page'
+
+    def __init__(self, model, url, client_info):
+        super().__init__(model, url, client_info)
+
+    @property
+    def regions(self):
+        config = self.theme_config['regions']
+        r = []
+        for region in config:
+            r.append(RegionHandler(region, config[region], self.theme, self.client))
+        return r
+
+    def initial_pairing(self):
+        if not 'no-commons' in self.model.decorator_attributes:
+            for region in self.regions:
+                self._model[region.name] = str(region.compile())
+        return super().initial_pairing()

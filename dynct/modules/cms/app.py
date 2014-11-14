@@ -3,7 +3,7 @@ import os
 from dynct.application.app import Application
 from dynct.core.modules import Modules
 from dynct.core.module_operations import register_installed_modules
-from dynct.modules.comp.page_handler import DecoratorWithRegions
+from dynct.modules.comp.decorator import DecoratorWithRegions
 from dynct.core.mvc.controller import ControllerMapper
 
 

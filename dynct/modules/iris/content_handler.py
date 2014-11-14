@@ -124,6 +124,7 @@ class EditFieldBasedContent(FieldBasedPageContent):
     modifier = _edit_modifier
     _editorial_list_base = [('show', _access_modifier)]
     field_identifier_separator = '-'
+    theme = 'admin_theme'
 
     @property
     def title_options(self):

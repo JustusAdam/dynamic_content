@@ -1,0 +1,61 @@
+$header-height: 20px;
+$header-padding: 10px;
+
+@import "../../scss_base/scss/transition";
+
+@mixin header-link-animation {
+  @include transition-property(background-color);
+  @include transition-duration(200ms);
+  @include transition-delay(0);
+  @include transition-timing-function(ease);
+}
+
+nav, header {
+  background-color: #474d4a;
+  color: white;
+  z-index: 3;
+  a {
+    color: #ffffff;
+    text-decoration: none;
+    background-color: inherit;
+    @include header-link-animation;
+  }
+  a:hover {
+    @include header-link-animation;
+    background-color: #616764;
+  }
+}
+nav {
+  position: fixed;
+  left: 0px;
+  top: $header-height + 2* $header-padding;
+  width: 100px;
+  height: 100%;
+}
+header {
+  position: fixed;
+  top: 0;
+  height: $header-height + 2 * $header-padding;
+  width: 100%;
+  a, span, p {
+    padding: $header-padding;
+  }
+}
+#wrapper-middle {
+  position: fixed;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: scroll;
+  padding-left: 120px;
+  padding-top: 60px;
+  background-color: whitesmoke;
+}
+body {
+  margin: 0;
+  height: 100%;
+  font-family: 'Open Sans', Helvetica, Arial, Verdana, sans-serif;
+}
+#title {
+  color: dodgerblue;
+}

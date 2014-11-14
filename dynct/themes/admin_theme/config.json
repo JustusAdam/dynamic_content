@@ -5,7 +5,9 @@
     "show_powered_by": true,
     "favicon": "favicon.png",
     "regions": {
-        "navigation": {},
+        "navigation": {
+            "classes": ["vertical"]
+        },
         "footer": {},
         "sidebar_left": {
             "classes": ["sidebar"]
