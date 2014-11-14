@@ -11,8 +11,7 @@
             "element_name varchar(200) not null unique",
             "element_type varchar(200) not null",
             "handler_module varchar(200) not null default 'commons_engine'",
-            "access_type tinyint default 0 comment '0 = always visible, 1 = custom rules in commons_custom_access'",
-            "show_title boolean not null default true"
+            "access_type tinyint default 0 comment '0 = always visible, 1 = custom rules in commons_custom_access'"
         ],
         "commons_custom_access": [
             "cid int unsigned not null unique references commons_config (cid) on delete cascade on update cascade",
@@ -25,7 +24,8 @@
             "region varchar(200) not null",
             "weight smallint",
             "theme varchar(200) not null",
-            "description varchar(300)"
+            "description varchar(300)",
+            "show_title boolean not null default true"
         ]
     }
 }

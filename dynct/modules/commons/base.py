@@ -19,7 +19,8 @@ class Commons:
     # temporary
     language = 'english'
 
-    def __init__(self, conf:CommonsConfig, client):
+    def __init__(self, conf:CommonsConfig, show_title, client):
+        self.show_title = show_title
         self.client = client
         self.conf = conf
         self.name = self.conf.element_name
@@ -29,7 +30,7 @@ class Commons:
         return i18n.get_display_name(self.name, self.source_table, self.language)
 
     def wrap_content(self, content):
-        if self.conf.show_title:
+        if self.show_title:
             title = ContainerElement(self.title, html_type='h3')
         else:
             title = ''
