@@ -320,9 +320,10 @@ a.breadcrumb {
   color: black;
   text-decoration: none;
   font-style: italic;
-  :visited {
-    text-decoration: none;
-  }
+}
+
+a.breadcrumb:visited {
+  text-decoration: none;
 }
 
 .breadcrumb-separator {

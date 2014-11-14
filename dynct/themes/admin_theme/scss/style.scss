@@ -1,7 +1,8 @@
 $header-height: 20px;
 $header-padding: 10px;
+$nav-padding-vert: 15px;
 $nav-text-width: 110px;
-$nav-width: $nav-text-width + 2 * $header-padding;
+$nav-width: $nav-text-width + 2 * $nav-padding-vert;
 $admin-options-width: 170px;
 
 @import "../../scss_base/scss/transition";
@@ -15,10 +16,39 @@ $admin-options-width: 170px;
 
 $dark-color: #616764;
 
+ul {
+  list-style-type: none;
+  a {
+    @include header-link-animation;
+    display: block;
+    float: left;
+    padding: 10px 15px;
+    margin: 1px;
+    background-color: white;
+  }
+  a:hover {
+    @include header-link-animation;
+    background-color: #eeeeee;
+  }
+  li {
+    display: block;
+  }
+}
+
+a {
+  text-decoration: none;
+  color: dodgerblue;
+}
+
+a:visited {
+  color: dodgerblue;
+}
+
 nav, header {
   background-color: #474d4a;
   color: white;
   a {
+    margin: 0;
     color: #ffffff;
     text-decoration: none;
     background-color: inherit;
@@ -29,6 +59,9 @@ nav, header {
   a:hover {
     @include header-link-animation;
     background-color: $dark-color;
+  }
+  a:visited {
+    color: #ffffff;
   }
   ul {
     padding: 0;
@@ -44,7 +77,7 @@ nav {
   width: $nav-width;
   height: 100%;
   a, span, p {
-    padding: $header-padding;
+    padding: $header-padding $nav-padding-vert;
     width: $nav-text-width;
 
   }
@@ -64,7 +97,7 @@ header {
     padding: $header-padding;
   }
 }
-#wrapper-middle {
+#wrapper-main {
   position: fixed;
   z-index: 1;
   width: 100%;
@@ -73,8 +106,9 @@ header {
   background-color: whitesmoke;
 }
 
-#main {
-  padding: 60px $admin-options-width + 30px 30px $nav-width + 20px;
+#wrapper-middle {
+  padding-top: $header-height + 2* $header-padding;
+  margin: 0 $admin-options-width 0 $nav-width;
 }
 
 body {
@@ -83,13 +117,15 @@ body {
   font-family: 'Open Sans', Helvetica, Arial, Verdana, sans-serif;
 }
 #title {
-  color: dodgerblue;
+  color: #666666;
+  margin: 40px;
 }
 
 .alert {
   padding: 10px 15px;
   background-color: rgba(255, 82, 0, 0.3);
   box-shadow: 0 0 9px #bbb;
+  margin: 40px;
 }
 
 .admin-options {
@@ -123,9 +159,9 @@ a.breadcrumb {
   color: black;
   text-decoration: none;
   font-style: italic;
-  :visited {
-    text-decoration: none;
-  }
+}
+a.breadcrumb:visited {
+  text-decoration: none;
 }
 
 .breadcrumb-separator {
@@ -134,5 +170,25 @@ a.breadcrumb {
 }
 
 .breadcrumbs {
-  padding:0 20px 20px;
+  padding: 0 20px 20px;
+  margin: 20px;
+}
+
+table.admin-table {
+  background-color: $dark-color;
+  color: white;
+  font-size: larger;
+  margin: 40px;
+  padding: 20px;
+  box-shadow: 2px 2px 10px #666666;
+  td {
+    margin: 10px;
+    padding: 5px 7px;
+  }
+}
+table.permission-table {
+  td.permission-boolean {
+    text-align: center;
+    width: 150px;
+  }
 }

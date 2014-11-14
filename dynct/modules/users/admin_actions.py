@@ -3,7 +3,7 @@ import copy
 from urllib.error import HTTPError
 
 from dynct.core.handlers.content import Content
-from dynct.modules.comp.html_elements import TableElement, Input, ContainerElement, Label, Checkbox
+from dynct.modules.comp.html_elements import TableElement, Input, ContainerElement, Label, Checkbox, TableRow, TableData, TableHead
 from . import users
 from dynct.modules.form.secure import SecureForm
 from dynct.modules.users.user_information import UsersOverview
@@ -40,6 +40,12 @@ _edit_user_table_order = [
     ('Password', 'password'),
     ('Confirm Password', 'confirm-password')
 ]
+
+_permission_table_classes = {'admin-table', 'permission-table'}
+
+_permission_table_permissions_classes = {'permission-name'}
+
+_permission_table_boolean_classes = {'permission-boolean'}
 
 
 def factory(url):
@@ -173,7 +179,19 @@ class PermissionOverview(Content):
         )
 
     def permission_table(self):
-        return TableElement(*self.compile_the_list())
+        l = self.compile_the_list()
+        return TableElement(
+            *[
+                TableRow(
+                    *[
+                         TableData(a[0], classes=_permission_table_permissions_classes)
+                     ] + [
+                        TableData(b, classes=_permission_table_boolean_classes) for b in a[1:]
+                    ]
+                )
+                for a in l
+            ], classes=_permission_table_classes
+        )
 
     @property
     def permissions_list(self):
@@ -210,7 +228,7 @@ class PermissionOverview(Content):
         return l
 
     def checkbox(self, value, name):
-        return {True: '&#x2713;', False: '&#x2718;'}[value]
+        return {True: '&#x2713;', False: ''}[value]
 
 
 permission_structure = re.compile('(\d)+-([0-9a-zA-Z_-]+)')
@@ -231,7 +249,8 @@ class EditPermissions(PermissionOverview):
 
     def permission_table(self):
         return SecureForm(
-            TableElement(*self.compile_the_list()), action=str(self.url.path)
+            super().permission_table()
+            , action=str(self.url.path)
         )
 
     def checkbox(self, value, name):

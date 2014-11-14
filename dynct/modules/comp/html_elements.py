@@ -329,7 +329,7 @@ class TableElement(ContainerElement):
         if isinstance(value, str):
             self._content = value
         elif self.table_head:
-            self._content = [self.ensure_tr(value[0])] + [self.ensure_tr(row) for row in value[1:]]
+            self._content = [self.ensure_th(value[0])] + [self.ensure_tr(row) for row in value[1:]]
         else:
             self._content = [self.ensure_tr(row) for row in value]
 
