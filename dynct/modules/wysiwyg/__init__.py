@@ -7,8 +7,7 @@ __author__ = 'justusadam'
 basic_script = Script(src='/public/tinymce/tinymce.min.js')
 
 apply_script = Script(
-        'tinymce.init({selector: "textarea#' + identifier + '"});',
-        additionals={'type': 'text/javascript'}
+        'tinymce.init({selector: "textarea#' + identifier + '"});'
     )
 
 

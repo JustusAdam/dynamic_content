@@ -1,5 +1,7 @@
 $header-height: 20px;
 $header-padding: 10px;
+$nav-width: 130px;
+$admin-options-width: 170px;
 
 @import "../../scss_base/scss/transition";
 
@@ -9,6 +11,8 @@ $header-padding: 10px;
   @include transition-delay(0);
   @include transition-timing-function(ease);
 }
+
+$dark-color: #616764;
 
 nav, header {
   background-color: #474d4a;
@@ -23,7 +27,7 @@ nav, header {
   }
   a:hover {
     @include header-link-animation;
-    background-color: #616764;
+    background-color: $dark-color;
   }
 }
 nav {
@@ -31,8 +35,23 @@ nav {
   z-index: 3;
   left: 0px;
   padding-top: $header-height + 2* $header-padding;
-  width: 100px;
+  width: $nav-width;
   height: 100%;
+  a, span, p {
+    padding: $header-padding;
+  }
+  ul {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+    width: 100%;
+  }
+  li {
+    width: 100%;
+    a {
+      width: 100%;
+    }
+  }
 }
 header {
   position: fixed;
@@ -49,10 +68,13 @@ header {
   width: 100%;
   height: 100%;
   overflow: scroll;
-  padding-left: 120px;
-  padding-top: 60px;
   background-color: whitesmoke;
 }
+
+#main {
+  padding: 60px $admin-options-width + 30px 30px $nav-width + 20px;
+}
+
 body {
   margin: 0;
   height: 100%;
@@ -66,4 +88,49 @@ body {
   padding: 10px 15px;
   background-color: rgba(255, 82, 0, 0.3);
   box-shadow: 0 0 9px #bbb;
+}
+
+.admin-options {
+  position: fixed;
+  right: 0;
+  top: 0;
+  padding-top: 50px;
+  width: $admin-options-width;
+  td {
+    display: block;
+  }
+}
+
+.edit-form {
+  td {
+    display: block;
+  }
+}
+
+#edit-title {
+  font-size: 15px;
+  padding: 5px;
+  border-radius: 3px;
+  border: 1px solid $dark-color;
+}
+
+a.breadcrumb {
+  display: inline;
+  float: left;
+  padding: 0 10px;
+  color: black;
+  text-decoration: none;
+  font-style: italic;
+  :visited {
+    text-decoration: none;
+  }
+}
+
+.breadcrumb-separator {
+  float: left;
+  color: #86c828;
+}
+
+.breadcrumbs {
+  padding:0 20px 20px;
 }

@@ -4,7 +4,7 @@ from urllib.error import HTTPError
 from dynct.core import handlers
 from dynct.core.modules import Modules
 from dynct.core.mvc.controller import Controller
-from dynct.modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement, Checkbox, A
+from dynct.modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement, Checkbox, A, TableRow, TextInput
 from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery, Url
 from dynct.core.ar import ContentTypes
@@ -129,7 +129,7 @@ class EditFieldBasedContent(FieldBasedPageContent):
     @property
     def title_options(self):
         return [Label('Title', label_for='edit-title'),
-                Input(element_id='edit-title', name='title', value=self.page_title, required=True)]
+                TextInput(element_id='edit-title', name='title', value=self.page_title, required=True, size=100)]
 
     def concatenate_content(self, fields):
         content = [self.title_options]
@@ -151,13 +151,13 @@ class EditFieldBasedContent(FieldBasedPageContent):
         return self.modifier + self.field_identifier_separator + name
 
     def admin_options(self):
-        publishing_options = (
+        publishing_options = TableRow(
             Label('Published', label_for='toggle-published'),
                Checkbox(element_id='toggle-published', value=_publishing_flag, name=_publishing_flag,
-                        checked=self.published))
-        menu_options = (
-            Label('Menu Parent', label_for='parent-menu') , menu_chooser('parent-menu'))
-        return TableElement(publishing_options, menu_options)
+                        checked=self.published), classes={'toggle-published'})
+        menu_options = TableRow(
+            Label('Menu Parent', label_for='parent-menu') , menu_chooser('parent-menu'), classes={'menu-parent'})
+        return TableElement(publishing_options, menu_options, classes={'admin-options'})
 
     def process_fields(self, fields):
         for field in fields:
