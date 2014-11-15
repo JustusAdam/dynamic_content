@@ -1,8 +1,7 @@
 __author__ = 'justusadam'
 
-from .module_operations import register_installed_modules
-from .modules import Modules
 from . import ar
+from ._registry import Modules as E
 
 name = 'olymp'
 
@@ -11,11 +10,8 @@ role = 'core'
 # TODO refactor everything to get core module and move it here
 
 
-def load_modules():
-    m = Modules()
-    m.reload()
-    return m
-
+Modules = E()
+del E
 
 def add_content_handler(handler_name, handler, prefix):
     ar.ContentHandler(handler, handler_name, prefix).save()

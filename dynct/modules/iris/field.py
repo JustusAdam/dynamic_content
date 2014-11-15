@@ -1,5 +1,5 @@
-from dynct.core.handlers.base import ContentCompiler
-from dynct.modules.comp.html_elements import Textarea, ContainerElement
+from dynct.core.mvc.content_compiler import ContentCompiler
+from dynct.modules.comp.html_elements import ContainerElement
 from dynct.modules.comp.page import Component
 from dynct.modules.wysiwyg import WysiwygTextarea
 from . import ar

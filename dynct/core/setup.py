@@ -4,10 +4,10 @@ Implementation of the setup routine.
 Currently uses the framework to dynamically create elements, once the basic site functionality has been implemented
 and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
 """
-from dynct.core import Modules
-from dynct.core.handlers.content import Content
+from dynct.core import _registry
+from dynct.core.mvc.content_compiler import Content
 from dynct.backend.database import DatabaseError, Database
-from . import module_operations
+from dynct.core._registry import Modules
 from dynct.modules.comp.html_elements import ContainerElement, List, TableElement
 from dynct.util.config import read_config, write_config
 from dynct.includes import bootstrap
@@ -173,11 +173,11 @@ class SetupHandler(Content):
 
         try:
             # HACK separately registering and activating core
-            module_operations._activate_module(core_config)
+            _registry._activate_module(core_config)
 
-            module_operations.register_installed_modules()
+            _registry.register_installed_modules()
             for module in bootstrap.DEFAULT_MODULES:
-                if not module_operations.activate_module(module):
+                if not _registry.activate_module(module):
                     print('Could not activate module ' + module)
                     return False
             Modules().reload()

@@ -14,7 +14,7 @@ class ARObject(object):
         :param descriptor: Should be one ore more table keys.
         :return:
         """
-        data = cls._get(descriptor).fetchone()
+        data = cls._get(descriptor, 'limit 1').fetchone()
         if data:
             return cls(*data)
         else:
@@ -44,7 +44,7 @@ class ARObject(object):
             return None
 
     @classmethod
-    def get_all(cls, sort_by='', **descriptors):
+    def get_all(cls, sort_by=None, **descriptors):
         """
         Retrieves all objects described by descriptors.
         :param sort_by:
@@ -63,7 +63,7 @@ class ARObject(object):
 
     @classmethod
     def _get(cls, descriptors, _tail:str=''):
-        return cls.database.select(cls._values(), cls._table,
+        return cls.database.select(cls._keys(), cls._table,
                                    ' and '.join([a + '=%(' + a + ')s' for a in descriptors]),  _tail, descriptors)
 
     def save(self, **descriptors):
@@ -92,15 +92,26 @@ class ARObject(object):
         else:
             d = {self.primary_key(): getattr(self, self.primary_key())}
         condition = ' and '.join([a + '=%(' + a + ')s' for a in d])
-        pairing = {a:getattr(self, a) for a in self._values()}
-        self.database.update(self._table, pairing, condition, d)
+        self.database.update(self._table, self._values(), condition, d)
 
     def insert(self):
-        values = self._values()[:]
+        keys = self._keys()[:]
         if self.primary_key():
             if not hasattr(self, self.primary_key()) or getattr(self, self.primary_key()) == inspect.signature(self.__init__).parameters[self.primary_key()].default:
-                values.remove(self.primary_key())
-        self.database.insert(self._table, {a:getattr(self, a) for a in values})
+                keys.remove(self.primary_key())
+        self.database.insert(self._table, self._values(keys))
+
+    def _values(self, keys:list=None, exceptions:list=None):
+        if not keys:
+            keys = self._keys()
+        l = []
+        params = inspect.signature(self.__init__).parameters
+        for a in keys:
+            b = getattr(self, a)
+            if b != params[a] or (exceptions and a in exceptions):
+                l.append(b)
+        return l
+
 
     @classmethod
     def primary_key(cls):
@@ -114,13 +125,13 @@ class ARObject(object):
         return cls._primary_key
 
     @classmethod
-    def _values(cls) -> list:
+    def _keys(cls) -> list:
         if not hasattr(cls, '_values_'):
             cls._values_ = inspect.getargspec(cls.__init__)[0][1:]
         return cls._values_
 
     def _get_one_special_value(self, name, q_tail):
-        values = self._values()[:]
+        values = self._keys()[:]
         values.remove(name)
         descriptors = {a:getattr(self, a) for a in values}
         return self.database.select(name, self._table,
@@ -136,7 +147,7 @@ class ARObject(object):
         :return:
         """
         if not descriptors:
-            descriptors = {a:getattr(self, a) for a in self._values()}
+            descriptors = {a:getattr(self, a) for a in self._keys()}
         self.database.remove(self._table, ' and '.join([a + '=%(' + a + ')s' for a in descriptors]), descriptors)
 
 
@@ -147,7 +158,7 @@ class PartiallyLazyARObject(ARObject):
         a = super().__getattribute__(item)
         if not a:
             if item in self._lazy_values:
-                existing = {f:getattr(self, f) for f in self._values()}
+                existing = {f:getattr(self, f) for f in self._keys()}
                 a = self.database.select(item, self._table, ' and '.join([b + '=%(' + b + ')s' for b in existing]),
                                          params=existing)
                 # execute query to get value
@@ -155,7 +166,7 @@ class PartiallyLazyARObject(ARObject):
         return a
 
     @classmethod
-    def _values(cls):
+    def _keys(cls):
         if not hasattr(cls, '_values_'):
             # TODO test this
             cls._values_ = filter(lambda a: a not in cls._lazy_values, inspect.getargspec(cls.__init__)[0][1:] - cls._lazy_values)

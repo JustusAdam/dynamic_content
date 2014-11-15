@@ -1,8 +1,8 @@
 import os
 
 from dynct.application.app import Application
-from dynct.core.modules import Modules
-from dynct.core.module_operations import register_installed_modules
+from dynct.core import Modules
+from dynct.core._registry import register_installed_modules
 from dynct.modules.comp.decorator import DecoratorWithRegions
 from dynct.core.mvc.controller import ControllerMapper
 
@@ -46,7 +46,7 @@ class MainApp(Application):
         register_installed_modules()
 
     def load_modules(self):
-        self.modules = Modules()
+        self.modules = Modules
         self.modules.reload()
 
     def set_working_directory(self):

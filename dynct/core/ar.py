@@ -34,12 +34,3 @@ class ContentHandler(ARObject):
         self.id = id
 
 
-class Module(ARObject):
-    _table = 'modules'
-
-    def __init__(self, module_name, module_path, module_role, enabled=False, id=-1):
-        self.module_name = module_name
-        self.module_path = module_path
-        self.module_role = module_role
-        self.id = id
-        self.enabled = enabled

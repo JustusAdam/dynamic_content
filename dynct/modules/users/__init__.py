@@ -1,7 +1,5 @@
-from dynct.modules.users.user_information import UsersOverview
+from .user_information import UsersOverview
 from .login import LoginCommonHandler, login_prefix, logout_prefix
-from dynct.modules import admin
-from . import users, session
 from .admin_actions import CreateUser, factory, PermissionOverview, EditPermissions
 from . import user_information
 from .controller import UserController
@@ -38,6 +36,7 @@ def common_handler(item_type):
 def prepare():
     from dynct import core
     from dynct.modules import comp
+    from dynct.modules import admin
 
     # add login page
     core.add_content_handler('login', name, login_prefix)

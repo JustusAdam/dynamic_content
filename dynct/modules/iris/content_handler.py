@@ -1,18 +1,18 @@
 from urllib import parse
 from urllib.error import HTTPError
 
-from dynct.core import handlers
-from dynct.core.modules import Modules
+from dynct.core._registry import Modules
+from dynct.core.mvc.content_compiler import Content
 from dynct.core.mvc.controller import Controller
-from dynct.modules.comp.html_elements import FormElement, TableElement, Input, Label, ContainerElement, Checkbox, A, TableRow, TextInput
+from dynct.modules.comp.html_elements import FormElement, TableElement, Label, ContainerElement, Checkbox, A, TableRow, TextInput
 from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery, Url
 from dynct.core.ar import ContentTypes
 from dynct.errors import InvalidInputError
 from dynct.modules.commons.menus import menu_chooser, root_ident
 from dynct.modules.commons.ar import MenuItem
-
 from . import ar
+
 
 __author__ = 'justusadam'
 
@@ -46,7 +46,7 @@ def wrap_compiler(class_):
     return wrapped
 
 
-class FieldBasedPageContent(handlers.content.Content):
+class FieldBasedPageContent(Content):
     modifier = _access_modifier
     _editorial_list_base = edits = [('edit', _edit_modifier)]
 
@@ -280,7 +280,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
         return [Label('Title', label_for='edit-title'), TextInput(element_id='edit-title', name='title', size=100, required=True)]
 
 
-class Overview(handlers.content.Content):
+class Overview(Content):
     def __init__(self, url, client):
         super().__init__(client)
         self.url = url

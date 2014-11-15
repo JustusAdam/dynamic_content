@@ -1,4 +1,4 @@
-from dynct.core.modules import Modules
+from dynct.core._registry import Modules
 from dynct.modules.commons.ar import CommonsConfig
 from .html_elements import ContainerElement
 from .page import Component

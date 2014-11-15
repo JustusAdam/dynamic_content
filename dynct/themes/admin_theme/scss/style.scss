@@ -7,13 +7,18 @@ $admin-options-width: 170px;
 
 @import "../../scss_base/scss/transition";
 
-$test: background-color, color;
+
 
 @mixin header-link-animation {
-  @include transition-property($test);
+  @include transition-property((background-color, color));
   @include transition-duration(300ms);
   @include transition-delay(0);
   @include transition-timing-function(ease);
+}
+
+@mixin center-block {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 $dark-color: #616764;
@@ -120,7 +125,7 @@ body {
   font-family: 'Open Sans', Helvetica, Arial, Verdana, sans-serif;
 }
 #title {
-  color: #666666;
+  color: #8b8b8b;
 }
 
 #main {
@@ -179,6 +184,7 @@ a.breadcrumb:visited {
   clear: both;
   margin: 20px;
   display: block;
+  font-size: normal;
 }
 
 table.admin-table {
@@ -186,6 +192,7 @@ table.admin-table {
   color: white;
   font-size: larger;
   margin: 40px;
+  @include center-block;
   padding: 20px;
   box-shadow: 2px 2px 10px #666666;
   td {

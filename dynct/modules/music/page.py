@@ -1,4 +1,4 @@
-from dynct.core.handlers.content import Content
+from dynct.core.mvc.content_compiler import Content
 
 __author__ = 'justusadam'
 

@@ -1,7 +1,8 @@
-from dynct.core import handlers
+from dynct.core.mvc.content_compiler import Content
 from dynct.core.mvc.controller import Controller
 from dynct.core.mvc.model import Model
-from dynct.core.modules import Modules
+from dynct.core.mvc.content_compiler import ContentCompiler
+from dynct.core import Modules
 from dynct.modules.comp.html_elements import ContainerElement, List
 from dynct.modules.users.users import GUEST
 from dynct.modules.users.client import ClientInfoImpl
@@ -30,11 +31,11 @@ class AdminController(Controller):
             handler = SubcategoryPage
         else:
             page = ar.AdminPage.get(machine_name=tail[2])
-            handler = Modules()[page.handler_module].admin_handler(tail[2])
+            handler = Modules[page.handler_module].admin_handler(tail[2])
         return handler(url, client).compile()
 
 
-class Overview(handlers.base.ContentCompiler):
+class Overview(ContentCompiler):
     classes = {'admin-menu', 'overview'}
 
     def __init__(self):
@@ -80,7 +81,7 @@ class Overview(handlers.base.ContentCompiler):
                 self.get_children_data()]
 
 
-class OverviewPage(handlers.content.Content, Overview):
+class OverviewPage(Content, Overview):
     permission = 'access admin pages'
     theme = 'admin_theme'
 

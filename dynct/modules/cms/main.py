@@ -21,12 +21,12 @@ from dynct.util.config import read_config
 from dynct.application.app import ApplicationConfig
 from dynct.modules.cms.app import MainApp
 
+config = read_config('modules/cms/config')
 
 __author__ = 'justusadam'
 
 
 def main():
-    config = read_config('modules/cms/config')
     app_config = ApplicationConfig()
     app_config.server_arguments = config['server_arguments']
     app_config.server_class = ThreadedHTTPServer

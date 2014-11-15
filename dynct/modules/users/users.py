@@ -1,8 +1,7 @@
 import hashlib
 import os
-from dynct.includes import log
+from dynct.includes import log, bootstrap
 from . import ar
-from dynct.includes import bootstrap
 
 __author__ = 'justusadam'
 

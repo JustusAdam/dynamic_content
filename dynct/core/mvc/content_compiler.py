@@ -1,10 +1,40 @@
 from http import cookies
-from dynct.core.handlers.base import ModelBasedContentCompiler
 from dynct.core.mvc.model import Model
 from dynct.errors import html_message
 from dynct.modules.comp.html_elements import List, ContainerElement
 
+
 __author__ = 'justusadam'
+
+
+class ContentCompiler:
+    def compile(self):
+        return ''
+
+    def __str__(self):
+        return str(self.compile())
+
+
+class ModelBasedContentCompiler(ContentCompiler):
+    _theme = 'default_theme'
+
+    view_name = ''
+
+    def __init__(self):
+        super().__init__()
+        self._model = Model(self.view_name)
+        self._model.theme = self.theme
+
+    @property
+    def theme(self):
+        return self._theme
+
+    def compile(self):
+        self._fill_model()
+        return self._model
+
+    def _fill_model(self):
+        pass
 
 
 class Content(ModelBasedContentCompiler):
