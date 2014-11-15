@@ -23,7 +23,7 @@ PASSWORD_INPUT = Label('Password', label_for='password'), Input(input_type='pass
 LOGOUT_TARGET = '/login'
 
 LOGOUT_BUTTON = ContainerElement('Logout', html_type='a', classes={'logout', 'button'},
-                                 additionals={'href': '/' + logout_prefix})
+                                 additional={'href': '/' + logout_prefix})
 
 LOGIN_FORM = SecureForm(
     TableElement(

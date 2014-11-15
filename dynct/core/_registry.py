@@ -151,6 +151,15 @@ def get_active_modules():
     return {item.module_name: import_module('dynct.' + item.module_path.replace('/', '.')) for item in Module.get_all(enabled=True)}
 
 
+def ensure_loaded(func):
+    def wrap(instance, *args, **kwargs):
+        if not instance.loaded:
+            instance.load()
+        return func(instance, *args, **kwargs)
+    return wrap
+
+
+
 class Modules(dict):
     """
     Immutable Module dictionary.
@@ -177,6 +186,7 @@ class Modules(dict):
     def __setitem__(self, key, value):
         raise OverwriteProhibitedError
 
+    @ensure_loaded
     def _get_handlers(self, func, single_value):
         acc = {}
 

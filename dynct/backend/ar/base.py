@@ -104,24 +104,13 @@ class ARObject(object):
     def _values(self, keys:list=None, exceptions:list=None):
         if not keys:
             keys = self._keys()
-        l = []
         params = inspect.signature(self.__init__).parameters
-        for a in keys:
-            b = getattr(self, a)
-            if b != params[a] or (exceptions and a in exceptions):
-                l.append(b)
-        return l
-
+        return {a:getattr(self, a) for a in keys if getattr(self, a) != params[a] or (exceptions and a in exceptions)}
 
     @classmethod
     def primary_key(cls):
         if not hasattr(cls, '_primary_key'):
-            def c(l):
-                for i in l:
-                    if i[3] == 'PRI':
-                        return i[0]
-                return None
-            cls._primary_key = c(cls.database.show_columns(cls._table))
+            cls._primary_key = [x[0] for x in cls.database.show_columns(cls._table) if x[3] == 'PRI'][0]
         return cls._primary_key
 
     @classmethod
@@ -169,5 +158,5 @@ class PartiallyLazyARObject(ARObject):
     def _keys(cls):
         if not hasattr(cls, '_values_'):
             # TODO test this
-            cls._values_ = filter(lambda a: a not in cls._lazy_values, inspect.getargspec(cls.__init__)[0][1:] - cls._lazy_values)
+            cls._values_ = [x for x in inspect.getargspec(cls.__init__)[0][1:] if x not in cls._lazy_values]
         return cls._values_

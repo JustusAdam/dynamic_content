@@ -67,7 +67,7 @@ class Content(ModelBasedContentCompiler):
         l = self.editorial_list()
         if l:
             return List(
-                *[ContainerElement(name, html_type='a', classes={'editorial-link'}, additionals={'href': link}) for
+                *[ContainerElement(name, html_type='a', classes={'editorial-link'}, additional={'href': link}) for
                   name, link in l],
                 classes={'editorial-list'}
             )

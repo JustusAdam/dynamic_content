@@ -75,7 +75,7 @@ class HTMLMenuItem(MenuItem):
     def render_self(self, depth):
         if self.item_path:
             return ContainerElement(self.display_name, html_type='a', classes={'layer-' + str(depth), 'menu'},
-                                    additionals={'href': self.item_path})
+                                    additional={'href': self.item_path})
         else:
             return ContainerElement(self.display_name, html_type='span', classes={'layer-' + str(depth), 'menu'})
 

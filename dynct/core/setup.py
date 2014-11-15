@@ -30,7 +30,7 @@ def try_database_connection():
             return ContainerElement(
                 'The connection with the database was successfully established, you may continue with this setup',
                 html_type='p') + ContainerElement('Continue', html_type='a', classes={'continue', 'button'},
-                                                  additionals={'href':'/setup/{next_page}'})
+                                                  additional={'href':'/setup/{next_page}'})
         else:
             return ContainerElement(
                 'The connection with the database could not be established. Please review your settings '
@@ -65,7 +65,7 @@ class SetupHandler(Content):
                         ContainerElement(
                             'I hope that you will enjoy and be pleased with \'dynamic_content\'.', html_type='p'),
                         ContainerElement('Continue', html_type='a', classes={'continue', 'button'},
-                                         additionals={'href':'/setup/{next_page}'})
+                                         additional={'href':'/setup/{next_page}'})
                     )
                 )
             },
@@ -81,7 +81,7 @@ class SetupHandler(Content):
                             list_type='ul'
                         ),
                         ContainerElement('Continue', html_type='a', classes={'continue', 'button'},
-                                         additionals={'href':'/setup/{next_page}'})
+                                         additional={'href':'/setup/{next_page}'})
                     )
                 )
             },
@@ -115,7 +115,7 @@ class SetupHandler(Content):
                             'If you are certain, that the database has been properly configured to allow sufficient access to \'dynamic_content\' and are content with this software making changes to your database please click \'Continue\'',
                             html_type='p'),
                         ContainerElement('Continue', html_type='a', classes={'button', 'continue'},
-                                         additionals={'href':'/setup/{next_page}'})
+                                         additional={'href':'/setup/{next_page}'})
                     )
                 )
             },
@@ -125,7 +125,7 @@ class SetupHandler(Content):
                     ContainerElement(
                         '{message}',
                         ContainerElement('{link}', html_type='a', classes={'continue', 'button'},
-                                         additionals={'href':'{target}'})))
+                                         additional={'href':'{target}'})))
             },
             5: {
                 'title': 'Create an admin account',
@@ -214,7 +214,7 @@ class SetupHandler(Content):
                             'You may delete all existing tables that should be created by clicking reset',
                             html_type='p'),
                         ContainerElement('Reset', html_type='a', classes={'button'},
-                                         additionals={'href':'{this}?reset=True'}))),
+                                         additional={'href':'{this}?reset=True'}))),
                 'target': '/setup',
                 'link': 'Restart'
             }

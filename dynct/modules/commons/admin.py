@@ -38,7 +38,7 @@ class MenuAdminController(Controller):
     def a_menu(self, url, client):
         menu_name = url.path[1]
         menu = MenuRenderer(menu_name).menu().render()
-        m = Model('page', content=List(*menu, additionals={'style': 'list-style-type: none;'}),
+        m = Model('page', content=List(*menu, additional={'style': 'list-style-type: none;'}),
                      title=get_display_name(menu_name, 'menus', 'english'))
         m.theme = 'admin_theme'
         return m

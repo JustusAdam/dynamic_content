@@ -74,20 +74,20 @@ class UsersOverview(Content):
         acc = [['UID', 'Username', 'Name (if provided)', 'Date created', 'Actions']]
 
         for user in all_users:
-            acc.append([ContainerElement(str(user.uid), html_type='a', additionals={'href': '/users/' + str(user.uid)}),
-                        ContainerElement(user.username, html_type='a', additionals={'href': '/users/' + str(user.uid)}),
+            acc.append([ContainerElement(str(user.uid), html_type='a', additional={'href': '/users/' + str(user.uid)}),
+                        ContainerElement(user.username, html_type='a', additional={'href': '/users/' + str(user.uid)}),
                         ' '.join([user.user_first_name, user.user_middle_name, user.user_last_name]),
                         user.date_created,
                         ContainerElement('edit', html_type='a',
-                                         additionals={'href': '/users/' + str(user.uid) + '/edit'})])
+                                         additional={'href': '/users/' + str(user.uid) + '/edit'})])
 
         if len(acc) == 1 or acc == []:
             return ContainerElement(ContainerElement('It seems you do not have any users yet.',
-                                                     additionals={'style': 'padding:10px;text-align:center;'}),
+                                                     additional={'style': 'padding:10px;text-align:center;'}),
                                     ContainerElement('Would you like to ', ContainerElement('create one', html_type='a',
-                                                                                            additionals={
+                                                                                            additional={
                                                                                                 'href': '/users/new',
                                                                                                 'style': 'color:rgb(255, 199, 37);text-decoration:none;'}),
-                                                     '?', additionals={'style': 'padding:10px;'}), additionals={
+                                                     '?', additional={'style': 'padding:10px;'}), additional={
                     'style': 'padding:15px; text-align:center; background-color: cornflowerblue;color:white;border-radius:20px;font-size:20px;'})
         return TableElement(*acc, classes={'user-overview'})

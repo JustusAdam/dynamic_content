@@ -86,7 +86,7 @@ class DirectoryHandler:
     def _render_file_list(self):
         return List(
             *[ContainerElement(
-                str(a.name), html_type='a', additionals={'href': str(self.url.path) + quote_plus(str(a.name), )},
+                str(a.name), html_type='a', additional={'href': str(self.url.path) + quote_plus(str(a.name), )},
                 classes={'file-link'}
             ) for a in self._files()
             ], classes={'directory-index'}, item_classes={'directory-content'}

@@ -4,6 +4,8 @@ Framework for rendering HTML elements *incomplete*
 
 import html
 import re
+
+from dynct.util.html import to_html_head
 from dynct.errors import InvalidInputError
 
 __author__ = 'justusadam'
@@ -14,96 +16,60 @@ class BaseElement:
     Please note: '_customs' is not to be modified from outside the class, it is purely an easy way for subclasses to add
     custom properties without having to change the render function(s).
     Rule of thumb is that _customs should be used for any additional, visible properties mentioned in the constructor of
-    your inheriting class, unless you require a more complex setter
+    your inheriting class, unless you require a more complex setter and/or way of rendering.
     """
 
-    def __init__(self, html_type, additionals:dict=None):
+    def __init__(self, html_type, additional:dict=None):
         self.html_type = html_type
-        self.additionals = additionals
-        self._customs = {}
-
-
-    def render_additionals(self):
-        if not self.additionals:
-            return ''
-        elif isinstance(self.additionals, str):
-            return self.additionals
+        if additional:
+            self._value_params = dict(additional)
         else:
-            return list(k + '="' + html.escape(v) + '"' for k, v in self.additionals.items())
+            self._value_params = {}
+        self._params = set()
 
-
-    def render_customs(self):
-        def render(item):
-            if isinstance(item, str):
-                return html.escape(item)
-            elif isinstance(item, (list, tuple, set)):
-                return ' '.join(list(html.escape(str(a)) for a in item))
-            else:
-                return html.escape(str(item))
-
-        acc = []
-        for k, v in self._customs.items():
-            if v:
-                acc += [k + '="' + render(v) + '"']
-        return acc
+    def render_value_params(self):
+        return [str(k) + '="' + html.escape(v) + '"' for k,v in self._value_params.items() if v]
 
     def __add__(self, other):
         return str(self) + str(other)
 
+    def render_head(self):
+        return to_html_head(self.html_type, self._value_params, self._params)
+
     def render(self):
-        l = [self.html_type]
-        if self._customs:
-            l += self.render_customs()
-        if self.additionals:
-            l += self.render_additionals()
-        return '<' + ' '.join(l) + '>'
+        return '<' + self.render_head() + '>'
 
     def __str__(self):
         return self.render()
 
 
 class BaseClassIdElement(BaseElement):
-    _classes = None
-
-    def __init__(self, html_type, classes:set=None, element_id:str=None, additionals:dict=None):
-        super().__init__(html_type, additionals)
-        self.classes = classes
-        self.element_id = element_id
+    def __init__(self, html_type, classes:set=None, element_id:str=None, additional:dict=None):
+        super().__init__(html_type, additional)
+        self._value_params['class'] = classes
+        self._value_params['id'] = element_id
 
     @property
     def classes(self):
-        return self._classes
+        return self._value_params['class']
 
     @classes.setter
-    def classes(self, value):
-        if isinstance(value, set):
-            self._classes = value
-        elif isinstance(value, (list, tuple)):
-            self._classes = set(value)
-        elif isinstance(value, str):
-            self._classes = {value}
+    def classes(self, val):
+        self._value_params['class'] = val
 
+    @property
+    def element_id(self):
+        return self._value_params['id']
 
-    def render_head(self):
-        frame = [self.html_type]
-        if self.classes:
-            frame += ['class="' + ' '.join(self._classes) + '"']
-        if self.element_id:
-            frame += ['id="' + self.element_id + '"']
-        if self.additionals:
-            frame += self.render_additionals()
-        if self._customs:
-            frame += self.render_customs()
-        return ' '.join(frame)
-
-    def render(self):
-        return '<' + self.render_head() + '>'
+    @element_id.setter
+    def element_id(self, val):
+        self._value_params['id'] = val
 
 
 class ContainerElement(BaseClassIdElement):
     _list_replacement = None
-    def __init__(self, *content, html_type='div', classes:set=None, element_id:str=None, additionals:dict=None):
-        super().__init__(html_type, classes, element_id, additionals)
+    def __init__(self, *content, html_type='div', classes:set=None, element_id:str=None, additional:dict=None):
+        super().__init__(html_type, classes, element_id, additional)
         self.content = content
 
     @property
@@ -132,9 +98,8 @@ class ContainerElement(BaseClassIdElement):
         else:
             return value
 
-
     def render_content(self):
-        return ''.join(list(str(a) for a in self._content))
+        return ''.join(str(a) for a in self._content)
 
     def render(self):
         return '<' + self.render_head() + '>' + self.render_content() + '</' + self.html_type + '>'
@@ -172,9 +137,9 @@ class AbstractList(ContainerElement):
 
 
 class A(ContainerElement):
-    def __init__(self, href, *content, classes:set=None, element_id:str=None, additionals:dict=None):
-        super().__init__(*content, html_type='a', classes=classes, element_id=element_id, additionals=additionals)
-        self._customs['href'] = href
+    def __init__(self, href, *content, classes:set=None, element_id:str=None, additional:dict=None):
+        super().__init__(*content, html_type='a', classes=classes, element_id=element_id, additional=additional)
+        self._value_params['href'] = href
 
 
 class HTMLPage(ContainerElement):
@@ -182,10 +147,10 @@ class HTMLPage(ContainerElement):
     _metatags = None
     _scripts = None
 
-    def __init__(self, title, *content, classes:set=None, element_id:str=None, additionals:dict=None, metatags:set=None,
+    def __init__(self, title, *content, classes:set=None, element_id:str=None, additional:dict=None, metatags:set=None,
                  stylesheets:set=None, scripts:set=None):
         super().__init__(title, *content, html_type='html', classes=classes, element_id=element_id,
-                         additionals=additionals)
+                         additional=additional)
         self.stylesheets = stylesheets
         self.metatags = metatags
         self.scripts = scripts
@@ -237,74 +202,68 @@ class HTMLPage(ContainerElement):
 
 
 class LinkElement(BaseElement):
-    def __init__(self, href, rel, element_type:str=None, additionals:dict=None):
-        super().__init__('link', additionals)
-        self._customs['rel'] = rel
-        self._customs['href'] = href
-        self._customs['type'] = element_type
+    def __init__(self, href, rel, element_type:str=None, additional:dict=None):
+        super().__init__('link', additional)
+        self._value_params['rel'] = rel
+        self._value_params['href'] = href
+        self._value_params['type'] = element_type
 
 
 class Stylesheet(BaseElement):
-    def __init__(self, href, media='all', typedec='text/css', rel='stylesheet', additionals:dict=None):
-        super().__init__('link', additionals)
-        self._customs['href'] = href
-        self._customs['media'] = media
-        self._customs['type'] = typedec
-        self._customs['rel'] = rel
+    def __init__(self, href, media='all', typedec='text/css', rel='stylesheet', additional:dict=None):
+        super().__init__('link', additional)
+        self._value_params['href'] = href
+        self._value_params['media'] = media
+        self._value_params['type'] = typedec
+        self._value_params['rel'] = rel
 
 
 class Script(ContainerElement):
-    def __init__(self, *content, src:str=None, prop_type='text/javascript', additionals:dict=None):
-        super().__init__(*content, html_type='script', additionals=additionals)
-        self._customs['type'] = prop_type
-        self._customs['src'] = src
+    def __init__(self, *content, src:str=None, prop_type='text/javascript', additional:dict=None):
+        super().__init__(*content, html_type='script', additional=additional)
+        self._value_params['type'] = prop_type
+        self._value_params['src'] = src
 
 
 class List(AbstractList):
-    def __init__(self, *content, list_type='ul', classes:set=None, element_id:str=None, additionals:dict=None,
+    def __init__(self, *content, list_type='ul', classes:set=None, element_id:str=None, additional:dict=None,
                  item_classes:set=None, item_additional_properties:dict=None):
         self.item_classes = item_classes
         self.item_additionals = item_additional_properties
-        super().__init__(*content, html_type=list_type, classes=classes, element_id=element_id, additionals=additionals)
+        super().__init__(*content, html_type=list_type, classes=classes, element_id=element_id, additional=additional)
 
     def ensure_subtype(self, value):
         if isinstance(value, BaseClassIdElement) and value.html_type in self._subtypes:
             value.classes |= self.item_classes
-            value.additionals.update(self.item_additionals)
+            value._value_params.update(self.item_additionals)
             return value
         else:
             return super().ensure_subtype(value)
 
     def subtype_wrapper(self, *args):
-        return ContainerElement(*args, html_type=self._subtypes[0], classes=self.item_classes, additionals=self.item_additionals)
+        return ContainerElement(*args, html_type=self._subtypes[0], classes=self.item_classes, additional=self.item_additionals)
 
 
 class Select(AbstractList):
     _subtypes = ['option']
-    def __init__(self, *content, classes:set=None, element_id:str=None, additionals:dict=None, form:str=None, required:bool=False, disabled=False, name:str=None, selected:str=None):
+    def __init__(self, *content, classes:set=None, element_id:str=None, additional:dict=None, form:str=None, required:bool=False, disabled=False, name:str=None, selected:str=None):
         self.selected = selected
-        super().__init__(*content, html_type='select', classes=classes, element_id=element_id, additionals=additionals)
-        self._customs['form'] = form
-        self._customs['name'] = name
-        self.required = required
-        self.disabled = disabled
+        super().__init__(*content, html_type='select', classes=classes, element_id=element_id, additional=additional)
+        self._value_params['form'] = form
+        self._value_params['name'] = name
+        if required:
+            self._params.add('required')
+        if disabled:
+            self._params.add('disabled')
 
     def subtype_wrapper(self, value, content):
         return Option(content, value=value, selected=self.selected == value)
-
-    def render_head(self):
-        head = [super().render_head()]
-        if self.required:
-            head.append('required')
-        if self.disabled:
-            head.append('disabled')
-        return ' '.join(head)
 
 
 class Option(ContainerElement):
     def __init__(self, *content, selected=False, value:str=None):
         super().__init__(*content, html_type='option')
-        self._customs['value'] = value
+        self._value_params['value'] = value
         self.selected = selected
 
     def render_head(self):
@@ -315,10 +274,9 @@ class Option(ContainerElement):
 
 
 class TableElement(ContainerElement):
-    def __init__(self, *content, classes:set=None, element_id:str=None, additionals:dict=None, table_head=False):
+    def __init__(self, *content, classes:set=None, element_id:str=None, additional:dict=None, table_head=False):
         self.table_head = table_head
-        super().__init__(*content, html_type='table', classes=classes, element_id=element_id, additionals=additionals)
-
+        super().__init__(*content, html_type='table', classes=classes, element_id=element_id, additional=additional)
 
     @property
     def content(self):
@@ -351,8 +309,8 @@ class TableElement(ContainerElement):
 
 
 class TableRow(ContainerElement):
-    def __init__(self, *content, classes:set=None, element_id:str=None, additionals:dict=None):
-        super().__init__(*content, html_type='tr', classes=classes, element_id=element_id, additionals=additionals)
+    def __init__(self, *content, classes:set=None, element_id:str=None, additional:dict=None):
+        super().__init__(*content, html_type='tr', classes=classes, element_id=element_id, additional=additional)
 
     @property
     def content(self):
@@ -376,32 +334,26 @@ class TableRow(ContainerElement):
 
 
 class TableHead(TableRow):
-    def __init__(self, *content, classes:set=None, element_id:str=None, additionals:dict=None):
-        super().__init__(*content, classes=classes, element_id=element_id, additionals=additionals)
+    def __init__(self, *content, classes:set=None, element_id:str=None, additional:dict=None):
+        super().__init__(*content, classes=classes, element_id=element_id, additional=additional)
         self.html_type = 'th'
 
 
 class TableData(ContainerElement):
-    def __init__(self, *content, classes:set=None, element_id:str=None, additionals:dict=None):
-        super().__init__(*content, html_type='td', classes=classes, element_id=element_id, additionals=additionals)
+    def __init__(self, *content, classes:set=None, element_id:str=None, additional:dict=None):
+        super().__init__(*content, html_type='td', classes=classes, element_id=element_id, additional=additional)
 
 
 class Input(BaseClassIdElement):
     def __init__(self, classes:set=None, element_id:str=None, input_type='text', name:str=None, form:str=None,
-                 value:str=None, required=False, additionals:dict=None):
-        super().__init__('input', classes=classes, element_id=element_id, additionals=additionals)
-        self._customs['name'] = name
-        self._customs['type'] = input_type
-        self._customs['form'] = form
-        self._customs['value'] = value
-        self.required = required
-
-    def render_head(self):
-        head = super().render_head()
-        if self.required:
-            return head + ' required'
-        else:
-            return head
+                 value:str=None, required=False, additional:dict=None):
+        super().__init__('input', classes=classes, element_id=element_id, additional=additional)
+        self._value_params['name'] = name
+        self._value_params['type'] = input_type
+        self._value_params['form'] = form
+        self._value_params['value'] = value
+        if required:
+            self._params.add('required')
 
     def render(self):
         return '<' + self.render_head() + ' />'
@@ -409,72 +361,66 @@ class Input(BaseClassIdElement):
 
 class TextInput(Input):
     def __init__(self, classes:set=None, element_id:str=None, name:str=None, form:str=None,
-                 value:str=None, size:int=60, required=False, additionals:dict=None):
+                 value:str=None, size:int=60, required=False, additional:dict=None):
         super().__init__(classes=classes, element_id=element_id, input_type='text', name=name, form=form,
-                 value=value, required=required, additionals=additionals)
-        self._customs['size'] = size
+                 value=value, required=required, additional=additional)
+        self._value_params['size'] = size
 
 
 class Radio(Input):
     def __init__(self, classes:set=None, element_id:str=None, name:str=None, form:str=None, value:str=None,
-                 required=False, checked=False, additionals:dict=None):
+                 required=False, checked=False, additional:dict=None):
         super().__init__(classes=classes, element_id=element_id, input_type='radio', name=name, form=form,
                          value=value,
-                         required=required, additionals=additionals)
+                         required=required, additional=additional)
         if checked:
-            self._customs['checked'] = 'checked'
+            self._value_params['checked'] = 'checked'
 
 
 class Checkbox(Input):
     def __init__(self, classes:set=None, element_id:str=None, name:str=None, form:str=None, value:str=None,
-                 required=False, checked=False, additionals:dict=None):
+                 required=False, checked=False, additional:dict=None):
         super().__init__(classes=classes, element_id=element_id, input_type='checkbox', name=name, form=form,
                          value=value,
-                         required=required, additionals=additionals)
+                         required=required, additional=additional)
         if checked:
-            self._customs['checked'] = 'checked'
+            self._value_params['checked'] = 'checked'
 
 
 class Textarea(ContainerElement):
     def __init__(self, *content, classes:set=None, element_id:str=None, name:str=None, form:str=None, required=False,
-                 rows=0, cols=0, additionals:dict=None):
+                 rows=0, cols=0, additional:dict=None):
         super().__init__(*content, html_type='textarea', classes=classes, element_id=element_id,
-                         additionals=additionals)
-        self._customs['name'] = name
-        self._customs['form'] = form
-        self._customs['rows'] = rows
-        self._customs['cols'] = cols
-        self.required = required
-
-    def render_head(self):
-        head = super().render_head()
-        if self.required:
-            return head + ' required'
-        else:
-            return head
+                         additional=additional)
+        self._value_params['name'] = name
+        self._value_params['form'] = form
+        self._value_params['rows'] = rows
+        self._value_params['cols'] = cols
+        if required:
+            self._params.add('required')
 
 
 class Label(ContainerElement):
-    def __init__(self, *content, label_for:str=None, classes:set=None, element_id:str=None, additionals:dict=None):
-        super().__init__(*content, html_type='label', classes=classes, element_id=element_id, additionals=additionals)
-        self._customs['label'] = label_for
+    def __init__(self, *content, label_for:str=None, classes:set=None, element_id:str=None, additional:dict=None):
+        super().__init__(*content, html_type='label', classes=classes, element_id=element_id, additional=additional)
+        self._value_params['label'] = label_for
 
 
 class SubmitButton(Input):
     def __init__(self, value='Submit', classes:set=None, element_id:str=None, name:str=None, form:str=None,
-                 additionals:dict=None):
+                 additional:dict=None):
         super().__init__(value=value, classes=classes, element_id=element_id, name=name, input_type='submit', form=form,
-                         additionals=additionals)
+                         additional=additional)
 
 
 class FormElement(ContainerElement):
     def __init__(self, *content, action='{this}', classes:set=None, element_id:str=None, method='post', charset='UTF-8',
-                 submit=SubmitButton(), target:str=None, additionals:dict=None):
-        super().__init__(*content, html_type='form', classes=classes, element_id=element_id, additionals=additionals)
-        self._customs['method'] = method
-        self._customs['charset'] = charset
-        self._customs['target'] = target
-        self._customs['action'] = action
+                 submit=SubmitButton(), target:str=None, additional:dict=None):
+        super().__init__(*content, html_type='form', classes=classes, element_id=element_id, additional=additional)
+        self._value_params['method'] = method
+        self._value_params['charset'] = charset
+        self._value_params['target'] = target
+        self._value_params['action'] = action
         self.submit = submit
 
     def render_content(self):

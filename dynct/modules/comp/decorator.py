@@ -186,7 +186,7 @@ class Decorator:
         for (name, location) in self.breacrumbs():
             acc.append(
                 ContainerElement(self.breadcrumb_separator(), html_type='span', classes={'breadcrumb-separator'}))
-            acc.append(ContainerElement(name, html_type='a', classes={'breadcrumb'}, additionals={'href': location}))
+            acc.append(ContainerElement(name, html_type='a', classes={'breadcrumb'}, additional={'href': location}))
         return ContainerElement(*acc, classes={'breadcrumbs'})
 
 

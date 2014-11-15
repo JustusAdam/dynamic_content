@@ -1,4 +1,4 @@
-from dynct.core._registry import Modules
+from dynct.core import Modules
 from dynct.modules.commons.ar import CommonsConfig
 from .html_elements import ContainerElement
 from .page import Component
@@ -8,7 +8,7 @@ __author__ = 'justusadam'
 
 
 class RegionHandler:
-    modules = Modules()
+    modules = Modules
 
     def __init__(self, region_name, region_config, theme, client):
         self.client = client

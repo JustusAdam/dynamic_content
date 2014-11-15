@@ -9,5 +9,5 @@ class SecureForm(FormElement):
         return super().render_content() + str(self.render_token())
 
     def render_token(self):
-        token = tokens.new(self._customs['action'])
+        token = tokens.new(self._value_params['action'])
         return Input(input_type='hidden', name='form_token', value=token)

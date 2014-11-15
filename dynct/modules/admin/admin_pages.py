@@ -108,7 +108,7 @@ class OverviewCommon(Commons, Overview):
 
     @property
     def title(self):
-        return ContainerElement(super().title, html_type='a', additionals={'href': '/admin'})
+        return ContainerElement(super().title, html_type='a', additional={'href': '/admin'})
 
 
 class CategoryPage(OverviewPage):
@@ -156,7 +156,7 @@ class Category:
     def render(self, url_base):
         path = url_base + '/' + self.name
         title = ContainerElement(
-            self.display_name, html_type='a', additionals={'href': path}, classes=self.classes
+            self.display_name, html_type='a', additional={'href': path}, classes=self.classes
         )
         if not self.sub:
             return title
