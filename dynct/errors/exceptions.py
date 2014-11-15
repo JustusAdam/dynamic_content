@@ -63,6 +63,10 @@ class ModuleNotFoundError(ModuleError):
     def __repr__(self):
         return 'ModuleNotFoundError, module ' + self.module_name + ' could not be found in the Database'
 
+class IsNoModuleError(ModuleError):
+    def __repr__(self):
+        return self.__class__.__name__ + ': ' + self.module_name + ' does not appear to be a module'
+
 
 class BackendError(DynamicContentError):
     pass
