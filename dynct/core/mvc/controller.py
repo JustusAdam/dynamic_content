@@ -1,4 +1,3 @@
-import inspect
 from urllib.error import HTTPError
 
 from dynct.errors.exceptions import OverwriteProhibitedError
@@ -14,12 +13,10 @@ class Controller(dict):
 class ControllerMapper(dict):
     controllers = set()
 
-    def register_module(self, module):
-        for attr in module.__dict__.values():
-            if inspect.isclass(attr):
-                if issubclass(attr, Controller):
-                    c = attr()
-                    self.register_controller(c)
+    def register_modules(self):
+        from dynct.core import Modules
+        for c in Modules.get_handlers_by_class(Controller):
+            self.register_controller(c)
 
     def register_controller(self, controller):
         for item in controller:

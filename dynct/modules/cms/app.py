@@ -1,8 +1,6 @@
 import os
 
 from dynct.application.app import Application
-from dynct.core import Modules
-from dynct.core._registry import register_installed_modules
 from dynct.modules.comp.decorator import DecoratorWithRegions
 from dynct.core.mvc.controller import ControllerMapper
 
@@ -15,8 +13,6 @@ class MainApp(Application):
         super().__init__(config)
 
     def load(self):
-        self.register_modules()
-        self.load_modules()
         self.initialize_controller_mapper()
 
     def run(self):
@@ -24,8 +20,7 @@ class MainApp(Application):
 
     def initialize_controller_mapper(self):
         self.controllers = ControllerMapper()
-        for item in self.modules.values():
-            self.controllers.register_module(item)
+        self.controllers.register_modules()
 
     def run_http_server_loop(self):
         server_address = (self.config.server_arguments['host'], self.config.server_arguments['port'])
@@ -41,13 +36,6 @@ class MainApp(Application):
             return decorator.compile_response()
 
         return self.config.http_request_handler(http_callback, *args)
-
-    def register_modules(self):
-        register_installed_modules()
-
-    def load_modules(self):
-        self.modules = Modules
-        self.modules.reload()
 
     def set_working_directory(self):
         os.chdir(self.config.basedir)
