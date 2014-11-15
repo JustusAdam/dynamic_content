@@ -6,13 +6,6 @@
     "default_theme": "default_theme",
     "admin_theme": "admin_theme",
     "tables": {
-        "commons_config": [
-            "cid int unsigned not null unique auto_increment primary key",
-            "element_name varchar(200) not null unique",
-            "element_type varchar(200) not null",
-            "handler_module varchar(200) not null default 'commons_engine'",
-            "access_type tinyint default 0 comment '0 = always visible, 1 = custom rules in commons_custom_access'"
-        ],
         "commons_custom_access": [
             "cid int unsigned not null unique references commons_config (cid) on delete cascade on update cascade",
             "rule tinyint comment '0 = no rule applied, 1 = visible by default & exclusion, 2 = hidden by default & inclusion'",
@@ -24,6 +17,7 @@
             "region varchar(200) not null",
             "weight smallint",
             "theme varchar(200) not null",
+            "render_args varchar(64)",
             "description varchar(300)",
             "show_title boolean not null default true"
         ]

@@ -20,7 +20,6 @@ def common_handler(item_type):
 
 def prepare():
 
-    ar.Menu('start_menu', True).save()
     ar.MenuItem('welcome', '/iris/1', 'start_menu', True, '<root>', 1).save()
     ar.MenuItem('welcome', '/iris/1', 'start_menu', True, '<root>', 1).save()
     ar.MenuItem('testpage', '/iris/2', 'start_menu', True, '<root>', 2).save()

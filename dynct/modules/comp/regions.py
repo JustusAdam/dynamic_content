@@ -20,12 +20,12 @@ class RegionHandler:
     def get_all_commons(self, name, theme):
         region_info = ar.Common.get_all(region=name, theme=theme)
         if region_info:
-            return [self.get_item(CommonsConfig.get(element_name=a.item_name), a.show_title) for a in region_info]
+            return [self.get_item(CommonsConfig.get(element_name=a.item_name), a.render_args, a.show_title) for a in region_info]
         else:
             return []
 
-    def get_item(self, item:CommonsConfig, show_title):
-        handler = self.modules[item.handler_module].common_handler(item.element_type)(item, show_title, self.client)
+    def get_item(self, item:CommonsConfig, render_args, show_title):
+        handler = self.modules[item.handler_module].common_handler(item.element_type)(item, render_args, show_title, self.client)
         return Common(item.element_name, handler, item.element_type)
 
     def wrap(self, value):

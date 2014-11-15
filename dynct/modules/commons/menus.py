@@ -8,7 +8,7 @@ __author__ = 'justusadam'
 
 
 def menu_chooser(name='menu_chooser', **kwargs):
-    menus = [[('none', 'None')]] + [[(menu.machine_name + '-' + a[0], a[1]) for a in MenuRenderer(menu.machine_name).menu(MenuChooseItem).render()] for menu in ar.Menu.get_all(enabled=True)]
+    menus = [[('none', 'None')]] + [[(menu.element_name + '-' + a[0], a[1]) for a in MenuRenderer(menu.element_name).menu(MenuChooseItem).render()] for menu in ar.CommonsConfig.get_all(element_type='menu')]
     return Select(*list(itertools.chain(*menus)), name=name, **kwargs)
 
 
@@ -38,7 +38,7 @@ class MenuItem:
         self.item_id = item_id
 
     def render(self, depth=0, max_depth=-1):
-        if 0 <= max_depth >= depth:
+        if 0 <= max_depth <= depth:
             return [self.render_self(depth)]
         else:
             return [self.render_self(depth)] + self.render_children(depth + 1, max_depth)
@@ -86,10 +86,10 @@ class HTMLMenuItem(MenuItem):
                     classes={'layer-' + str(depth), 'menu'})
 
     def render(self, depth=0, max_depth=-1):
-        if 0 <= max_depth >= depth:
+        if 0 <= max_depth <= depth:
             return self.render_self(depth)
         else:
-            return self.render_self(depth), self.render_children(depth + 1)
+            return self.render_self(depth), self.render_children(depth + 1, max_depth)
 
 
 class Handler(Commons):
@@ -97,7 +97,10 @@ class Handler(Commons):
 
     def get_content(self, name):
         renderer = MenuRenderer(self.name, self.language)
-        ul_list = renderer.menu(HTMLMenuItem).render_children(0)
+        if self.render_args is None:
+            ul_list = renderer.menu(HTMLMenuItem).render_children(0)
+        else:
+            ul_list = renderer.menu(HTMLMenuItem).render_children(0, int(self.render_args))
         ul_list.element_id = name
         return ul_list
 

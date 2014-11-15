@@ -15,16 +15,6 @@ def com(name):
     return Common
 
 
-class Menu(ARObject):
-    _table = 'menus'
-
-    def __init__(self, machine_name, enabled, id=-1):
-        super().__init__()
-        self.id = id
-        self.machine_name = machine_name
-        self.enabled = enabled
-
-
 class MenuItem(ARObject):
     _table = 'menu_items'
 

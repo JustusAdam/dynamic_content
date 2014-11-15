@@ -12,15 +12,17 @@
             "parent_item int references menu_items (item_id)",
             "weight smallint"
         ],
-        "menus": [
-            "id int unsigned not null unique auto_increment primary key",
-            "machine_name varchar(200) not null unique references commons_config (element_name)",
-            "enabled boolean default false"
-        ],
         "com_text": [
             "id int unsigned not null unique auto_increment primary key",
             "machine_name varchar(200) not null unique references commons_config (element_name)",
             "content text not null"
+        ],
+        "commons_config": [
+            "cid int unsigned not null unique auto_increment primary key",
+            "element_name varchar(200) not null unique",
+            "element_type varchar(200) not null",
+            "handler_module varchar(200) not null default 'commons_engine'",
+            "access_type tinyint default 0 comment '0 = always visible, 1 = custom rules in commons_custom_access'"
         ]
     }
 }

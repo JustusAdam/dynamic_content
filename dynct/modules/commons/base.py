@@ -19,11 +19,12 @@ class Commons:
     # temporary
     language = 'english'
 
-    def __init__(self, conf:CommonsConfig, show_title, client):
+    def __init__(self, conf:CommonsConfig, render_args, show_title, client):
         self.show_title = show_title
         self.client = client
         self.conf = conf
         self.name = self.conf.element_name
+        self.render_args = render_args
 
     @property
     def title(self):
