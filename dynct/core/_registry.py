@@ -1,18 +1,22 @@
-from importlib import import_module
 from pathlib import Path
 from inspect import isclass
 
 from dynct.backend.ar import ARObject
-from dynct.errors import ModuleError, DatabaseError, InvalidInputError
-from dynct.errors.exceptions import OverwriteProhibitedError
+from dynct.backend.database import Database
+from dynct.errors import DatabaseError, InvalidInputError, OverwriteProhibitedError, IsNoModuleError
 from dynct.util.config import read_config
 from dynct.includes import bootstrap
 from dynct.core.ar import ContentHandler
+from dynct.util.module import import_by_path
 
 
 __author__ = 'justusadam'
 
 basedir = str(Path(__file__).parent.parent.resolve())
+
+json_config_name = 'config.json'
+
+python_config_name = 'module_config'
 
 
 class Module(ARObject):
@@ -26,6 +30,16 @@ class Module(ARObject):
         self.enabled = enabled
 
 
+def get_module_conf(path:str):
+    dir_ = Path(path)
+    if dir_.is_dir() and json_config_name in dir_.iterdir():
+        return read_config(str(dir_ / json_config_name))
+    else:
+        mod = import_by_path(path)
+        if hasattr(mod, python_config_name):
+            return getattr(mod, python_config_name)
+    raise IsNoModuleError(path)
+
 
 def activate_module(module_name):
     print('Activating module: ' + module_name)
@@ -37,7 +51,7 @@ def activate_module(module_name):
     if path is None:
         print('Module ' + module_name + ' could not be activated')
         return False
-    module_conf = read_config(path + '/config.json')
+    module_conf = get_module_conf('dynct/' + path)
     module_conf['path'] = path
 
     return _activate_module(module_conf)
@@ -45,7 +59,7 @@ def activate_module(module_name):
 
 def _activate_module(module_conf):
     try:
-        init_module(module_conf['path'])
+        init_module(module_conf)
     except DatabaseError as error:
         print(error)
         return False
@@ -71,14 +85,11 @@ def get_module_id(module_name):
     return Module.get(module_name=module_name).id
 
 
-def init_module(module_path):
-    module = import_module(module_path.replace('/', '.'))
-    try:
-        module.prepare()
-    except ModuleError as error:
-        print(error)
-        print('it seems no prepare() method could be found')
-
+def init_module(module_conf):
+    if 'tables' in module_conf:
+        db = Database()
+        for table, columns in module_conf['tables'].items():
+            db.create_table(table, columns)
 
 def get_module_path(module):
     return Module.get(module_name=module).module_path
@@ -96,7 +107,6 @@ def is_active(module_name):
         return bool(result.enabled)
     else:
         return False
-
 
 
 def register_installed_modules():
@@ -148,7 +158,7 @@ def check_info(info):
 
 
 def get_active_modules():
-    return {item.module_name: import_module('dynct.' + item.module_path.replace('/', '.')) for item in Module.get_all(enabled=True)}
+    return {item.module_name: import_by_path('dynct/' + item.module_path) for item in Module.get_all(enabled=True)}
 
 
 def ensure_loaded(func):
