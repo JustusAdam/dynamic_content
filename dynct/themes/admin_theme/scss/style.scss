@@ -7,9 +7,11 @@ $admin-options-width: 170px;
 
 @import "../../scss_base/scss/transition";
 
+$test: background-color, color;
+
 @mixin header-link-animation {
-  @include transition-property(background-color);
-  @include transition-duration(200ms);
+  @include transition-property($test);
+  @include transition-duration(300ms);
   @include transition-delay(0);
   @include transition-timing-function(ease);
 }
@@ -20,11 +22,11 @@ ul {
   list-style-type: none;
   a {
     @include header-link-animation;
-    display: block;
-    float: left;
+    display: inline-block;
     padding: 10px 15px;
     margin: 1px;
     background-color: white;
+    color: white;
   }
   a:hover {
     @include header-link-animation;
@@ -56,12 +58,13 @@ nav, header {
     display: block;
     float: left;
   }
+  a:visited {
+    color: #ffffff;
+  }
   a:hover {
     @include header-link-animation;
     background-color: $dark-color;
-  }
-  a:visited {
-    color: #ffffff;
+    color: #6ad400;
   }
   ul {
     padding: 0;
@@ -173,6 +176,7 @@ a.breadcrumb:visited {
 }
 
 .breadcrumbs {
+  clear: both;
   margin: 20px;
   display: block;
 }

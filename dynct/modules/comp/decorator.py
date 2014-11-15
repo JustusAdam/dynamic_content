@@ -2,7 +2,7 @@ from pathlib import Path
 import re
 import sys
 from dynct.http.response import Response
-from dynct.modules.comp.html_elements import Stylesheet, Script, LinkElement, ContainerElement
+from dynct.modules.comp.html_elements import Stylesheet, Script, LinkElement, ContainerElement, A
 from dynct.modules.comp.regions import RegionHandler
 from dynct.util.config import read_config
 
@@ -168,8 +168,7 @@ class Decorator:
         })
         a.setdefault('breadcrumbs', self.render_breadcrumbs())
         a.setdefault('pagetitle',
-                     ContainerElement('dynamic_content - fast, python and extensible', html_type='a',
-                                      additionals={'href':'/'}))
+                     A('/', 'dynamic_content - fast, python and extensible'))
         a.setdefault('footer', str(
             ContainerElement(ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', html_type='p'),
                              element_id='powered_by', classes={'common', 'copyright'})))

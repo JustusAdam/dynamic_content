@@ -145,8 +145,6 @@ class SQLDatabase(AbstractDatabase):
 
     def _execute(self, query, params=None):
         cursor = self.cursor()
-        print(query)
-        print(params)
         if params:
             cursor.execute(query, params)
         else:
