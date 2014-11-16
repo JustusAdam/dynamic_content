@@ -3,10 +3,6 @@ from .ar import DisplayName
 __author__ = 'justusadam'
 
 
-def prepare():
-    pass
-
-
 def get_display_name(item, source_table, language):
     data = DisplayName.get(machine_name=item, source_table=source_table)
     if data:

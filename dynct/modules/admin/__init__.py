@@ -25,9 +25,3 @@ def new_subcategory(machine_name, display_name, category, description='', weight
 
 def new_page(machine_name, display_name, subcategory, handler_module, description='', weight=0):
     AdminPage(machine_name, display_name, subcategory, handler_module, description, weight).save()
-
-
-def prepare():
-    from dynct.core.ar import ContentHandler
-
-    ContentHandler('admin', 'admin', 'admin').save()
