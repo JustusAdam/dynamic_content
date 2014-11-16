@@ -1,4 +1,3 @@
-from pymysql import DatabaseError, InterfaceError, ProgrammingError
 from ._abs import AbstractDatabase
 from dynct import errors
 
@@ -36,8 +35,10 @@ class SQLDatabase(AbstractDatabase):
     def create_table(self, table_name, columns):
         if isinstance(columns, (list, tuple)):
             columns = ', '.join(columns)
-
-        self._execute('CREATE TABLE ' + ' '.join([table_name, '(' + columns + ')']) + ';')
+        try:
+            self._execute('CREATE TABLE ' + ' '.join([table_name, '(' + columns + ')']) + ';')
+        except Exception:
+            raise errors.DatabaseError
         print('created table ' + table_name)
 
     def select(self, columns, from_table, where_condition, query_tail:str='', params:dict=None):
@@ -66,7 +67,7 @@ class SQLDatabase(AbstractDatabase):
             query = 'INSERT INTO ' + ' '.join([into_table, rows, 'VALUES', values]) + ';'
             self._execute(query, pairing)
 
-        except (DatabaseError, InterfaceError, ProgrammingError) as error:
+        except Exception as error:
             print(error)
             raise errors.DatabaseError
         return None
@@ -79,7 +80,7 @@ class SQLDatabase(AbstractDatabase):
         try:
             query = 'REPLACE INTO ' + ' '.join([into_table, rows, 'VALUES', values]) + ';'
             self._execute(query, pairing)
-        except (DatabaseError, InterfaceError, ProgrammingError) as error:
+        except Exception as error:
             print(error)
             raise errors.DatabaseError
 
@@ -107,7 +108,7 @@ class SQLDatabase(AbstractDatabase):
         query = ' '.join(['UPDATE', table, 'SET', set_clause, where_condition])
         try:
             self._execute(query, params)
-        except (InterfaceError, ProgrammingError, DatabaseError):
+        except Exception:
             raise errors.DatabaseError
 
     def alter_table(self, table, add=None, alter=None):
@@ -132,7 +133,7 @@ class SQLDatabase(AbstractDatabase):
         try:
             cursor.execute('SHOW TABLES')
             return True
-        except DatabaseError:
+        except Exception:
             return False
 
     def show_columns(self, table=''):

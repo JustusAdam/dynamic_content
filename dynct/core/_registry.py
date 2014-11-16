@@ -85,11 +85,21 @@ def get_module_id(module_name):
     return Module.get(module_name=module_name).id
 
 
-def init_module(module_conf):
+def init_module(module_conf, force=False):
     if 'tables' in module_conf:
         db = Database()
         for table, columns in module_conf['tables'].items():
-            db.create_table(table, columns)
+            try:
+                db.create_table(table, columns)
+            except DatabaseError as e:
+                if force:
+                    print('Encountered error: ' + repr(e))
+                    print('Trying dropping table' + table)
+                    db.drop_table(table)
+                    db.create_table(table, columns)
+                else:
+                    raise e
+
 
 def get_module_path(module):
     return Module.get(module_name=module).module_path
