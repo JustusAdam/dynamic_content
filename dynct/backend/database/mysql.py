@@ -7,7 +7,6 @@ The API for accessing the database is currently not finally decided upon.
 It is recommended to escape all values but not table and column names using the escape() function provided here since
 thus the escaping will be custom to the database type.
 """
-from dynct.util.singleton import singleton
 
 __author__ = 'justusadam'
 
@@ -16,7 +15,6 @@ from mysql.connector import connect
 from ._abs_sql import SQLDatabase
 
 
-@singleton
 class Database(SQLDatabase):
     """
     Implementation of the abstract Database for mysql databases.

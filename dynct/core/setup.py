@@ -4,14 +4,16 @@ Implementation of the setup routine.
 Currently uses the framework to dynamically create elements, once the basic site functionality has been implemented
 and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
 """
-from dynct.core import _registry
 from dynct.core.mvc.content_compiler import Content
-from dynct.backend.database import DatabaseError, Database
-from dynct.core._registry import Modules
+from dynct.backend.database import Database
+from dynct.errors.exceptions import DatabaseError
 from dynct.modules.comp.html_elements import ContainerElement, List, TableElement
 from dynct.util.config import read_config, write_config
 from dynct.includes import bootstrap
 from dynct.modules.users.admin_actions import CreateUser
+
+from . import Modules
+from . import _registry
 
 
 __author__ = 'justusadam'
@@ -44,7 +46,7 @@ def try_database_connection():
 class SetupHandler(Content):
     def __init__(self, url):
         super().__init__(None)
-        self.url = url
+        self._url = url
 
     def _fill_model(self):
         config = read_config('cms/config')
@@ -142,11 +144,11 @@ class SetupHandler(Content):
         self._model.update(generic)
         message = ''
         if self._url.page_id == 2:
-            db = Database()
+            db = Database
             self._model['content'] = self._model['content'].format(db_con=try_database_connection())
             del db
         if self._url.page_id == 4:
-            db = Database()
+            db = Database
             db.connect()
             setup_result = self.setup_wrapper()
             self._model['content'] = self._model['content'].format(**setup_result)

@@ -21,32 +21,19 @@ from dynct.util.config import read_config
 __author__ = 'justusadam'
 
 
-def get_my_folder():
-    return str(Path(__file__).parent)
-
-# TODO let the config be read when calling Database()
-# TODO before that make Database() be only called once and not be a singleton!!!
-# HACK setting config path here (hard), needs to be changed
-config = read_config(str(get_my_folder()) + '/../../modules/cms/config')
-
 db_types = {
-    'mysql': 'mysql'
-}
+        'mysql': 'mysql'
+    }
 
-new_db_types = {
-    'mysql': 'pymysql'
-}
-
-db_mod = importlib.import_module(new_db_types[config['database_type']])
-
-def connection():
-    return db_mod.connect(**config['database_connection_arguments'])
-
-db_imp = importlib.import_module('.' + db_types[config['database_type']], __name__)
-
+# HACK setting config path here (hard), needs to be changed
 
 def database_factory():
+    config = read_config(str(str(Path(__file__).parent)) + '/../../modules/cms/config')
+
+    db_imp = importlib.import_module('.' + db_types[config['database_type']], __name__)
     return db_imp.Database(config)
 
 
-Database = database_factory
+Database = database_factory()
+
+del database_factory, db_types

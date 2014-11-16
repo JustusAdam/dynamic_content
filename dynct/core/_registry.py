@@ -87,7 +87,7 @@ def get_module_id(module_name):
 
 def init_module(module_conf, force=False):
     if 'tables' in module_conf:
-        db = Database()
+        db = Database
         for table, columns in module_conf['tables'].items():
             try:
                 db.create_table(table, columns)

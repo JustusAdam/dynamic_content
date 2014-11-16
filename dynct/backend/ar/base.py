@@ -5,7 +5,7 @@ from dynct.errors import DatabaseError
 
 class ARObject(object):
     _table = ''
-    database = Database()
+    database = Database
 
     @classmethod
     def get(cls, **descriptor):
