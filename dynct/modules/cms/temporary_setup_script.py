@@ -13,6 +13,7 @@ __author__ = 'justusadam'
 from dynct.modules import comp, admin
 from dynct.modules.users import users
 from dynct import core
+
 # add admin menu common
 
 admin_menu_common = 'admin_menu'
@@ -142,12 +143,12 @@ core.add_content_handler('users', name, 'users')
 # add login common
 comp.add_commons_config('login', 'login', name, True, 1)
 comp.add_commons_config('login', START_REGION, 0, START_THEME)
-# dn.add_item('login', 'user_management', ('english', 'User Login'))
+i18n.add_item('login', 'user_management', ('english', 'User Login'))
 
 # add user information common
 comp.add_commons_config('user_information', 'user_information', name, True, 1)
 comp.assign_common('user_information', START_REGION, 1, START_THEME)
-# dn.add_item('user_information', 'user_management', ('english', 'Your Account Information'))
+i18n.add_item('user_information', 'user_management', ('english', 'Your Account Information'))
 
 # add admin pages
 admin.new_category('user', 'Users')

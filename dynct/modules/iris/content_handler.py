@@ -1,7 +1,7 @@
 from urllib import parse
 from urllib.error import HTTPError
 
-from dynct.core._registry import Modules
+from dynct.core import Modules
 from dynct.core.mvc.content_compiler import Content
 from dynct.core.mvc.controller import Controller
 from dynct.modules.comp.html_elements import FormElement, TableElement, Label, ContainerElement, Checkbox, A, TableRow, TextInput

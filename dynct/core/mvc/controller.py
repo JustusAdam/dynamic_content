@@ -1,4 +1,5 @@
 from urllib.error import HTTPError
+import re
 
 from dynct.errors.exceptions import OverwriteProhibitedError
 
@@ -9,8 +10,25 @@ __author__ = 'justusadam'
 _register_controllers = True
 
 
+def parse_with(regex):
+    def wrap(func):
+        def w(self, url):
+            return func(self, *re.match(regex, url).groups())
+        return w
+    return wrap
+
+
 class Controller(dict):
+
+    @parse_with('(\w*)/(\w)')
+    def test(self, arg1, arg2):
+        print(arg1)
+        print(arg2)
+
+
+class RegexURLMapper(Controller):
     pass
+
 
 
 class ControllerMapper(dict):
