@@ -1,7 +1,8 @@
 from urllib.error import HTTPError
 import re
+import inspect
 
-from dynct.errors.exceptions import OverwriteProhibitedError
+from dynct.errors import OverwriteProhibitedError, InvalidInputError
 
 
 __author__ = 'justusadam'
@@ -12,10 +13,64 @@ _register_controllers = True
 
 def parse_with(regex):
     def wrap(func):
-        def w(self, url):
+        def w(self, url, client):
             return func(self, *re.match(regex, url).groups())
         return w
     return wrap
+
+
+def url_args(regex, *, get=False, post=False):
+    """
+    Function decorator for controller Methods. Parses the Input (url) without prefix according to the regex.
+    Unpacks groups into function call arguments.
+
+    get and post can be lists of arguments which will be passed to the function as keyword arguments or booleans
+    if get/post are true the entire query is passed to the function as keyword argument 'get' or 'post'
+    if get/post are false no queries will be accepted
+
+    :param regex: regex pattern or string
+    :param get: list/tuple (subclasses) or boolean
+    :param post: list/tuple (subclasses) or boolean
+    :return:
+    """
+
+    def q_comp(q, name):
+        if type(q) == bool:
+            if q:
+                return lambda a:{name:a}
+            else:
+                return lambda a:{True: False, False:{}}[bool(a)]
+        elif issubclass(type(q), (list,tuple)):
+            return lambda a: {arg:a[arg] for arg in get}
+        else:
+            raise InvalidInputError
+
+    get_func = q_comp(get, 'get')
+    post_func = q_comp(post, 'post')
+
+    def wrap(func):
+        def _generic(url, client):
+            kwargs = dict(client=client)
+            for result in [get_func(url.get_query), post_func(url.post)]:
+                if result is False:
+                    raise InvalidInputError
+                else:
+                    kwargs.update(result)
+            return re.match(regex, str(url.path)).groups(), kwargs
+        def _method(self, url, client):
+            args, kwargs = _generic(url, client)
+            return func(self, *args, **kwargs)
+        def _function(url, client):
+            args, kwargs = _generic(url, client)
+            return func(*args, **kwargs)
+        if inspect.ismethod(func):
+            return _method
+        elif inspect.isfunction(func):
+            return _function
+        else:
+            raise InvalidInputError
+    return wrap
+
 
 
 class Controller(dict):

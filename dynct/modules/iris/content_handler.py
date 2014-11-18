@@ -54,7 +54,7 @@ class FieldBasedPageContent(Content):
         super().__init__(client)
         self.url = url
         self.cut_content = cut_content
-        self.modules = Modules()
+        self.modules = Modules
         self.page = self.get_page()
         self._theme = ContentTypes.get(content_type_name=self.page.content_type).theme
         self.fields = self.get_fields()
