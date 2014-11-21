@@ -34,7 +34,11 @@ class Autoconf:
 
 
     def wrap(self, other, model, *args, **kwargs):
+        self.work_model(model)
         return self.function(other, model, *args, **kwargs)
+
+    def work_model(self, model):
+        pass
 
     def make_conf(self, conf, controller):
         for attr in self._attributes:
@@ -50,8 +54,8 @@ class Regions:
     def __init__(self, func):
         self.function = func
 
-    def __call__(self, model, *args, **kwargs):
-        res = self.function(model, *args, **kwargs)
+    def __call__(self, other, model, *args, **kwargs):
+        res = self.function(other, model, *args, **kwargs)
         if not 'no-commons' in model.decorator_attributes:
             for region in self.regions(model.client, model.theme):
                 model[region.name] = str(region.compile())

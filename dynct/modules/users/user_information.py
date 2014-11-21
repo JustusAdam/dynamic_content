@@ -34,10 +34,10 @@ class UserInformation(Content):
     permission = 'view other user info'
     page_title = 'User Information'
 
-    def __init__(self, page_id, client):
-        super().__init__(client)
-        self.page_id = page_id
-        if page_id == self.client.user:
+    def __init__(self, model, url, client):
+        super().__init__(model, client)
+        self.page_id = url.path[1]
+        if self.page_id == self.client.user:
             self.permission = 'view own user info'
 
     def process_content(self):
@@ -61,8 +61,8 @@ class UsersOverview(Content):
     permission = 'access users overview'
     theme = 'admin_theme'
 
-    def __init__(self, url, client):
-        super().__init__(client)
+    def __init__(self, model, url, client):
+        super().__init__(model, client)
         self.url = url
 
     def process_content(self):

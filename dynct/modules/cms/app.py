@@ -1,6 +1,7 @@
 import os
 
 from dynct.application.app import Application
+from dynct.core.mvc.model import Model
 from dynct.modules.comp.decorator_old import DecoratorWithRegions
 from dynct.core.mvc.controller import ControllerMapper
 
@@ -29,10 +30,9 @@ class MainApp(Application):
 
     def handle_http_request(self, *args):
         def http_callback(url, client):
-            model = self.controllers(url)(url, client)
-            print(model.decorator_attributes)
+            model = Model()
+            model.view = self.controllers(url)(model, url, client)
             decorator = DecoratorWithRegions(model, url, client)
-            print('')
             return decorator.compile_response()
 
         return self.config.http_request_handler(http_callback, *args)

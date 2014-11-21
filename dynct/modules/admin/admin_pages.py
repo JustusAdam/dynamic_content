@@ -19,7 +19,7 @@ class AdminController(Controller):
         super().__init__()
         self['admin'] = self.handle
 
-    def handle(self, url, client:ClientInfoImpl):
+    def handle(self, model, url, client:ClientInfoImpl):
         if client.user == GUEST:
             return Model('page', content='Not authorized.', title='Not Authorized.')
         tail = url.path[1:]
@@ -85,8 +85,8 @@ class OverviewPage(Content, Overview):
     permission = 'access admin pages'
     theme = 'admin_theme'
 
-    def __init__(self, url, client):
-        super().__init__(client)
+    def __init__(self, model):
+        super().__init__(None)
         Overview.__init__(self)
         self.classes = {'admin-menu', 'overview', 'admin-page'}
         self.url = url
@@ -114,8 +114,8 @@ class OverviewCommon(Commons, Overview):
 class CategoryPage(OverviewPage):
     classes = {'admin-menu', 'category'}
 
-    def __init__(self, url, client):
-        super().__init__(url, client)
+    def __init__(self, model):
+        super().__init__(None)
         self.name = url.path[1]
         self.page_title = self.name
 
@@ -132,8 +132,8 @@ class CategoryPage(OverviewPage):
 class SubcategoryPage(CategoryPage):
     classes = {'admin-menu', 'subcategory'}
 
-    def __init__(self, url, client):
-        super().__init__(url, client)
+    def __init__(self, model):
+        super().__init__(None)
         self.name = self.url.path[2]
         self.page_title = self.name
 

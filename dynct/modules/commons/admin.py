@@ -14,7 +14,7 @@ class MenuAdminController(Controller):
     def __init__(self):
         super().__init__(menus=self.handle_menus)
 
-    def handle_menus(self, url, client):
+    def handle_menus(self, model, url, client):
         if len(url.path) == 1:
             return self.overview(url)
         elif len(url.path) == 2:

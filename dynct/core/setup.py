@@ -44,7 +44,7 @@ def try_database_connection():
 
 
 class SetupHandler(Content):
-    def __init__(self, url):
+    def __init__(self, model):
         super().__init__(None)
         self._url = url
 

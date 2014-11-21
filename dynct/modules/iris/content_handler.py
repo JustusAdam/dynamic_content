@@ -50,8 +50,8 @@ class FieldBasedPageContent(Content):
     modifier = _access_modifier
     _editorial_list_base = edits = [('edit', _edit_modifier)]
 
-    def __init__(self, url, client, cut_content=False):
-        super().__init__(client)
+    def __init__(self, model):
+        super().__init__(None)
         self.url = url
         self.cut_content = cut_content
         self.modules = Modules
@@ -126,8 +126,8 @@ class EditFieldBasedContent(FieldBasedPageContent):
     field_identifier_separator = '-'
     theme = 'admin_theme'
 
-    def __init__(self, url, client):
-        super().__init__(url, client)
+    def __init__(self, model):
+        super().__init__(None)
         self.menu_item = MenuItem.get_all(item_path=self.url.path.prt_to_str(0, -1))
         if self.menu_item:
             self.menu_item = self.menu_item[0]
@@ -281,8 +281,8 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
 
 
 class Overview(Content):
-    def __init__(self, url, client):
-        super().__init__(client)
+    def __init__(self, model):
+        super().__init__(None)
         self.url = url
         self.page_title = 'Overview'
         self.permission = ' '.join(['access', self.url.page_type, 'overview'])
@@ -322,7 +322,7 @@ class Overview(Content):
             u = Url(str(self.url.path) + '/' + str(a.id))
             u.page_type = self.url.page_type
             u.page_id = str(a.id)
-            pages.append(FieldBasedPageContent(u, self.client))
+            pages.append(FieldBasedPageContent(None))
         content = [ContainerElement(A(str(b.url.path), ContainerElement(b.page_title, html_type='h2')), ContainerElement(b.compile()['content'])) for b in pages]
         content.append(self.scroll(range))
         return ContainerElement(*content)
@@ -339,7 +339,7 @@ class IrisController(Controller):
     def __init__(self):
         super().__init__(iris=self.handle)
 
-    def handle(self, url, client):
+    def handle(self, model, url, client):
         if len(url.path) == 3:
             if not url.path[1].isdigit():
                 if url.path[1] == _add_modifier:

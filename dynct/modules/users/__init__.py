@@ -1,6 +1,6 @@
 from .user_information import UsersOverview
 from .login import LoginCommonHandler, login_prefix, logout_prefix
-from .admin_actions import CreateUser, factory, PermissionOverview, EditPermissions
+from .admin_actions import CreateUser, PermissionOverview, EditPermissions
 from . import user_information
 from .controller import UserController
 

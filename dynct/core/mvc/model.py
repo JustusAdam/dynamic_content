@@ -4,11 +4,10 @@ __author__ = 'justusadam'
 
 
 class Model(dict):
-    def __init__(self, name, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.__final = False
         self.decorator_attributes = set()
-        self.view = name
         self.headers = set()
         self.cookies = SimpleCookie()
 

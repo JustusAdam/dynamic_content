@@ -20,9 +20,9 @@ class ModelBasedContentCompiler(ContentCompiler):
 
     view_name = ''
 
-    def __init__(self):
+    def __init__(self, model):
         super().__init__()
-        self._model = Model(self.view_name)
+        self._model = model
         self._model.theme = self.theme
 
     @property
@@ -31,7 +31,7 @@ class ModelBasedContentCompiler(ContentCompiler):
 
     def compile(self):
         self._fill_model()
-        return self._model
+        return 'page'
 
     def _fill_model(self):
         pass
@@ -45,8 +45,8 @@ class Content(ModelBasedContentCompiler):
     published = True
     permission_for_unpublished = 'access unpublished pages'
 
-    def __init__(self, client):
-        super().__init__()
+    def __init__(self, model, client):
+        super().__init__(model)
         self._client = client
         self._cookies = None
 

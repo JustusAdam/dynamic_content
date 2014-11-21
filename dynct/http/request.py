@@ -184,4 +184,4 @@ class RequestHandler(BaseHTTPRequestHandler):
             raise HTTPError(str(url), 403, 'Request disabled via server config', None, None)
         from dynct.core.setup import SetupHandler
 
-        return SetupHandler(url)
+        return SetupHandler(None)

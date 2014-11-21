@@ -70,20 +70,20 @@ def url_args(regex, *, get=False, post=False, strict:bool=False):
     post_func = q_comp(post, 'post')
 
     def wrap(func):
-        def _generic(url, client):
+        def _generic(model, url, client):
             kwargs = dict(client=client)
             for result in [get_func(url.get_query), post_func(url.post)]:
                 if result is False:
                     raise InvalidInputError
                 else:
                     kwargs.update(result)
-            return re.match(regex, str(url.path)).groups(), kwargs
-            # return (model, ) + re.match(regex, str(url.path)).groups(), kwargs
-        def _method(self, url, client):
-            args, kwargs = _generic(url, client)
+            # return re.match(regex, str(url.path)).groups(), kwargs
+            return (model, ) + re.match(regex, str(url.path)).groups(), kwargs
+        def _method(self, model, url, client):
+            args, kwargs = _generic(model, url, client)
             return func(self, *args, **kwargs)
-        def _function(url, client):
-            args, kwargs = _generic(url, client)
+        def _function(model, url, client):
+            args, kwargs = _generic(model, url, client)
             return func(*args, **kwargs)
         if inspect.ismethod(func):
             return _method
@@ -96,15 +96,11 @@ def url_args(regex, *, get=False, post=False, strict:bool=False):
 
 
 class Controller(dict):
-
-    @parse_with('(\w*)/(\w)')
-    def test(self, arg1, arg2):
-        print(arg1)
-        print(arg2)
-
-
-class RegexURLMapper(Controller):
     pass
+
+#
+# class RegexURLMapper(Controller):
+#     pass
 
 
 

@@ -23,7 +23,7 @@ class PathHandler(Controller):
     def __init__(self):
         super().__init__(public=self.handle, theme=self.handle)
 
-    def handle(self, url, *args):
+    def handle(self, model, url, *args):
         return self.parse_path(url)
 
     def parse_path(self, url):
