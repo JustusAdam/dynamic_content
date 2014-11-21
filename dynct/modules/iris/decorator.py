@@ -3,6 +3,10 @@ from dynct.util.config import read_config
 __author__ = 'justusadam'
 
 
+class Node(dict):
+    pass
+
+
 class NodeProcess:
     def __init__(self, func):
         self.function = func
