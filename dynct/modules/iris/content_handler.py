@@ -4,6 +4,7 @@ from urllib.error import HTTPError
 from dynct.core import Modules
 from dynct.core.mvc.content_compiler import Content
 from dynct.core.mvc.controller import Controller
+from dynct.core.mvc.model import Model
 from dynct.modules.comp.html_elements import FormElement, TableElement, Label, ContainerElement, Checkbox, A, TableRow, TextInput
 from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery, Url
@@ -50,10 +51,9 @@ class FieldBasedPageContent(Content):
     modifier = _access_modifier
     _editorial_list_base = edits = [('edit', _edit_modifier)]
 
-    def __init__(self, model):
-        super().__init__(None)
+    def __init__(self, model, url, client):
+        super().__init__(model, client)
         self.url = url
-        self.cut_content = cut_content
         self.modules = Modules
         self.page = self.get_page()
         self._theme = ContentTypes.get(content_type_name=self.page.content_type).theme
@@ -126,8 +126,8 @@ class EditFieldBasedContent(FieldBasedPageContent):
     field_identifier_separator = '-'
     theme = 'admin_theme'
 
-    def __init__(self, model):
-        super().__init__(None)
+    def __init__(self, model, url, client):
+        super().__init__(model, url, client)
         self.menu_item = MenuItem.get_all(item_path=self.url.path.prt_to_str(0, -1))
         if self.menu_item:
             self.menu_item = self.menu_item[0]
@@ -281,8 +281,8 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
 
 
 class Overview(Content):
-    def __init__(self, model):
-        super().__init__(None)
+    def __init__(self, model, url, client):
+        super().__init__(model, client)
         self.url = url
         self.page_title = 'Overview'
         self.permission = ' '.join(['access', self.url.page_type, 'overview'])
@@ -322,7 +322,9 @@ class Overview(Content):
             u = Url(str(self.url.path) + '/' + str(a.id))
             u.page_type = self.url.page_type
             u.page_id = str(a.id)
-            pages.append(FieldBasedPageContent(None))
+            model = Model()
+            FieldBasedPageContent(model, u, self.client)
+            pages.append(model)
         content = [ContainerElement(A(str(b.url.path), ContainerElement(b.page_title, html_type='h2')), ContainerElement(b.compile()['content'])) for b in pages]
         content.append(self.scroll(range))
         return ContainerElement(*content)

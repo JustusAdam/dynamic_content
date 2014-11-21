@@ -32,7 +32,7 @@ class AdminController(Controller):
         else:
             page = ar.AdminPage.get(machine_name=tail[2])
             handler = Modules[page.handler_module].admin_handler(tail[2])
-        return handler(url, client).compile()
+        return handler(model, url, client).compile()
 
 
 class Overview(ContentCompiler):
@@ -85,8 +85,8 @@ class OverviewPage(Content, Overview):
     permission = 'access admin pages'
     theme = 'admin_theme'
 
-    def __init__(self, model):
-        super().__init__(None)
+    def __init__(self, model, url, client):
+        super().__init__(model, client)
         Overview.__init__(self)
         self.classes = {'admin-menu', 'overview', 'admin-page'}
         self.url = url
@@ -99,7 +99,7 @@ class OverviewCommon(Commons, Overview):
     source_table = 'admin'
 
     def __init__(self, conf, client):
-        super().__init__(conf, client)
+        super().__init__(conf, None, True, client)
         Overview.__init__(self)
 
     def get_content(self, name):
@@ -114,8 +114,8 @@ class OverviewCommon(Commons, Overview):
 class CategoryPage(OverviewPage):
     classes = {'admin-menu', 'category'}
 
-    def __init__(self, model):
-        super().__init__(None)
+    def __init__(self, model, url, client):
+        super().__init__(model, url, client)
         self.name = url.path[1]
         self.page_title = self.name
 
@@ -132,8 +132,8 @@ class CategoryPage(OverviewPage):
 class SubcategoryPage(CategoryPage):
     classes = {'admin-menu', 'subcategory'}
 
-    def __init__(self, model):
-        super().__init__(None)
+    def __init__(self, model, url, client):
+        super().__init__(model, url, client)
         self.name = self.url.path[2]
         self.page_title = self.name
 

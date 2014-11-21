@@ -168,9 +168,6 @@ class PermissionOverview(Content):
     _perm_list = None
     theme = 'admin_theme'
 
-    def __init__(self, model):
-        super().__init__(None)
-
     def process_content(self):
         return ContainerElement(
             ContainerElement(
@@ -238,8 +235,8 @@ class EditPermissions(PermissionOverview):
     page_title = 'Edit Permissions'
     permission = 'edit permissions'
 
-    def __init__(self, model):
-        super().__init__(None)
+    def __init__(self, model, url, client):
+        super().__init__(model, url, client)
         self.url = url
 
     def compile(self):

@@ -18,7 +18,7 @@ class UserController(Controller):
             return UserInformation(model, url, client).compile()
 
     def login(self, model, url, client):
-        login.login(url, client)
+        login.login(model, url, client)
 
     def logout(self, model, url, client):
-        login.logout(url, client)
+        login.logout(model, url, client)

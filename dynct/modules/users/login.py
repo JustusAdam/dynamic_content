@@ -48,7 +48,7 @@ class LoginCommonHandler(Commons):
         return LOGIN_COMMON
 
 
-def login(url, client):
+def login(model, url, client):
     if not client.check_permission('access login page'):
         raise HTTPError(str(url.path), 403, None, None, None)
     if url.post:
@@ -66,14 +66,14 @@ def login(url, client):
             message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
     else:
         message = ''
-    return Model('page', content=ContainerElement(message, LOGIN_FORM))
+    model['content'] = ContainerElement(message, LOGIN_FORM)
+    model.view = 'page'
 
 
-def logout(url, client):
+def logout(model, url, client):
     user = client.user
     if user == GUEST:
-        m = Model(':redirect:/login')
-        return m
+        return ':redirect:/login'
     else:
         session.close_session(user)
         time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
@@ -82,7 +82,6 @@ def logout(url, client):
             dest = url.get_query['destination'][0]
         else:
             dest = '/'
-        m = Model(':redirect:' + dest)
-        m.cookies.load({'SESS': ''})
-        m.cookies['SESS']['expires'] = time.strftime(_cookie_time_format)
-        return m
+        model.cookies.load({'SESS': ''})
+        model.cookies['SESS']['expires'] = time.strftime(_cookie_time_format)
+        return ':redirect:' + dest

@@ -44,8 +44,8 @@ def try_database_connection():
 
 
 class SetupHandler(Content):
-    def __init__(self, model):
-        super().__init__(None)
+    def __init__(self, model, url, client):
+        super().__init__(model, client)
         self._url = url
 
     def _fill_model(self):
@@ -155,7 +155,7 @@ class SetupHandler(Content):
             self._model['title'] = self._model['title'].format(**setup_result)
             del db
         elif self._url.page_id == 5:
-            handler = InitialUser(self._url, None)
+            handler = InitialUser(self._url)
             handler.destination = '/setup/6'
             content = handler.compile()
             self._model['content'] = self._model['content'].format(user_form=content.content)

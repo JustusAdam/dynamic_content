@@ -59,7 +59,7 @@ class Regions:
         if not 'no-commons' in model.decorator_attributes:
             for region in self.regions(model.client, model.theme):
                 model[region.name] = str(region.compile())
-        return res
+        return res if res else 'page'
 
     def regions(self, client, theme):
         config = self.theme_config(theme)['regions']
