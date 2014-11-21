@@ -1,5 +1,7 @@
 {
     "name": "iris",
+    "single_node_template": "node",
+    "multi_node_template": "multi_node",
     "tables": {
         "iris": [
             "id int unsigned not null auto_increment unique primary key",
