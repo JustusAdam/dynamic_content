@@ -1,7 +1,7 @@
 import os
 
 from dynct.application.app import Application
-from dynct.modules.comp.decorator import DecoratorWithRegions
+from dynct.modules.comp.decorator_old import DecoratorWithRegions
 from dynct.core.mvc.controller import ControllerMapper
 
 

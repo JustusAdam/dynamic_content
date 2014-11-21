@@ -19,18 +19,28 @@ def parse_with(regex):
     return wrap
 
 
-def url_args(regex, *, get=False, post=False):
+def authorize(permission):
+    pass
+
+
+
+
+def url_args(regex, *, get=False, post=False, strict:bool=False):
     """
     Function decorator for controller Methods. Parses the Input (url) without prefix according to the regex.
     Unpacks groups into function call arguments.
 
     get and post can be lists of arguments which will be passed to the function as keyword arguments or booleans
     if get/post are true the entire query is passed to the function as keyword argument 'get' or 'post'
-    if get/post are false no queries will be accepted
+    if get/post are false no queries will passed
+
+    if strict is true, only specified values will be accepted,
+    and the existence of additional arguments will cause an error.
 
     :param regex: regex pattern or string
     :param get: list/tuple (subclasses) or boolean
     :param post: list/tuple (subclasses) or boolean
+    :param strict: boolean
     :return:
     """
 
@@ -38,10 +48,21 @@ def url_args(regex, *, get=False, post=False):
         if type(q) == bool:
             if q:
                 return lambda a:{name:a}
+            elif strict:
+                return lambda a: bool(a) if False else {}
             else:
-                return lambda a:{True: False, False:{}}[bool(a)]
+                return lambda a: {}
+                # return lambda a:{True: False, False:{}}[bool(a)]
         elif issubclass(type(q), (list,tuple)):
-            return lambda a: {arg:a[arg] for arg in get}
+            if strict:
+                def f(a:list, b:dict):
+                    d = b.copy()
+                    for item in a:
+                        if item not in d:
+                            raise InvalidInputError
+                    return d
+                return lambda a: len(q) == len(a.keys()) if f(q, a) else False
+            return lambda a: {arg:a.get(arg) for arg in q}
         else:
             raise InvalidInputError
 
@@ -57,6 +78,7 @@ def url_args(regex, *, get=False, post=False):
                 else:
                     kwargs.update(result)
             return re.match(regex, str(url.path)).groups(), kwargs
+            # return (model, ) + re.match(regex, str(url.path)).groups(), kwargs
         def _method(self, url, client):
             args, kwargs = _generic(url, client)
             return func(self, *args, **kwargs)

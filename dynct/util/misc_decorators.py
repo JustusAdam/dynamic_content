@@ -1,4 +1,6 @@
 import os
+import inspect
+from dynct.errors import InvalidInputError
 
 __author__ = 'justusadam'
 
@@ -25,3 +27,20 @@ def implicit(arg):
             return func(arg, *args, **kwargs)
         return wrapped
     return w
+
+
+def for_method_and_func(_generic):
+    def wrap(func):
+        def _method(self, *args, **kwargs):
+            args, kwargs = _generic(*args, **kwargs)
+            return func(self, *args, **kwargs)
+        def _function(*args, **kwargs):
+            args, kwargs = _generic(*args, **kwargs)
+            return func(*args, **kwargs)
+        if inspect.ismethod(func):
+            return _method
+        elif inspect.isfunction(func):
+            return _function
+        else:
+            raise InvalidInputError
+    return wrap
