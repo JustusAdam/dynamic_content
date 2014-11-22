@@ -5,7 +5,7 @@ from dynct.core import Modules
 from dynct.core.mvc.content_compiler import Content
 from dynct.core.mvc.controller import Controller
 from dynct.core.mvc.model import Model
-from dynct.modules.comp.decorator import regions
+from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import FormElement, TableElement, Label, ContainerElement, Checkbox, A, TableRow, TextInput
 from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery, Url
@@ -341,7 +341,7 @@ class IrisController(Controller):
     def __init__(self):
         super().__init__(iris=self.handle)
 
-    @regions
+    @Regions
     def handle(self, model, url):
         if len(url.path) == 3:
             if not url.path[1].isdigit():

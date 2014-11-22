@@ -69,7 +69,7 @@ class url_args:
                 else:
                     kwargs.update(result)
             # return re.match(regex, str(url.path)).groups(), kwargs
-            return func(*(model, ) + re.match(self.regex, str(url.path)).groups(), **kwargs)
+            return func(*(model, ) + re.match(self.regex, url.path.prt_to_str(1)).groups(), **kwargs)
         return _generic
 
 

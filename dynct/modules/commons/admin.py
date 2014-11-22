@@ -1,6 +1,7 @@
 from dynct.backend.ar.base import ARObject
 from dynct.core.mvc.controller import Controller
 from dynct.core.mvc.model import Model
+from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import TableElement, List, A
 from dynct.modules.i18n import get_display_name
 from dynct.modules.form.secure import SecureForm
@@ -14,13 +15,14 @@ class MenuAdminController(Controller):
     def __init__(self):
         super().__init__(menus=self.handle_menus)
 
-    def handle_menus(self, model, url, client):
+    @Regions
+    def handle_menus(self, model, url):
         if len(url.path) == 1:
-            return self.overview(url)
+            return self.overview(model, url)
         elif len(url.path) == 2:
-            return self.a_menu(url, client)
+            return self.a_menu(model, url)
 
-    def overview(self, url):
+    def overview(self, model, url):
         menus = Menus.get_all()
         l = []
         for item in menus:
@@ -31,17 +33,18 @@ class MenuAdminController(Controller):
                     Checkbox(checked=bool(item.enabled))
                 ]
             )
-        m = Model('page', content=SecureForm(TableElement(*l, classes={'menu-overview'})), title='Menus Overview')
-        m.theme = 'admin_theme'
-        return m
+        model['content'] = SecureForm(TableElement(*l, classes={'menu-overview'}))
+        model['title'] = 'Menus Overview'
+        model.theme = 'admin_theme'
+        return 'page'
 
-    def a_menu(self, url, client):
+    def a_menu(self, model,  url):
         menu_name = url.path[1]
         menu = MenuRenderer(menu_name).menu().render()
-        m = Model('page', content=List(*menu, additional={'style': 'list-style-type: none;'}),
-                     title=get_display_name(menu_name, 'menus', 'english'))
-        m.theme = 'admin_theme'
-        return m
+        model['content'] = List(*menu, additional={'style': 'list-style-type: none;'})
+        model['title'] = get_display_name(menu_name, 'menus', 'english')
+        model.theme = 'admin_theme'
+        return 'page'
 
 
 class Menus(ARObject):

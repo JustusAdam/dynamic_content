@@ -3,6 +3,7 @@ from dynct.core.mvc.controller import Controller
 from dynct.core.mvc.model import Model
 from dynct.core.mvc.content_compiler import ContentCompiler
 from dynct.core import Modules
+from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import ContainerElement, List
 from dynct.modules.users.users import GUEST
 from dynct.modules.users.client import ClientInfoImpl
@@ -19,6 +20,7 @@ class AdminController(Controller):
         super().__init__()
         self['admin'] = self.handle
 
+    @Regions
     def handle(self, model, url):
         if model.client.user == GUEST:
             model['content'] = 'Not authorized.'
@@ -41,7 +43,6 @@ class Overview(ContentCompiler):
     classes = {'admin-menu', 'overview'}
 
     def __init__(self):
-        # self.ops = AdminOperations()
         self.page_title = 'Website Administration'
 
     def get_children_data(self):

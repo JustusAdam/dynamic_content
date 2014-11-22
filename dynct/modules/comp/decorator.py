@@ -62,7 +62,7 @@ class _Autoconf:
 
 
 @apply_by_type(Model, apply_before=False, return_from_decorator=False)
-def regions(model):
+def Regions(model):
     def theme_config(theme):
         return read_config('themes/' + theme + '/config.json')
 

@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import quote_plus
 import mimetypes
 
-from dynct.core.mvc.controller import Controller, url_args
+from dynct.core.mvc.controller import Controller
 from dynct.core.mvc.model import Model
 from dynct.includes import bootstrap
 from dynct.modules.comp.html_elements import ContainerElement, List
