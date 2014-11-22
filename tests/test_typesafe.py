@@ -1,7 +1,8 @@
+from dynct.util.typesafe._decorator import typesafe
+
 __author__ = 'justusadam'
 
 import unittest
-from dynct.util.misc_decorators import typesafe
 
 
 class MyTestCase(unittest.TestCase):
