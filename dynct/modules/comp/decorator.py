@@ -12,7 +12,14 @@ class Config:
 _default_theme = 'default_theme'
 
 
-class Autoconf:
+def Autoconf(arg1):
+    c = _Autoconf(arg1)
+    def wrap(*args, **kwargs):
+        return c(*args, **kwargs)
+    return wrap
+
+
+class _Autoconf:
     _attributes = {
         'theme': (lambda a: isinstance(a, str) if a else DEFAULT_THEME, DEFAULT_THEME)
     }
@@ -24,9 +31,11 @@ class Autoconf:
 
     def __call__(self, other_self, *args, **kwargs):
         if isinstance(self.arg1, Config):
-            self.config = self.make_conf(self.arg1, other_self)
-            self.function = other_self
-            return self.wrap
+            def wrap(other, *args, **kwargs):
+                self.config = self.make_conf(self.arg1, other)
+                self.function = other_self
+                return self.wrap(other, *args, **kwargs)
+            return wrap
         else:
             self.config = self.make_conf(Config(), other_self)
             self.function = self.arg1
@@ -54,8 +63,8 @@ class Regions:
     def __init__(self, func):
         self.function = func
 
-    def __call__(self, other, model, *args, **kwargs):
-        res = self.function(other, model, *args, **kwargs)
+    def __call__(self, model, *args, **kwargs):
+        res = self.function(model, *args, **kwargs)
         if not 'no-commons' in model.decorator_attributes:
             for region in self.regions(model.client, model.theme):
                 model[region.name] = str(region.compile())

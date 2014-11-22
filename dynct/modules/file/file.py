@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import quote_plus
 import mimetypes
 
-from dynct.core.mvc.controller import Controller
+from dynct.core.mvc.controller import Controller, url_args
 from dynct.core.mvc.model import Model
 from dynct.includes import bootstrap
 from dynct.modules.comp.html_elements import ContainerElement, List
@@ -24,6 +24,7 @@ class PathHandler(Controller):
         super().__init__(public=self.handle, theme=self.handle)
 
     def handle(self, model, url, *args):
+        self.model = model
         return self.parse_path(url)
 
     def parse_path(self, url):
@@ -59,10 +60,10 @@ class PathHandler(Controller):
                 if url.path.trailing_slash:
                     url.path.trailing_slash = False
                     return Model(':redirect:' + str(url))
-                model = Model(':no-view:', content=filepath.open('rb').read())
-                model.decorator_attributes.add('no-encode')
-                model.content_type, model.encoding = mimetypes.guess_type(str(filepath.name))
-                return model
+                self.model['content'] = filepath.open('rb').read()
+                self.model.decorator_attributes.add('no-encode')
+                self.model.content_type, self.model.encoding = mimetypes.guess_type(str(filepath.name))
+                return ':no-view:'
 
         raise MissingFileError
 

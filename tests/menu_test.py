@@ -1,5 +1,5 @@
-from modules.commons.database_operations import MenuOperations
-from modules.comp.database_operations import RegionOperations
+from dynct.modules.commons.database_operations import MenuOperations
+from dynct.modules.comp.database_operations import RegionOperations
 
 __author__ = 'justusadam'
 

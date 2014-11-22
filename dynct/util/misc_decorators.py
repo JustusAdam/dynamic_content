@@ -48,3 +48,12 @@ def for_method_and_func(_generic):
     return wrap
 
 
+class cache:
+    def __init__(self, func):
+        self.func = func
+        self.cashed = None
+
+    def __call__(self, *args, **kwargs):
+        if not self.cashed or args or kwargs:
+            self.cashed = self.func(*args, **kwargs)
+        return self.cashed

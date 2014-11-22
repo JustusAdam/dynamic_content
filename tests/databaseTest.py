@@ -1,4 +1,4 @@
-from backend.database.mysql import Database as MySql
+from dynct.backend.database.mysql import Database as MySql
 
 __author__ = 'justusadam'
 

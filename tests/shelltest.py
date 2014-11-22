@@ -2,9 +2,9 @@ import unittest
 
 from pymysql.connections import Connection
 
-from backend.ar.data import Column
-from backend.database import Database, escape
-from backend.ar import base
+from dynct.backend.ar.data import Column
+from dynct.backend.database import Database, escape
+from dynct.backend.ar import base
 
 
 __author__ = 'justusadam'

@@ -17,7 +17,7 @@ ARG_REGEX = re.compile(":(\w+?):")
 _default_theme = 'default_theme'
 
 
-class Decorator:
+class TemplateFormatter:
     def __init__(self, model, url, client):
         self._theme = _default_theme
         self.view_name = 'page'
@@ -189,24 +189,24 @@ class Decorator:
             acc.append(ContainerElement(name, html_type='a', classes={'breadcrumb'}, additional={'href': location}))
         return ContainerElement(*acc, classes={'breadcrumbs'})
 
-
-class DecoratorWithRegions(Decorator):
-    _theme = None
-    view_name = 'page'
-
-    def __init__(self, model, url, client_info):
-        super().__init__(model, url, client_info)
-
-    @property
-    def regions(self):
-        config = self.theme_config['regions']
-        r = []
-        for region in config:
-            r.append(RegionHandler(region, config[region], self.theme, self.client))
-        return r
-
-    def initial_pairing(self):
-        if not 'no-commons' in self.model.decorator_attributes:
-            for region in self.regions:
-                self._model[region.name] = str(region.compile())
-        return super().initial_pairing()
+#
+# class DecoratorWithRegions(TemplateFormatter):
+#     _theme = None
+#     view_name = 'page'
+#
+#     def __init__(self, model, url, client_info):
+#         super().__init__(model, url, client_info)
+#
+#     @property
+#     def regions(self):
+#         config = self.theme_config['regions']
+#         r = []
+#         for region in config:
+#             r.append(RegionHandler(region, config[region], self.theme, self.client))
+#         return r
+#
+#     def initial_pairing(self):
+#         if not 'no-commons' in self.model.decorator_attributes:
+#             for region in self.regions:
+#                 self._model[region.name] = str(region.compile())
+#         return super().initial_pairing()
