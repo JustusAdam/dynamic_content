@@ -1,5 +1,5 @@
 from dynct.modules.comp.decorator import Autoconf, Config
-from dynct.util.misc_decorators import implicit, for_method_and_func
+from dynct.util.misc_decorators import *
 
 __author__ = 'justusadam'
 
@@ -72,9 +72,12 @@ class ClassDecWithArgs:
 
 
 class TestClass:
+    def __init__(self):
+        self.hallo = self.test1
+
     @ClassDecorator
     def test1(self, *args):
-        print(*args)
+        print(self)
 
 
     @function_decorator
@@ -85,10 +88,27 @@ class TestClass:
     def test3(self, *args):
         print(*args)
 
+@apply_by_type(int, str, TestClass)
+def another_decorator(the_int, the_string, the_class):
+    print('the int is', the_int)
+    print('the string is', the_string)
+    print('the class is', the_class)
+
+
+@another_decorator
+def testfunc(k, l, n, m, b):
+    print(k, l, n, m, b)
+
 
 class TestDec(unittest.TestCase):
     def test_with_class(self):
-        TestClass().test1('test1')
+        c = TestClass()
+        c.test1('test1')
+        c.hallo('test1')
+
+    def test_another(self):
+        testfunc('lki', None, TestClass(), list(), 7)
+
 
     def test_with_func(self):
         TestClass().test2('test2')

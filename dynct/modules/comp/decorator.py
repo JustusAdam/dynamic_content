@@ -1,6 +1,8 @@
+from dynct.core.mvc.model import Model
 from dynct.includes.bootstrap import DEFAULT_THEME
 from dynct.modules.comp.regions import RegionHandler
 from dynct.util.config import read_config
+from dynct.util.misc_decorators import apply_by_type
 
 __author__ = 'justusadam'
 
@@ -59,28 +61,51 @@ class _Autoconf:
         return conf
 
 
-class Regions:
-    def __init__(self, func):
-        self.function = func
+@apply_by_type(Model, apply_before=False, return_from_decorator=False)
+def regions(model):
+    def theme_config(theme):
+        return read_config('themes/' + theme + '/config.json')
 
-    def __call__(self, model, *args, **kwargs):
-        res = self.function(model, *args, **kwargs)
-        if not 'no-commons' in model.decorator_attributes:
-            for region in self.regions(model.client, model.theme):
-                model[region.name] = str(region.compile())
-        return res if res else 'page'
-
-    def regions(self, client, theme):
-        config = self.theme_config(theme)['regions']
+    def _regions(client, theme):
+        config = theme_config(theme)['regions']
         r = []
         for region in config:
             r.append(RegionHandler(region, config[region], theme, client))
         return r
 
-    def theme_config(self, theme):
-        if not hasattr(self, '_theme_config'):
-            setattr(self, '_theme_config', read_config(self.get_theme_path(theme) + '/config.json'))
-        return self._theme_config
-
-    def get_theme_path(self, theme):
-        return 'themes/' + theme
+    if not 'no-commons' in model.decorator_attributes:
+        for region in _regions(model.client, model.theme):
+            model[region.name] = str(region.compile())
+#
+#
+# class Regions:
+#     def __init__(self, func):
+#         self.function = func
+#
+#     def __call__(self, model, *args, **kwargs):
+#         try:
+#             res = self.function(model, *args, **kwargs)
+#         except TypeError as e:
+#             for a in (model, ) + args:
+#                 print(type(a))
+#             print(self.function)
+#             raise e
+#         if not 'no-commons' in model.decorator_attributes:
+#             for region in self.regions(model.client, model.theme):
+#                 model[region.name] = str(region.compile())
+#         return res if res else 'page'
+#
+#     def regions(self, client, theme):
+#         config = self.theme_config(theme)['regions']
+#         r = []
+#         for region in config:
+#             r.append(RegionHandler(region, config[region], theme, client))
+#         return r
+#
+#     def theme_config(self, theme):
+#         if not hasattr(self, '_theme_config'):
+#             setattr(self, '_theme_config', read_config(self.get_theme_path(theme) + '/config.json'))
+#         return self._theme_config
+#
+#     def get_theme_path(self, theme):
+#         return 'themes/' + theme
