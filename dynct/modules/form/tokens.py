@@ -14,7 +14,6 @@ class ARToken(ARObject):
         self.id = id
         self.url = url
         self.token = token
-        
 
 TOKEN_SIZE = 16
 

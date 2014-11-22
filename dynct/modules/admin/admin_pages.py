@@ -19,9 +19,11 @@ class AdminController(Controller):
         super().__init__()
         self['admin'] = self.handle
 
-    def handle(self, model, url, client:ClientInfoImpl):
-        if client.user == GUEST:
-            return Model('page', content='Not authorized.', title='Not Authorized.')
+    def handle(self, model, url):
+        if model.client.user == GUEST:
+            model['content'] = 'Not authorized.'
+            model['title'] = 'Not Authorized.'
+            return 'page'
         tail = url.path[1:]
         if not tail:
             handler = OverviewPage
@@ -32,7 +34,7 @@ class AdminController(Controller):
         else:
             page = ar.AdminPage.get(machine_name=tail[2])
             handler = Modules[page.handler_module].admin_handler(tail[2])
-        return handler(model, url, client).compile()
+        return handler(model, url).compile()
 
 
 class Overview(ContentCompiler):

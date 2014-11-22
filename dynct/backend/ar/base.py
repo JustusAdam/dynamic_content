@@ -119,6 +119,12 @@ class ARObject(object):
             cls._values_ = inspect.getargspec(cls.__init__)[0][1:]
         return cls._values_
 
+    def _descriptors(self):
+        if self._primary_key:
+            return {self.primary_key(): getattr(self, self.primary_key())}
+        else:
+            return {a:getattr(self, a) for a in self._keys()}
+
     def _get_one_special_value(self, name, q_tail):
         values = self._keys()[:]
         values.remove(name)
@@ -136,7 +142,7 @@ class ARObject(object):
         :return:
         """
         if not descriptors:
-            descriptors = {a:getattr(self, a) for a in self._keys()}
+            descriptors = self._descriptors()
         self.database.remove(self._table, ' and '.join([a + '=%(' + a + ')s' for a in descriptors]), descriptors)
 
 

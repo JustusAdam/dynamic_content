@@ -233,9 +233,8 @@ class EditFieldBasedContent(FieldBasedPageContent):
     def compile(self):
         if self.url.post:
             self._process_post()
-        c = super().compile()
-        decorator_hook(c)
-        return c
+        decorator_hook(self._model)
+        return super().compile()
 
     def redirect(self, destination=None):
         if 'destination' in self.url.get_query:

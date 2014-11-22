@@ -48,8 +48,8 @@ class LoginCommonHandler(Commons):
         return LOGIN_COMMON
 
 
-def login(model, url, client):
-    if not client.check_permission('access login page'):
+def login(model, url):
+    if not model.client.check_permission('access login page'):
         raise HTTPError(str(url.path), 403, None, None, None)
     if url.post:
         if not url.post['username'] or not url.post['password']:
@@ -59,19 +59,18 @@ def login(model, url, client):
         token = session.start_session(username, password)
         if token:
             cookie = SimpleCookie({'SESS': token})
-            m = Model(':redirect:/')
-            m.cookies = cookie
-            return m
+            model.cookies = cookie
+            return ':redirect:/'
         else:
             message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
     else:
         message = ''
     model['content'] = ContainerElement(message, LOGIN_FORM)
-    model.view = 'page'
+    return 'page'
 
 
-def logout(model, url, client):
-    user = client.user
+def logout(model, url):
+    user = model.client.user
     if user == GUEST:
         return ':redirect:/login'
     else:
