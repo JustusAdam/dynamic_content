@@ -18,13 +18,12 @@ _default_theme = 'default_theme'
 
 
 class TemplateFormatter:
-    def __init__(self, model, url, client):
+    def __init__(self, model, url):
         self._theme = _default_theme
         self.view_name = 'page'
         self.content_type = 'text/html'
         self.encoding = sys.getfilesystemencoding()
         self._url = url
-        self._client = client
         if hasattr(model, 'content_type') and model.content_type:
             self.content_type = model.content_type
         if hasattr(model, 'encoding') and model.encoding:
@@ -90,7 +89,7 @@ class TemplateFormatter:
 
     @property
     def client(self):
-        return self._client
+        return self._model.client
 
     @property
     def model(self):

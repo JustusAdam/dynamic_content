@@ -85,8 +85,8 @@ class OverviewPage(Content, Overview):
     permission = 'access admin pages'
     theme = 'admin_theme'
 
-    def __init__(self, model, url, client):
-        super().__init__(model, client)
+    def __init__(self, model, url):
+        super().__init__(model)
         Overview.__init__(self)
         self.classes = {'admin-menu', 'overview', 'admin-page'}
         self.url = url
@@ -114,8 +114,8 @@ class OverviewCommon(Commons, Overview):
 class CategoryPage(OverviewPage):
     classes = {'admin-menu', 'category'}
 
-    def __init__(self, model, url, client):
-        super().__init__(model, url, client)
+    def __init__(self, model, url):
+        super().__init__(model, url)
         self.name = url.path[1]
         self.page_title = self.name
 
@@ -132,8 +132,8 @@ class CategoryPage(OverviewPage):
 class SubcategoryPage(CategoryPage):
     classes = {'admin-menu', 'subcategory'}
 
-    def __init__(self, model, url, client):
-        super().__init__(model, url, client)
+    def __init__(self, model, url):
+        super().__init__(model, url)
         self.name = self.url.path[2]
         self.page_title = self.name
 

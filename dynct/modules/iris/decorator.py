@@ -1,4 +1,6 @@
+from dynct.core.mvc.model import Model
 from dynct.util.config import read_config
+from dynct.util.misc_decorators import apply_by_type
 
 __author__ = 'justusadam'
 
@@ -7,17 +9,19 @@ class Node(dict):
     pass
 
 
+@apply_by_type(Model, apply_in_decorator=True)
 class NodeProcess:
     def __init__(self, func):
         self.function = func
 
-    def __call__(self, other, model, *args, **kwargs):
-        res = self.function(other, model, *args, **kwargs)
+    def __call__(self, model):
+        res = self.function()
         if hasattr(res, '__iter__'):
             content = self._process_nodes(res)
         else:
             content = self._process_single_node(res)
         model['content'] = content
+        return 'page'
 
     def _process_single_node(self, node):
         return open(self._template('single_node_template')).read().format(**node)

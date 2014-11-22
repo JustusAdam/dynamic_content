@@ -44,8 +44,8 @@ def try_database_connection():
 
 
 class SetupHandler(Content):
-    def __init__(self, model, url, client):
-        super().__init__(model, client)
+    def __init__(self, model, url):
+        super().__init__(model)
         self._url = url
 
     def _fill_model(self):

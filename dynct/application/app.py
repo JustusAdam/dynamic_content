@@ -29,9 +29,10 @@ class Application(object):
 
     def handle_http_request(self, *args):
         def http_callback(url, client):
-            model = Model(client=client)
+            model = Model()
+            model.client = client
             model.view = self.controllers(url)(model, url)
-            decorator = TemplateFormatter(model, url, client)
+            decorator = TemplateFormatter(model, url)
             return decorator.compile_response()
 
         return self.config.http_request_handler(http_callback, *args)

@@ -45,9 +45,8 @@ class Content(ModelBasedContentCompiler):
     published = True
     permission_for_unpublished = 'access unpublished pages'
 
-    def __init__(self, model, client):
+    def __init__(self, model):
         super().__init__(model)
-        self._client = client
         self._cookies = None
 
     @property
@@ -58,7 +57,7 @@ class Content(ModelBasedContentCompiler):
 
     @property
     def client(self):
-        return self._client
+        return self._model.client
 
     def process_content(self):
         pass

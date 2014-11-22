@@ -52,8 +52,8 @@ class FieldBasedPageContent(Content):
     modifier = _access_modifier
     _editorial_list_base = edits = [('edit', _edit_modifier)]
 
-    def __init__(self, model, url, client):
-        super().__init__(model, client)
+    def __init__(self, model, url):
+        super().__init__(model)
         self.url = url
         self.modules = Modules
         self.page = self.get_page()
@@ -127,8 +127,8 @@ class EditFieldBasedContent(FieldBasedPageContent):
     field_identifier_separator = '-'
     theme = 'admin_theme'
 
-    def __init__(self, model, url, client):
-        super().__init__(model, url, client)
+    def __init__(self, model, url):
+        super().__init__(model, url)
         self.menu_item = MenuItem.get_all(item_path=self.url.path.prt_to_str(0, -1))
         if self.menu_item:
             self.menu_item = self.menu_item[0]
@@ -282,8 +282,8 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
 
 
 class Overview(Content):
-    def __init__(self, model, url, client):
-        super().__init__(model, client)
+    def __init__(self, model, url):
+        super().__init__(model)
         self.url = url
         self.page_title = 'Overview'
         self.permission = ' '.join(['access', self.url.page_type, 'overview'])
@@ -343,7 +343,7 @@ class IrisController(Controller):
         super().__init__(iris=self.handle)
 
     @regions
-    def handle(self, model, url, client):
+    def handle(self, model, url):
         if len(url.path) == 3:
             if not url.path[1].isdigit():
                 if url.path[1] == _add_modifier:
@@ -370,4 +370,4 @@ class IrisController(Controller):
         else:
             raise InvalidInputError
         url.page_type = url.path[0]
-        return self.handler_map[page_modifier](model, url, client).compile()
+        return self.handler_map[page_modifier](model, url).compile()
