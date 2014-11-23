@@ -5,10 +5,6 @@ from dynct.util.misc_decorators import apply_by_type
 __author__ = 'justusadam'
 
 
-class Node(dict):
-    pass
-
-
 @apply_by_type(Model, apply_in_decorator=True)
 class NodeProcess:
     def __init__(self, func):
@@ -31,4 +27,4 @@ class NodeProcess:
         return ''.join([template.format(**a) for a in nodes])
 
     def _template(self, _type):
-        return read_config('config')[_type]
+        return read_config(__file__ + '/../config')[_type]

@@ -7,6 +7,7 @@ from dynct.core.mvc.controller import Controller
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import FormElement, TableElement, Label, ContainerElement, Checkbox, A, TableRow, TextInput
+from dynct.modules.iris.decorator import NodeProcess
 from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery, Url
 from dynct.core.ar import ContentTypes
@@ -28,6 +29,8 @@ _step = 5
 
 _scroll_left = '<'
 _scroll_right = '>'
+
+
 
 def not_over(a, val):
     if a > val:
@@ -323,23 +326,28 @@ class Overview(Content):
             u.page_type = self.url.page_type
             u.page_id = str(a.id)
             model = Model()
-            FieldBasedPageContent(model, u, self.client)
-            pages.append(model)
-        content = [ContainerElement(A(str(b.url.path), ContainerElement(b.page_title, html_type='h2')), ContainerElement(b.compile()['content'])) for b in pages]
+            FieldBasedPageContent(model, u).compile()
+            pages.append((u, model))
+        content = [ContainerElement(A(str(a.path), ContainerElement(b.page_title, html_type='h2')), ContainerElement(b['content'])) for a, b in pages]
         content.append(self.scroll(range))
         return ContainerElement(*content)
 
 
 class IrisController(Controller):
-    handler_map = {
-        _access_modifier: FieldBasedPageContent,
-        _edit_modifier: EditFieldBasedContent,
-        _add_modifier: AddFieldBasedContentHandler,
-        'overview': Overview
-    }
+
+
+    @NodeProcess
+    def overview(self, model, url):
+        return Overview(model, url).compile()
 
     def __init__(self):
         super().__init__(iris=self.handle)
+        self.handler_map = {
+            _access_modifier: FieldBasedPageContent,
+            _edit_modifier: EditFieldBasedContent,
+            _add_modifier: AddFieldBasedContentHandler,
+            'overview': self.overview
+        }
 
     @Regions
     def handle(self, model, url):
