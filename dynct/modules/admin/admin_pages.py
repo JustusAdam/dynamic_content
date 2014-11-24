@@ -1,12 +1,11 @@
+from collections import defaultdict
 from dynct.core.mvc.content_compiler import Content
 from dynct.core.mvc.controller import Controller
-from dynct.core.mvc.model import Model
 from dynct.core.mvc.content_compiler import ContentCompiler
 from dynct.core import Modules
 from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import ContainerElement, List
 from dynct.modules.users.users import GUEST
-from dynct.modules.users.client import ClientInfoImpl
 from dynct.modules.commons.commons import Commons
 from . import ar
 
@@ -70,14 +69,13 @@ class Overview(ContentCompiler):
         return self.order_tree(self.get_parents_data(), self.get_children(Category))
 
     def order_tree(self, parents, children):
-        mapping = {}
+        mapping = defaultdict(list)
         for item in children:
-            if item.parent in mapping:
-                mapping[item.parent].append(item)
-            else:
-                mapping[item.parent] = [item]
-        return [Category(parent.machine_name, parent.display_name, None, mapping.get(parent.machine_name, None)) for
-                parent in parents]
+            mapping[item.parent].append(item)
+        return [Category(name=parent.machine_name,
+                         display_name=parent.display_name,
+                         sub=mapping.get(parent.machine_name, None))
+                for parent in parents]
 
     def get_children(self, child_class):
         return [child_class(child.machine_name, child.display_name, child.category, None) for child in
@@ -150,7 +148,7 @@ class SubcategoryPage(CategoryPage):
 class Category:
     classes = {'category'}
 
-    def __init__(self, name, display_name, parent, sub):
+    def __init__(self, name, display_name, parent=None, sub=None):
         self.name = name
         self.display_name = display_name
         self.sub = sub

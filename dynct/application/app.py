@@ -31,8 +31,8 @@ class Application(object):
         def http_callback(url, client):
             model = Model()
             model.client = client
-            model.view = self.controllers(url)(model, url)
-            decorator = TemplateFormatter(model, url)
+            model.view = self.controllers(url=url)(model, url)
+            decorator = TemplateFormatter(model=model, url=url)
             return decorator.compile_response()
 
         return self.config.http_request_handler(http_callback, *args)

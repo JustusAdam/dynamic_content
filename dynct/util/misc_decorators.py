@@ -125,12 +125,19 @@ def for_method_and_func(_generic):
     return wrap
 
 
-class cache:
-    def __init__(self, func):
-        self.func = func
-        self.cashed = None
+def multicache(func):
+    _cache = {}
+    def wrap(*args):
+        return _cache.setdefault(args, func(*args))
 
-    def __call__(self, *args, **kwargs):
-        if not self.cashed or args or kwargs:
-            self.cashed = self.func(*args, **kwargs)
-        return self.cashed
+
+class singlecache:
+    def __init__(self, func):
+        self._cache = None
+        self.func = func
+
+    def __call__(self, *args):
+        if not hasattr(self, '_args') or not args == self._args:
+            self._args = args
+            self._cache = self.func(args)
+        return self._cache

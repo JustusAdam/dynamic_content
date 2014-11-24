@@ -7,7 +7,6 @@ from dynct.core.mvc.controller import Controller
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import FormElement, TableElement, Label, ContainerElement, Checkbox, A, TableRow, TextInput
-from dynct.modules.iris.decorator import NodeProcess
 from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery, Url
 from dynct.core.ar import ContentTypes
@@ -15,6 +14,7 @@ from dynct.errors import InvalidInputError
 from dynct.modules.commons.menus import menu_chooser, root_ident
 from dynct.modules.commons.ar import MenuItem
 from . import ar
+from .decorator import NodeProcess
 
 
 __author__ = 'justusadam'

@@ -1,3 +1,4 @@
+from collections import defaultdict
 import itertools
 from dynct.modules.comp.html_elements import ContainerElement, List, Select
 from dynct.modules import i18n
@@ -8,7 +9,7 @@ __author__ = 'justusadam'
 
 
 def menu_chooser(name='menu_chooser', **kwargs):
-    menus = [[('none', 'None')]] + [[(menu.element_name + '-' + a[0], a[1]) for a in MenuRenderer(menu.element_name).menu(MenuChooseItem).render()] for menu in ar.CommonsConfig.get_all(element_type='menu')]
+    menus = [[('none', 'None')]] + [[(menu.element_name + '-' + a[0], a[1]) for a in MenuRenderer(name=menu.element_name).menu(item_class=MenuChooseItem).render()] for menu in ar.CommonsConfig.get_all(element_type='menu')]
     return Select(*list(itertools.chain(*menus)), name=name, **kwargs)
 
 
@@ -133,7 +134,7 @@ class MenuRenderer:
         :param items: List of MenuItems
         :return: Root for menu tree
         """
-        mapping = {}
+        mapping = defaultdict(list)
         root = root_class(i18n.get_display_name(self.name, self.source_table, self.language), '/', 0, 0, root_ident)
 
         def order():
@@ -141,39 +142,15 @@ class MenuRenderer:
             Implementation of the tree construction. Uses two loops. Child item lists are sorted
             :return:
             """
-            def assign_to(key, val):
-                if key in mapping:
-                    mapping[key].append(val)
-                else:
-                    mapping[key] = [val]
+
             for item in items:
-                if not item.parent_item:
-                    assign_to(root_ident, item)
-                else:
-                    assign_to(item.parent_item, item)
+                key = item.parent_item if item.parent_item else root_ident
+                mapping[key].append(item)
 
             items.append(root)
 
             for item in items:
-                if item.item_id in mapping:
-                    item.children = sorted(mapping[item.item_id], key=lambda s: s.weight)
-            return root
-
-        def alt_order():
-            """
-            Alternative implementation of the tree construction, uses only one loop, relies heavily on references.
-            Child items lists are unsorted.
-            :return:
-            """
-            for item in items:
-                if item.item_name in mapping:
-                    item.children = mapping[item.item_name]
-                else:
-                    mapping[item.item_name] = []
-                if item.parent_item and item.parent_item in mapping:
-                    mapping[item.parent_item].append(item)
-                else:
-                    mapping[item.parent_item] = [item]
+                item.children = sorted(mapping[item.item_id], key=lambda s: s.weight) if item.item_id in mapping else None
             return root
 
         return order()

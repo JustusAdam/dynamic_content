@@ -2,6 +2,7 @@ from pathlib import Path
 import sys
 from dynct.http import request
 from dynct.http.server import ThreadedHTTPServer
+from dynct.util.misc_decorators import singlecache
 
 __author__ = 'justusadam'
 
@@ -25,6 +26,7 @@ class ApplicationConfig:
             setattr(self, name, value)
 
 
+@singlecache
 class DefaultConfig(ApplicationConfig):
     server_arguments = {
         "port": 8000,
