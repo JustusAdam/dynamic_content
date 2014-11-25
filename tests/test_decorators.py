@@ -1,4 +1,5 @@
-from dynct.modules.comp.decorator import Autoconf, Config
+from dynct.core.mvc.config import Autoconf
+from dynct.modules.comp.decorator import Config
 from dynct.util.misc_decorators import *
 
 __author__ = 'justusadam'
@@ -88,7 +89,7 @@ class TestClass:
     def test3(self, *args):
         print(*args)
 
-@apply_by_type(int, str, TestClass)
+@apply_to_type(int, str, TestClass)
 def another_decorator(the_int, the_string, the_class):
     print('the int is', the_int)
     print('the string is', the_string)

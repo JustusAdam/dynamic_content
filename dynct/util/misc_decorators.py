@@ -7,7 +7,7 @@ from dynct.errors import InvalidInputError
 __author__ = 'justusadam'
 
 
-class apply_by_type:
+class apply_to_type:
     """
     Decorator for decorators.
     Takes types as arguments (must be unique) and decorates or wraps a decorator or wrapper of a function.

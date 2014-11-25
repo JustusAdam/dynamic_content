@@ -1,12 +1,10 @@
-from dynct.core import Modules
+from dynct.core import Modules as _modules
 from dynct.core.ar import ContentTypes
 from dynct.modules.iris import ar
 from dynct.util.typesafe import typesafe
 
 __author__ = 'justusadam'
 
-
-_modules = Modules
 
 
 class Node(dict):

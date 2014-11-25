@@ -1,4 +1,5 @@
 from http.cookies import SimpleCookie
+from dynct.core.mvc import Config
 
 __author__ = 'justusadam'
 
@@ -10,6 +11,7 @@ class Model(dict):
         self.decorator_attributes = set()
         self.headers = set()
         self.cookies = SimpleCookie()
+        self.config = Config()
 
     def __setitem__(self, key, value):
         if self.__final:
