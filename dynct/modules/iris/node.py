@@ -24,7 +24,7 @@ class NodeAccessCompiler(object):
     def join_permission(modifier, content_type):
         return ' '.join([modifier, 'content type', content_type])
 
-    def get_fields(self, ):
+    def get_fields(self, content_type):
         field_info = ar.FieldConfig.get_all(content_type=content_type)
 
         return [self.get_field_handler(a.machine_name, a.handler_module) for a in field_info]

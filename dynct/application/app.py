@@ -1,16 +1,20 @@
 import os
-from .config import ApplicationConfig, DefaultConfig
+from threading import Thread
+
 from dynct.core.mvc.controller import ControllerMapper
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.template_formatter import TemplateFormatter
 from dynct.util.typesafe import typesafe
 
+from .config import ApplicationConfig, DefaultConfig
+
 __author__ = 'justusadam'
 
 
-class Application(object):
+class Application(Thread):
     @typesafe
     def __init__(self, config:ApplicationConfig=DefaultConfig()):
+        super().__init__()
         self.config = config
         self.load()
 
