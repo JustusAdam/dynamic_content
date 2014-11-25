@@ -139,5 +139,5 @@ class singlecache:
     def __call__(self, *args):
         if not hasattr(self, '_args') or not args == self._args:
             self._args = args
-            self._cache = self.func(args)
+            self._cache = self.func(*args)
         return self._cache

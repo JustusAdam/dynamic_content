@@ -1,5 +1,5 @@
 from http.cookies import SimpleCookie
-from dynct.core.mvc import Config
+from .config import Config
 
 __author__ = 'justusadam'
 

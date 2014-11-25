@@ -26,7 +26,6 @@ class ApplicationConfig:
             setattr(self, name, value)
 
 
-@singlecache
 class DefaultConfig(ApplicationConfig):
     server_arguments = {
         "port": 8000,

@@ -1,4 +1,4 @@
-from dynct.core.mvc.config import Autoconf
+from dynct.core.mvc import Autoconf
 from dynct.modules.comp.decorator import Config
 from dynct.util.misc_decorators import *
 

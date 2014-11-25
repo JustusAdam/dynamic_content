@@ -1,3 +1,4 @@
-from .config import Config, Autoconf, DefaultConfig
+from .config import Config, DefaultConfig
+from dynct.core.mvc.decorator import Autoconf
 
 __author__ = 'justusadam'
