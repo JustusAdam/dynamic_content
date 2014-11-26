@@ -3,7 +3,6 @@ from inspect import isclass
 
 from dynct.backend.ar import ARObject
 from dynct.backend.database import Database
-from dynct.errors import DatabaseError, InvalidInputError, OverwriteProhibitedError, IsNoModuleError
 from dynct.util.config import read_config
 from dynct.includes import bootstrap
 from dynct.core.ar import ContentHandler
@@ -38,7 +37,7 @@ def get_module_conf(path:str):
         mod = import_by_path(path)
         if hasattr(mod, python_config_name):
             return getattr(mod, python_config_name)
-    raise IsNoModuleError(path)
+    raise NotImplemented(path)
 
 
 def activate_module(module_name):
@@ -60,7 +59,7 @@ def activate_module(module_name):
 def _activate_module(module_conf):
     try:
         init_module(module_conf)
-    except DatabaseError as error:
+    except IOError as error:
         print(error)
         return False
 
@@ -76,7 +75,7 @@ def register_content_handler(module_conf):
         path_prefix = module_conf['name']
     try:
         ContentHandler(module_conf['name'], module_conf['name'], path_prefix).save()
-    except DatabaseError as error:
+    except IOError as error:
         print('Failed to register page handler ' + module_conf['name'])
         print(error)
 
@@ -91,7 +90,7 @@ def init_module(module_conf, force=False):
         for table, columns in module_conf['tables'].items():
             try:
                 db.create_table(table, columns)
-            except DatabaseError as e:
+            except IOError as e:
                 if force:
                     print('Encountered error: ' + repr(e))
                     print('Trying dropping table' + table)
@@ -204,7 +203,7 @@ class Modules(dict):
         return super().__getitem__(key)
 
     def __setitem__(self, key, value):
-        raise OverwriteProhibitedError
+        raise PermissionError
 
     @ensure_loaded
     def _get_handlers(self, func, single_value):
@@ -231,7 +230,7 @@ class Modules(dict):
 
     def get_handlers_by_name(self, name:str, single_value=False):
         if name.startswith('_'):
-            raise InvalidInputError('name', 'identifier on non-hidden attribute (does not start with \'_\')')
+            raise TypeError('name', 'identifier on non-hidden attribute (does not start with \'_\')')
         return self._get_handlers(
             lambda a, b: b == name, single_value
         )

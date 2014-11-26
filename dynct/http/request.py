@@ -21,7 +21,6 @@ from dynct.modules.users import client
 from dynct.includes import log
 from dynct import core
 from dynct.modules import form
-from dynct.errors.exceptions import *
 
 
 __author__ = 'justusadam'
@@ -79,16 +78,13 @@ class RequestHandler(BaseHTTPRequestHandler):
         def wrapped(*args, **kwargs):
             try:
                 return function(*args, **kwargs)
-            except AuthorizationRequiredError:
+            except PermissionError:
                 log.write_error(message='permission denied for operation ' + str(self.path))
                 self.send_error(401, *self.responses[401])
-            except InvalidInputError:
+            except TypeError:
                 log.write_error(message='value error for operation ' + str(self.path))
                 self.send_error(400, *self.responses[400])
-            except AccessDisabled:
-                log.write_error(message='error when accessing directory' + str(self.path))
-                self.send_error(405, 'Indexing is not allowed')
-            except MissingFileError:
+            except FileNotFoundError:
                 log.write_error(message='file could not be found for operation' + str(self.path))
                 self.send_error(404, *self.responses[404])
             except HTTPError as err:
@@ -133,7 +129,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.send_header(*header)
             else:
                 print(header)
-                raise InvalidInputError
+                raise TypeError
 
     def send_document(self, response):
         document = response.body

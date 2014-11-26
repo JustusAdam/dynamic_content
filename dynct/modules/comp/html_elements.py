@@ -6,7 +6,6 @@ import html
 import re
 
 from dynct.util.html import to_html_head
-from dynct.errors import InvalidInputError
 
 __author__ = 'justusadam'
 

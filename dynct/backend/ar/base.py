@@ -1,6 +1,5 @@
 from dynct.backend.database import Database
 import inspect
-from dynct.errors import DatabaseError
 
 
 class ARObject(object):
@@ -83,7 +82,7 @@ class ARObject(object):
         else:
             try:
                 self.update(**descriptors)
-            except DatabaseError:
+            except IOError:
                 self.insert()
 
     def update(self, **descriptors):

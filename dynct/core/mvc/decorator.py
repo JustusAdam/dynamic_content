@@ -1,9 +1,9 @@
 from collections import ChainMap
 from functools import wraps
 
-from dynct.core.mvc import Config, DefaultConfig
-from dynct.core.mvc.controller import Controller
-from dynct.core.mvc.model import Model
+from . import Config, DefaultConfig
+from .controller import Controller, controller_mapper
+from .model import Model
 from dynct.util.misc_decorators import apply_to_type
 from dynct.util.typesafe import typesafe
 
@@ -37,3 +37,9 @@ class Autoconf:
 
     def get_controller_conf(self, controller):
         return controller.config if hasattr(controller, 'config') else None
+
+
+def controller(prefix):
+    def wrap(func):
+        controller_mapper[prefix].append(func)
+        return func

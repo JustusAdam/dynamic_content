@@ -1,7 +1,6 @@
+from collections import defaultdict
 from urllib.error import HTTPError
 import re
-
-from dynct.errors import OverwriteProhibitedError, InvalidInputError
 
 
 __author__ = 'justusadam'
@@ -53,19 +52,19 @@ class url_args:
                     d = b.copy()
                     for item in a:
                         if item not in d:
-                            raise InvalidInputError
+                            raise TypeError
                     return d
                 return lambda a: len(q) == len(a.keys()) if f(q, a) else False
             return lambda a: {arg:a.get(arg) for arg in q}
         else:
-            raise InvalidInputError
+            raise TypeError
 
     def __call__(self, func):
         def _generic(model, url, client):
             kwargs = dict(client=client)
             for result in [self.get(url.get_query), self.post(url.post)]:
                 if result is False:
-                    raise InvalidInputError
+                    raise TypeError
                 else:
                     kwargs.update(result)
             # return re.match(regex, str(url.path)).groups(), kwargs
@@ -83,7 +82,7 @@ class Controller(dict):
 
 
 
-class ControllerMapper(dict):
+class ControllerMapper(defaultdict(list).__class__):
 
     def register_modules(self):
         from dynct.core import Modules
@@ -109,7 +108,7 @@ class ControllerMapper(dict):
     def __setitem__(self, key, value):
         assert isinstance(key, str)
         if key in self:
-            raise OverwriteProhibitedError
+            raise PermissionError
         super().__setitem__(key, value)
 
     def __call__(self, url):
@@ -117,3 +116,5 @@ class ControllerMapper(dict):
             return self[url.path[0]]
         else:
             raise HTTPError(str(url), 404, None, None, None)
+
+controller_mapper = ControllerMapper()
