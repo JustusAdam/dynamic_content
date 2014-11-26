@@ -1,20 +1,27 @@
 from dynct.core.mvc.controller import controller_mapper
-from dynct.core.mvc.decorator import controller
+from dynct.core.mvc.decorator import controller_function, controller_class, controller_method
+from dynct.core.mvc.model import Model
+from dynct.util.url import Url
 
 __author__ = 'justusadam'
 
 
-@controller('hello')
-def handle():
-    pass
+@controller_function('hello')
+def handle(*args, **kwargs):
+    print('okay')
 
-class test():
 
-    @controller('')
-    def some(self):
-        pass
+@controller_class
+class test:
+
+    @controller_method('lala')
+    def some(self, *args, **kwargs):
+        print(self)
+        print('okay as well')
 
 
 print(controller_mapper)
+print(controller_mapper._controller_classes)
 
-test().some()
+controller_mapper(Model() , Url('/hello'))
+controller_mapper(Model() , Url('/lala'))

@@ -64,12 +64,37 @@ class ControlFunction:
         self.regex = re.compile(regex) if isinstance(regex, str) else regex
         self.get = q_comp(get, 'get')
         self.post = q_comp(post, 'post')
+        self.instance = None
+
+    def __call__(self, *args, **kwargs):
+        if self.instance:
+            return self.function(self.instance, *args, **kwargs)
+        return self.function(*args, **kwargs)
 
 
-def function_controller(prefix, regex:str=None, *, get=True, post=True):
+def controller_function(prefix, regex:str=None, *, get=True, post=True):
     def wrap(func):
         controller_mapper[prefix].append(ControlFunction(func, prefix, regex, get, post))
         return func
+    return wrap
+
+
+def controller_class(class_):
+    c_funcs = list(filter(lambda a: isinstance(a, ControlFunction), class_.__dict__.values()))
+    print(list(c_funcs))
+    if c_funcs:
+        instance = class_()
+        controller_mapper._controller_classes.append(instance)
+        for item in c_funcs:
+            item.instance = instance
+            controller_mapper[item.prefix].append(item)
+    return class_
+
+
+def controller_method(prefix, regex:str=None, *, get=True, post=True):
+    def wrap(func):
+        wrapped = ControlFunction(func, prefix, regex, get, post)
+        return wrapped
     return wrap
 
 

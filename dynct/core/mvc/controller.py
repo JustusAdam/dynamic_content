@@ -1,4 +1,5 @@
 from collections import ChainMap
+import re
 
 
 __author__ = 'justusadam'
@@ -19,8 +20,14 @@ class Controller(dict):
 #     pass
 
 
+regex = re.compile('/(.+)?$|/(.)*')
+
 
 class ControllerMapper(dict):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._controller_classes = []
 
     def register_modules(self):
         from dynct.core import Modules
@@ -32,8 +39,6 @@ class ControllerMapper(dict):
         print(controller_class)
         instance = controller_class()
         if _register_controllers:
-            if not hasattr(self, '_controller_classes'):
-                self._controller_classes = []
             if not controller_class in self._controller_classes:
                 self._controller_classes.append(controller_class)
             if not hasattr(self, '_controller_instances'):
@@ -48,17 +53,23 @@ class ControllerMapper(dict):
 
 
     def __call__(self, model, url):
-        start, prefix, path = str(url.path).split('/', 2)
-        if start != '':
-            raise TypeError
+        try:
+            prefix, path = re.fullmatch(regex, str(url.path)).groups()
+        except AttributeError:
+            return
         elements = self[prefix]
         for element in elements:
-            m = element.regex.fullmatch(path)
-            if not m:
-                continue
+            if element.regex:
+                m = re.fullmatch(element.regex, path)
+                if not m:
+                    continue
+                else:
+                    args = m.groups()
+            else:
+                args = (path, )
             try:
                 get, post = element.get(url.get_query), element.post(url.post)
-                result = element.function(model, *m.groups(), **dict(ChainMap(get, post)))
+                result = element(model, *args, **dict(ChainMap(get, post)))
                 if not result:
                     continue
                 else:
