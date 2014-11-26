@@ -158,7 +158,6 @@ class RequestHandler(BaseHTTPRequestHandler):
                 stream.close()
 
     def check_path(self, url):
-
         if url.path.trailing_slash:
             new_dest = copy.copy(url)
             new_dest.path.trailing_slash = False

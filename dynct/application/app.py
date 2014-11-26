@@ -1,7 +1,7 @@
 import os
 from threading import Thread
+from dynct.core.mvc import controller_mapper
 
-from dynct.core.mvc.controller import ControllerMapper
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.template_formatter import TemplateFormatter
 from dynct.util.typesafe import typesafe
@@ -27,7 +27,7 @@ class Application(Thread):
         self.load()
 
     def load(self):
-        self.initialize_controller_mapper()
+        pass
 
     def run(self):
         self.run_http_server_loop()
@@ -35,15 +35,11 @@ class Application(Thread):
     def load_modules(self):
         pass
 
-    def initialize_controller_mapper(self):
-        self.controllers = ControllerMapper()
-        self.controllers.register_modules()
-
     def handle_http_request(self, *args):
         def http_callback(url, client):
             model = Model()
             model.client = client
-            model.view = self.controllers(url=url)(model, url)
+            model.view = controller_mapper(model, url)
             decorator = TemplateFormatter(model=model, url=url)
             return decorator.compile_response()
 

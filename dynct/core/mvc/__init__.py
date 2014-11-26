@@ -1,4 +1,5 @@
 from .config import Config, DefaultConfig
-from dynct.core.mvc.decorator import Autoconf
+from .controller import controller_mapper
+from .decorator import Autoconf
 
 __author__ = 'justusadam'
