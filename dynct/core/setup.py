@@ -6,7 +6,6 @@ and hardened this should be refactored to remove the framework elements and stor
 """
 from dynct.core.mvc.content_compiler import Content
 from dynct.backend.database import Database
-from dynct.errors.exceptions import DatabaseError
 from dynct.modules.comp.html_elements import ContainerElement, List, TableElement
 from dynct.util.config import read_config, write_config
 from dynct.includes import bootstrap
@@ -37,7 +36,7 @@ def try_database_connection():
             return ContainerElement(
                 'The connection with the database could not be established. Please review your settings '
                 'and then reload this page', html_type='p')
-    except DatabaseError:
+    except IOError:
         return ContainerElement(
             'The connection with the database could not be established. Please review your settings and then '
             'reload this page', html_type='p')
@@ -184,7 +183,7 @@ class SetupHandler(Content):
                     return False
             Modules().reload()
             return True
-        except DatabaseError as err:
+        except IOError as err:
             print(err)
             return False
 

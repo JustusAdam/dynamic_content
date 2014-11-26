@@ -1,9 +1,27 @@
 from dynct.core import Modules as _modules
 from dynct.core.ar import ContentTypes
+from dynct.modules.comp.html_elements import ContainerElement, List
 from dynct.modules.iris import ar
 from dynct.util.typesafe import typesafe
 
 __author__ = 'justusadam'
+
+
+_access_modifier = 'access'
+_edit_modifier = 'edit'
+_add_modifier = 'add'
+
+_publishing_flag = 'published'
+
+_step = 5
+
+_scroll_left = '<'
+_scroll_right = '>'
+
+
+_editorial_list_base = {
+    'access':[('edit', _edit_modifier)]
+}
 
 
 
@@ -11,63 +29,66 @@ class Node(dict):
     pass
 
 
-class NodeAccessCompiler(object):
-    @typesafe
-    def __call__(self, node_type:str, node_id:int):
-        pass
 
-    @staticmethod
-    def get_page(node_type, node_id):
-        return ar.page(node_type).get(id=node_id)
+@typesafe
+def make_node(model, node_type:str, node_id:int, modifier:str):
+    page = get_page(node_type=node_type, node_id=node_id)
+    fields = get_fields(content_type=page.content_type, node_type=node_type, node_id=node_id, modifier=modifier)
+    return Node(
+        content=process_content(fields),
+        title=page.page_title,
+        editorial=editorial_list(model.client, modifier, page.content_type, node_type, node_id)
+    )
 
-    @staticmethod
-    def join_permission(modifier, content_type):
-        return ' '.join([modifier, 'content type', content_type])
 
-    def get_fields(self, content_type):
-        field_info = ar.FieldConfig.get_all(content_type=content_type)
+def get_page(node_type, node_id):
+    return ar.page(node_type).get(id=node_id)
 
-        return [self.get_field_handler(a.machine_name, a.handler_module) for a in field_info]
 
-    def handle_single_field_post(self, field_handler):
-        query_keys = field_handler.get_post_query_keys()
-        if query_keys:
-            vals = {}
-            for key in query_keys:
-                if key in self.url.post:
-                    vals[key] = self.url.post[key]
-            if vals:
-                field_handler.process_post(UrlQuery(vals))
+def join_permission(modifier, content_type):
+    return ' '.join([modifier, 'content type', content_type])
 
-    def handle_single_field_get(self, field_handler):
-        query_keys = field_handler.get_post_query_keys()
-        if query_keys:
-            vals = {}
-            for key in query_keys:
-                if key in self.url.get_query:
-                    vals[key] = self.url.post[key]
-            if vals:
-                field_handler.process_get(UrlQuery(vals))
 
-    def get_field_handler(self, name, module):
-        return self.modules[module].field_handler(name, self.url.page_type, self.url.page_id, self.modifier)
+def get_fields(content_type, node_type, node_id, modifier):
+    field_info = ar.FieldConfig.get_all(content_type=content_type)
+    for a in field_info:
+        yield _modules[a.handler_module].field_handler(a.machine_name, node_type, node_id, modifier)
 
-    def concatenate_content(self, fields):
-        content = self.field_content(fields)
-        return ContainerElement(*content)
 
-    def field_content(self, fields):
-        content = []
-        for field in fields:
-            content.append(field.compile().content)
-        return content
+def handle_single_field_query(field_handler, query):
+    query_keys = field_handler.get_post_query_keys()
+    if query_keys:
+        vals = {key:query.get(key, None) for key in query_keys if key in query_keys}
+        if vals:
+            field_handler.process_post(vals)
 
-    def process_content(self):
-        return self.concatenate_content(self.fields)
 
-    def editorial_list(self):
-        s = []
-        for (name, modifier) in self._editorial_list_base:
-            if self.check_permission(self.join_permission(modifier, self.page.content_type)):
-                s.append((name, '/'.join(['', self.url.page_type, str(self.url.page_id), modifier])))
-        return s
+def concatenate_content(fields):
+    content = field_content(fields)
+    return ContainerElement(*content)
+
+
+def field_content(fields):
+    for field in fields:
+        yield field.compile().content
+
+
+def process_content(fields):
+    return concatenate_content(fields)
+
+
+def editorial_list(client, modifier, content_type, node_type, node_id):
+    for (name, modifier) in _editorial_list_base[modifier]:
+        if client.check_permission(join_permission(modifier, content_type)):
+            yield name, '/'.join(['', node_type, str(node_id), modifier])
+
+
+def editorial(client, modifier, content_type, node_type, node_id):
+    l = editorial_list(client, modifier, content_type, node_type, node_id)
+    if l:
+        return List(
+            *[ContainerElement(name, html_type='a', classes={'editorial-link'}, additional={'href': link}) for
+              name, link in l],
+            classes={'editorial-list'}
+        )
+    return ''

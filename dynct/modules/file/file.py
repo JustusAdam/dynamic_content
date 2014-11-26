@@ -11,7 +11,6 @@ from dynct.core.mvc.controller import Controller
 from dynct.core.mvc.model import Model
 from dynct.includes import bootstrap
 from dynct.modules.comp.html_elements import ContainerElement, List
-from dynct.errors.exceptions import MissingFileError, AccessDisabled
 
 
 __author__ = 'justusadam'
@@ -29,7 +28,7 @@ class PathHandler(Controller):
 
     def parse_path(self, url):
         if len(url.path) < 1:
-            raise MissingFileError
+            raise FileNotFoundError
         basedirs = bootstrap.FILE_DIRECTORIES[url.path[0]]
         if isinstance(basedirs, str):
             basedirs = (basedirs,)
@@ -44,13 +43,13 @@ class PathHandler(Controller):
             basedir = Path(basedir).resolve()
 
             if not bootstrap.ALLOW_HIDDEN_FILES and filepath.name.startswith('.'):
-                raise AccessDisabled
+                raise PermissionError
 
             if basedir not in filepath.parents and basedir != filepath:
-                raise AccessDisabled
+                raise PermissionError
             if filepath.is_dir():
                 if not bootstrap.ALLOW_INDEXING:
-                    raise AccessDisabled
+                    raise PermissionError
                 elif not url.path.trailing_slash:
                     url.path.trailing_slash = True
                     return Model(':redirect:' + str(url))
@@ -65,7 +64,7 @@ class PathHandler(Controller):
                 self.model.content_type, self.model.encoding = mimetypes.guess_type(str(filepath.name))
                 return ':no-view:'
 
-        raise MissingFileError
+        raise FileNotFoundError
 
 
 class DirectoryHandler:

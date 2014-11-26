@@ -12,6 +12,14 @@ __author__ = 'justusadam'
 
 
 class Application(Thread):
+    """
+    Main Application (should only be instantiated once) inherits from thread to release main thread for signal handling
+     ergo Ctrl+C will almost immediately stop the application.
+
+    call with .start() to execute in separate thread (recommended)
+
+    call with .run() to execute in main thread (not recommended)
+    """
     @typesafe
     def __init__(self, config:ApplicationConfig=DefaultConfig()):
         super().__init__()

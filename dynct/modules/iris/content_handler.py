@@ -10,7 +10,6 @@ from dynct.modules.comp.html_elements import FormElement, TableElement, Label, C
 from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery, Url
 from dynct.core.ar import ContentTypes
-from dynct.errors import InvalidInputError
 from dynct.modules.commons.menus import menu_chooser, root_ident
 from dynct.modules.commons.ar import MenuItem
 from . import ar
@@ -152,14 +151,12 @@ class EditFieldBasedContent(FieldBasedPageContent):
         return FormElement(table, self.admin_options(), action=str(self.url))
 
     def field_content(self, fields):
-        content = []
         for field in fields:
             identifier = self.make_field_identifier(field.machine_name)
             c_fragment = field.compile()
             c_fragment.content.classes.add(self.page.content_type)
             c_fragment.content.element_id = identifier
-            content.append((Label(field.machine_name, label_for=identifier), str(c_fragment.content)))
-        return content
+            yield Label(field.machine_name, label_for=identifier), str(c_fragment.content)
 
     def make_field_identifier(self, name):
         return self.modifier + self.field_identifier_separator + name
@@ -186,12 +183,7 @@ class EditFieldBasedContent(FieldBasedPageContent):
 
     def assign_inputs(self, fields):
         for field in fields:
-            mapping = {}
-            for key in field.post_query_keys:
-                if not key in self.url.post:
-                    raise KeyError
-                mapping[key] = [parse.unquote_plus(a) for a in self.url.post[key]]
-            field.query = mapping
+            field.query = {key: [parse.unquote_plus(a) for a in self.url.post[key]] for key in field.post_query_keys}
 
     def process_page(self):
         if not 'title' in self.url.post:
@@ -257,17 +249,14 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
         elif len(self.url.path) == 3:
             content_type = self.url.path[2]
         else:
-            raise InvalidInputError
+            raise TypeError
         display_name = ContentTypes.get(content_type_name=content_type).display_name
         title = 'Add new ' + display_name + ' page'
         return ar.page(self.url.page_type)(content_type, title, self.client.user, True)
 
     def process_page(self):
         self.page.page_title = parse.unquote_plus(self.url.post['title'][0])
-        if _publishing_flag in self.url.post:
-            self.page.published = True
-        else:
-            self.page.published = True
+        self.page.published = _publishing_flag in self.url.post
         self.page.save()
         page_id = self.page.get_id()
         self.update_field_page_id(page_id)
@@ -291,16 +280,10 @@ class Overview(Content):
         self.permission = ' '.join(['access', self.url.page_type, 'overview'])
 
     def get_range(self):
-        acc = []
-        if 'from' in self.url.get_query:
-            acc.append(int(self.url.get_query['from'][0]))
-        else:
-            acc.append(0)
-        if 'to' in self.url.get_query:
-            acc.append(int(self.url.get_query['to'][0]))
-        else:
-            acc.append(_step)
-        return acc
+        return [
+            int(self.url.get_query['from'][0]) if 'from' in self.url.get_query else 0,
+            int(self.url.get_query['to'][0])   if 'to'   in self.url.get_query else _step
+        ]
 
     def max(self):
         return ar.page(self.url.page_type).get_many('1', 'id desc')[0].id
@@ -320,15 +303,15 @@ class Overview(Content):
 
     def process_content(self):
         range = self.get_range()
-        pages = []
-        for a in ar.page(self.url.page_type).get_many(','.join([str(a) for a in [range[0], range[1] - range[0] + 1]]), 'date_created desc'):
-            u = Url(str(self.url.path) + '/' + str(a.id))
-            u.page_type = self.url.page_type
-            u.page_id = str(a.id)
-            model = Model()
-            FieldBasedPageContent(model, u).compile()
-            pages.append((u, model))
-        content = [ContainerElement(A(str(a.path), ContainerElement(b.page_title, html_type='h2')), ContainerElement(b['content'])) for a, b in pages]
+        def pages():
+            for a in ar.page(self.url.page_type).get_many(','.join([str(a) for a in [range[0], range[1] - range[0] + 1]]), 'date_created desc'):
+                u = Url(str(self.url.path) + '/' + str(a.id))
+                u.page_type = self.url.page_type
+                u.page_id = str(a.id)
+                model = Model()
+                FieldBasedPageContent(model, u).compile()
+                yield u, model
+        content = [ContainerElement(A(str(a.path), ContainerElement(b['page_title'], html_type='h2')), ContainerElement(b['content'])) for a, b in pages()]
         content.append(self.scroll(range))
         return ContainerElement(*content)
 
@@ -357,7 +340,7 @@ class IrisController(Controller):
                     page_modifier = _add_modifier
                     url.page_id = 0
                 else:
-                    raise InvalidInputError
+                    raise TypeError
             else:
                 url.page_id = int(url.path[1])
                 page_modifier = url.path[2]
@@ -367,7 +350,7 @@ class IrisController(Controller):
                 page_modifier = _access_modifier
             else:
                 if not url.path[1] == _add_modifier:
-                    raise InvalidInputError
+                    raise TypeError
                 page_modifier = _add_modifier
                 # This is dirty and should not be done this way
                 url.page_id = 0
@@ -375,6 +358,6 @@ class IrisController(Controller):
             page_modifier = 'overview'
             url.page_type = url.path[0]
         else:
-            raise InvalidInputError
+            raise TypeError
         url.page_type = url.path[0]
         return self.handler_map[page_modifier](model, url).compile()

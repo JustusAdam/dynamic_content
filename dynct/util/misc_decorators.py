@@ -1,10 +1,24 @@
 import os
 import inspect
 
-from dynct.errors import InvalidInputError
-
 
 __author__ = 'justusadam'
+
+
+def filter_args(types, args, kwargs):
+    all_args = list(args) + list(kwargs.values())
+    for t in types:
+        yield filter_([arg for arg in all_args if isinstance(arg, t)], t)
+
+
+def filter_(list_, type_):
+    if len(list_) == 1:
+        return list_[0]
+    perfect = [a for a in list_ if type(a) == type_]
+    if perfect:
+        return perfect[0]
+    else:
+        return list_[0]
 
 
 class apply_to_type:
@@ -29,39 +43,32 @@ class apply_to_type:
      will be the return value from the wrapped decorator
 
     """
-    def __init__(self, *types, apply_before=True, return_from_decorator=False, apply_in_decorator=False):
+    def __init__(self, *types, apply_before=True, return_from_decorator=False, apply_in_decorator=False, overwrite_input=False):
         assert len(set(types)) == len(types)
         self.types = types
         self.apply_before = apply_before
         self.return_ = return_from_decorator
         self.apply_in = apply_in_decorator
+        self.overwrite = overwrite_input
 
     def __call__(self, decorator):
         self.decorator = decorator
 
         def wrap(func):
             def wrap_inner(*args, **kwargs):
-                def filter_(list_, type_):
-                    if len(list_) == 1:
-                        return list_[0]
-                    perfect = [a for a in list_ if type(a) == type_]
-                    if perfect:
-                        return perfect[0]
-                    else:
-                        return list_[0]
 
                 def applyd():
-                    all_args = list(args) + list(kwargs.values())
-                    l = [
-                        filter_([arg for arg in all_args if isinstance(arg, t)], t) for t in self.types
-                    ]
+                    l = filter_args(self.types, args, kwargs)
                     if self.apply_in:
                         return self.decorator(applyf)(*l)
                     return self.decorator(*l)
 
-                def applyf():
+                def applyf(*fargs, **fkwargs):
                     try:
-                        return func(*args, **kwargs)
+                        if self.overwrite:
+                            return func(*fargs, **fkwargs)
+                        else:
+                            return func(*args, **kwargs)
                     except TypeError as e:
                         print(func)
                         raise e
@@ -121,7 +128,7 @@ def for_method_and_func(_generic):
         elif inspect.isfunction(func):
             return _function
         else:
-            raise InvalidInputError
+            raise TypeError
     return wrap
 
 
@@ -129,6 +136,7 @@ def multicache(func):
     _cache = {}
     def wrap(*args):
         return _cache.setdefault(args, func(*args))
+    return wrap
 
 
 class singlecache:
