@@ -1,5 +1,6 @@
 import os
 from threading import Thread
+from dynct.core import Modules
 from dynct.core.mvc import controller_mapper
 
 from dynct.core.mvc.model import Model
@@ -27,7 +28,7 @@ class Application(Thread):
         self.load()
 
     def load(self):
-        pass
+        Modules.load()
 
     def run(self):
         self.run_http_server_loop()

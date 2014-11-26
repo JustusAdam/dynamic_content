@@ -1,9 +1,9 @@
 from collections import defaultdict
 
 from dynct.core.mvc.content_compiler import Content
-from dynct.core.mvc.controller import Controller
 from dynct.core.mvc.content_compiler import ContentCompiler
 from dynct.core import Modules
+from dynct.core.mvc.decorator import controller_class, controller_method
 from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import ContainerElement, List
 from dynct.modules.users.users import GUEST
@@ -16,11 +16,9 @@ __author__ = 'justusadam'
 ADMIN_PATH = '/admin'
 
 
-class AdminController(Controller):
-    def __init__(self):
-        super().__init__()
-        self['admin'] = self.handle
-
+@controller_class
+class AdminController:
+    @controller_method('admin')
     @Regions
     def handle(self, model, url):
         if model.client.user == GUEST:

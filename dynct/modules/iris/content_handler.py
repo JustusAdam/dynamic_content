@@ -3,7 +3,7 @@ from urllib.error import HTTPError
 
 from dynct.core import Modules
 from dynct.core.mvc.content_compiler import Content
-from dynct.core.mvc.controller import Controller
+from dynct.core.mvc.decorator import controller_class, controller_method
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import FormElement, TableElement, Label, ContainerElement, Checkbox, A, TableRow, TextInput
@@ -316,22 +316,13 @@ class Overview(Content):
         return ContainerElement(*content)
 
 
-class IrisController(Controller):
-
-
+@controller_class
+class IrisController:
     @NodeProcess
     def overview(self, model, url):
         return Overview(model, url).compile()
 
-    def __init__(self):
-        super().__init__(iris=self.handle)
-        self.handler_map = {
-            _access_modifier: FieldBasedPageContent,
-            _edit_modifier: EditFieldBasedContent,
-            _add_modifier: AddFieldBasedContentHandler,
-            'overview': self.overview
-        }
-
+    @controller_method('iris')
     @Regions
     def handle(self, model, url):
         if len(url.path) == 3:

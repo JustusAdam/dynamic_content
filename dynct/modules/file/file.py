@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import quote_plus
 import mimetypes
 
-from dynct.core.mvc.controller import Controller
+from dynct.core.mvc.decorator import controller_class, controller_method
 from dynct.core.mvc.model import Model
 from dynct.includes import bootstrap
 from dynct.modules.comp.html_elements import ContainerElement, List
@@ -18,13 +18,16 @@ __author__ = 'justusadam'
 _template_path = 'themes/default_theme/template/page.html'
 
 
-class PathHandler(Controller):
-    def __init__(self):
-        super().__init__(public=self.handle, theme=self.handle)
-
+@controller_class
+class PathHandler:
+    @controller_method('public')
     def handle(self, model, url, *args):
         self.model = model
         return self.parse_path(url)
+
+    @controller_method('theme')
+    def handle_also(self, model, url, *args):
+        return self.handle(model, url, *args)
 
     def parse_path(self, url):
         if len(url.path) < 1:

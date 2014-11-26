@@ -1,7 +1,5 @@
-from pathlib import Path
 from .content_handler import IrisController
 from . import field, ar
-from dynct.util.config import read_config
 
 __author__ = 'justusadam'
 

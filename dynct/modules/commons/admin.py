@@ -1,6 +1,5 @@
 from dynct.backend.ar.base import ARObject
-from dynct.core.mvc.controller import Controller
-from dynct.core.mvc.model import Model
+from dynct.core.mvc.decorator import controller_class, controller_method
 from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import TableElement, List, A
 from dynct.modules.i18n import get_display_name
@@ -11,10 +10,9 @@ from .menus import MenuRenderer
 __author__ = 'justusadam'
 
 
-class MenuAdminController(Controller):
-    def __init__(self):
-        super().__init__(menus=self.handle_menus)
-
+@controller_class
+class MenuAdminController:
+    @controller_method('menus')
     @Regions
     def handle_menus(self, model, url):
         if len(url.path) == 1:

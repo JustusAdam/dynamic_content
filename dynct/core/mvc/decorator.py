@@ -71,23 +71,27 @@ class ControlFunction:
             return self.function(self.instance, *args, **kwargs)
         return self.function(*args, **kwargs)
 
+    def __repr__(self):
+        if self.instance:
+            return '<ControlMethod for prefix \'' + self.prefix + '\' with function ' + self.function + ' and instance ' + repr(self.instance) + '>'
+        return '<ControlFunction for prefix \'' + self.prefix + '\' with function ' + repr(self.function) + '>'
+
 
 def controller_function(prefix, regex:str=None, *, get=True, post=True):
     def wrap(func):
-        controller_mapper[prefix].append(ControlFunction(func, prefix, regex, get, post))
+        controller_mapper.add_controller(prefix, ControlFunction(func, prefix, regex, get, post))
         return func
     return wrap
 
 
 def controller_class(class_):
     c_funcs = list(filter(lambda a: isinstance(a, ControlFunction), class_.__dict__.values()))
-    print(list(c_funcs))
     if c_funcs:
         instance = class_()
         controller_mapper._controller_classes.append(instance)
         for item in c_funcs:
             item.instance = instance
-            controller_mapper[item.prefix].append(item)
+            controller_mapper.add_controller(item.prefix, item)
     return class_
 
 

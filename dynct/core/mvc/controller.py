@@ -20,7 +20,7 @@ class Controller(dict):
 #     pass
 
 
-regex = re.compile('/(.+)?$|/(.)*')
+regex = re.compile('/(.+?)/|$(.)*')
 
 
 class ControllerMapper(dict):
@@ -31,25 +31,14 @@ class ControllerMapper(dict):
 
     def register_modules(self):
         from dynct.core import Modules
-        for l in Modules.get_handlers_by_class(Controller).values():
-            for c in l:
-                self.register_controller(c)
+        self.modules = Modules
 
-    def register_controller(self, controller_class):
-        print(controller_class)
-        instance = controller_class()
-        if _register_controllers:
-            if not controller_class in self._controller_classes:
-                self._controller_classes.append(controller_class)
-            if not hasattr(self, '_controller_instances'):
-                self._controller_instances = []
-            self._controller_instances.append(instance)
-
-        for key, value in instance.items():
-            self[key] = value
 
     def __getitem__(self, item):
         return self.setdefault(item, list())
+
+    def add_controller(self, prefix, function):
+        self.setdefault(prefix, list()).append(function)
 
 
     def __call__(self, model, url):
@@ -66,7 +55,7 @@ class ControllerMapper(dict):
                 else:
                     args = m.groups()
             else:
-                args = (path, )
+                args = (url, )
             try:
                 get, post = element.get(url.get_query), element.post(url.post)
                 result = element(model, *args, **dict(ChainMap(get, post)))
@@ -74,8 +63,10 @@ class ControllerMapper(dict):
                     continue
                 else:
                     return result
-            except TypeError:
+            except TypeError as e:
+                print(e)
                 continue
+        return 'error'
 
 
 
