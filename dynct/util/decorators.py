@@ -102,8 +102,8 @@ class apply_to_type:
             return wrap_inner
         return wrap
 
-
-
+    def __repr__(self):
+        return '<function ' + repr(self.decorator) + ' wrapped with apply_to_type>'
 
 
 class requiredir:

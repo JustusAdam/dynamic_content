@@ -2,7 +2,6 @@ from pathlib import Path
 import sys
 from dynct.http import request
 from dynct.http.server import ThreadedHTTPServer
-from dynct.util.misc_decorators import singlecache
 
 __author__ = 'justusadam'
 

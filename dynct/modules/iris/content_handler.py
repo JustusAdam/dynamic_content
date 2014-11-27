@@ -7,6 +7,7 @@ from dynct.core.mvc.decorator import controller_class, controller_method
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import FormElement, TableElement, Label, ContainerElement, Checkbox, A, TableRow, TextInput
+from dynct.modules.iris.node import access_node
 from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery, Url
 from dynct.core.ar import ContentTypes
@@ -326,6 +327,16 @@ class IrisController:
     @NodeProcess
     def overview(self, model, url):
         return Overview(model, url).compile()
+
+    @controller_method('iris', '/([1-9]+)(?:/access)?', get=False, post=False)
+    @NodeProcess
+    def access(self, model, node_id):
+        return access_node(model, 'iris', int(node_id))
+
+    @controller_method('iris', '/([1-9]+)/edit', get=False, post=True)
+    @NodeProcess
+    def edit(self, model, node_id, post):
+        pass
 
     @controller_method('iris')
     @Regions

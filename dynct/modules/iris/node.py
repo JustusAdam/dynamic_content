@@ -31,13 +31,13 @@ class Node(dict):
 
 
 @typesafe
-def make_node(model, node_type:str, node_id:int, modifier:str):
+def access_node(model, node_type:str, node_id:int):
     page = get_page(node_type=node_type, node_id=node_id)
-    fields = get_fields(content_type=page.content_type, node_type=node_type, node_id=node_id, modifier=modifier)
+    fields = get_fields(content_type=page.content_type, node_type=node_type, node_id=node_id, modifier='access')
     return Node(
         content=process_content(fields),
         title=page.page_title,
-        editorial=editorial_list(model.client, modifier, page.content_type, node_type, node_id)
+        editorial=editorial_list(model.client, 'access', page.content_type, node_type, node_id)
     )
 
 

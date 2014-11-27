@@ -1,7 +1,7 @@
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.regions import RegionHandler
 from dynct.util.config import read_config
-from dynct.util.misc_decorators import apply_to_type
+from dynct.util.decorators import apply_to_type
 
 __author__ = 'justusadam'
 

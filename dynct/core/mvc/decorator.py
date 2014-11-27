@@ -5,7 +5,7 @@ from . import Config, DefaultConfig
 import re
 from .controller import Controller, controller_mapper
 from .model import Model
-from dynct.util.misc_decorators import apply_to_type
+from dynct.util.decorators import apply_to_type
 from dynct.util.typesafe import typesafe
 
 __author__ = 'justusadam'

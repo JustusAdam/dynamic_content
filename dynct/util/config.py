@@ -1,12 +1,16 @@
 """
 Tool for convenient standard (json) config reading and writing
 """
+from pathlib import Path
 
 __author__ = 'justusadam'
 
 
 def read_config(path, file_type='json'):
     import json
+
+    if isinstance(path, Path):
+        path = str(path)
 
     if not path.endswith('.' + file_type):
         path += '.' + file_type

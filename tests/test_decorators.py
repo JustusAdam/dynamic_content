@@ -1,6 +1,5 @@
-from dynct.core.mvc import Autoconf
-from dynct.modules.comp.decorator import Config
-from dynct.util.misc_decorators import *
+from dynct.core.mvc import Autoconf, Config
+from dynct.util.decorators import *
 
 __author__ = 'justusadam'
 

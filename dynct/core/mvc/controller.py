@@ -1,6 +1,6 @@
 from collections import ChainMap
 import re
-from dynct.util.misc_decorators import deprecated
+from dynct.util.decorators import deprecated
 
 
 __author__ = 'justusadam'
@@ -52,7 +52,7 @@ class ControllerMapper(dict):
         l = str(url.path).split('/', 2)
         if not l[0] == '' or len(l) < 2: raise AttributeError
         prefix = l[1]
-        path = l[2] if len(l) > 2 else ''
+        path = '/' + l[2] if len(l) > 2 else ''
         elements = self[prefix]
         for element in elements:
             if element.regex:

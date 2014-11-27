@@ -1,6 +1,7 @@
+from pathlib import Path
 from dynct.core.mvc.model import Model
 from dynct.util.config import read_config
-from dynct.util.misc_decorators import apply_to_type
+from dynct.util.decorators import apply_to_type
 
 __author__ = 'justusadam'
 
@@ -12,6 +13,7 @@ class NodeProcess:
 
     def __call__(self, model):
         res = self.function()
+        print(repr(self.function))
         if hasattr(res, '__iter__'):
             content = self._process_nodes(res)
         else:
@@ -29,4 +31,6 @@ class NodeProcess:
             return ''.join([template.format(**a) for a in nodes])
 
     def _template(self, _type):
-        return read_config(__file__ + '/../config')[_type]
+        r = read_config(Path(__file__).parent / 'config')[_type]
+        r = r if r.endswith('.html') else r + '.html'
+        return str(Path(__file__).parent / r)
