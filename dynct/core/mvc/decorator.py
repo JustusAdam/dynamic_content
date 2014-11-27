@@ -58,10 +58,15 @@ def q_comp(q, name):
 
 
 class ControlFunction:
-    @typesafe
     def __init__(self, function, prefix:str, regex:str, get, post):
-        self.function = function.function if isinstance(function, ControlFunction) else function
-        self.wrapping = function.wrapping + [self] if isinstance(function, ControlFunction) else [self]
+        assert isinstance(regex, str) or regex is None
+        if isinstance(function, ControlFunction):
+            self.function = function.function
+            self.wrapping = function.wrapping
+        else:
+            self.wrapping = []
+            self.function = function
+        self.wrapping.append(self)
         self.prefix = prefix
         self.orig_pattern = regex
         self.regex = re.compile(regex) if regex else None
@@ -76,14 +81,15 @@ class ControlFunction:
 
     def __repr__(self):
         if self.instance:
-            return '<ControlMethod for prefix \'' + self.prefix + '\' with function ' + self.function + ' and instance ' + repr(self.instance) + '>'
+            return '<ControlMethod for prefix \'' + self.prefix + '\' with function ' + repr(self.function) + ' and instance ' + repr(self.instance) + '>'
         return '<ControlFunction for prefix \'' + self.prefix + '\' with function ' + repr(self.function) + '>'
 
 
-def controller_function(prefix, regex:str='', *, get=True, post=True):
+def controller_function(prefix, regex:str=None, *, get=True, post=True):
     def wrap(func):
-        controller_mapper.add_controller(prefix, ControlFunction(func, prefix, regex, get, post))
-        return func
+        wrapped = ControlFunction(func, prefix, regex, get, post)
+        controller_mapper.add_controller(prefix, wrapped)
+        return wrapped
     return wrap
 
 
@@ -99,7 +105,7 @@ def controller_class(class_):
     return class_
 
 
-def controller_method(prefix, regex:str='', *, get=True, post=True):
+def controller_method(prefix, regex:str=None, *, get=True, post=True):
     def wrap(func):
         wrapped = ControlFunction(func, prefix, regex, get, post)
         return wrapped
