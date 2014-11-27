@@ -1,6 +1,7 @@
 import datetime
 from http.cookies import SimpleCookie
 from urllib.error import HTTPError
+from dynct.core.mvc.decorator import controller_function
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.html_elements import TableElement, ContainerElement, Label, Input, SubmitButton
 from dynct.modules.form.secure import SecureForm
@@ -48,25 +49,28 @@ class LoginCommonHandler(Commons):
         return LOGIN_COMMON
 
 
-def login(model, url):
-    if not model.client.check_permission('access login page'):
-        raise HTTPError(str(url.path), 403, None, None, None)
-    if url.post:
-        if not url.post['username'] or not url.post['password']:
-            raise ValueError
-        username = url.post['username'][0]
-        password = url.post['password'][0]
-        token = session.start_session(username, password)
-        if token:
-            cookie = SimpleCookie({'SESS': token})
-            model.cookies = cookie
-            return ':redirect:/'
-        else:
-            message = ContainerElement('Your Login failed, please try again.', classes={'alert'})
-    else:
-        message = ''
+@controller_function('login', '$|(/?failed)', get=False, post=False)
+def login(model, failed):
+    message = ContainerElement('Your Login failed, please try again.', classes={'alert'}) if failed else ''
     model['content'] = ContainerElement(message, LOGIN_FORM)
     return 'page'
+
+
+@controller_function('login', '$', get=False, post=['username', 'password'])
+def login(model, username, password):
+    if not model.client.check_permission('access login page'):
+        raise HTTPError('/login', 403, None, None, None)
+    username = username[0]
+    password = password[0]
+    token = session.start_session(username, password)
+    if token:
+        cookie = SimpleCookie({'SESS': token})
+        model.cookies = cookie
+        return ':redirect:/'
+    else:
+        return ':redirect:/login/failed'
+
+
 
 
 def logout(model, url):

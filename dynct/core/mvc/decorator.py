@@ -58,11 +58,13 @@ def q_comp(q, name):
 
 
 class ControlFunction:
-    def __init__(self, function, prefix, regex, get, post):
+    @typesafe
+    def __init__(self, function, prefix:str, regex:str, get, post):
         self.function = function.function if isinstance(function, ControlFunction) else function
         self.wrapping = function.wrapping + [self] if isinstance(function, ControlFunction) else [self]
         self.prefix = prefix
-        self.regex = re.compile(regex) if isinstance(regex, str) else regex
+        self.orig_pattern = regex
+        self.regex = re.compile(regex) if regex else None
         self.get = q_comp(get, 'get')
         self.post = q_comp(post, 'post')
         self.instance = None
@@ -78,7 +80,7 @@ class ControlFunction:
         return '<ControlFunction for prefix \'' + self.prefix + '\' with function ' + repr(self.function) + '>'
 
 
-def controller_function(prefix, regex:str=None, *, get=True, post=True):
+def controller_function(prefix, regex:str='', *, get=True, post=True):
     def wrap(func):
         controller_mapper.add_controller(prefix, ControlFunction(func, prefix, regex, get, post))
         return func
@@ -97,7 +99,7 @@ def controller_class(class_):
     return class_
 
 
-def controller_method(prefix, regex:str=None, *, get=True, post=True):
+def controller_method(prefix, regex:str='', *, get=True, post=True):
     def wrap(func):
         wrapped = ControlFunction(func, prefix, regex, get, post)
         return wrapped

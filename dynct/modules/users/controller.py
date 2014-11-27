@@ -16,10 +16,6 @@ class UserController:
         if len(url.path) == 2:
             return UserInformation(model, url).compile()
 
-    @controller_method('login')
-    def login(self, model, url):
-        return login.login(model, url)
-
     @controller_method('logout')
     def logout(self, model, url):
         return login.logout(model, url)

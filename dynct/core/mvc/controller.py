@@ -42,7 +42,7 @@ class ControllerMapper(dict):
         for item in self.values():
             # TODO check if this works correctly
             item.sort(key=lambda a: int(a.get is True) + int(a.post is True))
-            item.sort(key=lambda a: len(a.regex) if a.regex else 0, reverse=True)
+            item.sort(key=lambda a: len(a.orig_pattern) if a.orig_pattern else 0, reverse=True)
 
     def add_controller(self, prefix, function):
         self.setdefault(prefix, list()).append(function)
@@ -70,7 +70,7 @@ class ControllerMapper(dict):
                     continue
                 else:
                     return result
-            except PermissionError as e:
+            except (PermissionError, TypeError) as e:
                 print(e)
                 continue
         return 'error'
