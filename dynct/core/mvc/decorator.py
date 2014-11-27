@@ -101,7 +101,7 @@ def controller_class(class_):
         for item in c_funcs:
             for wrapped in item.wrapping:
                 wrapped.instance = instance
-                controller_mapper.add_controller(item.prefix, wrapped)
+                controller_mapper.add_controller(wrapped.prefix, wrapped)
     return class_
 
 

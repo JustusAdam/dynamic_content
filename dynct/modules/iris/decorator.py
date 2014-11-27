@@ -10,24 +10,28 @@ __author__ = 'justusadam'
 @apply_to_type(Model, apply_in_decorator=True)
 def node_process(func):
     def wrap(model):
+
+        # get node(s)
         res = func()
         if isinstance(res, Node):
-            content = _process_single_node(res)
+            # assign title, if it exists
+            if 'title' in res:
+                model['title'] = res['title']
+            with open(_template('single_node_template')) as template:
+                content =  template.read().format(**res)
         elif hasattr(res, '__iter__'):
-            content = _process_nodes(res)
+            # try to find if object carries a title
+            if hasattr(res, 'title'): model['title'] = res.title
+            elif hasattr(res, '__getitem__') and 'title' in res: model['title'] = res['title']
+            else: model['title'] = 'Overview'
+
+            with open(_template('multi_node_template')) as template:
+                template = template.read()
+                return ''.join([template.format(**a) for a in res])
         else:
             raise AttributeError
         model['content'] = content
         return 'page'
-
-    def _process_single_node(node):
-        with open(_template('single_node_template')) as template:
-            return template.read().format(**node)
-
-    def _process_nodes(nodes):
-        with open(_template('multi_node_template')) as template:
-            template = template.read()
-            return ''.join([template.format(**a) for a in nodes])
 
     def _template(_type):
         r = read_config(Path(__file__).parent / 'config')[_type]

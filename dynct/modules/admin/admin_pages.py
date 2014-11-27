@@ -3,7 +3,7 @@ from collections import defaultdict
 from dynct.core.mvc.content_compiler import Content
 from dynct.core.mvc.content_compiler import ContentCompiler
 from dynct.core import Modules
-from dynct.core.mvc.decorator import controller_class, controller_method
+from dynct.core.mvc.decorator import controller_class, controller_method, controller_function
 from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import ContainerElement, List
 from dynct.modules.users.users import GUEST
@@ -16,26 +16,46 @@ __author__ = 'justusadam'
 ADMIN_PATH = '/admin'
 
 
-@controller_class
-class AdminController:
-    @controller_method('admin')
-    @Regions
-    def handle(self, model, url):
-        if model.client.user == GUEST:
-            model['content'] = 'Not authorized.'
-            model['title'] = 'Not Authorized.'
-            return 'page'
-        tail = url.path[1:]
-        if not tail:
-            handler = OverviewPage
-        elif len(tail) == 1:
-            handler = CategoryPage
-        elif len(tail) == 2:
-            handler = SubcategoryPage
-        else:
-            page = ar.AdminPage.get(machine_name=tail[2])
-            handler = Modules[page.handler_module].admin_handler(tail[2])
-        return handler(model, url).compile()
+
+@controller_function('admin', '', get=False, post=False)
+@Regions
+def overview(model):
+    return OverviewPage(model, None).compile()
+
+
+@controller_function('admin', '/(\w+)$', get=False, post=False)
+@Regions
+def category(model, category):
+    return CategoryPage(model, category).compile()
+
+
+@controller_function('admin', '/\w+/(\w+)$', get=False, post=False)
+@Regions
+def subcategory(model, subcategory):
+    return SubcategoryPage(model, subcategory).compile()
+
+#
+# @controller_class
+# class AdminController:
+#     @controller_method('admin')
+#     @Regions
+#     def handle(self, model, url, get, post):
+#         url.post = post
+#         if model.client.user == GUEST:
+#             model['content'] = 'Not authorized.'
+#             model['title'] = 'Not Authorized.'
+#             return 'page'
+#         tail = url.path[1:]
+#         if not tail:
+#             handler = OverviewPage
+#         elif len(tail) == 1:
+#             handler = CategoryPage
+#         elif len(tail) == 2:
+#             handler = SubcategoryPage
+#         else:
+#             page = ar.AdminPage.get(machine_name=tail[2])
+#             handler = Modules[page.handler_module].admin_handler(tail[2])
+#         return handler(model, url).compile()
 
 
 class Overview(ContentCompiler):
@@ -117,11 +137,14 @@ class CategoryPage(OverviewPage):
 
     def __init__(self, model, url):
         super().__init__(model, url)
-        self.name = url.path[1]
+        if isinstance(url, str):
+            self.name = url
+        else:
+            self.name = url.path[1]
         self.page_title = self.name
 
     def base_path(self):
-        return self.url.path.prt_to_str(0, -1)
+        return '/admin'
 
     def get_parents_data(self):
         return [ar.Category.get(machine_name=self.name)]
@@ -135,7 +158,10 @@ class SubcategoryPage(CategoryPage):
 
     def __init__(self, model, url):
         super().__init__(model, url)
-        self.name = self.url.path[2]
+        if isinstance(url, str):
+            self.name = url
+        else:
+            self.name = self.url.path[2]
         self.page_title = self.name
 
     def get_parents_data(self):

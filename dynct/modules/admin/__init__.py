@@ -1,5 +1,4 @@
 from .admin_pages import OverviewPage, CategoryPage, SubcategoryPage, OverviewCommon
-from .admin_pages import AdminController
 from .ar import *
 
 __author__ = 'justusadam'
