@@ -318,13 +318,31 @@ class Overview(Content):
         return ContainerElement(*content)
 
 
+@controller_function('iris', '$', post=False)
+@Regions
+@node_process
+def overview(model, get):
+    my_range = [
+            int(get['from'][0]) if 'from' in get else 0,
+            int(get['to'][0])   if 'to'   in get else _step
+        ]
+    def pages():
+        for a in ar.page('iris').get_many(','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]]), 'date_created desc'):
+            yield access_node(model, 'iris', a.id)
+    return pages()
+
+
 @controller_class
 class IrisController:
     handler_map = {
         _access_modifier: FieldBasedPageContent,
         _edit_modifier: EditFieldBasedContent,
-        _add_modifier: AddFieldBasedContentHandler
+        _add_modifier: AddFieldBasedContentHandler,
     }
+
+    def __init__(self):
+        self.handler_map['overview'] = self.overview
+
     @node_process
     def overview(self, model, url):
         return Overview(model, url).compile()

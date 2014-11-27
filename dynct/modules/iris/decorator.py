@@ -27,7 +27,7 @@ def node_process(func):
 
             with open(_template('multi_node_template')) as template:
                 template = template.read()
-                return ''.join([template.format(**a) for a in res])
+                content = ''.join([template.format(**a) for a in res])
         else:
             raise AttributeError
         model['content'] = content
