@@ -23,14 +23,26 @@ class ControllerMapper(dict):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._controller_classes = []
+        self.register_modules()
 
     def register_modules(self):
         from dynct.core import Modules
         self.modules = Modules
 
+    def sort(self):
+        """
+        Sorts all controller functions such that:
+          1. functions with a specified regex will be preferred over those with None (or '')
+          2. functions with longer regex will be preferred over shorter ones
+          3. functions that accept no query or only specific keys will be preferred over
+           those that accept any.
 
-    def __getitem__(self, item):
-        return self.setdefault(item, list())
+        This should in theory ensure, that more specific 'paths' are preferred over generic ones.
+        """
+        for item in self.values():
+            # TODO check if this works correctly
+            item.sort(key=lambda a: int(a.get is True) + int(a.post is True))
+            item.sort(key=lambda a: len(a.regex) if a.regex else 0, reverse=True)
 
     def add_controller(self, prefix, function):
         self.setdefault(prefix, list()).append(function)

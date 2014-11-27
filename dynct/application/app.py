@@ -29,6 +29,7 @@ class Application(Thread):
 
     def load(self):
         Modules.load()
+        controller_mapper.sort()
 
     def run(self):
         self.run_http_server_loop()

@@ -59,7 +59,8 @@ def q_comp(q, name):
 
 class ControlFunction:
     def __init__(self, function, prefix, regex, get, post):
-        self.function = function
+        self.function = function.function if isinstance(function, ControlFunction) else function
+        self.wrapping = function.wrapping + [self] if isinstance(function, ControlFunction) else [self]
         self.prefix = prefix
         self.regex = re.compile(regex) if isinstance(regex, str) else regex
         self.get = q_comp(get, 'get')
@@ -90,8 +91,9 @@ def controller_class(class_):
         instance = class_()
         controller_mapper._controller_classes.append(instance)
         for item in c_funcs:
-            item.instance = instance
-            controller_mapper.add_controller(item.prefix, item)
+            for wrapped in item.wrapping:
+                wrapped.instance = instance
+                controller_mapper.add_controller(item.prefix, wrapped)
     return class_
 
 
