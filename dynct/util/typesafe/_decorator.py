@@ -18,4 +18,5 @@ def typesafe(func):
         checkargs(kwargs.items())
         res = func(*args, **kwargs)
         checkargs([['return', res]])
+        return res
     return wrap

@@ -30,7 +30,6 @@ class Node(dict):
 
 
 
-@typesafe
 def access_node(model, node_type:str, node_id:int):
     page = get_page(node_type=node_type, node_id=node_id)
     fields = get_fields(content_type=page.content_type, node_type=node_type, node_id=node_id, modifier='access')

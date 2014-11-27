@@ -3,7 +3,7 @@ from urllib.error import HTTPError
 
 from dynct.core import Modules
 from dynct.core.mvc.content_compiler import Content
-from dynct.core.mvc.decorator import controller_class, controller_method
+from dynct.core.mvc.decorator import controller_class, controller_method, controller_function
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import FormElement, TableElement, Label, ContainerElement, Checkbox, A, TableRow, TextInput
@@ -14,7 +14,7 @@ from dynct.core.ar import ContentTypes
 from dynct.modules.commons.menus import menu_chooser, root_ident
 from dynct.modules.commons.ar import MenuItem
 from . import ar
-from .decorator import NodeProcess
+from .decorator import node_process
 
 
 __author__ = 'justusadam'
@@ -324,17 +324,12 @@ class IrisController:
         _edit_modifier: EditFieldBasedContent,
         _add_modifier: AddFieldBasedContentHandler
     }
-    @NodeProcess
+    @node_process
     def overview(self, model, url):
         return Overview(model, url).compile()
 
-    @controller_method('iris', '/([1-9]+)(?:/access)?', get=False, post=False)
-    @NodeProcess
-    def access(self, model, node_id):
-        return access_node(model, 'iris', int(node_id))
-
     @controller_method('iris', '/([1-9]+)/edit', get=False, post=True)
-    @NodeProcess
+    @node_process
     def edit(self, model, node_id, post):
         pass
 
@@ -368,3 +363,8 @@ class IrisController:
             raise TypeError
         url.page_type = url.path[0]
         return self.handler_map[page_modifier](model, url).compile()
+
+@controller_function('iris', '/([1-9]+)(?:/access)?', get=False, post=False)
+@node_process
+def access(model, node_id):
+    return access_node(model, 'iris', int(node_id))

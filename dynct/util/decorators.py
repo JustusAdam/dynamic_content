@@ -75,6 +75,8 @@ class apply_to_type:
                 def applyd():
                     l = filter_args(self.types, args, kwargs)
                     if self.apply_in:
+                        print(func)
+                        print(applyf)
                         return self.decorator(applyf)(*l)
                     return self.decorator(*l)
 
