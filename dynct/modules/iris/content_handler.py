@@ -2,7 +2,6 @@ from urllib import parse
 from urllib.error import HTTPError
 
 from dynct.core import Modules
-from dynct.core.mvc import Config
 from dynct.core.mvc.content_compiler import Content
 from dynct.core.mvc.decorator import controller_class, controller_method, controller_function, Autoconf
 from dynct.core.mvc.model import Model
@@ -322,13 +321,16 @@ class Overview(Content):
 @Regions
 @node_process
 def overview(model, get):
+    model.client.check_permission(' '.join(['access', 'iris', 'overview']))
     my_range = [
             int(get['from'][0]) if 'from' in get else 0,
             int(get['to'][0])   if 'to'   in get else _step
         ]
     def pages():
         for a in ar.page('iris').get_many(','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]]), 'date_created desc'):
-            yield access_node(model, 'iris', a.id)
+            node = access_node(model, 'iris', a.id)
+            node['title'] = A('/iris/' + str(a.id), node['title'])
+            yield node
     return pages()
 
 
@@ -339,9 +341,6 @@ class IrisController:
         _edit_modifier: EditFieldBasedContent,
         _add_modifier: AddFieldBasedContentHandler,
     }
-
-    def __init__(self):
-        self.handler_map['overview'] = self.overview
 
     @node_process
     def overview(self, model, url):
