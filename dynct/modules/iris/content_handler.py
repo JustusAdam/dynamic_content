@@ -2,8 +2,9 @@ from urllib import parse
 from urllib.error import HTTPError
 
 from dynct.core import Modules
+from dynct.core.mvc import Config
 from dynct.core.mvc.content_compiler import Content
-from dynct.core.mvc.decorator import controller_class, controller_method, controller_function
+from dynct.core.mvc.decorator import controller_class, controller_method, controller_function, Autoconf
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import FormElement, TableElement, Label, ContainerElement, Checkbox, A, TableRow, TextInput
@@ -365,6 +366,7 @@ class IrisController:
         return self.handler_map[page_modifier](model, url).compile()
 
 @controller_function('iris', '/([1-9]+)(?:/access)?', get=False, post=False)
+@Regions
 @node_process
 def access(model, node_id):
     return access_node(model, 'iris', int(node_id))

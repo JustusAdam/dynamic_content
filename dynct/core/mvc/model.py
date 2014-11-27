@@ -1,5 +1,6 @@
 from http.cookies import SimpleCookie
 from .config import Config
+from dynct.includes import bootstrap
 
 __author__ = 'justusadam'
 
@@ -12,6 +13,7 @@ class Model(dict):
         self.headers = set()
         self.cookies = SimpleCookie()
         self.config = Config()
+        self.theme = bootstrap.DEFAULT_THEME
 
     def __setitem__(self, key, value):
         if self.__final:

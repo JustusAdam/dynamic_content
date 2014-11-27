@@ -1,5 +1,6 @@
 from pathlib import Path
 from dynct.core.mvc.model import Model
+from dynct.modules.iris.node import Node
 from dynct.util.config import read_config
 from dynct.util.decorators import apply_to_type
 
@@ -10,10 +11,12 @@ __author__ = 'justusadam'
 def node_process(func):
     def wrap(model):
         res = func()
-        if hasattr(res, '__iter__'):
+        if isinstance(res, Node):
+            content = _process_single_node(res)
+        elif hasattr(res, '__iter__'):
             content = _process_nodes(res)
         else:
-            content = _process_single_node(res)
+            raise AttributeError
         model['content'] = content
         return 'page'
 
