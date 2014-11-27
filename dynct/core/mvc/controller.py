@@ -1,5 +1,6 @@
 from collections import ChainMap
 import re
+from dynct.util.misc_decorators import deprecated
 
 
 __author__ = 'justusadam'
@@ -12,15 +13,9 @@ def authorize(permission):
     pass
 
 
+@deprecated
 class Controller(dict):
     pass
-
-#
-# class RegexURLMapper(Controller):
-#     pass
-
-
-regex = re.compile('/(.+?)/|$(.)*')
 
 
 class ControllerMapper(dict):
@@ -42,10 +37,10 @@ class ControllerMapper(dict):
 
 
     def __call__(self, model, url):
-        try:
-            prefix, path = re.fullmatch(regex, str(url.path)).groups()
-        except AttributeError:
-            return
+        l = str(url.path).split('/', 2)
+        if not l[0] == '' or len(l) < 2: raise AttributeError
+        prefix = l[1]
+        path = l[2] if len(l) > 2 else ''
         elements = self[prefix]
         for element in elements:
             if element.regex:
@@ -63,7 +58,7 @@ class ControllerMapper(dict):
                     continue
                 else:
                     return result
-            except TypeError as e:
+            except PermissionError as e:
                 print(e)
                 continue
         return 'error'

@@ -4,8 +4,12 @@ non-changing, as in not changing within this version of the software, values req
 
 Might need to be expanded.
 """
+from collections import namedtuple
 
 __author__ = 'justusadam'
+
+
+LoggingLevel = namedtuple('LoggingLevel', ['log_warnings', 'log_errors', 'throw_errors', 'throw_all'])
 
 
 # the order in this list dictates the order in which these modules will be activated
@@ -40,3 +44,4 @@ HASH_LENGTH = 64
 SALT_LENGTH = 16
 DEFAULT_THEME = 'default_theme'
 DEFAULT_ADMIN_THEME = 'admin_theme'
+LOGGING_LEVEL = LoggingLevel.throw_all

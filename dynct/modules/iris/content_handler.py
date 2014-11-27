@@ -318,13 +318,18 @@ class Overview(Content):
 
 @controller_class
 class IrisController:
+    handler_map = {
+        _access_modifier: FieldBasedPageContent,
+        _edit_modifier: EditFieldBasedContent,
+        _add_modifier: AddFieldBasedContentHandler
+    }
     @NodeProcess
     def overview(self, model, url):
         return Overview(model, url).compile()
 
     @controller_method('iris')
     @Regions
-    def handle(self, model, url):
+    def handle(self, model, url, get, post):
         if len(url.path) == 3:
             if not url.path[1].isdigit():
                 if url.path[1] == _add_modifier:

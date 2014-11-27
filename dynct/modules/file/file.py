@@ -20,16 +20,15 @@ _template_path = 'themes/default_theme/template/page.html'
 
 @controller_class
 class PathHandler:
-    @controller_method('public')
+    @controller_method('public', get=False, post=False)
     def handle(self, model, url, *args):
-        self.model = model
-        return self.parse_path(url)
+        return self.parse_path(model, url)
 
-    @controller_method('theme')
+    @controller_method('theme', get=False, post=False)
     def handle_also(self, model, url, *args):
         return self.handle(model, url, *args)
 
-    def parse_path(self, url):
+    def parse_path(self, model, url):
         if len(url.path) < 1:
             raise FileNotFoundError
         basedirs = bootstrap.FILE_DIRECTORIES[url.path[0]]
@@ -55,48 +54,30 @@ class PathHandler:
                     raise PermissionError
                 elif not url.path.trailing_slash:
                     url.path.trailing_slash = True
-                    return Model(':redirect:' + str(url))
+                    return ':redirect:' + str(url)
                 else:
-                    return DirectoryHandler(url, filepath).compiled
+                    return directory(model, url, filepath)
             else:
                 if url.path.trailing_slash:
                     url.path.trailing_slash = False
-                    return Model(':redirect:' + str(url))
-                self.model['content'] = filepath.open('rb').read()
-                self.model.decorator_attributes.add('no-encode')
-                self.model.content_type, self.model.encoding = mimetypes.guess_type(str(filepath.name))
+                    return ':redirect:' + str(url)
+                model['content'] = filepath.open('rb').read()
+                model.decorator_attributes.add('no-encode')
+                model.content_type, model.encoding = mimetypes.guess_type(str(filepath.name))
                 return ':no-view:'
 
         raise FileNotFoundError
 
 
-class DirectoryHandler:
-    def __init__(self, url, real_dir):
-        self._url = url
-        if not isinstance(real_dir, Path):
-            Path(real_dir)
-        self.directory = real_dir
-
-    view_name = 'page'
-
-    @property
-    def url(self):
-        return self._url
-
-    def _files(self):
-        return filter(lambda a: not str(a.name).startswith('.'), self.directory.iterdir())
-
-    def _render_file_list(self):
-        return List(
+def directory(model, url, real_dir):
+    if not isinstance(real_dir, Path):
+        real_dir = Path(real_dir)
+    model['content'] = List(
             *[ContainerElement(
-                str(a.name), html_type='a', additional={'href': str(self.url.path) + quote_plus(str(a.name), )},
+                str(a.name), html_type='a', additional={'href': str(url.path) + quote_plus(str(a.name), )},
                 classes={'file-link'}
-            ) for a in self._files()
+            ) for a in filter(lambda a: not str(a.name).startswith('.'), real_dir.iterdir())
             ], classes={'directory-index'}, item_classes={'directory-content'}
         )
-
-    @property
-    def compiled(self):
-        model = Model('page', title=self.directory.name, content=self._render_file_list())
-        model.decorator_attributes.add('no-commons')
-        return model
+    model['title'] = real_dir.name
+    return 'page'

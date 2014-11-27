@@ -20,7 +20,7 @@ class Autoconf:
      ? is optional, will be omitted if bool(?) == false
     """
     @typesafe
-    def __init__(self, conf:Config=None):
+    def __init__(self, conf:Config):
         self.custom_conf = conf
 
     def __call__(self, func):

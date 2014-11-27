@@ -1,8 +1,23 @@
+from functools import wraps
 import os
 import inspect
+from dynct.includes import log
+from dynct.includes.bootstrap import LOGGING_LEVEL, LoggingLevel
 
 
 __author__ = 'justusadam'
+
+
+def deprecated(func):
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        if LOGGING_LEVEL == LoggingLevel.throw_all:
+            raise DeprecationWarning
+        if LOGGING_LEVEL == LoggingLevel.log_warnings:
+            log.write_warning(function=repr(func), message='using deprecated function')
+        return func(*args, **kwargs)
+    return wrap
+
 
 
 def filter_args(types, args, kwargs):
