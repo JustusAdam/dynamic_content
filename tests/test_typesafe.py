@@ -12,7 +12,7 @@ class MyTestCase(unittest.TestCase):
         def a(c:str='', b:str='') -> str:
             return ''
 
-        a(b='')
+        self.assertEqual(a(b='jutu'))
 
 
 

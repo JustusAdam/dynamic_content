@@ -2,5 +2,5 @@ language: python
 python:
   - "3.4"
 install:
-  pip install -r requirements.txt
+  pip install --allow-externals mysql-python-connector -r requirements.txt
 script: nosetests
