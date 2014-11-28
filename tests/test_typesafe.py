@@ -12,11 +12,17 @@ class MyTestCase(unittest.TestCase):
         def a(c:str='', b:str='') -> str:
             return c + b
 
+        @typesafe
+        def f(j, k:str='') -> str:
+            return j
+
         c, b = 'hello', 'you'
 
         self.assertEqual(a(c,b), c + b)
         self.assertRaises(AssertionError, a, (c,1))
 
+        self.assertEqual(f('g'), 'g')
+        self.assertRaises(AssertionError, f, 2)
 
 
 if __name__ == '__main__':

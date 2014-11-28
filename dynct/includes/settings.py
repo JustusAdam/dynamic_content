@@ -8,8 +8,30 @@ from collections import namedtuple
 
 __author__ = 'justusadam'
 
+class EnumLevel:
+    def __init__(self, *levels):
+        if len(levels) == 1 and not isinstance(levels[0], str) and hasattr(levels[0], '__iter__'):
+            levels = levels[0]
+        self.levels = levels
 
-LoggingLevel = namedtuple('LoggingLevel', ['log_warnings', 'log_errors', 'throw_errors', 'throw_all'])
+    def __getattr__(self, item):
+        if item in self.levels:
+            return self.levels.index(item)
+        raise AttributeError
+
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            return self.levels[item]
+        if item in self.levels:
+            return self.levels.index(item)
+        raise KeyError
+
+    def __repr__(self):
+        return '\n'.join(repr(item) for item in zip(range(len(self.levels)), self.levels))
+
+
+
+LoggingLevel = EnumLevel(*['log_warnings', 'log_errors', 'throw_errors', 'throw_all'])
 
 
 # the order in this list dictates the order in which these modules will be activated
@@ -45,3 +67,7 @@ SALT_LENGTH = 16
 DEFAULT_THEME = 'default_theme'
 DEFAULT_ADMIN_THEME = 'admin_theme'
 LOGGING_LEVEL = LoggingLevel.throw_all
+SERVER = namedtuple('server', ['host', 'port'])(port=9012, host='localhost')
+DATABASE = (namedtuple('database',
+                      ['type', 'user', 'autocommit', 'password', 'name', 'host'])
+                      ('sqlite', 'dynct', True, 'dynct', 'testdatabase', ''))

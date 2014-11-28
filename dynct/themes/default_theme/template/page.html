@@ -8,32 +8,34 @@
 <body>
 <div id="wrapper-main" class="wrapper">
     <header>
-        <div id="header-wrapper" class="page-wrapper">
+        <div id="header-wrapper" class="page-wrapper content-width vertically-centered">
             <div class="wrapper">
                 {header}
                 <div id="pagetitle">{pagetitle}</div>
             </div>
         </div>
         <nav>
-            <div class="page-wrapper" id="nav-wrapper">{navigation}</div>
+            <div class="page-wrapper vertically-centered content-width" id="nav-wrapper">{navigation}</div>
         </nav>
     </header>
     <div id="wrapper-middle" class="wrapper page-wrapper">
-        {sidebar_left}
-        <div id="main">
-            {breadcrumbs}
-            <div class="wrapper content">
-                <div>
-                    <h1>{title}</h1>
-                    {editorial}
-                    {content}
+        <div class="vertically-centered wrapper content-width">
+            {sidebar_left}
+            <div id="main">
+                {breadcrumbs}
+                <div class="wrapper content">
+                    <div>
+                        <h1>{title}</h1>
+                        {editorial}
+                        {content}
+                    </div>
                 </div>
             </div>
+            {sidebar_right}
         </div>
-        {sidebar_right}
     </div>
     <footer>
-        <div id="wrapper-footer" class="wrapper page-wrapper">
+        <div id="wrapper-footer" class="wrapper page-wrapper vertically-centered content-width">
             <div id="footer-content" class="wrapper content">
                 {footer}
             </div>

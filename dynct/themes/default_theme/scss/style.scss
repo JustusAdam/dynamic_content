@@ -1,7 +1,12 @@
 /**
- *  Test CSS Stylesheet for myn cms
+ *  Test CSS Stylesheet for my cms
  *  copyright 2014 Justus Adam
  */
+
+@import "../../scss_base/scss/positioning";
+@import "../../scss_base/scss/transition";
+
+$content-width: 960px;
 
 body {
   font-family: 'Open Sans', Helvetica, Arial, Verdana, sans-serif;
@@ -10,6 +15,7 @@ body {
   font-size: 13px;
   color: #333;
   font-weight: 300;
+  min-height: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -21,21 +27,17 @@ li {
 }
 
 #wrapper-main {
-  background-color: whitesmoke;
+  background-color: #383633;
+  min-height: 100%;
 }
 
 #wrapper-middle {
-  margin: 0 auto 0 auto;
+  background-color: whitesmoke;
+  margin: 0;
   border-color: #ccc;
   border-style: solid;
   border-width: 0 1px;
   padding: 0;
-}
-
-.page-wrapper {
-  width: 960px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .wrapper {
@@ -77,7 +79,7 @@ a.button {
 }
 
 .wrapper.content {
-  margin: 0px 20px 10px;
+  margin: 0 20px 10px;
   padding: 20px;
 }
 
@@ -188,21 +190,22 @@ ul.menu {
     }
   }
 
+  @mixin menu-animation {
+    @include transition-delay(0ms);
+    @include transition-duration(300ms);
+    @include transition-timing-function(ease);
+    @include transition-property((padding-top, padding-bottom));
+  }
+
   li a.layer-0, #start_menu li span.layer-0 {
-    transition-delay: 0ms;
-    transition-duration: 300ms;
-    transition-timing-function: ease;
-    transition-property: padding-top, padding-bottom;
+    @include menu-animation;
   }
 
   li a.layer-0:hover, #start_menu li span.layer-0:hover {
     padding-top: 17px;
     padding-bottom: 11px;
     position: relative;
-    transition-delay: 0ms;
-    transition-duration: 300ms;
-    transition-timing-function: ease;
-    transition-property: padding-top, padding-bottom;
+    @include menu-animation;
   }
 
   ul.layer-1 {
@@ -218,20 +221,19 @@ ul.menu {
     width: 160px;
   }
 
+  @mixin menu-animation-2 {
+    @include transition-delay(0ms);
+    @include transition-duration(300ms);
+    @include transition-timing-function(ease);
+    @include transition-property((padding-left, padding-right));
+  }
+
   li a.layer-1, li span.layer-1 {
-    transition-delay: 0ms;
-    transition-duration: 300ms;
-    transition-timing-function: ease;
-    transition-property: padding-left, padding-right;
+    @include menu-animation-2;
   }
 
   li a.layer-1:hover, li span.layer-1:hover {
-    padding-left: 19px;
-    padding-right: 9px;
-    transition-delay: 0ms;
-    transition-duration: 300ms;
-    transition-timing-function: ease;
-    transition-property: padding-left, padding-right;
+    @include menu-animation-2;
   }
 
   ul.layer-2 {
@@ -361,10 +363,10 @@ $bright-row-base-padding-horiz: 25px;
 $bright-row-padding-vert: 20px;
 
 @mixin bright-row-hover-animation {
-  transition-delay: 0ms;
-  transition-timing-function: ease;
-  transition-property: background-color, padding, border-width;
-  transition-duration: 300ms;
+  @include transition-delay(0ms);
+  @include transition-timing-function(ease);
+  @include transition-property((background-color, padding, border-width));
+  @include transition-duration(300ms);
 }
 
 @mixin nice-bright-row {
@@ -447,4 +449,8 @@ ul.editorial-list {
 
 .page-tabs {
   padding: 5px 20px;
+}
+
+.content-width {
+  width: $content-width;
 }
