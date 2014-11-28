@@ -10,9 +10,12 @@ class MyTestCase(unittest.TestCase):
 
         @typesafe
         def a(c:str='', b:str='') -> str:
-            return ''
+            return c + b
 
-        self.assertEqual(a(b='jutu'))
+        c, b = 'hello', 'you'
+
+        self.assertEqual(a(c,b), c + b)
+        self.assertRaises(AssertionError, a, (c,1))
 
 
 

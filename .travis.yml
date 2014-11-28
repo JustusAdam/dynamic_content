@@ -3,4 +3,4 @@ python:
   - "3.4"
 install:
   pip install --allow-external mysql-connector-python -r requirements.txt
-script: python -m unittest discover -v -s tests
+script: python3 -m unittest discover -v -s tests
