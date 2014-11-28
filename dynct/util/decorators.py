@@ -164,3 +164,10 @@ class singlecache:
             self._args = args
             self._cache = self.func(*args)
         return self._cache
+
+
+def typecast(func):
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        pass
+    return wrap
