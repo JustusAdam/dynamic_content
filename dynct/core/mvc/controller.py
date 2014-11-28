@@ -9,10 +9,6 @@ __author__ = 'justusadam'
 _register_controllers = True
 
 
-def authorize(permission):
-    pass
-
-
 @deprecated
 class Controller(dict):
     pass

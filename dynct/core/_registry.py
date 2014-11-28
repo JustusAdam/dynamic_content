@@ -4,7 +4,7 @@ from inspect import isclass
 from dynct.backend.ar import ARObject
 from dynct.backend.database import Database
 from dynct.util.config import read_config
-from dynct.includes import bootstrap
+from dynct.includes import settings
 from dynct.core.ar import ContentHandler
 from dynct.util.module import import_by_path
 
@@ -123,9 +123,9 @@ def register_installed_modules():
 
 
 def discover_modules():
-    filename = bootstrap.MODULE_CONFIG_NAME
+    filename = settings.MODULE_CONFIG_NAME
     accumulator = []
-    for directory in bootstrap.MODULES_DIRECTORIES + bootstrap.COREMODULES_DIRECTORIES:
+    for directory in settings.MODULES_DIRECTORIES + settings.COREMODULES_DIRECTORIES:
         for file in Path(directory).iterdir():
             if file.is_dir():
                 configpath = file / filename
@@ -159,7 +159,7 @@ def register_single_module(moduleconf):
 
 def check_info(info):
     keys = info.keys()
-    necessary_attributes = bootstrap.NECESSARY_MODULE_ATTRIBUTES
+    necessary_attributes = settings.NECESSARY_MODULE_ATTRIBUTES
     for attr in necessary_attributes:
         if attr not in keys:
             return False

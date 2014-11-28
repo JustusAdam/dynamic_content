@@ -2,7 +2,7 @@ from functools import wraps
 import os
 import inspect
 from dynct.includes import log
-from dynct.includes.bootstrap import LOGGING_LEVEL, LoggingLevel
+from dynct.includes.settings import LOGGING_LEVEL, LoggingLevel
 
 
 __author__ = 'justusadam'

@@ -14,7 +14,7 @@ import traceback
 import copy
 import re
 
-from dynct.includes import bootstrap
+from dynct.includes import settings
 from dynct.util.url import Url
 from dynct.util.config import read_config
 from dynct.modules.users import client
@@ -145,7 +145,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(document)))
         if headers:
             self.process_headers(*headers)
-        if not bootstrap.BROWSER_CACHING:
+        if not settings.BROWSER_CACHING:
             self.send_header('Cache-Control', 'no-cache')
         self.end_headers()
         if document:

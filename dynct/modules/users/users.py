@@ -1,6 +1,6 @@
 import hashlib
 import os
-from dynct.includes import log, bootstrap
+from dynct.includes import log, settings
 from . import ar
 
 __author__ = 'justusadam'
@@ -67,8 +67,8 @@ def check_permission(pos, name):
 
 
 def hash_password(password, salt):
-    return hashlib.pbkdf2_hmac(bootstrap.HASHING_ALGORITHM, password, salt, bootstrap.HASHING_ROUNDS,
-                               bootstrap.HASH_LENGTH)
+    return hashlib.pbkdf2_hmac(settings.HASHING_ALGORITHM, password, salt, settings.HASHING_ROUNDS,
+                               settings.HASH_LENGTH)
 
 
 def check_ident(password, salt, comp_hash):
@@ -77,7 +77,7 @@ def check_ident(password, salt, comp_hash):
 
 
 def hash_and_new_salt(password):
-    salt = os.urandom(bootstrap.SALT_LENGTH)
+    salt = os.urandom(settings.SALT_LENGTH)
     hashed = hash_password(password.encode(), salt)
     return hashed, salt
 

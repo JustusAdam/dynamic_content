@@ -8,7 +8,7 @@ from dynct.core.mvc.content_compiler import Content
 from dynct.backend.database import Database
 from dynct.modules.comp.html_elements import ContainerElement, List, TableElement
 from dynct.util.config import read_config, write_config
-from dynct.includes import bootstrap
+from dynct.includes import settings
 from dynct.modules.users.admin_actions import CreateUser
 
 from . import Modules
@@ -177,7 +177,7 @@ class SetupHandler(Content):
             _registry._activate_module(core_config)
 
             _registry.register_installed_modules()
-            for module in bootstrap.DEFAULT_MODULES:
+            for module in settings.DEFAULT_MODULES:
                 if not _registry.activate_module(module):
                     print('Could not activate module ' + module)
                     return False

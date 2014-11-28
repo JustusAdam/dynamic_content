@@ -8,7 +8,7 @@ from urllib.parse import quote_plus
 import mimetypes
 
 from dynct.core.mvc.decorator import controller_class, controller_method
-from dynct.includes import bootstrap
+from dynct.includes import settings
 from dynct.modules.comp.html_elements import ContainerElement, List
 
 
@@ -27,7 +27,7 @@ class PathHandler:
     def parse_path(self, model, url):
         if len(url.path) < 1:
             raise FileNotFoundError
-        basedirs = bootstrap.FILE_DIRECTORIES[url.path[0]]
+        basedirs = settings.FILE_DIRECTORIES[url.path[0]]
         if isinstance(basedirs, str):
             basedirs = (basedirs,)
         for basedir in basedirs:
@@ -40,13 +40,13 @@ class PathHandler:
             filepath = filepath.resolve()
             basedir = Path(basedir).resolve()
 
-            if not bootstrap.ALLOW_HIDDEN_FILES and filepath.name.startswith('.'):
+            if not settings.ALLOW_HIDDEN_FILES and filepath.name.startswith('.'):
                 raise PermissionError
 
             if basedir not in filepath.parents and basedir != filepath:
                 raise PermissionError
             if filepath.is_dir():
-                if not bootstrap.ALLOW_INDEXING:
+                if not settings.ALLOW_INDEXING:
                     raise PermissionError
                 elif not url.path.trailing_slash:
                     url.path.trailing_slash = True
