@@ -1,4 +1,4 @@
-from modules.form import tokens
+from dynct.modules.form import tokens
 
 __author__ = 'justusadam'
 

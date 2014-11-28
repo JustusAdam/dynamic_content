@@ -1,4 +1,4 @@
-from util.url import Url
+from dynct.util.url import Url
 
 __author__ = 'justusadam'
 
