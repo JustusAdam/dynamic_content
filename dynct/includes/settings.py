@@ -5,6 +5,7 @@ non-changing, as in not changing within this version of the software, values req
 Might need to be expanded.
 """
 from collections import namedtuple
+from pathlib import Path
 
 __author__ = 'justusadam'
 
@@ -32,6 +33,7 @@ class EnumLevel:
 
 
 LoggingLevel = EnumLevel(*['log_warnings', 'log_errors', 'throw_errors', 'throw_all'])
+RunLevel = EnumLevel(*['testing', 'debug', 'production'])
 
 
 # the order in this list dictates the order in which these modules will be activated
@@ -70,4 +72,10 @@ LOGGING_LEVEL = LoggingLevel.throw_all
 SERVER = namedtuple('server', ['host', 'port'])(port=9012, host='localhost')
 DATABASE = (namedtuple('database',
                       ['type', 'user', 'autocommit', 'password', 'name', 'host'])
-                      ('sqlite', 'dynct', True, 'dynct', 'testdatabase', ''))
+                      ('mysql', 'python_cms', True, 'python_cms', 'python_cms', 'localhost'))
+BASEDIR = str(Path(__file__).parent.resolve())
+RUNLEVEL = RunLevel.testing
+
+
+# delete names that are not settings
+del Path, namedtuple, EnumLevel
