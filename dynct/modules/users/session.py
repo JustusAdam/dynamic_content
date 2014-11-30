@@ -1,5 +1,5 @@
 import binascii
-from . import ar
+from . import model
 import datetime
 import os
 from dynct.util.time import utcnow
@@ -29,11 +29,11 @@ def start_session(uid_or_username:str, password):
     if isinstance(uid_or_username, int) or uid_or_username.isdigit():
         uid = uid_or_username
     else:
-        uid = ar.User.get(username=uid_or_username).uid
-    token = ar.Session.get(uid=uid)
+        uid = model.User.get(username=uid_or_username).uid
+    token = model.Session.get(uid=uid)
     if not token:
         token = new_token()
-        ar.Session(token, uid, new_exp_time()).save()
+        model.Session(token, uid, new_exp_time()).save()
     else:
         token = token.sess_token
     return binascii.hexlify(token).decode()
@@ -44,14 +44,14 @@ def close_session(uid_or_username):
         if uid_or_username.isdigit() or isinstance(uid_or_username, int):
             uid_or_username = int(uid_or_username)
         else:
-            uid_or_username = ar.User.get(username=uid_or_username).uid
-    ar.Session.get(uid=uid_or_username).delete()
+            uid_or_username = model.User.get(username=uid_or_username).uid
+    model.Session.get(uid=uid_or_username).delete()
 
 
 def authenticate_user(username_or_uid, password):
     if not isinstance(username_or_uid, int) or username_or_uid.isdigit():
-        username_or_uid = ar.User.get(username=username_or_uid).uid
-    auth = ar.UserAuth.get(uid=username_or_uid)
+        username_or_uid = model.User.get(username=username_or_uid).uid
+    auth = model.UserAuth.get(uid=username_or_uid)
     if not auth:
         return False
     return check_ident(password, auth.salt, auth.password)
@@ -60,7 +60,7 @@ def authenticate_user(username_or_uid, password):
 def validate_session(token):
     if not isinstance(token, bytes):
         token = binascii.unhexlify(token)
-    x = ar.Session.get(sess_token=token)
+    x = model.Session.get(sess_token=token)
     if x:
         return x.uid
     else:

@@ -70,6 +70,7 @@ class apply_to_type:
         self.decorator = decorator
 
         def wrap(func):
+            @wraps(func)
             def wrap_inner(*args, **kwargs):
 
                 def applyd():

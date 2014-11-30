@@ -2,7 +2,7 @@ from dynct.core.mvc.content_compiler import Content
 from dynct.modules.comp.html_elements import TableElement, ContainerElement
 from dynct.modules.commons.commons import Commons
 from .login import LOGOUT_BUTTON
-from . import users, ar
+from . import users, model
 
 __author__ = 'justusadam'
 
@@ -43,7 +43,7 @@ class UserInformation(Content):
     def process_content(self):
         user = users.get_single_user(
             self.page_id)
-        grp = ar.AccessGroup.get(aid=user.access_group)
+        grp = model.AccessGroup.get(aid=user.access_group)
         return ContainerElement(
             TableElement(
                 ['UID', str(user.uid)],

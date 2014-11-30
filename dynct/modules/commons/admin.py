@@ -43,13 +43,3 @@ class MenuAdminController:
         model['title'] = get_display_name(menu_name, 'menus', 'english')
         model.theme = 'admin_theme'
         return 'page'
-
-
-class Menus(ARObject):
-    _table = 'menus'
-
-    def __init__(self, id, machine_name, enabled):
-        super().__init__()
-        self.id = id
-        self.machine_name = machine_name
-        self.enabled = enabled

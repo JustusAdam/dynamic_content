@@ -1,7 +1,7 @@
 from dynct.core import Modules as _modules
-from dynct.core.ar import ContentTypes
+from dynct.core.model import ContentTypes
 from dynct.modules.comp.html_elements import ContainerElement, List
-from dynct.modules.iris import ar
+from dynct.modules.iris import model
 from dynct.util.typesafe import typesafe
 
 __author__ = 'justusadam'
@@ -41,7 +41,7 @@ def access_node(model, node_type:str, node_id:int):
 
 
 def get_page(node_type, node_id):
-    return ar.page(node_type).get(id=node_id)
+    return model.page(node_type).get(id=node_id)
 
 
 def join_permission(modifier, content_type):
@@ -49,7 +49,7 @@ def join_permission(modifier, content_type):
 
 
 def get_fields(content_type, node_type, node_id, modifier):
-    field_info = ar.FieldConfig.get_all(content_type=content_type)
+    field_info = model.FieldConfig.get_all(content_type=content_type)
     for a in field_info:
         yield _modules[a.handler_module].field_handler(a.machine_name, node_type, node_id, modifier)
 

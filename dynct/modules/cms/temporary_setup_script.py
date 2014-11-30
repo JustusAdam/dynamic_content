@@ -3,10 +3,10 @@ This is a temporary script that will execute some queries on the database to fil
 to get some basic site setup done. It will be done in this script to avoid trying to insert into tables that have not
 been created yet.
 """
-from dynct.core.ar import ContentHandler, ContentTypes
-from dynct.modules.commons.ar import MenuItem, com
+from dynct.core.model import ContentHandler, ContentTypes
+from dynct.modules.commons.model import MenuItem, com
 from dynct.modules.comp import add_commons_config, assign_common
-from dynct.modules.iris.ar import FieldConfig, page, field
+from dynct.modules.iris.model import FieldConfig, page, field
 
 __author__ = 'justusadam'
 

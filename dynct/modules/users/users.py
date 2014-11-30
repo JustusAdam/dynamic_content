@@ -1,7 +1,7 @@
 import hashlib
 import os
 from dynct.includes import log, settings
-from . import ar
+from . import model
 
 __author__ = 'justusadam'
 
@@ -84,9 +84,9 @@ def hash_and_new_salt(password):
 
 def get_user(user:str):
     if isinstance(user, int) or user.isdigit():
-        return ar.User.get(uid=user)
+        return model.User.get(uid=user)
     else:
-        return ar.User.get(username=user)
+        return model.User.get(username=user)
 
 
 def acc_grp(user):
@@ -99,18 +99,18 @@ def acc_grp(user):
 
 def add_acc_grp(name, aid=-1):
     if aid != -1:
-        ar.AccessGroup(name, aid).save()
+        model.AccessGroup(name, aid).save()
     else:
-        ar.AccessGroup(name).save()
+        model.AccessGroup(name).save()
 
 
 # @check_permission(1, 'permission')
 @check_aid
 def check_permission(aid, permission, strict=False):
     if aid != GUEST_GRP and not strict:
-        return bool(ar.AccessGroupPermission.get(aid=aid, permission=permission)) or bool(ar.AccessGroupPermission.get(aid=AUTH, permission=permission))
+        return bool(model.AccessGroupPermission.get(aid=aid, permission=permission)) or bool(model.AccessGroupPermission.get(aid=AUTH, permission=permission))
     else:
-        return bool(ar.AccessGroupPermission.get(aid=aid, permission=permission))
+        return bool(model.AccessGroupPermission.get(aid=aid, permission=permission))
 
 
 #@check_permission(1, 'permission')
@@ -118,16 +118,16 @@ def check_permission(aid, permission, strict=False):
 def assign_permission(aid, permission):
     if aid == CONTROL_GROUP:
         log.write_error('users', 'permissions', 'assign_permission', 'cannot assign permissions to control group')
-    elif check_permission(aid, permission, True):
+    elif check_permission(aid=aid, permission=permission, True):
         log.write_warning('users', 'permissions', 'assign_permission',
                           'access group ' + str(aid) + ' already owns permission ' + permission)
-    elif not check_permission(CONTROL_GROUP, permission):
+    elif not check_permission(aid=CONTROL_GROUP, permission=permission):
         log.write_warning('users', 'permissions', 'assign_permission',
                           'permission ' + permission + ' does not exist yet')
         new_permission(permission)
         assign_permission(aid, permission)
     else:
-        ar.AccessGroupPermission(aid, permission).save()
+        model.AccessGroupPermission(aid=aid, permission=permission).save()
 
 
 #@check_permission(1, 'permission')
@@ -136,27 +136,27 @@ def revoke_permission(aid, permission):
     if aid == CONTROL_GROUP:
         log.write_error('users', 'permissions', 'assign_permission', 'cannot revoke permissions from control group')
     else:
-        ar.AccessGroupPermission(aid, permission).delete()
+        model.AccessGroupPermission(oid=aid, permission=permission).delete_instance()
 
 
 #@check_permission(0, 'permission')
 def new_permission(permission):
-    ar.AccessGroupPermission(CONTROL_GROUP, permission).save()
+    model.AccessGroupPermission(CONTROL_GROUP, permission).save()
 
 
 #@check_permission(0, 'permission')
 def remove_permission(permission):
-    ar.AccessGroupPermission(0, '').delete(permission=permission)
+    model.AccessGroupPermission.delete().where(model.AccessGroup.permission == permission)
 
 
 def add_user(username, password, email, first_name='', middle_name='', last_name=''):
-    ar.User(username, email, first_name, last_name, GUEST_GRP, middle_name).save()
+    model.User(username, email, first_name, last_name, GUEST_GRP, middle_name).save()
     passwd, salt = hash_and_new_salt(password)
-    ar.UserAuth(ar.User.get(username=username).uid, passwd, salt).save()
+    model.UserAuth(model.User.get(username=username).uid, passwd, salt).save()
 
 
 def get_info(selection):
-    return ar.User.get_many(selection)
+    return model.User.get_many(selection)
 
 
 def get_single_user(uname_or_uid):
@@ -164,7 +164,7 @@ def get_single_user(uname_or_uid):
 
 
 def edit_user(user_id, **kwargs):
-    user = ar.User.get(uid=user_id)
+    user = model.User.get(uid=user_id)
     for argument in kwargs:
         if argument in _value_mapping:
             setattr(user, _value_mapping[argument], kwargs[argument])

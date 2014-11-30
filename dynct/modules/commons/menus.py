@@ -2,14 +2,14 @@ from collections import defaultdict
 import itertools
 from dynct.modules.comp.html_elements import ContainerElement, List, Select
 from dynct.modules import i18n
-from . import ar
+from . import model
 from .base import Commons
 
 __author__ = 'justusadam'
 
 
 def menu_chooser(name='menu_chooser', **kwargs):
-    menus = [[('none', 'None')]] + [[(menu.element_name + '-' + a[0], a[1]) for a in MenuRenderer(name=menu.element_name).menu(item_class=MenuChooseItem).render()] for menu in ar.CommonsConfig.get_all(element_type='menu')]
+    menus = [[('none', 'None')]] + [[(menu.element_name + '-' + a[0], a[1]) for a in MenuRenderer(name=menu.element_name).menu(item_class=MenuChooseItem).render()] for menu in model.CommonsConfig.get_all(element_type='menu')]
     return Select(*list(itertools.chain(*menus)), name=name, **kwargs)
 
 
@@ -118,7 +118,7 @@ class MenuRenderer:
         Calls the database operation obtaining data about the menu items and casts them onto MenuItems for convenience
         :return: List of MenuItems
         """
-        items = ar.MenuItem.get_all(menu=self.name, enabled=True)
+        items = model.MenuItem.get_all(menu=self.name, enabled=True)
         return [item_class(
             a.display_name,
             a.item_path,

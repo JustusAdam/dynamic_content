@@ -2,7 +2,7 @@ from dynct.core.mvc.content_compiler import ContentCompiler
 from dynct.modules.comp.html_elements import ContainerElement
 from dynct.modules.comp.page import Component
 from dynct.modules.wysiwyg import WysiwygTextarea
-from . import ar
+from . import model
 
 __author__ = 'justusadam'
 
@@ -47,7 +47,7 @@ class Field(ContentCompiler):
     @property
     def my_field(self):
         if not hasattr(self, '_my_field'):
-            self._my_field = ar.field(self.machine_name).get(path_prefix=self.path_prefix, page_id=self.page_id)
+            self._my_field = model.field(self.machine_name).get(path_prefix=self.path_prefix, page_id=self.page_id)
         return self._my_field
 
     def get_content(self):
@@ -94,7 +94,7 @@ class AddBaseFieldHandler(EditBaseFieldHandler):
         return WysiwygTextarea(name=self.machine_name, rows=30, cols=50, classes={self.machine_name} | self.xtra_classes)
 
     def process_post(self):
-        ar.field(self.machine_name)(self.page_id, self._query[self.machine_name][0], self.path_prefix).save()
+        model.field(self.machine_name)(self.page_id, self._query[self.machine_name][0], self.path_prefix).save()
 
 
 class FieldCompiler:
@@ -134,7 +134,7 @@ class AccessFieldCompiler(FieldCompiler):
     @property
     def my_field(self):
         if not hasattr(self, '_my_field'):
-            self._my_field = ar.field(self.machine_name).get(path_prefix=self.path_prefix, page_id=self.page_id)
+            self._my_field = model.field(self.machine_name).get(path_prefix=self.path_prefix, page_id=self.page_id)
         return self._my_field
 
     def get_content(self):

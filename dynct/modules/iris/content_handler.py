@@ -10,10 +10,10 @@ from dynct.modules.comp.html_elements import FormElement, TableElement, Label, C
 from dynct.modules.iris.node import access_node
 from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery, Url
-from dynct.core.ar import ContentTypes
+from dynct.core.model import ContentTypes
 from dynct.modules.commons.menus import menu_chooser, root_ident
-from dynct.modules.commons.ar import MenuItem
-from . import ar
+from dynct.modules.commons.model import MenuItem
+from . import model
 from .decorator import node_process
 
 
@@ -66,7 +66,7 @@ class FieldBasedPageContent(Content):
         self.permission_for_unpublished = self.join_permission('access unpublished', self.page.content_type)
 
     def get_page(self):
-        return ar.page(self.url.page_type).get(id=self.url.page_id)
+        return model.page(self.url.page_type).get(id=self.url.page_id)
 
     @property
     def page_title(self):
@@ -76,7 +76,7 @@ class FieldBasedPageContent(Content):
         return ' '.join([modifier, 'content type', content_type])
 
     def get_fields(self):
-        field_info = ar.FieldConfig.get_all(content_type=self.page.content_type)
+        field_info = model.FieldConfig.get_all(content_type=self.page.content_type)
 
         return [self.get_field_handler(a.machine_name, a.handler_module) for a in field_info]
 
@@ -253,7 +253,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
             raise TypeError
         display_name = ContentTypes.get(content_type_name=content_type).display_name
         title = 'Add new ' + display_name + ' page'
-        return ar.page(self.url.page_type)(content_type, title, self.client.user, True)
+        return model.page(self.url.page_type)(content_type, title, self.client.user, True)
 
     def process_page(self):
         self.page.page_title = parse.unquote_plus(self.url.post['title'][0])
@@ -287,7 +287,7 @@ class Overview(Content):
         ]
 
     def max(self):
-        return ar.page(self.url.page_type).get_many('1', 'id desc')[0].id
+        return model.page(self.url.page_type).get_many('1', 'id desc')[0].id
 
     def scroll(self, range):
         acc = []
@@ -305,7 +305,7 @@ class Overview(Content):
     def process_content(self):
         range = self.get_range()
         def pages():
-            for a in ar.page(self.url.page_type).get_many(','.join([str(a) for a in [range[0], range[1] - range[0] + 1]]), 'date_created desc'):
+            for a in model.page(self.url.page_type).get_many(','.join([str(a) for a in [range[0], range[1] - range[0] + 1]]), 'date_created desc'):
                 u = Url(str(self.url.path) + '/' + str(a.id))
                 u.page_type = self.url.page_type
                 u.page_id = str(a.id)
@@ -327,7 +327,7 @@ def overview(model, get):
             int(get['to'][0])   if 'to'   in get else _step
         ]
     def pages():
-        for a in ar.page('iris').get_many(','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]]), 'date_created desc'):
+        for a in model.page('iris').get_many(','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]]), 'date_created desc'):
             node = access_node(model, 'iris', a.id)
             node['title'] = A('/iris/' + str(a.id), node['title'])
             yield node

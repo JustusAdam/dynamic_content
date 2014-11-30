@@ -1,19 +1,15 @@
 import binascii
 import os
-from dynct.backend.ar.base import ARObject
+from dynct.backend.orm import *
 
 
 __author__ = 'justusadam'
 
 
-class ARToken(ARObject):
-    _table = 'form_tokens'
-    
-    def __init__(self, url, token, id=-1):
-        super().__init__()
-        self.id = id
-        self.url = url
-        self.token = token
+class ARToken(BaseModel):
+    form_id = CharField()
+    token = BlobField()
+
 
 TOKEN_SIZE = 16
 

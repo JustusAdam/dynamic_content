@@ -1,7 +1,7 @@
 from dynct.modules import i18n
 from dynct.modules.comp.html_elements import ContainerElement
 from dynct.modules.comp.page import Component
-from .ar import CommonsConfig
+from .model import CommonsConfig
 
 __author__ = 'justusadam'
 

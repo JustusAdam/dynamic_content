@@ -1,8 +1,8 @@
 from dynct.core import Modules
-from dynct.modules.commons.ar import CommonsConfig
+from dynct.modules.commons.model import CommonsConfig
 from .html_elements import ContainerElement
 from .page import Component
-from . import ar
+from . import model
 
 __author__ = 'justusadam'
 
@@ -18,7 +18,7 @@ class RegionHandler:
         self.config = region_config
 
     def get_all_commons(self, name, theme):
-        region_info = ar.Common.get_all(region=name, theme=theme)
+        region_info = model.Common.get_all(region=name, theme=theme)
         if region_info:
             return [self.get_item(CommonsConfig.get(element_name=a.item_name), a.render_args, a.show_title) for a in region_info]
         else:

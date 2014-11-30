@@ -1,11 +1,11 @@
 from pathlib import Path
 from inspect import isclass
 
-from dynct.backend.ar import ARObject
+from .model import Module
 from dynct.backend.database import Database
 from dynct.util.config import read_config
 from dynct.includes import settings
-from dynct.core.ar import ContentHandler
+from dynct.core.model import ContentHandler
 from dynct.util.module import import_by_path
 
 
@@ -16,17 +16,6 @@ basedir = str(Path(__file__).parent.parent.resolve())
 json_config_name = 'config.json'
 
 python_config_name = 'module_config'
-
-
-class Module(ARObject):
-    _table = 'modules'
-
-    def __init__(self, module_name, module_path, module_role, enabled=False, id=-1):
-        self.module_name = module_name
-        self.module_path = module_path
-        self.module_role = module_role
-        self.id = id
-        self.enabled = enabled
 
 
 def get_module_conf(path:str):
@@ -176,7 +165,6 @@ def ensure_loaded(func):
             instance.load()
         return func(instance, *args, **kwargs)
     return wrap
-
 
 
 class Modules(dict):

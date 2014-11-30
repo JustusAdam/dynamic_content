@@ -2,14 +2,12 @@ from collections import defaultdict
 
 from dynct.core.mvc.content_compiler import Content
 from dynct.core.mvc.content_compiler import ContentCompiler
-from dynct.core import Modules
-from dynct.core.mvc.decorator import controller_class, controller_method, controller_function
+from dynct.core.mvc.decorator import controller_function
 from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import ContainerElement, List
-from dynct.modules.users.users import GUEST
 from dynct.modules.commons.commons import Commons
 
-from . import ar
+from . import model
 
 __author__ = 'justusadam'
 
@@ -65,10 +63,10 @@ class Overview(ContentCompiler):
         self.page_title = 'Website Administration'
 
     def get_children_data(self):
-        return ar.Subcategory.get_all()
+        return model.Subcategory.get_all()
 
     def get_parents_data(self):
-        return ar.Category.get_all()
+        return model.Category.get_all()
 
     def base_path(self):
         return ADMIN_PATH
@@ -147,10 +145,10 @@ class CategoryPage(OverviewPage):
         return '/admin'
 
     def get_parents_data(self):
-        return [ar.Category.get(machine_name=self.name)]
+        return [model.Category.get(machine_name=self.name)]
 
     def get_children_data(self):
-        return ar.Subcategory.get_all(category=self.name)
+        return model.Subcategory.get_all(category=self.name)
 
 
 class SubcategoryPage(CategoryPage):
@@ -165,10 +163,10 @@ class SubcategoryPage(CategoryPage):
         self.page_title = self.name
 
     def get_parents_data(self):
-        return [ar.Subcategory.get(machine_name=self.name)]
+        return [model.Subcategory.get(machine_name=self.name)]
 
     def get_children_data(self):
-        return ar.AdminPage.get_all(subcategory=self.name)
+        return model.AdminPage.get_all(subcategory=self.name)
 
 
 class Category:

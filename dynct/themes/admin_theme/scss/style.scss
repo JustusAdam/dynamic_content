@@ -80,7 +80,7 @@ nav, header {
 nav {
   position: fixed;
   z-index: 3;
-  left: 0px;
+  left: 0;
   padding: $header-height + 2* $header-padding 0 0;
   width: $nav-width;
   height: 100%;

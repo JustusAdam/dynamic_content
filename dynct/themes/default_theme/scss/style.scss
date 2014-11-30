@@ -376,12 +376,12 @@ $bright-row-padding-vert: 20px;
   text-decoration: none;
   font-weight: bold;
   color: #2e4c11;
-  border: 0px solid #999999;
+  border: 0 solid #999999;
 }
 
 @mixin bright-row-highlighted {
   color: #c3a762;
-  border-width: 0px 0px + $filelink-highlight-border-width;
+  border-width: 0 0px + $filelink-highlight-border-width;
   padding: $bright-row-padding-vert $bright-row-base-padding-horiz - $filelink-highlight-border-width;
 }
 
@@ -416,7 +416,7 @@ ul.editorial-list {
     padding: 5px 15px;
     display: block;
     float: left;
-    border: 0px solid #999999;
+    border: 0 solid #999999;
   }
   a:visited {
     color: inherit;

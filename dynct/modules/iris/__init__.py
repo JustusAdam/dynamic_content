@@ -1,5 +1,5 @@
 from .content_handler import IrisController
-from . import field, ar
+from . import field, model
 
 __author__ = 'justusadam'
 

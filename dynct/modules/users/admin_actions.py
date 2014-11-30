@@ -8,7 +8,7 @@ from . import users
 from dynct.modules.form.secure import SecureForm
 from dynct.modules.users.user_information import UsersOverview
 from .user_information import UserInformation
-from . import ar
+from . import model
 
 
 __author__ = 'justusadam'
@@ -193,7 +193,7 @@ class PermissionOverview(Content):
     @property
     def permissions_list(self):
         if not self._perm_list:
-            l = [(a.aid, a.permission) for a in ar.AccessGroupPermission.get_all()]
+            l = [(a.aid, a.permission) for a in model.AccessGroupPermission.get_all()]
             self._perm_list = self._sort_perm_list(l)
         return self._perm_list
 
@@ -208,7 +208,7 @@ class PermissionOverview(Content):
 
     def compile_the_list(self):
         l = []
-        access_groups = sorted(ar.AccessGroup.get_all(), key=lambda a: a.aid)
+        access_groups = sorted(model.AccessGroup.get_all(), key=lambda a: a.aid)
         l.append(['Permissions'] + [a.machine_name for a in access_groups])
         permissions = {}
         for aid, per in self.permissions_list:
