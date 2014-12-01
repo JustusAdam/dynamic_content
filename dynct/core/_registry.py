@@ -156,7 +156,7 @@ def check_info(info):
 
 
 def get_active_modules():
-    return {item.module_name: import_by_path('dynct/' + item.module_path) for item in Module.get_all(enabled=True)}
+    return {item.module_name: import_by_path('dynct/' + item.module_path) for item in Module.select().where(Module.enabled==True)}
 
 
 def ensure_loaded(func):

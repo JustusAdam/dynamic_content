@@ -8,6 +8,18 @@ class Theme(BaseModel):
     enabled = BooleanField(default=False)
 
 
+class Module(BaseModel):
+    machine_name = CharField(unique=True)
+    path = TextField()
+    enabled = BooleanField(default=False)
+
+
+class ContentHandler(BaseModel):
+    module = ForeignKeyField(Module)
+    machine__name = CharField(unique=True)
+    path_prefix = CharField(unique=True)
+
+
 class ContentTypes(BaseModel):
     machine_name = CharField(unique=True)
     content_handler = ForeignKeyField(ContentHandler)
@@ -19,15 +31,3 @@ class ContentTypes(BaseModel):
 class Alias(BaseModel):
     source_url = CharField()
     alias = CharField(unique=True)
-
-
-class Module(BaseModel):
-    machine_name = CharField(unique=True)
-    path = TextField()
-    enabled = BooleanField(default=False)
-
-
-class ContentHandler(BaseModel):
-    module = ForeignKeyField(Module)
-    machine__name = CharField(unique=True)
-    path_prefix = CharField(unique=True)

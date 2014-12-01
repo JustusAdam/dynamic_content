@@ -6,15 +6,16 @@ __author__ = 'justusadam'
 
 def proxy_db():
     if RUNLEVEL == RunLevel.testing:
-        return SqliteDatabase(':memory:')
+        db = SqliteDatabase(':memory:')
+        return db.connect()
     elif RUNLEVEL == RunLevel.debug:
-        return SqliteDatabase('debug.db')
+        return SqliteDatabase('debug.db').connect()
     elif RUNLEVEL == RunLevel.production:
         return MySQLDatabase(database=DATABASE.name,
                              autocommit=DATABASE.autocommit,
                              user=DATABASE.user,
                              password=DATABASE.password,
-                             host=DATABASE.host)
+                             host=DATABASE.host).connect()
     else: raise ValueError
 
 

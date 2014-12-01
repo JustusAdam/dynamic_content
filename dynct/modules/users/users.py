@@ -6,9 +6,6 @@ from . import model
 __author__ = 'justusadam'
 
 _value_mapping = {
-    'first_name': 'user_first_name',
-    'last_name': 'user_last_name',
-    'middle_name': 'user_middle_name',
     'email': 'email_address'
 }
 
@@ -33,39 +30,6 @@ GUEST_GRP = 1  # Not an authenticated User
 AUTH = 2  # Default group for users. users that have no particular group assigned to them
 
 
-def check_aid(func):
-    def wrapped(aid, *args, **kwargs):
-        if not isinstance(aid, int):
-            if aid.isalpha():
-                aid = int(aid)
-            else:
-                log.write_error('users', 'permissions', 'check_permission',
-                                'invalid argument, expected numerical, got ' + str(type(aid)))
-                raise ValueError
-        return func(aid, *args, **kwargs)
-
-    return wrapped
-
-
-def check_permission(pos, name):
-    def dec(func):
-        def wrapped(*args, **kwargs):
-            if name in kwargs:
-                examine = kwargs[name]
-            else:
-                examine = args[pos]
-
-            if not isinstance(examine, str):
-                raise ValueError
-            if '-' in examine:
-                raise ValueError
-            return func(*args, **kwargs)
-
-        return wrapped
-
-    return dec
-
-
 def hash_password(password, salt):
     return hashlib.pbkdf2_hmac(settings.HASHING_ALGORITHM, password, salt, settings.HASHING_ROUNDS,
                                settings.HASH_LENGTH)
@@ -84,9 +48,9 @@ def hash_and_new_salt(password):
 
 def get_user(user:str):
     if isinstance(user, int) or user.isdigit():
-        return model.User.get(uid=user)
+        return model.User.get(model.User.oid == user)
     else:
-        return model.User.get(username=user)
+        return model.User.get(model.User.username==user)
 
 
 def acc_grp(user):
@@ -99,26 +63,25 @@ def acc_grp(user):
 
 def add_acc_grp(name, aid=-1):
     if aid != -1:
-        model.AccessGroup(name, aid).save()
+        model.AccessGroup.create(machine_name=name, oid=aid)
     else:
-        model.AccessGroup(name).save()
+        model.AccessGroup(machine_name=name)
 
 
 # @check_permission(1, 'permission')
-@check_aid
 def check_permission(aid, permission, strict=False):
     if aid != GUEST_GRP and not strict:
-        return bool(model.AccessGroupPermission.get(aid=aid, permission=permission)) or bool(model.AccessGroupPermission.get(aid=AUTH, permission=permission))
+        return bool(model.AccessGroupPermission.get(oid=aid, permission=permission)) or bool(model.AccessGroupPermission.get(oid=AUTH, permission=permission))
     else:
-        return bool(model.AccessGroupPermission.get(aid=aid, permission=permission))
+        return bool(model.AccessGroupPermission.get(oid=aid, permission=permission))
 
 
 #@check_permission(1, 'permission')
-@check_aid
+
 def assign_permission(aid, permission):
     if aid == CONTROL_GROUP:
         log.write_error('users', 'permissions', 'assign_permission', 'cannot assign permissions to control group')
-    elif check_permission(aid=aid, permission=permission, True):
+    elif check_permission(aid=aid, permission=permission, strict=True):
         log.write_warning('users', 'permissions', 'assign_permission',
                           'access group ' + str(aid) + ' already owns permission ' + permission)
     elif not check_permission(aid=CONTROL_GROUP, permission=permission):
@@ -127,11 +90,11 @@ def assign_permission(aid, permission):
         new_permission(permission)
         assign_permission(aid, permission)
     else:
-        model.AccessGroupPermission(aid=aid, permission=permission).save()
+        model.AccessGroupPermission(oid=aid, permission=permission).save()
 
 
 #@check_permission(1, 'permission')
-@check_aid
+
 def revoke_permission(aid, permission):
     if aid == CONTROL_GROUP:
         log.write_error('users', 'permissions', 'assign_permission', 'cannot revoke permissions from control group')
@@ -141,7 +104,7 @@ def revoke_permission(aid, permission):
 
 #@check_permission(0, 'permission')
 def new_permission(permission):
-    model.AccessGroupPermission(CONTROL_GROUP, permission).save()
+    model.AccessGroupPermission.create(group=CONTROL_GROUP, permission=permission)
 
 
 #@check_permission(0, 'permission')
@@ -150,13 +113,22 @@ def remove_permission(permission):
 
 
 def add_user(username, password, email, first_name='', middle_name='', last_name=''):
-    model.User(username, email, first_name, last_name, GUEST_GRP, middle_name).save()
+    model.User.create(
+        usernam=username,
+        email_address=email,
+        first_name=first_name,
+        last_name=last_name,
+        access_group=GUEST_GRP,
+        middle_name=middle_name
+    )
     passwd, salt = hash_and_new_salt(password)
-    model.UserAuth(model.User.get(username=username).uid, passwd, salt).save()
+    model.UserAuth.create(uid=model.User.get(model.User.username == username).oid,
+                          password=passwd,
+                          salt=salt)
 
 
 def get_info(selection):
-    return model.User.get_many(selection)
+    return model.User.select().limit(selection)
 
 
 def get_single_user(uname_or_uid):

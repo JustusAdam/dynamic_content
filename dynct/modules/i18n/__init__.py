@@ -4,7 +4,7 @@ __author__ = 'justusadam'
 
 
 def get_display_name(item, source_table, language):
-    data = DisplayName.get(machine_name=item, source_table=source_table)
+    data = DisplayName.get(DisplayName.machine_name==item, DisplayName.source_table==source_table)
     if data:
         return getattr(data, language)
     else:
@@ -12,7 +12,7 @@ def get_display_name(item, source_table, language):
 
 
 def edit_display_name(item, source_table, language, value):
-    a = DisplayName.get(machine_name=item, source_table=source_table)
+    a = DisplayName.get(DisplayName.machine_name==item, DisplayName.source_table==source_table)
     setattr(a, language, value)
     a.save()
 

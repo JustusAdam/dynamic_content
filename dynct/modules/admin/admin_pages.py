@@ -63,10 +63,10 @@ class Overview(ContentCompiler):
         self.page_title = 'Website Administration'
 
     def get_children_data(self):
-        return model.Subcategory.get_all()
+        return model.Subcategory.select()
 
     def get_parents_data(self):
-        return model.Category.get_all()
+        return model.Category.select()
 
     def base_path(self):
         return ADMIN_PATH
@@ -145,10 +145,10 @@ class CategoryPage(OverviewPage):
         return '/admin'
 
     def get_parents_data(self):
-        return [model.Category.get(machine_name=self.name)]
+        return [model.Category.get(model.Subcategory.machine_name==self.name)]
 
     def get_children_data(self):
-        return model.Subcategory.get_all(category=self.name)
+        return model.Subcategory.select().where(model.Subcategory.category == self.name)
 
 
 class SubcategoryPage(CategoryPage):
@@ -163,10 +163,10 @@ class SubcategoryPage(CategoryPage):
         self.page_title = self.name
 
     def get_parents_data(self):
-        return [model.Subcategory.get(machine_name=self.name)]
+        return [model.Subcategory.get(model.Subcategory.machine_name == self.name)]
 
     def get_children_data(self):
-        return model.AdminPage.get_all(subcategory=self.name)
+        return model.AdminPage.select().where(model.AdminPage.subcategory == self.get_parents_data()[0])
 
 
 class Category:

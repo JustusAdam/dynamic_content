@@ -18,8 +18,8 @@ def gen_token():
     return os.urandom(TOKEN_SIZE)
 
 
-def _validate(form, token):
-    a = ARToken.get(url=form, token=binascii.unhexlify(token))
+def _validate(fid, token):
+    a = ARToken.get(ARToken.form_id==binascii.unhexlify(fid), ARToken.token==binascii.unhexlify(token))
     if a:
         a.delete()
         return True
@@ -27,15 +27,12 @@ def _validate(form, token):
         return False
 
 
-def validate(form, query_or_token):
-    print(form)
-    if isinstance(query_or_token, str):
-        return _validate(form, query_or_token)
-    else:
-        return _validate(form, query_or_token['form_token'][0])
+def validate(query):
+    return _validate(query['form_id'][0], query['form_token'][0])
 
 
-def new(form):
+def new():
+    fid = gen_token()
     token = gen_token()
-    ARToken(form, token).save()
-    return binascii.hexlify(token).decode()
+    ARToken.create(form_id=fid, token=token)
+    return binascii.hexlify(token).decode(), binascii.hexlify(fid).decode()

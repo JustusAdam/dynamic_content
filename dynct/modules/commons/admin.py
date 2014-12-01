@@ -1,11 +1,11 @@
-from dynct.backend.ar.base import ARObject
 from dynct.core.mvc.decorator import controller_class, controller_method
 from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import TableElement, List, A
 from dynct.modules.i18n import get_display_name
 from dynct.modules.form.secure import SecureForm
 from dynct.modules.comp.html_elements import Checkbox
-from .menus import MenuRenderer
+from .menus import menu as _menu
+from .model import Menu
 
 __author__ = 'justusadam'
 
@@ -21,16 +21,13 @@ class MenuAdminController:
             return self.a_menu(model, url)
 
     def overview(self, model, url):
-        menus = Menus.get_all()
-        l = []
-        for item in menus:
-            l.append(
+        menus = Menu.select()
+        l = [
                 [
                     A(str(url.path) + '/' + item.machine_name, item.id),
                     A(str(url.path) + '/' + item.machine_name, get_display_name(item.machine_name, 'menus', 'english')),
                     Checkbox(checked=bool(item.enabled))
-                ]
-            )
+                ] for item in menus]
         model['content'] = SecureForm(TableElement(*l, classes={'menu-overview'}))
         model['title'] = 'Menus Overview'
         model.theme = 'admin_theme'
@@ -38,7 +35,7 @@ class MenuAdminController:
 
     def a_menu(self, model,  url):
         menu_name = url.path[1]
-        menu = MenuRenderer(menu_name).menu().render()
+        menu = _menu(menu_name).render()
         model['content'] = List(*menu, additional={'style': 'list-style-type: none;'})
         model['title'] = get_display_name(menu_name, 'menus', 'english')
         model.theme = 'admin_theme'

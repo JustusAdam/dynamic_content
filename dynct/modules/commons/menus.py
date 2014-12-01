@@ -9,7 +9,7 @@ __author__ = 'justusadam'
 
 
 def menu_chooser(name='menu_chooser', **kwargs):
-    menus = [[('none', 'None')]] + [[(menu.element_name + '-' + a[0], a[1]) for a in MenuRenderer(name=menu.element_name).menu(item_class=MenuChooseItem).render()] for menu in model.CommonsConfig.get_all(element_type='menu')]
+    menus = [[('none', 'None')]] + [[(menu.element_name + '-' + a[0], a[1]) for a in menu(name=menu.element_name, item_class=MenuChooseItem).render()] for menu in model.CommonsConfig.select().where(model.CommonsConfig.element_type=='menu')]
     return Select(*list(itertools.chain(*menus)), name=name, **kwargs)
 
 
@@ -97,63 +97,57 @@ class Handler(Commons):
     source_table = 'menu_items'
 
     def get_content(self, name):
-        renderer = MenuRenderer(self.name, self.language)
         if self.render_args is None:
-            ul_list = renderer.menu(HTMLMenuItem).render_children(0)
+            ul_list = menu(name, item_class=HTMLMenuItem).render_children(0)
         else:
-            ul_list = renderer.menu(HTMLMenuItem).render_children(0, int(self.render_args))
+            ul_list = menu(name, item_class=HTMLMenuItem).render_children(0, int(self.render_args))
         ul_list.element_id = name
         return ul_list
 
 
-class MenuRenderer:
-    source_table = 'menu_items'
+def get_items(name, item_class=MenuItem):
+    """
+    Calls the database operation obtaining data about the menu items and casts them onto MenuItems for convenience
+    :return: List of MenuItems
+    """
+    items = model.MenuItem.get_all(menu=name, enabled=True)
+    return [item_class(
+        a.display_name,
+        a.path,
+        a.parent,
+        a.weight,
+        a.oid
+    ) for a in items]
 
-    def __init__(self, name, language='english'):
-        self.name = name
-        self.language = language
 
-    def get_items(self, item_class=MenuItem):
+def order_items(name, source_table, language, items, root_class=MenuItem):
+    """
+    Takes a list of MenuItems and constructs a tree of parent items and child items.
+    Child item lists are sored by weight
+    :param items: List of MenuItems
+    :return: Root for menu tree
+    """
+    mapping = defaultdict(list)
+    root = root_class(i18n.get_display_name(name, source_table, language), '/', 0, 0, root_ident)
+
+    def order():
         """
-        Calls the database operation obtaining data about the menu items and casts them onto MenuItems for convenience
-        :return: List of MenuItems
+        Implementation of the tree construction. Uses two loops. Child item lists are sorted
+        :return:
         """
-        items = model.MenuItem.get_all(menu=self.name, enabled=True)
-        return [item_class(
-            a.display_name,
-            a.item_path,
-            a.parent_item,
-            a.weight,
-            a.item_id
-        ) for a in items]
 
-    def order_items(self, items, root_class=MenuItem):
-        """
-        Takes a list of MenuItems and constructs a tree of parent items and child items.
-        Child item lists are sored by weight
-        :param items: List of MenuItems
-        :return: Root for menu tree
-        """
-        mapping = defaultdict(list)
-        root = root_class(i18n.get_display_name(self.name, self.source_table, self.language), '/', 0, 0, root_ident)
+        for item in items:
+            key = item.parent_item if item.parent_item else root_ident
+            mapping[key].append(item)
 
-        def order():
-            """
-            Implementation of the tree construction. Uses two loops. Child item lists are sorted
-            :return:
-            """
+        items.append(root)
 
-            for item in items:
-                key = item.parent_item if item.parent_item else root_ident
-                mapping[key].append(item)
+        for item in items:
+            item.children = sorted(mapping[item.item_id], key=lambda s: s.weight) if item.item_id in mapping else None
+        return root
 
-            items.append(root)
+    return order()
 
-            for item in items:
-                item.children = sorted(mapping[item.item_id], key=lambda s: s.weight) if item.item_id in mapping else None
-            return root
 
-        return order()
-
-    def menu(self, item_class=MenuItem):
-        return self.order_items(self.get_items(item_class), item_class)
+def menu(name, source_table='menu', language='english', item_class=MenuItem):
+    return order_items(name, source_table, language, get_items(item_class), item_class)

@@ -4,9 +4,9 @@ to get some basic site setup done. It will be done in this script to avoid tryin
 been created yet.
 """
 from dynct.core.model import ContentHandler, ContentTypes
-from dynct.modules.commons.model import MenuItem, com
+from dynct.modules.commons.model import MenuItem, Common
 from dynct.modules.comp import add_commons_config, assign_common
-from dynct.modules.iris.model import FieldConfig, page, field
+from dynct.modules.iris.model import FieldConfig, Page, field
 
 __author__ = 'justusadam'
 
@@ -89,13 +89,34 @@ ContentHandler('admin', 'admin', 'admin').save()
 
 # from commons.prepare()
 
-MenuItem('welcome', '/iris/1', 'start_menu', True, '<root>', 1).save()
-MenuItem('welcome', '/iris/1', 'start_menu', True, '<root>', 1).save()
-MenuItem('testpage', '/iris/2', 'start_menu', True, '<root>', 2).save()
-MenuItem('setup', '/setup', 'start_menu', True, 'welcome', 1).save()
-com('text')('copyright', '<p>\"dynamic_content\" CMS - © Justus Adam 2014</p>').save()
+for name, path, menu, enabled, parent, weight in [
+                                                    ('welcome', '/iris/1', 'start_menu', True, '<root>', 1),
+                                                    ('welcome', '/iris/1', 'start_menu', True, '<root>', 1),
+                                                    ('testpage', '/iris/2', 'start_menu', True, '<root>', 2),
+                                                    ('setup', '/setup', 'start_menu', True, 'welcome', 1)
+                                                ]:
+    MenuItem.create(
+        display_name=name,
+        path=path,
+        menu=menu,
+        enabled=enabled,
+        parent=parent,
+        weight=weight
+    )
+
+for name, content in [('copyright', '<p>\"dynamic_content\" CMS - © Justus Adam 2014</p>')]:
+    Common.create(
+        machine_name=name,
+        content=content
+    )
 
 # from comp.prepare()
+
+for machine_name, type_, handler, access_type in [
+    ('start_menu', 'menu', 'commons', 0),
+    ('copyright', 'com_text', 'commons', 0)
+]:
+    add_commons_config()
 
 add_commons_config('start_menu', 'menu', 'commons', False, 0)
 assign_common('start_menu', 'navigation', 1, 'default_theme')

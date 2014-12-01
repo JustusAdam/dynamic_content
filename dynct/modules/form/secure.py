@@ -1,4 +1,4 @@
-from dynct.modules.comp.html_elements import FormElement, Input
+from dynct.modules.comp.html_elements import FormElement, Input, ContainerElement
 from dynct.modules.form import tokens
 
 __author__ = 'justusadam'
@@ -9,5 +9,7 @@ class SecureForm(FormElement):
         return super().render_content() + str(self.render_token())
 
     def render_token(self):
-        token = tokens.new(self._value_params['action'])
-        return Input(input_type='hidden', name='form_token', value=token)
+        tid, token = tokens.new()
+        return ContainerElement(
+            Input(input_type='hidden', name='form_token', value=token), Input(input_type='hidden', name='form_id', value=tid)
+        , additional={'style': 'display:none;'})

@@ -3,7 +3,7 @@ from urllib.error import HTTPError
 
 from dynct.core import Modules
 from dynct.core.mvc.content_compiler import Content
-from dynct.core.mvc.decorator import controller_class, controller_method, controller_function, Autoconf
+from dynct.core.mvc.decorator import controller_class, controller_method, controller_function
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import FormElement, TableElement, Label, ContainerElement, Checkbox, A, TableRow, TextInput
@@ -60,13 +60,13 @@ class FieldBasedPageContent(Content):
         self.url = url
         self.modules = Modules
         self.page = self.get_page()
-        self._theme = ContentTypes.get(content_type_name=self.page.content_type).theme
+        self._theme = ContentTypes.get(ContentTypes.machine_name==self.page.content_type).theme
         self.fields = self.get_fields()
         self.permission = self.join_permission(self.modifier, self.page.content_type)
         self.permission_for_unpublished = self.join_permission('access unpublished', self.page.content_type)
 
     def get_page(self):
-        return model.page(self.url.page_type).get(id=self.url.page_id)
+        return model.Page.get(model.Page.oid==self.url.page_id)
 
     @property
     def page_title(self):
@@ -76,9 +76,9 @@ class FieldBasedPageContent(Content):
         return ' '.join([modifier, 'content type', content_type])
 
     def get_fields(self):
-        field_info = model.FieldConfig.get_all(content_type=self.page.content_type)
-
-        return [self.get_field_handler(a.machine_name, a.handler_module) for a in field_info]
+        field_info = model.FieldConfig.get_all(model.FieldConfig.content_type==self.page.content_type)
+        for a in field_info:
+            yield self.get_field_handler(a.machine_name, a.handler_module)
 
     def handle_single_field_post(self, field_handler):
         query_keys = field_handler.get_post_query_keys()
@@ -117,11 +117,9 @@ class FieldBasedPageContent(Content):
         return self.concatenate_content(self.fields)
 
     def editorial_list(self):
-        s = []
         for (name, modifier) in self._editorial_list_base:
             if self.check_permission(self.join_permission(modifier, self.page.content_type)):
-                s.append((name, '/'.join(['', self.url.page_type, str(self.url.page_id), modifier])))
-        return s
+                yield (name, '/'.join(['', self.url.page_type, str(self.url.page_id), modifier]))
 
 
 class EditFieldBasedContent(FieldBasedPageContent):
@@ -253,7 +251,7 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
             raise TypeError
         display_name = ContentTypes.get(content_type_name=content_type).display_name
         title = 'Add new ' + display_name + ' page'
-        return model.page(self.url.page_type)(content_type, title, self.client.user, True)
+        return model.Page(content_type= content_type, title=title, creator=self.client.user)
 
     def process_page(self):
         self.page.page_title = parse.unquote_plus(self.url.post['title'][0])
@@ -287,7 +285,7 @@ class Overview(Content):
         ]
 
     def max(self):
-        return model.page(self.url.page_type).get_many('1', 'id desc')[0].id
+        return model.Page.select().order_by('id desc').limit(1).oid
 
     def scroll(self, range):
         acc = []
@@ -305,13 +303,13 @@ class Overview(Content):
     def process_content(self):
         range = self.get_range()
         def pages():
-            for a in model.page(self.url.page_type).get_many(','.join([str(a) for a in [range[0], range[1] - range[0] + 1]]), 'date_created desc'):
+            for a in model.Page.select().limit(','.join([str(a) for a in [range[0], range[1] - range[0] + 1]])).order_by( 'date_created desc'):
                 u = Url(str(self.url.path) + '/' + str(a.id))
                 u.page_type = self.url.page_type
                 u.page_id = str(a.id)
-                model = Model()
-                FieldBasedPageContent(model, u).compile()
-                yield u, model
+                m = Model()
+                FieldBasedPageContent(m, u).compile()
+                yield u, m
         content = [ContainerElement(A(str(a.path), ContainerElement(b['page_title'], html_type='h2')), ContainerElement(b['content'])) for a, b in pages()]
         content.append(self.scroll(range))
         return ContainerElement(*content)
@@ -320,18 +318,16 @@ class Overview(Content):
 @controller_function('iris', '$', post=False)
 @Regions
 @node_process
-def overview(model, get):
-    model.client.check_permission(' '.join(['access', 'iris', 'overview']))
+def overview(page_model, get):
+    page_model.client.check_permission(' '.join(['access', 'iris', 'overview']))
     my_range = [
             int(get['from'][0]) if 'from' in get else 0,
             int(get['to'][0])   if 'to'   in get else _step
         ]
-    def pages():
-        for a in model.page('iris').get_many(','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]]), 'date_created desc'):
-            node = access_node(model, 'iris', a.id)
-            node['title'] = A('/iris/' + str(a.id), node['title'])
-            yield node
-    return pages()
+    for a in model.Page.select().limit(','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]])).order_by('date_created desc'):
+        node = access_node(page_model, 'iris', a.oid)
+        node['title'] = A('/iris/' + str(a.oid), node['title'])
+        yield node
 
 
 @controller_class
