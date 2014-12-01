@@ -5,9 +5,11 @@ __author__ = 'justusadam'
 
 
 def proxy_db():
+    print(RUNLEVEL)
     if RUNLEVEL == RunLevel.testing:
         db = SqliteDatabase(':memory:')
-        return db.connect()
+        db.connect()
+        return db
     elif RUNLEVEL == RunLevel.debug:
         return SqliteDatabase('debug.db').connect()
     elif RUNLEVEL == RunLevel.production:

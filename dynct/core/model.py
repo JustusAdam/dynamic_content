@@ -16,7 +16,7 @@ class Module(BaseModel):
 
 class ContentHandler(BaseModel):
     module = ForeignKeyField(Module)
-    machine__name = CharField(unique=True)
+    machine_name = CharField(unique=True)
     path_prefix = CharField(unique=True)
 
 

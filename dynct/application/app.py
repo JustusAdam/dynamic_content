@@ -6,6 +6,7 @@ from dynct.core.mvc import controller_mapper
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.template_formatter import TemplateFormatter
 from dynct.util.typesafe import typesafe
+from dynct.includes import settings
 
 from .config import ApplicationConfig, DefaultConfig
 
@@ -29,6 +30,10 @@ class Application(Thread):
 
     def load(self):
         Modules.load()
+        if settings.RUNLEVEL == settings.RunLevel.testing:
+            import dynct.modules.cms.temporary_setup_script
+            dynct.modules.cms.temporary_setup_script.init_tables()
+            dynct.modules.cms.temporary_setup_script.initialize()
         controller_mapper.sort()
 
     def run(self):

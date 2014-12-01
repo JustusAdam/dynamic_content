@@ -156,7 +156,22 @@ def check_info(info):
 
 
 def get_active_modules():
-    return {item.module_name: import_by_path('dynct/' + item.module_path) for item in Module.select().where(Module.enabled==True)}
+    try:
+        modules = Module.select().where(Module.enabled==True)
+        return {item.machine_name: import_by_path('dynct/' + item.path) for item in modules}
+    except Exception:
+        def find(name, paths):
+            for path in paths:
+                for file in Path(path).iterdir():
+                    if file.name == name: return str(file)
+            else:
+                raise FileNotFoundError
+        class TempModule:
+            def __init__(self, name, path):
+                self.machine_name = name
+                self.path = path
+        modules = [TempModule(i, find(i, settings.MODULES_DIRECTORIES)) for i in settings.DEFAULT_MODULES]
+        return {item.machine_name: import_by_path('dynct/' + item.path) for item in modules}
 
 
 def ensure_loaded(func):

@@ -65,7 +65,7 @@ def add_acc_grp(name, aid=-1):
     if aid != -1:
         model.AccessGroup.create(machine_name=name, oid=aid)
     else:
-        model.AccessGroup(machine_name=name)
+        model.AccessGroup.create(machine_name=name)
 
 
 # @check_permission(1, 'permission')
@@ -73,7 +73,7 @@ def check_permission(aid, permission, strict=False):
     if aid != GUEST_GRP and not strict:
         return bool(model.AccessGroupPermission.get(oid=aid, permission=permission)) or bool(model.AccessGroupPermission.get(oid=AUTH, permission=permission))
     else:
-        return bool(model.AccessGroupPermission.get(oid=aid, permission=permission))
+        return bool(model.AccessGroupPermission.get(group=aid, permission=permission))
 
 
 #@check_permission(1, 'permission')
