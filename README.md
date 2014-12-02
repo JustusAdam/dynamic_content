@@ -13,9 +13,16 @@ Currently there is no documentation and few comments and docstrings and it is by
 
 ## Requirements
 
-* Mysql/MariaDB database, tested for >= v. 5.5 (sqlite integration planned)
-* MySQL Connector/Python library for database connection
-* Python > v 3.4 http://python.org
+* Database
+    * Mysql/MariaDB database, tested for >= v. 5.5
+    * or SQLite
+    * or PostgreSQL (untested, no example config)
+* Libraries
+    * Python > v 3.4 http://python.org + python stdlib
+    * peewee orm
+    * MySQL Connector/Python library for database connection (only if using mysql)
+    * PostgreSQL driver??
+    
 
 ## Roadmap
 
@@ -24,10 +31,16 @@ Currently there is no documentation and few comments and docstrings and it is by
     * common elements (menus/blocks) &#x2713;
     * text content &#x2713;
     * authentication &#x2713;
-    * authorization (partially done)
+    * authorization &#x2713;
     * file access &#x2713;
     * theme based styling &#x2713;
-    * configuration and editing via web interface (partially done) 
+    * configuration and editing via web interface &#x2718; (partially done) 
     * module based handling of editing and content &#x2713; (for all currently available content types)
+    
+* Extensibility
+    * Added several decorators to allow easy use of core functionality
+    
+* MISC Features
+    * Special handling for other requests like traceroute etc. &#x2718;
 
-* SQLite integration (planned)
+* SQLite integration &#x2713;
