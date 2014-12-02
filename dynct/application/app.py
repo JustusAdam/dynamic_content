@@ -1,12 +1,13 @@
 import os
 from threading import Thread
+from dynct.backend.orm import BaseModel
 from dynct.core import Modules
 from dynct.core.mvc import controller_mapper
 
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.template_formatter import TemplateFormatter
 from dynct.util.typesafe import typesafe
-from dynct.includes import settings
+from dynct.includes import settings, log
 
 from .config import ApplicationConfig, DefaultConfig
 
@@ -24,23 +25,26 @@ class Application(Thread):
     """
     @typesafe
     def __init__(self, config:ApplicationConfig=DefaultConfig()):
+        if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(message='app starting')
         super().__init__()
         self.config = config
         self.load()
 
     def load(self):
+        if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(message='loading components')
+        self.load_modules()
+
+    def run(self):
+        if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(message='starting server')
+        self.run_http_server_loop()
+
+    def load_modules(self):
         Modules.load()
-        if settings.RUNLEVEL == settings.RunLevel.testing:
+        if BaseModel._meta.database.database == ':memory:':
             import dynct.modules.cms.temporary_setup_script
             dynct.modules.cms.temporary_setup_script.init_tables()
             dynct.modules.cms.temporary_setup_script.initialize()
         controller_mapper.sort()
-
-    def run(self):
-        self.run_http_server_loop()
-
-    def load_modules(self):
-        pass
 
     def handle_http_request(self, *args):
         def http_callback(url, client):
@@ -58,6 +62,7 @@ class Application(Thread):
         httpd.serve_forever()
 
     def set_working_directory(self):
+        if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info('setting working directory (' + str(self.config.basedir) + ')')
         os.chdir(self.config.basedir)
 
     def process_request(self, request):

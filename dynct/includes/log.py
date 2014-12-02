@@ -22,12 +22,17 @@ def write_any(line):
 
 
 def write_error(module='', segment='', function='', message=''):
-    head = 'Error occurred'
+    head = 'ERROR occurred'
     write_helper(head, module, segment, function, message)
 
 
 def write_warning(module='', segment='', function='', message=''):
-    head = 'Warning issued'
+    head = 'WARNING issued'
+    write_helper(head, module, segment, function, message)
+
+
+def write_info(message='', module='', segment='', function=''):
+    head = 'INFO'
     write_helper(head, module, segment, function, message)
 
 

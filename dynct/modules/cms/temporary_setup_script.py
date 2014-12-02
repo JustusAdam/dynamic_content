@@ -16,7 +16,8 @@ def init_tables():
     for module_name, module in Modules.items():
         try:
             m = import_module('.model', module.__name__)
-            for item in m.__dict__.values():
+            for item in dir(m):
+                item = getattr(m, item)
                 if inspect.isclass(item) and issubclass(item, BaseModel):
                     try:
                         item.create_table()
