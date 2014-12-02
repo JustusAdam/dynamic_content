@@ -97,18 +97,12 @@ def register_installed_modules():
 
 
 def discover_modules():
-    filename = settings.MODULE_CONFIG_NAME
-    accumulator = []
     for directory in settings.MODULES_DIRECTORIES + settings.COREMODULES_DIRECTORIES:
         for file in Path(directory).iterdir():
-            if file.is_dir():
-                configpath = file / filename
-                if configpath.exists():
-                    info = read_config(str(configpath))
-                    if check_info(info):
-                        info['path'] = str(file)
-                        accumulator.append(info)
-    return accumulator
+            yield {
+                'name': str(file.name),
+                'path': str(file)
+            }
 
 
 def register_modules(r_modules):
@@ -122,13 +116,13 @@ def register_modules(r_modules):
 def register_single_module(moduleconf):
     assert isinstance(moduleconf, dict)
     print('registering module ' + moduleconf['name'])
-    module = Module.get(module_name=moduleconf['name'])
+    module = Module.get(machine_name=moduleconf['name'])
     if module:
         if module.module_path != moduleconf['path']:
             module.module_path = moduleconf['path']
             module.save()
     else:
-        Module(moduleconf['name'], moduleconf['path'], moduleconf['role']).save()
+        Module.create(machine_name=moduleconf['name'], path=moduleconf['path'])
 
 
 def check_info(info):
@@ -150,13 +144,8 @@ def get_active_modules():
                 for file in Path(path).iterdir():
                     if file.name == name: return str(file)
             else:
-                raise FileNotFoundError
-        class TempModule:
-            def __init__(self, name, path):
-                self.machine_name = name
-                self.path = path
-        modules = [TempModule(i, find(i, settings.MODULES_DIRECTORIES)) for i in settings.DEFAULT_MODULES]
-        return {item.machine_name: import_by_path('dynct/' + item.path) for item in modules}
+                raise FileNotFoundError('default module ' + name + ' is missing')
+        return {i: import_by_path('dynct/' + find(i, settings.MODULES_DIRECTORIES)) for i in settings.DEFAULT_MODULES}
 
 
 def ensure_loaded(func):
@@ -181,8 +170,8 @@ class Modules(dict):
 
     def load(self):
         all_ = get_active_modules()
-        for item in all_:
-            dict.__setitem__(self, item, all_[item])
+        for name, value in all_.items():
+            dict.__setitem__(self, name, value)
         self.loaded = True
 
     def __getitem__(self, key):

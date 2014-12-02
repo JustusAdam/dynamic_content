@@ -1,6 +1,6 @@
 import os
 from threading import Thread
-from dynct.backend.orm import BaseModel
+from dynct.backend.orm import database_proxy
 from dynct.core import Modules
 from dynct.core.mvc import controller_mapper
 
@@ -40,7 +40,7 @@ class Application(Thread):
 
     def load_modules(self):
         Modules.load()
-        if BaseModel._meta.database.database == ':memory:':
+        if hasattr(database_proxy, 'database') and database_proxy.database == ':memory:':
             import dynct.modules.cms.temporary_setup_script
             dynct.modules.cms.temporary_setup_script.init_tables()
             dynct.modules.cms.temporary_setup_script.initialize()
