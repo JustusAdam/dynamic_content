@@ -1,12 +1,14 @@
+import inspect
 from pathlib import Path
 from inspect import isclass
+from dynct.backend.orm import BaseModel
 
 from .model import Module
-from dynct.backend.database import Database
 from dynct.util.config import read_config
 from dynct.includes import settings
 from dynct.core.model import ContentHandler
 from dynct.util.module import import_by_path
+from dynct.includes import log
 
 
 __author__ = 'justusadam'
@@ -18,14 +20,13 @@ json_config_name = 'config.json'
 python_config_name = 'module_config'
 
 
-def get_module_conf(path:str):
+def get_module_conf(path:str, module):
     dir_ = Path(path)
     if dir_.is_dir() and json_config_name in dir_.iterdir():
         return read_config(str(dir_ / json_config_name))
     else:
-        mod = import_by_path(path)
-        if hasattr(mod, python_config_name):
-            return getattr(mod, python_config_name)
+        if hasattr(module, python_config_name):
+            return getattr(module, python_config_name)
     raise NotImplemented(path)
 
 
@@ -35,25 +36,25 @@ def activate_module(module_name):
         print('Module ' + module_name + ' is already active.')
         return True
     path = get_module_path(module_name)
-
+    module = import_by_path('dynct/' + path)
     if path is None:
         print('Module ' + module_name + ' could not be activated')
         return False
-    module_conf = get_module_conf('dynct/' + path)
+    module_conf = get_module_conf('dynct/' + path, module)
     module_conf['path'] = path
+    init_tables(module)
+    return _set_module_active(module_conf['name'])
 
-    return _activate_module(module_conf)
 
-
-def _activate_module(module_conf):
-    try:
-        init_module(module_conf)
-    except IOError as error:
-        print(error)
-        return False
-
-    _set_module_active(module_conf['name'])
-    return True
+def init_tables(m):
+    for item in dir(m):
+        item = getattr(m, item)
+        if inspect.isclass(item) and issubclass(item, BaseModel):
+            try:
+                item.create_table()
+            except Exception as e:
+                print(e)
+                log.write_error(function='create_table', message=str(e))
 
 
 def register_content_handler(module_conf):
@@ -71,22 +72,6 @@ def register_content_handler(module_conf):
 
 def get_module_id(module_name):
     return Module.get(module_name=module_name).id
-
-
-def init_module(module_conf, force=False):
-    if 'tables' in module_conf:
-        db = Database
-        for table, columns in module_conf['tables'].items():
-            try:
-                db.create_table(table, columns)
-            except IOError as e:
-                if force:
-                    print('Encountered error: ' + repr(e))
-                    print('Trying dropping table' + table)
-                    db.drop_table(table)
-                    db.create_table(table, columns)
-                else:
-                    raise e
 
 
 def get_module_path(module):
