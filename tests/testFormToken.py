@@ -7,6 +7,7 @@ import unittest
 
 class TestFormToken(unittest.TestCase):
     def test_form(self):
+        tokens.ARToken.create_table()
         test_token, fid = tokens.new()
         self.assertEqual(tokens._validate(fid=fid, token=test_token), True)
 

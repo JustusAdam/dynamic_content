@@ -22,4 +22,4 @@ class TestDecorator(unittest.TestCase):
         result_model, result_arg, result_get = controller_mapper(model, url1)
         self.assertEqual(result_model, model)
         self.assertEqual(result_arg, testpath)
-        self.assertEqual(result_get, None)
+        self.assertEqual(result_get, {})

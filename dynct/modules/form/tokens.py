@@ -19,7 +19,7 @@ def gen_token():
 
 
 def _validate(fid, token):
-    a = ARToken.get(ARToken.form_id==binascii.unhexlify(fid), ARToken.token==binascii.unhexlify(token))
+    a = ARToken.get(ARToken.form_id==fid, ARToken.token==binascii.unhexlify(token))
     if a:
         a.delete()
         return True
@@ -32,7 +32,7 @@ def validate(query):
 
 
 def new():
-    fid = gen_token()
+    fid = binascii.hexlify(gen_token()).decode()
     token = gen_token()
     ARToken.create(form_id=fid, token=token)
-    return binascii.hexlify(token).decode(), binascii.hexlify(fid).decode()
+    return binascii.hexlify(token).decode(), fid
