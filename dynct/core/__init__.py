@@ -24,4 +24,4 @@ def translate_alias(alias):
 
 
 def add_alias(source, alias):
-    model.Alias(source, alias).save()
+    model.Alias.create(source_url=source, alias=alias)

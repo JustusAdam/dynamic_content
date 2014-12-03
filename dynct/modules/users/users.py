@@ -68,19 +68,16 @@ def add_acc_grp(name, aid=-1):
         model.AccessGroup.create(machine_name=name)
 
 
-# @check_permission(1, 'permission')
 def check_permission(aid, permission, strict=False):
+    personal = model.AccessGroupPermission.select().where(model.AccessGroupPermission.group == aid,
+                                                          model.AccessGroupPermission.permission == permission)
     if aid != GUEST_GRP and not strict:
-        return bool(model.AccessGroupPermission.select().where(model.AccessGroupPermission.group == aid,
-                                                               model.AccessGroupPermission.permission == permission)) \
-               or bool(model.AccessGroupPermission.select().where(model.AccessGroupPermission.group == AUTH,
-                                                                  model.AccessGroupPermission.permission == permission))
+        general = model.AccessGroupPermission.select().where(model.AccessGroupPermission.group == AUTH,
+                                                             model.AccessGroupPermission.permission == permission)
+        return personal.wrapped_count() != 0 or general.wrapped_count() != 0
     else:
-        return bool(model.AccessGroupPermission.select().where()(model.AccessGroupPermission.group == aid,
-                                                                 model.AccessGroupPermission.permission == permission))
+        return personal.wrapped_count() != 0
 
-
-#@check_permission(1, 'permission')
 
 def assign_permission(aid, permission):
     if aid == CONTROL_GROUP:
@@ -94,10 +91,8 @@ def assign_permission(aid, permission):
         new_permission(permission)
         assign_permission(aid, permission)
     else:
-        model.AccessGroupPermission(oid=aid, permission=permission).save()
+        model.AccessGroupPermission.create(group=aid, permission=permission)
 
-
-#@check_permission(1, 'permission')
 
 def revoke_permission(aid, permission):
     if aid == CONTROL_GROUP:
@@ -106,12 +101,13 @@ def revoke_permission(aid, permission):
         model.AccessGroupPermission(oid=aid, permission=permission).delete_instance()
 
 
-#@check_permission(0, 'permission')
 def new_permission(permission):
-    model.AccessGroupPermission.create(group=CONTROL_GROUP, permission=permission)
+    result = model.AccessGroupPermission.select().where(model.AccessGroupPermission.group == CONTROL_GROUP,
+                                                        model.AccessGroupPermission.permission == permission)
+    if result.wrapped_count() == 0:
+        model.AccessGroupPermission.create(group=CONTROL_GROUP, permission=permission)
 
 
-#@check_permission(0, 'permission')
 def remove_permission(permission):
     model.AccessGroupPermission.delete().where(model.AccessGroup.permission == permission)
 

@@ -169,7 +169,9 @@ class Modules(dict):
         self.load()
 
     def load(self):
+        from dynct import core
         all_ = get_active_modules()
+        all_['core'] = core
         for name, value in all_.items():
             dict.__setitem__(self, name, value)
         self.loaded = True

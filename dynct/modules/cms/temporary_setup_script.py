@@ -13,7 +13,7 @@ def init_tables():
     from dynct.core import Modules
     import inspect
 
-    for module_name, module in Modules.items():
+    for module in Modules.values():
         try:
             m = import_module('.model', module.__name__)
             for item in dir(m):
@@ -76,6 +76,7 @@ def initialize():
 
     for (access_group, name, permission_list) in permissions:
         users.add_acc_grp(name, access_group)
+        for grp in users.model.AccessGroup.select() : print(grp.machine_name, grp.oid)
         for permission in permission_list:
             users.new_permission(permission)
             users.assign_permission(access_group, permission)
@@ -90,9 +91,9 @@ def initialize():
     for alias, source in aliases:
       core.add_alias(source, alias)
 
+    for i in core.model.Module.select(): print(i.oid, i.machine_name)
 
-
-    ContentHandler.create(machine_name='admin', path_prefix='admin', handler_module='admin')
+    ContentHandler.create(machine_name='admin', path_prefix='admin', module='admin')
 
 
 
