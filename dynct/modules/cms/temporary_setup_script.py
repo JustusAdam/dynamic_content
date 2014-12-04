@@ -32,7 +32,7 @@ def init_tables():
 def initialize():
     from dynct.core.model import ContentHandler, ContentTypes
 
-    from dynct.modules.commons.model import MenuItem, Common
+    from dynct.modules.commons.model import MenuItem, CommonData, Menu
     from dynct.modules.comp import add_commons_config, assign_common
     from dynct.modules.iris.model import FieldConfig, Page, field
 
@@ -41,8 +41,8 @@ def initialize():
     from dynct import core
     from dynct.modules.users import START_REGION, START_THEME
 
-
     admin_menu_common = 'admin_menu'
+
 
 
     # assign the important first permissions
@@ -91,65 +91,69 @@ def initialize():
     for alias, source in aliases:
       core.add_alias(source, alias)
 
-    for i in core.model.Module.select(): print(i.oid, i.machine_name)
-
-    ContentHandler.create(machine_name='admin', path_prefix='admin', module='admin')
-
-
-
-    for name, path, menu, enabled, parent, weight in [
-        ('welcome', '/iris/1', 'start_menu', True, '<root>', 1),
-        ('welcome', '/iris/1', 'start_menu', True, '<root>', 1),
-        ('testpage', '/iris/2', 'start_menu', True, '<root>', 2),
-        ('setup', '/setup', 'start_menu', True, 'welcome', 1)
-    ]:
-        MenuItem.create(
-            display_name=name,
-            path=path,
-            menu=menu,
-            enabled=enabled,
-            parent=parent,
-            weight=weight
+    for machine_name, enabled, children in [
+        ('start_menu', True ,
+            [
+                ('<root>', '', True, None, 1),
+                ('welcome', '/iris/1', True, '<root>', 1),
+                ('welcome', '/iris/1', True, '<root>', 1),
+                ('testpage', '/iris/2', True, '<root>', 2),
+                ('setup', '/setup', True, 'welcome', 1)
+            ]
         )
+    ]:
+        menu = Menu.create(
+            machine_name=machine_name,
+            enabled=enabled)
+
+        for name, path, child_enabled, parent, weight in children:
+            MenuItem.create(
+                display_name=name,
+                path=path,
+                menu=menu,
+                enabled=child_enabled,
+                parent=MenuItem.get(display_name=parent) if parent else None,
+                weight=weight
+            )
 
     for name, content in [('copyright', '<p>\"dynamic_content\" CMS - © Justus Adam 2014</p>')]:
-        Common.create(
+        CommonData.create(
             machine_name=name,
             content=content
         )
 
 
 
-    for machine_name, type_, handler, show_title, access_type in [
+    for machine_name, type_, handler, access_type in [
         # commons from comp
-        ('start_menu', 'menu', 'commons', False, 0),
-        ('copyright', 'com_text', 'commons', False, 0),
+        ('start_menu', 'menu', 'commons', 0),
+        ('copyright', 'com_text', 'commons', 0),
         # commons from users
-        ('login', 'login', 'users', True, 1), # login common
-        ('user_information', 'user_information', 'users', True, 1), # user information common
+        ('login', 'login', 'users', 1), # login common
+        ('user_information', 'user_information', 'users', 1), # user information common
         # from admin
-        (admin_menu_common, 'menu', 'admin', True, 1)
+        (admin_menu_common, 'menu', 'admin', 1)
     ]:
         add_commons_config(machine_name=machine_name,
                            commons_type=type_,
                            handler_module=handler,
-                           show_title=show_title,
                            access_type=access_type)
 
-    for name, region, weight, theme in [
+    for name, region, weight, theme, show_title in [
         # from comp
-        ('start_menu', 'navigation', 1, 'default_theme'),
-        ('copyright', 'footer', 1, 'default_theme'),
+        ('start_menu', 'navigation', 1, 'default_theme', False),
+        ('copyright', 'footer', 1, 'default_theme', False),
         # from users
-        ('login', START_REGION, 0, START_THEME),
-        ('user_information', START_REGION, 1, START_THEME),
+        ('login', START_REGION, 0, START_THEME, True),
+        ('user_information', START_REGION, 1, START_THEME, True),
         # from admin
-        (admin_menu_common, 'sidebar_left', 4, 'default_theme')
+        (admin_menu_common, 'sidebar_left', 4, 'default_theme', True)
     ]:
         assign_common(common_name=name,
                       region=region,
                       weight=weight,
-                      theme=theme)
+                      theme=theme,
+                      show_title=show_title)
 
 
     name = 'iris'
@@ -172,14 +176,12 @@ def initialize():
     # add some initial pages
 
 
-    p = Page.create(content_type='article', title="Welcome to \"dynamic_content\"", creator=1, published=True)
-    page_id = p.oid
-    field('body').create(page_id=page_id, path_prefix='iris',
+    page = Page.create(content_type='article', title="Welcome to \"dynamic_content\"", creator=1, published=True)
+    field('body').create(page_id=page, path_prefix='iris',
                 content='<div><h3>Welcome to your \"dynamic_content\" installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you\'ll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div><image src=\"http://imgs.xkcd.com/comics/server_attention_span.png\" width=\"550px\" style=\"padding:20px 0px\">')
 
-    p = Page.create(content_type='article', title='Wuhuuu', creator=1, published=True)
-    page_id = p.oid
-    field('body').create(page_id=page_id,
+    page = Page.create(content_type='article', title='Wuhuuu', creator=1, published=True)
+    field('body').create(page_id=page,
                 content='<p>More content is good</p><iframe src="http://www.xkcd.com" height="840px" width="600px" seamless></iframe>', path_prefix='iris')
 
     # add admin pages

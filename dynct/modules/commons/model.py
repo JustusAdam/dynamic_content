@@ -12,7 +12,7 @@ class Menu(BaseModel):
     enabled = BooleanField(default=False)
 
 
-class Common(BaseModel):
+class CommonData(BaseModel):
     machine_name = CharField(unique=True)
     content = TextField()
 
