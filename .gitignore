@@ -56,7 +56,8 @@ target/
 
 
 # custom additions
-sandbox.py
+*.scssc
+#scss cache
 
 # the individual config made from example.config.json
 dynct/modules/cms/config.json
@@ -66,16 +67,17 @@ dynct/modules/cms/config.json
 *.iml
 
 # misc resources
-*.odg
-*.pbm
 *.css
 *.css.*
+# because we have scss
 
 # temporary files
 *.~*
 
 # large media file only intended for testing
 *.png
+*.odg
+*.pbm
 
 # custom files
 dynct/custom/
