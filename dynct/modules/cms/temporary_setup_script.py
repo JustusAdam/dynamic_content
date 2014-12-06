@@ -73,7 +73,7 @@ def initialize():
         ]
     ]
 
-    for (access_group, name, permission_list) in permissions:
+    for access_group, name, permission_list in permissions:
         users.add_acc_grp(name, access_group)
         for grp in users.model.AccessGroup.select() : print(grp.machine_name, grp.oid)
         for permission in permission_list:
