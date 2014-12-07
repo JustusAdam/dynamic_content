@@ -75,6 +75,13 @@ DATABASE = (namedtuple('database',
                       ('mysql', 'python_cms', True, 'python_cms', 'python_cms', 'localhost'))
 BASEDIR = str(Path(__file__).parent.resolve())
 RUNLEVEL = RunLevel.testing
+SUPPORTED_LANGUAGES = {
+    'en_us': 'english (us)',
+    'en_gb': 'english (gb)',
+    'de': 'german',
+    'fr': 'french'
+}
+DEFAULT_LANGUAGE = 'en_us'
 
 
 # delete names that are not settings
