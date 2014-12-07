@@ -1,7 +1,7 @@
 from dynct.core.mvc.decorator import controller_class, controller_method
 from dynct.modules.comp.decorator import Regions
 from dynct.modules.comp.html_elements import TableElement, List, A
-from dynct.modules.i18n import get_display_name
+from dynct.modules.i18n import translate
 from dynct.modules.form.secure import SecureForm
 from dynct.modules.comp.html_elements import Checkbox
 from .menus import menu as _menu
@@ -25,7 +25,7 @@ class MenuAdminController:
         l = [
                 [
                     A(str(url.path) + '/' + item.machine_name, item.id),
-                    A(str(url.path) + '/' + item.machine_name, get_display_name(item.machine_name, 'menus', 'english')),
+                    A(str(url.path) + '/' + item.machine_name, translate(item.display_name)),
                     Checkbox(checked=bool(item.enabled))
                 ] for item in menus]
         model['content'] = SecureForm(TableElement(*l, classes={'menu-overview'}))
@@ -37,6 +37,6 @@ class MenuAdminController:
         menu_name = url.path[1]
         menu = _menu(menu_name).render()
         model['content'] = List(*menu, additional={'style': 'list-style-type: none;'})
-        model['title'] = get_display_name(menu_name, 'menus', 'english')
+        model['title'] = translate(menu_name)
         model.theme = 'admin_theme'
         return 'page'

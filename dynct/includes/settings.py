@@ -75,12 +75,14 @@ DATABASE = (namedtuple('database',
                       ('mysql', 'python_cms', True, 'python_cms', 'python_cms', 'localhost'))
 BASEDIR = str(Path(__file__).parent.resolve())
 RUNLEVEL = RunLevel.testing
+I18N_SUPPORT_ENABLED = False
 SUPPORTED_LANGUAGES = {
     'en_us': 'english (us)',
     'en_gb': 'english (gb)',
     'de': 'german',
     'fr': 'french'
 }
+BASE_LANGUAGE = 'en_us'
 DEFAULT_LANGUAGE = 'en_us'
 
 

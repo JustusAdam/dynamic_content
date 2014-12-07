@@ -43,7 +43,6 @@ def initialize():
 
     admin_menu_common = 'admin_menu'
 
-
     # assign the important first permissions
 
     ADMIN_GRP = 5

@@ -100,17 +100,20 @@ def discover_modules():
     for directory in settings.MODULES_DIRECTORIES + settings.COREMODULES_DIRECTORIES:
         for file in Path(directory).iterdir():
             yield {
-                'name': str(file.name),
+                'name': str(file.stem),
                 'path': str(file)
             }
 
 
 def register_modules(r_modules):
-    if isinstance(r_modules, (list, tuple)):
+    if isinstance(r_modules, dict):
+        register_single_module(r_modules)
+    elif hasattr(r_modules, '__iter__'):
         for module in r_modules:
             register_single_module(module)
     else:
-        register_single_module(r_modules)
+        raise ValueError
+
 
 
 def register_single_module(moduleconf):
@@ -142,7 +145,7 @@ def get_active_modules():
         def find(name, paths):
             for path in paths:
                 for file in Path(path).iterdir():
-                    if file.name == name: return str(file)
+                    if file.stem == name: return str(file)
             else:
                 raise FileNotFoundError('default module ' + name + ' is missing')
         return {i: import_by_path('dynct/' + find(i, settings.MODULES_DIRECTORIES)) for i in settings.DEFAULT_MODULES}
@@ -170,6 +173,7 @@ class Modules(dict):
 
     def load(self):
         from dynct import core
+        register_installed_modules()
         all_ = get_active_modules()
         all_['core'] = core
         for name, value in all_.items():

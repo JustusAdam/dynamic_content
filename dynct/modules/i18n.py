@@ -1,5 +1,5 @@
 from dynct.backend.orm import *
-from dynct.includes.settings import SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE
+from dynct.includes.settings import SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, BASE_LANGUAGE, I18N_SUPPORT_ENABLED
 
 __author__ = 'justusadam'
 
@@ -25,22 +25,27 @@ class T:
             raise AttributeError
 
 
-_t = T()
+_t = T() if I18N_SUPPORT_ENABLED else None
 
 del T
 
+
 def translate(source_string, language=DEFAULT_LANGUAGE):
-    db_result = getattr(_t, language).get(source_string=source_string)
-    return db_result.translation if db_result else source_string
+    if language != BASE_LANGUAGE and I18N_SUPPORT_ENABLED:
+        db_result = getattr(_t, language).get(source_string=source_string)
+        return db_result.translation if db_result else source_string
+    else:
+        return source_string
 
 
 def edit_display_name(source_string, translation, language=DEFAULT_LANGUAGE):
-    db_result = getattr(_t, language).get(source_string=source_string)
-    if db_result:
-        db_result.translation = translation
-        db_result.save()
-    else:
-        getattr(_t, language).create(source_string=source_string, translation=translation)
+    if language != BASE_LANGUAGE and I18N_SUPPORT_ENABLED:
+        db_result = getattr(_t, language).get(source_string=source_string)
+        if db_result:
+            db_result.translation = translation
+            db_result.save()
+        else:
+            getattr(_t, language).create(source_string=source_string, translation=translation)
 
 
 add_display_name = edit_display_name

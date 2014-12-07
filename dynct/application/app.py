@@ -32,6 +32,7 @@ class Application(Thread):
 
     def load(self):
         if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(message='loading components')
+
         self.load_modules()
 
     def run(self):
@@ -39,11 +40,11 @@ class Application(Thread):
         self.run_http_server_loop()
 
     def load_modules(self):
-        Modules.load()
         if hasattr(database_proxy, 'database') and database_proxy.database == ':memory:':
             import dynct.modules.cms.temporary_setup_script
             dynct.modules.cms.temporary_setup_script.init_tables()
             dynct.modules.cms.temporary_setup_script.initialize()
+        Modules.load()
         controller_mapper.sort()
 
     def handle_http_request(self, *args):
