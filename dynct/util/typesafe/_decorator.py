@@ -1,4 +1,5 @@
 import inspect
+from functools import wraps
 
 __author__ = 'justusadam'
 
@@ -11,6 +12,8 @@ def typesafe(func):
         for arg, value in argval:
             if arg in types:
                 assert isinstance(value, types[arg])
+
+    @wraps(func)
     def wrap(*args, **kwargs):
         real_args = [a for a in def_args if a not in kwargs]
 

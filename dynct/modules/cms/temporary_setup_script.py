@@ -13,6 +13,7 @@ def init_tables():
     from dynct.core import Modules
     import inspect
 
+    Modules.load()
     for module in Modules.values():
         try:
             m = import_module('.model', module.__name__)

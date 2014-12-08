@@ -98,7 +98,7 @@ def register_installed_modules():
 
 def discover_modules():
     for directory in settings.MODULES_DIRECTORIES + settings.COREMODULES_DIRECTORIES:
-        for file in Path(directory).iterdir():
+        for file in filter(lambda s: (s.is_dir() or s.suffix == '.py') and not s.name.startswith('_'), Path(directory).iterdir()):
             yield {
                 'name': str(file.stem),
                 'path': str(file)
@@ -119,8 +119,9 @@ def register_modules(r_modules):
 def register_single_module(moduleconf):
     assert isinstance(moduleconf, dict)
     print('registering module ' + moduleconf['name'])
-    module = Module.get(machine_name=moduleconf['name'])
-    if module:
+    module = Module.select().where(Module.machine_name == moduleconf['name'])
+    if module.wrapped_count():
+        module = module[0]
         if module.module_path != moduleconf['path']:
             module.module_path = moduleconf['path']
             module.save()
@@ -173,7 +174,12 @@ class Modules(dict):
 
     def load(self):
         from dynct import core
-        register_installed_modules()
+        try:
+            register_installed_modules()
+        except IOError as e:
+            from dynct.core.model import Module as ModuleData
+            ModuleData.create_table(fail_silently=True)
+            register_installed_modules()
         all_ = get_active_modules()
         all_['core'] = core
         for name, value in all_.items():
