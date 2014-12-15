@@ -1,5 +1,5 @@
 from dynct.core.mvc.content_compiler import Content
-from dynct.modules.comp.html_elements import TableElement, ContainerElement
+from dynct.modules.comp.html import TableElement, ContainerElement
 from dynct.modules.commons.commons import Commons
 from .login import LOGOUT_BUTTON
 from . import users, model

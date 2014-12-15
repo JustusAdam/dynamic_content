@@ -1,6 +1,6 @@
 from collections import defaultdict
 import itertools
-from dynct.modules.comp.html_elements import ContainerElement, List, Select
+from dynct.modules.comp.html import ContainerElement, List, Select
 from dynct.modules import i18n
 from . import model
 from .base import Commons
@@ -128,7 +128,7 @@ def order_items(name, source_table, language, items, root_class=MenuItem):
     :return: Root for menu tree
     """
     mapping = defaultdict(list)
-    root = root_class(i18n.get_display_name(name, source_table, language), '/', 0, 0, root_ident)
+    root = root_class(i18n.translate(name, language), '/', 0, 0, root_ident)
 
     def order():
         """

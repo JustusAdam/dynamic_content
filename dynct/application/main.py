@@ -1,16 +1,16 @@
 """
 Main file that runs the application.
 """
-from collections import defaultdict
+import collections
 import os
-from pathlib import Path
+import pathlib
 import sys
 import re
 
 __author__ = 'justusadam'
 
 
-_basedir = Path(__file__).parent.parent.resolve()
+_basedir = pathlib.Path(__file__).parent.parent.resolve()
 
 # if framework is not in the path yet, add it and import it
 if not str(_basedir.parent) in sys.path:
@@ -24,7 +24,7 @@ del _basedir
 def main():
     from dynct.includes import settings
 
-    startargs = defaultdict(list)
+    startargs = collections.defaultdict(list)
     arg_regex = re.compile('(\w+)=(\w+)')
     for arg in sys.argv[1:]:
         m = re.fullmatch(arg_regex, arg)

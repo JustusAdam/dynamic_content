@@ -1,5 +1,5 @@
-from http.cookies import SimpleCookie
-from .config import Config
+from http import cookies
+from . import config
 from dynct.includes import settings
 
 __author__ = 'justusadam'
@@ -11,8 +11,8 @@ class Model(dict):
         self.__final = False
         self.decorator_attributes = set()
         self.headers = set()
-        self.cookies = SimpleCookie()
-        self.config = Config()
+        self.cookies = cookies.SimpleCookie()
+        self.config = config.Config()
         self.theme = settings.DEFAULT_THEME
         self.client = None
 

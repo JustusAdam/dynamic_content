@@ -1,4 +1,4 @@
-from dynct.modules.comp.html_elements import FormElement, Input, ContainerElement
+from dynct.modules.comp.html import FormElement, Input, ContainerElement
 from dynct.modules.form import tokens
 
 __author__ = 'justusadam'

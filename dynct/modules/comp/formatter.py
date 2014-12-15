@@ -2,8 +2,7 @@ from pathlib import Path
 import re
 import sys
 from dynct.http.response import Response
-from dynct.modules.comp.html_elements import Stylesheet, Script, LinkElement, ContainerElement, A
-from dynct.modules.comp.regions import RegionHandler
+from dynct.modules.comp import html
 from dynct.util.config import read_config
 
 
@@ -130,7 +129,7 @@ class TemplateFormatter:
     def compile_stylesheets(self):
         s = self._list_from_model('stylesheets')
         if 'stylesheets' in self.theme_config:
-            s += list(Stylesheet(
+            s += list(html.Stylesheet(
                 self.theme_path_alias + '/' + self.theme_config['stylesheet_directory'] + '/' + a) for
                       a
                       in self.theme_config['stylesheets'])
@@ -146,7 +145,7 @@ class TemplateFormatter:
         s = self._list_from_model('scripts')
         if 'scripts' in self.theme_config:
             s += list(
-                Script(self.theme_path_alias + '/' + self.theme_config['script_directory'] + '/' + a) for
+                html.Script(self.theme_path_alias + '/' + self.theme_config['script_directory'] + '/' + a) for
                 a
                 in self.theme_config['scripts'])
         return ''.join([str(a) for a in s])
@@ -156,7 +155,7 @@ class TemplateFormatter:
             favicon = self.theme_config['favicon']
         else:
             favicon = 'favicon.icon'
-        return str(LinkElement('/theme/' + self.theme + '/' + favicon, rel='shortcut icon', element_type='image/png'))
+        return str(html.LinkElement('/theme/' + self.theme + '/' + favicon, rel='shortcut icon', element_type='image/png'))
 
     def initial_pairing(self) -> dict:
         a = self.model.copy()
@@ -167,9 +166,9 @@ class TemplateFormatter:
         })
         a.setdefault('breadcrumbs', self.render_breadcrumbs())
         a.setdefault('pagetitle',
-                     A('/', 'dynamic_content - fast, python and extensible'))
+                     html.A('/', 'dynamic_content - fast, python and extensible'))
         a.setdefault('footer', str(
-            ContainerElement(ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', html_type='p'),
+            html.ContainerElement(html.ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', html_type='p'),
                              element_id='powered_by', classes={'common', 'copyright'})))
         return a
 
@@ -184,9 +183,9 @@ class TemplateFormatter:
         acc = []
         for (name, location) in self.breacrumbs():
             acc.append(
-                ContainerElement(self.breadcrumb_separator(), html_type='span', classes={'breadcrumb-separator'}))
-            acc.append(ContainerElement(name, html_type='a', classes={'breadcrumb'}, additional={'href': location}))
-        return ContainerElement(*acc, classes={'breadcrumbs'})
+                html.ContainerElement(self.breadcrumb_separator(), html_type='span', classes={'breadcrumb-separator'}))
+            acc.append(html.ContainerElement(name, html_type='a', classes={'breadcrumb'}, additional={'href': location}))
+        return html.ContainerElement(*acc, classes={'breadcrumbs'})
 
 #
 # class DecoratorWithRegions(TemplateFormatter):

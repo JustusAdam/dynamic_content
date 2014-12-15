@@ -4,9 +4,10 @@ Implementation of the setup routine.
 Currently uses the framework to dynamically create elements, once the basic site functionality has been implemented
 and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
 """
+from urllib import error
 from dynct.core.mvc.content_compiler import Content
 from dynct.backend.database import Database
-from dynct.modules.comp.html_elements import ContainerElement, List, TableElement
+from dynct.modules.comp.html import ContainerElement, List, TableElement
 from dynct.util.config import read_config, write_config
 from dynct.includes import settings
 from dynct.modules.users.admin_actions import CreateUser
@@ -161,7 +162,7 @@ class SetupHandler(Content):
         elif self._url.page_id == 6:
             config['setup'] = False
             write_config(config, 'cms/config.json')
-            self.redirect('/iris/1')
+            raise error.HTTPError('/setup', 304, None, None, None)
         self._model['content'] = self._model['content'].format(this=self._url.path,
                                                                next_page=self._url.page_id + 1,
                                                                message=message)
@@ -174,7 +175,7 @@ class SetupHandler(Content):
 
         try:
             # HACK separately registering and activating core
-            _registry._activate_module(core_config)
+            _registry.activate_module(core_config)
 
             _registry.register_installed_modules()
             for module in settings.DEFAULT_MODULES:

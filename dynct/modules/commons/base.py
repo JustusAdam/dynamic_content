@@ -1,5 +1,5 @@
 from dynct.modules import i18n
-from dynct.modules.comp.html_elements import ContainerElement
+from dynct.modules.comp.html import ContainerElement
 from dynct.modules.comp.page import Component
 from .model import CommonsConfig
 
@@ -28,7 +28,7 @@ class Commons:
 
     @property
     def title(self):
-        return i18n.get_display_name(self.name, self.source_table, self.language)
+        return i18n.translate(self.name, self.language)
 
     def wrap_content(self, content):
         if self.show_title:

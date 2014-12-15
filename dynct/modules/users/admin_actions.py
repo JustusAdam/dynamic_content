@@ -3,7 +3,7 @@ import copy
 from urllib.error import HTTPError
 
 from dynct.core.mvc.content_compiler import Content
-from dynct.modules.comp.html_elements import TableElement, Input, ContainerElement, Label, Checkbox, TableRow, TableData
+from dynct.modules.comp.html import TableElement, Input, ContainerElement, Label, Checkbox, TableRow, TableData
 from . import users
 from dynct.modules.form.secure import SecureForm
 from dynct.modules.users.user_information import UsersOverview

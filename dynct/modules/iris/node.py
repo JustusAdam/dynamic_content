@@ -1,8 +1,6 @@
 from dynct.core import Modules as _modules
-from dynct.core.model import ContentTypes
-from dynct.modules.comp.html_elements import ContainerElement, List
+from dynct.modules.comp.html import ContainerElement, List
 from dynct.modules.iris import model
-from dynct.util.typesafe import typesafe
 
 __author__ = 'justusadam'
 

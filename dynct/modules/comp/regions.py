@@ -1,6 +1,6 @@
 from dynct.core import Modules
 from dynct.modules.commons.model import CommonsConfig
-from .html_elements import ContainerElement
+from .html import ContainerElement
 from .page import Component
 from . import model
 

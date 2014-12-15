@@ -1,7 +1,7 @@
 from http import cookies
-from dynct.core.mvc.model import Model
+from dynct.core.mvc import model as _model
 from dynct.errors import html_message
-from dynct.modules.comp.html_elements import List, ContainerElement
+from dynct.modules.comp import html
 
 
 __author__ = 'justusadam'
@@ -65,8 +65,8 @@ class Content(ModelBasedContentCompiler):
     def editorial(self):
         l = self.editorial_list()
         if l:
-            return List(
-                *[ContainerElement(name, html_type='a', classes={'editorial-link'}, additional={'href': link}) for
+            return html.List(
+                *[html.ContainerElement(name, html_type='a', classes={'editorial-link'}, additional={'href': link}) for
                   name, link in l],
                 classes={'editorial-list'}
             )
@@ -96,5 +96,5 @@ class Content(ModelBasedContentCompiler):
                 model.cookies = self.cookies
             c = model
         else:
-            c = Model('page', content=str(html_message.error_message(401)))
+            c = _model.Model('page', content=str(html_message.error_message(401)))
         return c

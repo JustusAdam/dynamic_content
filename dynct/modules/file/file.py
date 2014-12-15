@@ -9,7 +9,7 @@ import mimetypes
 
 from dynct.core.mvc.decorator import controller_class, controller_method
 from dynct.includes import settings
-from dynct.modules.comp.html_elements import ContainerElement, List
+from dynct.modules.comp.html import ContainerElement, List
 
 
 __author__ = 'justusadam'

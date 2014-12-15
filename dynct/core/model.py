@@ -1,33 +1,33 @@
-from dynct.backend.orm import *
+from dynct.backend import orm
 
 __author__ = 'justusadam'
 
 
-class Theme(BaseModel):
-    machine_name = CharField()
-    enabled = BooleanField(default=False)
+class Theme(orm.BaseModel):
+    machine_name = orm.CharField()
+    enabled = orm.BooleanField(default=False)
 
 
-class Module(BaseModel):
-    machine_name = CharField(unique=True)
-    path = TextField()
-    enabled = BooleanField(default=False)
+class Module(orm.BaseModel):
+    machine_name = orm.CharField(unique=True)
+    path = orm.TextField()
+    enabled = orm.BooleanField(default=False)
 
 
-class ContentHandler(BaseModel):
-    module = ForeignKeyField(Module)
-    machine_name = CharField(unique=True)
-    path_prefix = CharField(unique=True)
+class ContentHandler(orm.BaseModel):
+    module = orm.ForeignKeyField(Module)
+    machine_name = orm.CharField(unique=True)
+    path_prefix = orm.CharField(unique=True)
 
 
-class ContentTypes(BaseModel):
-    machine_name = CharField(unique=True)
-    content_handler = ForeignKeyField(ContentHandler)
-    display_name = CharField(null=True)
-    theme = ForeignKeyField(Theme)
-    description = TextField(null=True)
+class ContentTypes(orm.BaseModel):
+    machine_name = orm.CharField(unique=True)
+    content_handler = orm.ForeignKeyField(ContentHandler)
+    display_name = orm.CharField(null=True)
+    theme = orm.ForeignKeyField(Theme)
+    description = orm.TextField(null=True)
 
 
-class Alias(BaseModel):
-    source_url = CharField()
-    alias = CharField(unique=True)
+class Alias(orm.BaseModel):
+    source_url = orm.CharField()
+    alias = orm.CharField(unique=True)

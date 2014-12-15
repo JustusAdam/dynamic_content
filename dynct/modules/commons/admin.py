@@ -1,9 +1,9 @@
 from dynct.core.mvc.decorator import controller_class, controller_method
 from dynct.modules.comp.decorator import Regions
-from dynct.modules.comp.html_elements import TableElement, List, A
+from dynct.modules.comp.html import TableElement, List, A
 from dynct.modules.i18n import translate
 from dynct.modules.form.secure import SecureForm
-from dynct.modules.comp.html_elements import Checkbox
+from dynct.modules.comp.html import Checkbox
 from .menus import menu as _menu
 from .model import Menu
 

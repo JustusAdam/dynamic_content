@@ -4,7 +4,7 @@ from dynct.core.mvc.content_compiler import Content
 from dynct.core.mvc.content_compiler import ContentCompiler
 from dynct.core.mvc.decorator import controller_function
 from dynct.modules.comp.decorator import Regions
-from dynct.modules.comp.html_elements import ContainerElement, List
+from dynct.modules.comp.html import ContainerElement, List
 from dynct.modules.commons.commons import Commons
 
 from . import model

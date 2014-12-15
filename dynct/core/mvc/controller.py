@@ -1,6 +1,6 @@
-from collections import ChainMap
+import collections
 import re
-from dynct.util.decorators import deprecated
+from dynct.util import decorators
 
 
 __author__ = 'justusadam'
@@ -9,7 +9,7 @@ __author__ = 'justusadam'
 _register_controllers = True
 
 
-@deprecated
+@decorators.deprecated
 class Controller(dict):
     pass
 
@@ -61,7 +61,7 @@ class ControllerMapper(dict):
                 args = (url, )
             try:
                 get, post = element.get(url.get_query), element.post(url.post)
-                result = element(model, *args, **dict(ChainMap(get, post)))
+                result = element(model, *args, **dict(collections.ChainMap(get, post)))
                 if not result:
                     continue
                 else:

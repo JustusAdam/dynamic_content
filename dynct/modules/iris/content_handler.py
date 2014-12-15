@@ -6,7 +6,7 @@ from dynct.core.mvc.content_compiler import Content
 from dynct.core.mvc.decorator import controller_class, controller_method, controller_function
 from dynct.core.mvc.model import Model
 from dynct.modules.comp.decorator import Regions
-from dynct.modules.comp.html_elements import FormElement, TableElement, Label, ContainerElement, Checkbox, A, TableRow, TextInput
+from dynct.modules.comp.html import FormElement, TableElement, Label, ContainerElement, Checkbox, A, TableRow, TextInput
 from dynct.modules.iris.node import access_node
 from dynct.modules.wysiwyg import decorator_hook
 from dynct.util.url import UrlQuery, Url

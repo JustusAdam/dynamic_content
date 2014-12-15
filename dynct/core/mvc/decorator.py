@@ -1,12 +1,12 @@
-from collections import ChainMap
-from functools import wraps, partial
+import collections
+import functools
+import re
 
 from . import Config, DefaultConfig
-import re
-from .controller import Controller, controller_mapper
+from . import controller
 from .model import Model
-from dynct.util.decorators import apply_to_type
-from dynct.util.typesafe import typesafe
+from dynct.util import decorators
+from dynct.util import typesafe
 
 __author__ = 'justusadam'
 
@@ -19,15 +19,15 @@ class Autoconf:
      Model.config > custom config argument? > Controller.config? > DefaultConfig
      ? is optional, will be omitted if bool(?) == false
     """
-    @typesafe
+    @typesafe.typesafe
     def __init__(self, conf:Config):
         self.custom_conf = conf
 
     def __call__(self, func):
-        @wraps(func)
-        @apply_to_type(Model, Controller)
+        @functools.wraps(func)
+        @decorators.apply_to_type(Model, controller.Controller)
         def wrap(model, controller):
-            model.config = ChainMap(*[a for a in [
+            model.config = collections.ChainMap(*[a for a in [
                 model.config,
                 self.custom_conf,
                 self.get_controller_conf(controller),
@@ -95,7 +95,7 @@ class RestControlFunction(ControlFunction):
 def __controller_function(class_, prefix, regex:str=None, *, get=True, post=True):
     def wrap(func):
         wrapped = class_(func, prefix, regex, get, post)
-        controller_mapper.add_controller(prefix, wrapped)
+        controller.controller_mapper.add_controller(prefix, wrapped)
         return wrapped
     return wrap
 
@@ -107,28 +107,28 @@ def __controller_method(class_, prefix, regex:str=None, *, get=True, post=True):
     return wrap
 
 
-controller_function = partial(__controller_function, ControlFunction)
+controller_function = functools.partial(__controller_function, ControlFunction)
 
 
 def controller_class(class_):
     c_funcs = list(filter(lambda a: isinstance(a, ControlFunction), class_.__dict__.values()))
     if c_funcs:
         instance = class_()
-        controller_mapper._controller_classes.append(instance)
+        controller.controller_mapper._controller_classes.append(instance)
         for item in c_funcs:
             for wrapped in item.wrapping:
                 wrapped.instance = instance
-                controller_mapper.add_controller(wrapped.prefix, wrapped)
+                controller.controller_mapper.add_controller(wrapped.prefix, wrapped)
     return class_
 
 
-controller_method = partial(__controller_method, ControlFunction)
+controller_method = functools.partial(__controller_method, ControlFunction)
 
 
-rest_controller_function = partial(__controller_function, RestControlFunction)
+rest_controller_function = functools.partial(__controller_function, RestControlFunction)
 
 
-rest_controller_method = partial(__controller_method, RestControlFunction)
+rest_controller_method = functools.partial(__controller_method, RestControlFunction)
 
 
 class url_args:

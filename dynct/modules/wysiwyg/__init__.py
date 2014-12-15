@@ -1,5 +1,5 @@
 from dynct.core.mvc.model import Model
-from dynct.modules.comp.html_elements import Script
+from dynct.modules.comp.html import Script
 from ._elements import identifier, WysiwygTextarea
 
 __author__ = 'justusadam'
