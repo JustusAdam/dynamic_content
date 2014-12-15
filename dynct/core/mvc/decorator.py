@@ -1,5 +1,5 @@
 from collections import ChainMap
-from functools import wraps
+from functools import wraps, partial
 
 from . import Config, DefaultConfig
 import re
@@ -85,12 +85,29 @@ class ControlFunction:
         return '<ControlFunction for prefix \'' + self.prefix + '\' with function ' + repr(self.function) + '>'
 
 
-def controller_function(prefix, regex:str=None, *, get=True, post=True):
+class RestControlFunction(ControlFunction):
+    def __call__(self, model, *args, **kwargs):
+        model.json_return = super().__call__(*args, **kwargs)
+        model.decorator_attributes |= {'no-view', 'json-format', 'string-return'}
+        return model
+
+
+def __controller_function(class_, prefix, regex:str=None, *, get=True, post=True):
     def wrap(func):
-        wrapped = ControlFunction(func, prefix, regex, get, post)
+        wrapped = class_(func, prefix, regex, get, post)
         controller_mapper.add_controller(prefix, wrapped)
         return wrapped
     return wrap
+
+
+def __controller_method(class_, prefix, regex:str=None, *, get=True, post=True):
+    def wrap(func):
+        wrapped = class_(func, prefix, regex, get, post)
+        return wrapped
+    return wrap
+
+
+controller_function = partial(__controller_function, ControlFunction)
 
 
 def controller_class(class_):
@@ -105,11 +122,13 @@ def controller_class(class_):
     return class_
 
 
-def controller_method(prefix, regex:str=None, *, get=True, post=True):
-    def wrap(func):
-        wrapped = ControlFunction(func, prefix, regex, get, post)
-        return wrapped
-    return wrap
+controller_method = partial(__controller_method, ControlFunction)
+
+
+rest_controller_function = partial(__controller_function, RestControlFunction)
+
+
+rest_controller_method = partial(__controller_method, RestControlFunction)
 
 
 class url_args:
