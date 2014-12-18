@@ -35,11 +35,11 @@ def main():
             raise ValueError
         settings.RUNLEVEL = settings.RunLevel[startargs['runlevel'][0]]
 
-    from dynct.application import Config, Application
-    from dynct.util.config import read_config
+    from dynct import application
+    from dynct.util import config as _config
 
-    config = read_config('modules/cms/config')
-    Application(Config(server_arguments=config['server_arguments'])).start()
+    config = _config.read_config('modules/cms/config')
+    application.Application(application.Config(server_arguments=config['server_arguments'])).start()
 
 
 if __name__ == '__main__':

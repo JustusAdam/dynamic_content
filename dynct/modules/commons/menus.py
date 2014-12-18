@@ -1,6 +1,6 @@
-from collections import defaultdict
+import collections
 import itertools
-from dynct.modules.comp.html import ContainerElement, List, Select
+from dynct.modules.comp import html
 from dynct.modules import i18n
 from . import model
 from .base import Commons
@@ -9,8 +9,8 @@ __author__ = 'justusadam'
 
 
 def menu_chooser(name='menu_chooser', **kwargs):
-    menus = [[('none', 'None')]] + [[(menu.element_name + '-' + a[0], a[1]) for a in menu(name=menu.element_name, item_class=MenuChooseItem).render()] for menu in model.CommonsConfig.select().where(model.CommonsConfig.element_type=='menu')]
-    return Select(*list(itertools.chain(*menus)), name=name, **kwargs)
+    menus = [[('none', 'None')]] + [[(single_menu.element_name + '-' + a[0], a[1]) for a in single_menu(name=single_menu.element_name, item_class=MenuChooseItem).render()] for single_menu in model.CommonsConfig.select().where(model.CommonsConfig.element_type=='menu')]
+    return html.Select(*list(itertools.chain(*menus)), name=name, **kwargs)
 
 
 root_ident = -1
@@ -75,15 +75,15 @@ class HTMLMenuItem(MenuItem):
 
     def render_self(self, depth):
         if self.item_path:
-            return ContainerElement(self.display_name, html_type='a', classes={'layer-' + str(depth), 'menu'},
+            return html.ContainerElement(self.display_name, html_type='a', classes={'layer-' + str(depth), 'menu'},
                                     additional={'href': self.item_path})
         else:
-            return ContainerElement(self.display_name, html_type='span', classes={'layer-' + str(depth), 'menu'})
+            return html.ContainerElement(self.display_name, html_type='span', classes={'layer-' + str(depth), 'menu'})
 
     def render_children(self, depth=0, max_depth=-1):
         if not self.children:
             return ''
-        return List(*[a.render(depth, max_depth) for a in self.children], list_type='ul', item_classes={'layer-' + str(depth)},
+        return html.List(*[a.render(depth, max_depth) for a in self.children], list_type='ul', item_classes={'layer-' + str(depth)},
                     classes={'layer-' + str(depth), 'menu'})
 
     def render(self, depth=0, max_depth=-1):
@@ -127,7 +127,7 @@ def order_items(name, source_table, language, items, root_class=MenuItem):
     :param items: List of MenuItems
     :return: Root for menu tree
     """
-    mapping = defaultdict(list)
+    mapping = collections.defaultdict(list)
     root = root_class(i18n.translate(name, language), '/', 0, 0, root_ident)
 
     def order():

@@ -1,7 +1,7 @@
 from dynct.modules import i18n
-from dynct.modules.comp.html import ContainerElement
-from dynct.modules.comp.page import Component
-from .model import CommonsConfig
+from dynct.modules.comp import html
+from dynct.modules.comp import page
+from . import model
 
 __author__ = 'justusadam'
 
@@ -19,7 +19,7 @@ class Commons:
     # temporary
     language = 'english'
 
-    def __init__(self, conf:CommonsConfig, render_args, show_title, client):
+    def __init__(self, conf:model.CommonsConfig, render_args, show_title, client):
         self.show_title = show_title
         self.client = client
         self.conf = conf
@@ -32,13 +32,13 @@ class Commons:
 
     def wrap_content(self, content):
         if self.show_title:
-            title = ContainerElement(self.title, html_type='h3')
+            title = html.ContainerElement(self.title, html_type='h3')
         else:
             title = ''
         if isinstance(content, (list, tuple, set)):
-            return ContainerElement(title, *content, classes={self.name.replace('_', '-'), 'common'})
+            return html.ContainerElement(title, *content, classes={self.name.replace('_', '-'), 'common'})
         else:
-            return ContainerElement(title, content, classes={self.name.replace('_', '-'), 'common'})
+            return html.ContainerElement(title, content, classes={self.name.replace('_', '-'), 'common'})
 
     def get_content(self, name):
         return ''
@@ -53,7 +53,7 @@ class Commons:
 
     def compile(self):
         if self.check_access():
-            obj = Component(self.wrap_content(self.get_content(self.name)))
+            obj = page.Component(self.wrap_content(self.get_content(self.name)))
             return obj
         else:
             return None

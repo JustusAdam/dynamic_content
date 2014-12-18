@@ -1,12 +1,12 @@
-from pathlib import Path
+import pathlib
 import sys
 from dynct.http import request
-from dynct.http.server import ThreadedHTTPServer
+from dynct.http import server
 
 __author__ = 'justusadam'
 
 
-_basedir = Path(__file__).parent.parent.resolve()
+_basedir = pathlib.Path(__file__).parent.parent.resolve()
 
 
 # add framework to pythonpath
@@ -30,5 +30,5 @@ class DefaultConfig(ApplicationConfig):
         "port": 8000,
         "host": ""
     }
-    server_class = ThreadedHTTPServer
+    server_class = server.ThreadedHTTPServer
     http_request_handler = request.RequestHandler

@@ -1,10 +1,9 @@
-from .base import Commons
-from . import model
+from . import model, base
 
 __author__ = 'justusadam'
 
 
-class TextCommons(Commons):
+class TextCommons(base.Commons):
     com_type = 'text'
 
     def get_content(self, name):

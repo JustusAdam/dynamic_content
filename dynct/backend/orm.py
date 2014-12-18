@@ -1,23 +1,23 @@
 from peewee import *
-from dynct.includes.settings import DATABASE, RUNLEVEL, RunLevel
+from dynct.includes import settings
 
 __author__ = 'justusadam'
 
 
 def proxy_db():
-    print(RUNLEVEL)
-    if RUNLEVEL == RunLevel.testing:
+    print(settings.RUNLEVEL)
+    if settings.RUNLEVEL == settings.RunLevel.testing:
         db = SqliteDatabase(':memory:')
         db.connect()
         return db
-    elif RUNLEVEL == RunLevel.debug:
+    elif settings.RUNLEVEL == settings.RunLevel.debug:
         return SqliteDatabase('debug.db').connect()
-    elif RUNLEVEL == RunLevel.production:
-        return MySQLDatabase(database=DATABASE.name,
-                             autocommit=DATABASE.autocommit,
-                             user=DATABASE.user,
-                             password=DATABASE.password,
-                             host=DATABASE.host).connect()
+    elif settings.RUNLEVEL == settings.RunLevel.production:
+        return MySQLDatabase(database=settings.DATABASE.name,
+                             autocommit=settings.DATABASE.autocommit,
+                             user=settings.DATABASE.user,
+                             password=settings.DATABASE.password,
+                             host=settings.DATABASE.host).connect()
     else: raise ValueError
 
 

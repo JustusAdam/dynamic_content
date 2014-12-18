@@ -5,8 +5,8 @@ This class is being instantiated by the HTTP server when a request is received. 
 non-core developers as it *should* not need altering.
 """
 
-from http.server import BaseHTTPRequestHandler
-from io import BytesIO
+from http import server
+import io
 import shutil
 from urllib.error import HTTPError
 import sys
@@ -30,7 +30,7 @@ _catch_errors = False
 HEADER_SPLIT_REGEX = re.compile("(\S+?)\s*:\s*(\S+)")
 
 
-class RequestHandler(BaseHTTPRequestHandler):
+class RequestHandler(server.BaseHTTPRequestHandler):
     def __init__(self, callback_function, request, client_address, server):
         self.callback = callback_function
         super().__init__(request, client_address, server)
@@ -149,7 +149,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_header('Cache-Control', 'no-cache')
         self.end_headers()
         if document:
-            stream = BytesIO()
+            stream = io.BytesIO()
             stream.write(document)
             stream.seek(0)
             try:
