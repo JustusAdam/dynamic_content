@@ -12,26 +12,40 @@ def init_tables():
     from dynct.backend.orm import BaseModel
     from dynct.core import Modules
     import inspect
+    from dynct.includes import settings
+
+    from dynct.core import model, _registry
+
+    def _init_module(m):
+        for item in dir(m):
+            item = getattr(m, item)
+            if inspect.isclass(item) and issubclass(item, BaseModel):
+                try:
+                    item.create_table()
+                    print('creating table ' + str(item._meta.db_table))
+                except Exception as e:
+                    print(e)
+                    log.write_error(function='create_table', message=str(e))
+
+    _init_module(model)
+
+    _registry.register_installed_modules()
+
+    for module in settings.DEFAULT_MODULES:
+        _registry._set_module_active(module)
 
     Modules.load()
     for module in Modules.values():
         try:
             m = import_module('.model', module.__name__)
-            for item in dir(m):
-                item = getattr(m, item)
-                if inspect.isclass(item) and issubclass(item, BaseModel):
-                    try:
-                        item.create_table()
-                    except Exception as e:
-                        print(e)
-                        log.write_error(function='create_table', message=str(e))
+            _init_module(m)
         except Exception as error:
             print(error)
             log.write_error(function='init_tables', message=str(error))
 
 
 def initialize():
-    from dynct.core.model import ContentHandler, ContentTypes
+    from dynct.core import model as coremodel
 
     from dynct.modules.commons.model import MenuItem, CommonData, Menu
     from dynct.modules.comp import add_commons_config, assign_common
@@ -89,6 +103,21 @@ def initialize():
 
     for alias, source in aliases:
       core.add_alias(source, alias)
+
+
+
+    # add themes
+
+    for name, enabled in [
+        ('active', True),
+        ('default_theme', True),
+        ('admin_theme', True)
+    ]:
+        core.add_theme(name=name,
+                       enabled=enabled)
+
+
+
 
     for machine_name, enabled, children in [
         ('start_menu', True ,
@@ -157,47 +186,69 @@ def initialize():
 
     name = 'iris'
 
+    _module = core.get_module(name)
+
     path_prefix = 'iris'
 
-    ContentHandler.create(machine_name='iris',
-                          module=name,
+    coremodel.ContentHandler.create(machine_name='iris',
+                          module=_module,
                           path_prefix=path_prefix)
-    ContentTypes.create(machine_name='article',
+    _ct1 = coremodel.ContentTypes.create(machine_name='article',
                         displey_name='Simple Article',
-                        content_handler='iris',
-                        theme='active')
+                        content_handler=_module,
+                        theme=core.get_theme('active'))
     FieldConfig.create(machine_name='body',
                        display_name='Body',
-                       content_type='article',
-                       handler_module='iris',
+                       content_type=_ct1,
+                       handler_module=_module,
                        weight=1)
 
     # add some initial pages
 
+    bodyfield = field('body')
+    bodyfield.create_table()
 
-    page = Page.create(content_type='article', title="Welcome to \"dynamic_content\"", creator=1, published=True)
-    field('body').create(page_id=page, path_prefix='iris',
+    page = Page.create(content_type=_ct1, page_title="Welcome to \"dynamic_content\"", creator=1, published=True)
+    bodyfield.create(page=page, path_prefix='iris',
                 content='<div><h3>Welcome to your \"dynamic_content\" installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you\'ll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div><image src=\"http://imgs.xkcd.com/comics/server_attention_span.png\" width=\"550px\" style=\"padding:20px 0px\">')
 
-    page = Page.create(content_type='article', title='Wuhuuu', creator=1, published=True)
-    field('body').create(page_id=page,
+    page = Page.create(content_type=_ct1, page_title='Wuhuuu', creator=1, published=True)
+    bodyfield.create(page=page,
                 content='<p>More content is good</p><iframe src="http://www.xkcd.com" height="840px" width="600px" seamless></iframe>', path_prefix='iris')
 
     # add admin pages
 
+    categories = {}
+
+    subcategories = {}
+
+    class Handlers:
+        def __init__(self, getfun):
+            self._getfun = getfun
+
+        def __getattr__(self, item):
+            n = self._getfun(item)
+            setattr(self, item, n)
+            return n
+
+
+    modules = Handlers(lambda a: coremodel.Module.get(machine_name=a))
+
     for name, display_name in [
         ('user', 'Users')
     ]:
-        admin.new_category(machine_name=name,
-                           display_name=display_name)
+        categories[name] = admin.new_category(machine_name=name,
+                                              display_name=display_name)
 
     for machine_name, display_name, category in [
         ('user_management', 'Add and Edit Users', 'user'),
-        ('permission_management', 'View and edit Permissions', 'user', 5)
+        ('permission_management', 'View and edit Permissions', 'user')
     ]:
-        admin.new_subcategory(machine_name=machine_name,
-                              display_name=display_name,
-                              category=category)
+        subcategories[machine_name] = admin.new_subcategory(machine_name=machine_name,
+                                                            display_name=display_name,
+                                                            category=categories[category])
+
+    name = 'users'
 
     for machine_name, display_name, subcategory, handler in [
         ('create_user', 'Register new User', 'user_management', name),
@@ -207,7 +258,7 @@ def initialize():
     ]:
         admin.new_page(machine_name=machine_name,
                        display_name=display_name,
-                       subcategory=subcategory,
-                       handler_module=handler)
+                       subcategory=subcategories[subcategory],
+                       handler_module=getattr(modules, handler))
 
 

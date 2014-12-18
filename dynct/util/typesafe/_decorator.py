@@ -11,7 +11,8 @@ def typesafe(func):
     def checkargs(argval):
         for arg, value in argval:
             if arg in types:
-                assert isinstance(value, types[arg])
+                if not isinstance(value, types[arg]):
+                    raise TypeError('expected type ' + str(types[arg]) + ' but found ' + str(type(value)))
 
     @wraps(func)
     def wrap(*args, **kwargs):

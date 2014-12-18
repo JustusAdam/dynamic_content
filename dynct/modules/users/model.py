@@ -1,5 +1,5 @@
-from dynct.backend.orm import *
-from dynct.util.time import utcnow
+from dynct.backend import orm
+from dynct.util import time
 
 __author__ = 'justusadam'
 
@@ -7,35 +7,35 @@ USERS_TABLE_NAME = 'cms_users'
 USERS_AUTH_TABLE_NAME = 'cms_user_auth'
 
 
-class AccessGroup(BaseModel):
-    machine_name = CharField(unique=True)
+class AccessGroup(orm.BaseModel):
+    machine_name = orm.CharField(unique=True)
 
 
-class AccessGroupPermission(BaseModel):
-    group = ForeignKeyField(AccessGroup)
-    permission = CharField()
+class AccessGroupPermission(orm.BaseModel):
+    group = orm.ForeignKeyField(AccessGroup)
+    permission = orm.CharField()
     class Meta:
-        primary_key = CompositeKey('group', 'permission')
+        primary_key = orm.CompositeKey('group', 'permission')
 
 
-class User(BaseModel):
-    username = CharField(unique=True)
-    email_address = CharField()
-    first_name = CharField(null=True, default=None)
-    middle_name = CharField(null=True, default=None)
-    last_name = CharField(null=True, default=None)
-    access_group = ForeignKeyField(AccessGroup)
-    date_created = DateField(default=utcnow())
-    date_changed = DateField(default=utcnow())
+class User(orm.BaseModel):
+    username = orm.CharField(unique=True)
+    email_address = orm.CharField()
+    first_name = orm.CharField(null=True, default=None)
+    middle_name = orm.CharField(null=True, default=None)
+    last_name = orm.CharField(null=True, default=None)
+    access_group = orm.ForeignKeyField(AccessGroup)
+    date_created = orm.DateField(default=time.utcnow)
+    date_changed = orm.DateField(default=time.utcnow)
 
 
-class Session(BaseModel):
-    token = BlobField()
-    expires = DateField(default=utcnow())
-    user = ForeignKeyField(User)
+class Session(orm.BaseModel):
+    token = orm.BlobField()
+    expires = orm.DateField(default=time.utcnow)
+    user = orm.ForeignKeyField(User)
 
 
-class UserAuth(BaseModel):
-    uid = ForeignKeyField(User)
-    password = BlobField()
-    salt = BlobField()
+class UserAuth(orm.BaseModel):
+    uid = orm.ForeignKeyField(User)
+    password = orm.BlobField()
+    salt = orm.BlobField()

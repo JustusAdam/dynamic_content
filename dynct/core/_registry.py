@@ -1,19 +1,19 @@
+import pathlib
 import inspect
-from pathlib import Path
-from inspect import isclass
-from dynct.backend.orm import BaseModel
+from dynct.backend import orm
+import functools
 
 from .model import Module
-from dynct.util.config import read_config
+from dynct.util import config
 from dynct.includes import settings
-from dynct.core.model import ContentHandler
-from dynct.util.module import import_by_path
+from dynct.core import model
+from dynct.util import module as _module
 from dynct.includes import log
 
 
 __author__ = 'justusadam'
 
-basedir = str(Path(__file__).parent.parent.resolve())
+basedir = str(pathlib.Path(__file__).parent.parent.resolve())
 
 json_config_name = 'config.json'
 
@@ -21,9 +21,9 @@ python_config_name = 'module_config'
 
 
 def get_module_conf(path:str, module):
-    dir_ = Path(path)
+    dir_ = pathlib.Path(path)
     if dir_.is_dir() and json_config_name in dir_.iterdir():
-        return read_config(str(dir_ / json_config_name))
+        return config.read_config(str(dir_ / json_config_name))
     else:
         if hasattr(module, python_config_name):
             return getattr(module, python_config_name)
@@ -36,20 +36,20 @@ def activate_module(module_name):
         print('Module ' + module_name + ' is already active.')
         return True
     path = get_module_path(module_name)
-    module = import_by_path('dynct/' + path)
+    m = _module.import_by_path('dynct/' + path)
     if path is None:
         print('Module ' + module_name + ' could not be activated')
         return False
-    module_conf = get_module_conf('dynct/' + path, module)
+    module_conf = get_module_conf('dynct/' + path, m)
     module_conf['path'] = path
-    init_tables(module)
+    init_tables(m)
     return _set_module_active(module_conf['name'])
 
 
 def init_tables(m):
     for item in dir(m):
         item = getattr(m, item)
-        if inspect.isclass(item) and issubclass(item, BaseModel):
+        if inspect.isclass(item) and issubclass(item, orm.BaseModel):
             try:
                 item.create_table()
             except Exception as e:
@@ -64,22 +64,22 @@ def register_content_handler(module_conf):
     else:
         path_prefix = module_conf['name']
     try:
-        ContentHandler(module_conf['name'], module_conf['name'], path_prefix).save()
+        model.ContentHandler(module_conf['name'], module_conf['name'], path_prefix).save()
     except IOError as error:
         print('Failed to register page handler ' + module_conf['name'])
         print(error)
 
 
 def get_module_id(module_name):
-    return Module.get(module_name=module_name).id
+    return Module.get(machine_name=module_name).id
 
 
 def get_module_path(module):
-    return Module.get(module_name=module).module_path
+    return Module.get(machine_name=module).module_path
 
 
 def _set_module_active(module_name):
-    a = Module.get(module_name=module_name)
+    a = Module.get(machine_name=module_name)
     a.enabled = True
     a.save()
 
@@ -98,7 +98,7 @@ def register_installed_modules():
 
 def discover_modules():
     for directory in settings.MODULES_DIRECTORIES + settings.COREMODULES_DIRECTORIES:
-        for file in filter(lambda s: (s.is_dir() or s.suffix == '.py') and not s.name.startswith('_'), Path(directory).iterdir()):
+        for file in filter(lambda s: (s.is_dir() or s.suffix == '.py') and not s.name.startswith('_'), pathlib.Path(directory).iterdir()):
             yield {
                 'name': str(file.stem),
                 'path': str(file)
@@ -122,8 +122,8 @@ def register_single_module(moduleconf):
     module = Module.select().where(Module.machine_name == moduleconf['name'])
     if module.wrapped_count():
         module = module[0]
-        if module.module_path != moduleconf['path']:
-            module.module_path = moduleconf['path']
+        if module.path != moduleconf['path']:
+            module.path = moduleconf['path']
             module.save()
     else:
         Module.create(machine_name=moduleconf['name'], path=moduleconf['path'])
@@ -139,20 +139,20 @@ def check_info(info):
 
 
 def get_active_modules():
-    try:
-        modules = Module.select().where(Module.enabled==True)
-        return {item.machine_name: import_by_path('dynct/' + item.path) for item in modules}
-    except Exception:
-        def find(name, paths):
-            for path in paths:
-                for file in Path(path).iterdir():
-                    if file.stem == name: return str(file)
-            else:
-                raise FileNotFoundError('default module ' + name + ' is missing')
-        return {i: import_by_path('dynct/' + find(i, settings.MODULES_DIRECTORIES)) for i in settings.DEFAULT_MODULES}
+    modules = Module.select().where(Module.enabled==True)
+    return {item.machine_name: _module.import_by_path('dynct/' + item.path) for item in modules}
+    # except Exception:
+    #     def find(name, paths):
+    #         for path in paths:
+    #             for file in Path(path).iterdir():
+    #                 if file.stem == name: return str(file)
+    #         else:
+    #             raise FileNotFoundError('default module ' + name + ' is missing')
+    #     return {i: import_by_path('dynct/' + find(i, settings.MODULES_DIRECTORIES)) for i in settings.DEFAULT_MODULES}
 
 
 def ensure_loaded(func):
+    @functools.wraps(func)
     def wrap(instance, *args, **kwargs):
         if not instance.loaded:
             instance.load()
@@ -173,15 +173,10 @@ class Modules(dict):
         self.load()
 
     def load(self):
-        from dynct import core
-        try:
-            register_installed_modules()
-        except IOError as e:
-            from dynct.core.model import Module as ModuleData
-            ModuleData.create_table(fail_silently=True)
-            register_installed_modules()
+        register_installed_modules()
         all_ = get_active_modules()
-        all_['core'] = core
+        # from dynct import core
+        # all_['core'] = core
         for name, value in all_.items():
             dict.__setitem__(self, name, value)
         self.loaded = True
@@ -214,7 +209,7 @@ class Modules(dict):
 
     def get_handlers_by_class(self, class_, single_value=False):
         return self._get_handlers(
-            lambda a, b: isclass(b) and issubclass(b, class_), single_value
+            lambda a, b: inspect.isclass(b) and issubclass(b, class_), single_value
         )
 
     def get_handlers_by_name(self, name:str, single_value=False):
@@ -224,7 +219,6 @@ class Modules(dict):
             lambda a, b: b == name, single_value
         )
 
+    @ensure_loaded
     def __str__(self):
-        if not self.loaded:
-            self.load()
         return super().__str__()

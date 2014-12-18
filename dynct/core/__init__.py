@@ -25,3 +25,22 @@ def translate_alias(alias):
 
 def add_alias(source, alias):
     model.Alias.create(source_url=source, alias=alias)
+
+
+def add_theme(name, enabled=False):
+    return model.Theme.create(machine_name=name, enabled=enabled)
+
+
+def get_module(name):
+    return model.Module.get(machine_name=name)
+
+
+def get_theme(name):
+    return model.Theme.get(machine_name=name)
+
+
+def get_content_type(name):
+    return model.ContentTypes.get(machine_name=name)
+
+
+get_ct = get_content_type
