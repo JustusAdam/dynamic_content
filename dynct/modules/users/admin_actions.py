@@ -1,14 +1,11 @@
 import re
 import copy
-from urllib.error import HTTPError
+from urllib import error
 
-from dynct.core.mvc.content_compiler import Content
-from dynct.modules.comp.html import TableElement, Input, ContainerElement, Label, Checkbox, TableRow, TableData
-from . import users
-from dynct.modules.form.secure import SecureForm
-from dynct.modules.users.user_information import UsersOverview
-from .user_information import UserInformation
-from . import model
+from dynct.core.mvc import content_compiler as _cc
+from dynct.modules.comp import html
+from dynct.modules.form import secure
+from . import user_information as uinf, model, users
 
 
 __author__ = 'justusadam'
@@ -52,11 +49,11 @@ def factory(url):
     if url.page_id == 0:
         if url.page_modifier == 'new':
             return CreateUser
-        return UsersOverview
+        return uinf.UsersOverview
     handlers = {
         'edit': EditUser,
-        'overview': UsersOverview,
-        'show': UserInformation
+        'overview': uinf.UsersOverview,
+        'show': uinf.UserInformation
     }
     return handlers[url.page_modifier]
 
@@ -72,7 +69,7 @@ def split_list(l, func):
     return true, false
 
 
-class CreateUser(Content):
+class CreateUser(_cc.Content):
     page_title = 'Create User'
     destination = '/'
     message = ''
@@ -86,7 +83,7 @@ class CreateUser(Content):
 
     def process_content(self):
 
-        return ContainerElement(
+        return html.ContainerElement(
             self.message, self.user_form())
 
     def target_url(self):
@@ -97,32 +94,32 @@ class CreateUser(Content):
         return target_url
 
     def user_form(self, **kwargs):
-        acc = []
-        for (display_name, name) in _edit_user_table_order:
-            arguments = {}
-            if name in _edit_user_form:
-                arguments = _edit_user_form[name]
-            if name in kwargs:
-                arguments['value'] = kwargs[name]
-            acc.append([Label(display_name, label_for=name), Input(name=name, **arguments)])
+        def acc():
+            for (display_name, name) in _edit_user_table_order:
+                arguments = {}
+                if name in _edit_user_form:
+                    arguments = _edit_user_form[name]
+                if name in kwargs:
+                    arguments['value'] = kwargs[name]
+                yield [html.Label(display_name, label_for=name), html.Input(name=name, **arguments)]
 
-        return SecureForm(
-            TableElement(
-                *acc
+        return secure.SecureForm(
+            html.TableElement(
+                *list(acc())
             ), action=self.target_url(), element_id='admin_form'
         )
 
     def _process_post(self):
         if 'password' in self.url.post:
             if self.url.post['confirm-password'] != self.url.post['password']:
-                self.message = ContainerElement('Your passwords did not match.', classes={'alert'})
-                return
-        args = dict()
-        for key in ['username', 'password', 'email', 'last_name', 'first_name', 'middle_name']:
-            if key in self.url.post:
-                args[key] = self.url.post[key][0]
-        self.action(**args)
-        self.redirect(str(self.url.path))
+                self.message = html.ContainerElement('Your passwords did not match.', classes={'alert'})
+        else:
+            args = dict()
+            for key in ['username', 'password', 'email', 'last_name', 'first_name', 'middle_name']:
+                if key in self.url.post:
+                    args[key] = self.url.post[key][0]
+            self.action(**args)
+            self.redirect(str(self.url.path))
 
     def compile(self):
         if self.url.post:
@@ -138,7 +135,7 @@ class CreateUser(Content):
             destination = self.url.get_query['destination'][0]
         elif not destination:
             destination = str(self.url.path.prt_to_str(0, -1))
-        raise HTTPError(str(self.url), 302, 'Redirect',
+        raise error.HTTPError(str(self.url), 302, 'Redirect',
                         {('Location', destination), ('Connection', 'close')}, None)
 
 
@@ -162,28 +159,28 @@ class EditUser(CreateUser):
                                  date_created=date_created)
 
 
-class PermissionOverview(Content):
+class PermissionOverview(_cc.Content):
     page_title = 'Permissions Overview'
     permission = 'view permissions'
     _perm_list = None
     theme = 'admin_theme'
 
     def process_content(self):
-        return ContainerElement(
-            ContainerElement(
+        return html.ContainerElement(
+            html.ContainerElement(
                 'Please note, that permissions assigned to the group \'any authorized user\' automatically apply to any other group as well as any authenticated user',
                 classes={'alert'}), self.permission_table()
         )
 
     def permission_table(self):
         l = self.compile_the_list()
-        return TableElement(
+        return html.TableElement(
             *[
-                TableRow(
+                html.TableRow(
                     *[
-                         TableData(a[0], classes=_permission_table_permissions_classes)
+                         html.TableData(a[0], classes=_permission_table_permissions_classes)
                      ] + [
-                        TableData(b, classes=_permission_table_boolean_classes) for b in a[1:]
+                        html.TableData(b, classes=_permission_table_boolean_classes) for b in a[1:]
                     ]
                 )
                 for a in l
@@ -207,22 +204,23 @@ class PermissionOverview(Content):
         return l
 
     def compile_the_list(self):
-        l = []
         access_groups = sorted(model.AccessGroup.get_all(), key=lambda a: a.aid)
-        l.append(['Permissions'] + [a.machine_name for a in access_groups])
-        permissions = {}
-        for aid, per in self.permissions_list:
-            if per in permissions:
-                permissions[per].append(aid)
-            else:
-                permissions[per] = [aid]
 
-        for p in permissions:
-            row = sorted(permissions[p])
-            l.append([p] + list(
-                map(lambda a: self.checkbox(a.aid in row, '-'.join([str(a.aid), p.replace(' ', '-')])), access_groups)))
-        l.sort(key=lambda a: a[0])
-        return l
+        def _list():
+            yield ['Permissions'] + [a.machine_name for a in access_groups]
+            permissions = {}
+            for aid, per in self.permissions_list:
+                if per in permissions:
+                    permissions[per].append(aid)
+                else:
+                    permissions[per] = [aid]
+
+            for p in permissions:
+                row = sorted(permissions[p])
+                yield [p] + list(
+                    map(lambda a: self.checkbox(a.aid in row, '-'.join([str(a.aid), p.replace(' ', '-')])), access_groups))
+
+        return sorted(_list(), key=lambda a: a[0])
 
     def checkbox(self, value, name):
         return {True: '&#x2713;', False: ''}[value]
@@ -245,13 +243,13 @@ class EditPermissions(PermissionOverview):
         return super().compile()
 
     def permission_table(self):
-        return SecureForm(
+        return secure.SecureForm(
             super().permission_table()
             , action=str(self.url.path)
         )
 
     def checkbox(self, value, name):
-        return Checkbox(name=name, value=name, checked=value)
+        return html.Checkbox(name=name, value=name, checked=value)
 
     def _process_post(self):
         new_perm = []
@@ -290,7 +288,7 @@ class EditPermissions(PermissionOverview):
             users.assign_permission(aid, permission)
 
 
-class AccGrpOverview(Content):
+class AccGrpOverview(_cc.Content):
     page_title = 'Access Groups Overview'
     permission = 'view access groups'
 

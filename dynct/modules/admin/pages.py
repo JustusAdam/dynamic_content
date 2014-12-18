@@ -1,11 +1,10 @@
-from collections import defaultdict
+import collections
 
-from dynct.core.mvc.content_compiler import Content
-from dynct.core.mvc.content_compiler import ContentCompiler
-from dynct.core.mvc.decorator import controller_function
-from dynct.modules.comp.decorator import Regions
-from dynct.modules.comp.html import ContainerElement, List
-from dynct.modules.commons.commons import Commons
+from dynct.core.mvc import content_compiler as _cc
+from dynct.core.mvc import decorator as mvc_dec
+from dynct.modules.comp import decorator as comp_dec
+from dynct.modules.comp import html
+from dynct.modules.commons import base
 
 from . import model
 
@@ -15,20 +14,20 @@ ADMIN_PATH = '/admin'
 
 
 
-@controller_function('admin', '', get=False, post=False)
-@Regions
+@mvc_dec.controller_function('admin', '', get=False, post=False)
+@comp_dec.Regions
 def overview(model):
     return OverviewPage(model, None).compile()
 
 
-@controller_function('admin', '/(\w+)$', get=False, post=False)
-@Regions
+@mvc_dec.controller_function('admin', '/(\w+)$', get=False, post=False)
+@comp_dec.Regions
 def category(model, category):
     return CategoryPage(model, category).compile()
 
 
-@controller_function('admin', '/\w+/(\w+)$', get=False, post=False)
-@Regions
+@mvc_dec.controller_function('admin', '/\w+/(\w+)$', get=False, post=False)
+@comp_dec.Regions
 def subcategory(model, subcategory):
     return SubcategoryPage(model, subcategory).compile()
 
@@ -56,7 +55,7 @@ def subcategory(model, subcategory):
 #         return handler(model, url).compile()
 
 
-class Overview(ContentCompiler):
+class Overview(_cc.ContentCompiler):
     classes = {'admin-menu', 'overview'}
 
     def __init__(self):
@@ -74,12 +73,12 @@ class Overview(ContentCompiler):
     def render_categories(self, *subcategories):
         subcategories = [a.render(self.base_path()) for a in subcategories]
         if len(subcategories) == 1:
-            return ContainerElement(*subcategories, classes=self.classes)
+            return html.ContainerElement(*subcategories, classes=self.classes)
         else:
             half = len(subcategories) // 2
-            return ContainerElement(
-                ContainerElement(*subcategories[:half], classes={'left-column'}),
-                ContainerElement(*subcategories[half:], classes={'right-column'}),
+            return html.ContainerElement(
+                html.ContainerElement(*subcategories[:half], classes={'left-column'}),
+                html.ContainerElement(*subcategories[half:], classes={'right-column'}),
                 classes=self.classes
             )
 
@@ -87,7 +86,7 @@ class Overview(ContentCompiler):
         return self.order_tree(self.get_parents_data(), self.get_children(Category))
 
     def order_tree(self, parents, children):
-        mapping = defaultdict(list)
+        mapping = collections.defaultdict(list)
         for item in children:
             mapping[item.parent].append(item)
         return [Category(name=parent.machine_name,
@@ -100,7 +99,7 @@ class Overview(ContentCompiler):
                 self.get_children_data()]
 
 
-class OverviewPage(Content, Overview):
+class OverviewPage(_cc.Content, Overview):
     permission = 'access admin pages'
     theme = 'admin_theme'
 
@@ -114,7 +113,7 @@ class OverviewPage(Content, Overview):
         return self.render_categories(*self.element_tree())
 
 
-class OverviewCommon(Commons, Overview):
+class OverviewCommon(base.Commons, Overview):
     source_table = 'admin'
 
     def __init__(self, conf, client):
@@ -127,7 +126,7 @@ class OverviewCommon(Commons, Overview):
 
     @property
     def title(self):
-        return ContainerElement(super().title, html_type='a', additional={'href': '/admin'})
+        return html.ContainerElement(super().title, html_type='a', additional={'href': '/admin'})
 
 
 class CategoryPage(OverviewPage):
@@ -180,16 +179,16 @@ class Category:
 
     def render(self, url_base):
         path = url_base + '/' + self.name
-        title = ContainerElement(
+        title = html.ContainerElement(
             self.display_name, html_type='a', additional={'href': path}, classes=self.classes
         )
         if not self.sub:
             return title
         else:
             l = [a.render(path) for a in self.sub]
-            return ContainerElement(
+            return html.ContainerElement(
                 title,
-                List(
+                html.List(
                     *l
                 )
             )

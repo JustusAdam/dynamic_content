@@ -1,15 +1,12 @@
-from dynct.core import Modules
 from dynct import core
 from dynct.modules.commons import model as commonsmodel
-from . import html
-from . import page
-from . import model
+from . import html, page, model
 
 __author__ = 'justusadam'
 
 
 class RegionHandler:
-    modules = Modules
+    modules = core.Modules
 
     def __init__(self, region_name, region_config, theme, client):
         self.client = client

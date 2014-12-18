@@ -1,8 +1,4 @@
-from .user_information import UsersOverview
-from .login import LoginCommonHandler, login_prefix, logout_prefix
-from .admin_actions import CreateUser, PermissionOverview, EditPermissions
-from . import user_information
-from .controller import UserController
+from . import user_information as uinf, login, admin_actions as actions, controller
 
 __author__ = 'justusadam'
 
@@ -17,17 +13,17 @@ START_THEME = 'default_theme'
 
 def admin_handler(h_name):
     handlers = {
-        'create_user': CreateUser,
-        'user_overview': UsersOverview,
-        'view_permissions': PermissionOverview,
-        'edit_permissions': EditPermissions
+        'create_user': actions.CreateUser,
+        'user_overview': controller.UsersOverview,
+        'view_permissions': actions.PermissionOverview,
+        'edit_permissions': actions.EditPermissions
     }
     return handlers[h_name]
 
 
 def common_handler(item_type):
     handlers = {
-        login_prefix: LoginCommonHandler,
-        'user_information': user_information.UserInformationCommon
+        login.login_prefix: login.LoginCommonHandler,
+        'user_information': uinf.UserInformationCommon
     }
     return handlers[item_type]

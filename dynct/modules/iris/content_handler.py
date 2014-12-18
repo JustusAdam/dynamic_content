@@ -1,20 +1,15 @@
-from urllib import parse
-from urllib.error import HTTPError
+from urllib import parse, error
 
-from dynct.core import Modules
-from dynct.core.mvc.content_compiler import Content
-from dynct.core.mvc.decorator import controller_class, controller_method, controller_function
-from dynct.core.mvc.model import Model
-from dynct.modules.comp.decorator import Regions
-from dynct.modules.comp.html import FormElement, TableElement, Label, ContainerElement, Checkbox, A, TableRow, TextInput
-from dynct.modules.iris.node import access_node
-from dynct.modules.wysiwyg import decorator_hook
-from dynct.util.url import UrlQuery, Url
-from dynct.core.model import ContentTypes
-from dynct.modules.commons.menus import menu_chooser, root_ident
-from dynct.modules.commons.model import MenuItem
-from . import model
-from .decorator import node_process
+from dynct import core
+from dynct.core.mvc import content_compiler as _cc, decorator as mvc_dec, model as mvc_model
+from dynct.modules.comp import decorator as comp_dec
+from dynct.modules.comp import html
+from dynct.modules.iris import node as _node
+from dynct.modules import wysiwyg
+from dynct.util import url as _url
+from dynct.core import model as coremodel
+from dynct.modules.commons import menus as _menus, model as commons_model
+from . import model as _model, decorator
 
 
 __author__ = 'justusadam'
@@ -51,14 +46,14 @@ def wrap_compiler(class_):
     return wrapped
 
 
-class FieldBasedPageContent(Content):
+class FieldBasedPageContent(_cc.Content):
     modifier = _access_modifier
     _editorial_list_base = edits = [('edit', _edit_modifier)]
 
     def __init__(self, model, url):
         super().__init__(model)
         self.url = url
-        self.modules = Modules
+        self.modules = core.Modules
         self.page = self.get_page()
         self._theme = self.page.content_type.theme
         self.fields = self.get_fields()
@@ -66,7 +61,7 @@ class FieldBasedPageContent(Content):
         self.permission_for_unpublished = self.join_permission('access unpublished', self.page.content_type)
 
     def get_page(self):
-        return model.Page.get(model.Page.oid==self.url.page_id)
+        return _model.Page.get(_model.Page.oid==self.url.page_id)
 
     @property
     def page_title(self):
@@ -76,7 +71,7 @@ class FieldBasedPageContent(Content):
         return ' '.join([modifier, 'content type', content_type])
 
     def get_fields(self):
-        field_info = model.FieldConfig.get_all(model.FieldConfig.content_type==self.page.content_type)
+        field_info = _model.FieldConfig.get_all(_model.FieldConfig.content_type==self.page.content_type)
         for a in field_info:
             yield self.get_field_handler(a.machine_name, a.handler_module)
 
@@ -88,7 +83,7 @@ class FieldBasedPageContent(Content):
                 if key in self.url.post:
                     vals[key] = self.url.post[key]
             if vals:
-                field_handler.process_post(UrlQuery(vals))
+                field_handler.process_post(_url.UrlQuery(vals))
 
     def handle_single_field_get(self, field_handler):
         query_keys = field_handler.get_post_query_keys()
@@ -98,14 +93,14 @@ class FieldBasedPageContent(Content):
                 if key in self.url.get_query:
                     vals[key] = self.url.post[key]
             if vals:
-                field_handler.process_get(UrlQuery(vals))
+                field_handler.process_get(_url.UrlQuery(vals))
 
     def get_field_handler(self, name, module):
         return self.modules[module].field_handler(name, self.url.page_type, self.url.page_id, self.modifier)
 
     def concatenate_content(self, fields):
         content = self.field_content(fields)
-        return ContainerElement(*content)
+        return html.ContainerElement(*content)
 
     def field_content(self, fields):
         content = []
@@ -130,7 +125,7 @@ class EditFieldBasedContent(FieldBasedPageContent):
 
     def __init__(self, model, url):
         super().__init__(model, url)
-        self.menu_item = MenuItem.get_all(item_path=self.url.path.prt_to_str(0, -1))
+        self.menu_item = commons_model.MenuItem.get_all(item_path=self.url.path.prt_to_str(0, -1))
         if self.menu_item:
             self.menu_item = self.menu_item[0]
 
@@ -140,14 +135,14 @@ class EditFieldBasedContent(FieldBasedPageContent):
 
     @property
     def title_options(self):
-        return [Label('Title', label_for='edit-title'),
-                TextInput(element_id='edit-title', name='title', value=self.page.page_title, required=True, size=100)]
+        return [html.Label('Title', label_for='edit-title'),
+                html.TextInput(element_id='edit-title', name='title', value=self.page.page_title, required=True, size=100)]
 
     def concatenate_content(self, fields):
         content = [self.title_options]
         content += self.field_content(fields)
-        table = TableElement(*content, classes={'edit', self.page.content_type, 'edit-form'})
-        return FormElement(table, self.admin_options(), action=str(self.url))
+        table = html.TableElement(*content, classes={'edit', self.page.content_type, 'edit-form'})
+        return html.FormElement(table, self.admin_options(), action=str(self.url))
 
     def field_content(self, fields):
         for field in fields:
@@ -155,7 +150,7 @@ class EditFieldBasedContent(FieldBasedPageContent):
             c_fragment = field.compile()
             c_fragment.content.classes.add(self.page.content_type)
             c_fragment.content.element_id = identifier
-            yield Label(field.machine_name, label_for=identifier), str(c_fragment.content)
+            yield html.Label(field.machine_name, label_for=identifier), str(c_fragment.content)
 
     def make_field_identifier(self, name):
         return self.modifier + self.field_identifier_separator + name
@@ -164,17 +159,17 @@ class EditFieldBasedContent(FieldBasedPageContent):
         if self.menu_item:
             parent = {False: self.menu_item.parent_item, True: str(-1)}[self.menu_item.parent_item is None]
             selected = '-'.join([self.menu_item.menu, str(parent)])
-            m_c = menu_chooser('parent-menu', selected=selected)
+            m_c = _menus.menu_chooser('parent-menu', selected=selected)
         else:
-            m_c = menu_chooser('parent-menu')
-        menu_options = TableRow(
-            Label('Menu Parent', label_for='parent-menu') , m_c, classes={'menu-parent'})
-        publishing_options = TableRow(
-            Label('Published', label_for='toggle-published'),
-               Checkbox(element_id='toggle-published', value=_publishing_flag, name=_publishing_flag,
+            m_c = _menus.menu_chooser('parent-menu')
+        menu_options = html.TableRow(
+            html.Label('Menu Parent', label_for='parent-menu') , m_c, classes={'menu-parent'})
+        publishing_options = html.TableRow(
+            html.Label('Published', label_for='toggle-published'),
+               html.Checkbox(element_id='toggle-published', value=_publishing_flag, name=_publishing_flag,
                         checked=self.published), classes={'toggle-published'})
 
-        return TableElement(publishing_options, menu_options, classes={'admin-options'})
+        return html.TableElement(publishing_options, menu_options, classes={'admin-options'})
 
     def process_fields(self, fields):
         for field in fields:
@@ -200,13 +195,13 @@ class EditFieldBasedContent(FieldBasedPageContent):
                     self.menu_item.delete()
             else:
                 menu_name, parent = self.url.post['parent-menu'][0].split('-', 1)
-                if parent == str(root_ident):
+                if parent == str(_menus.root_ident):
                     parent = None
                 if self.menu_item:
                     self.menu_item.parent_item = parent
                     self.menu_item.menu = menu_name
                 else:
-                    self.menu_item = MenuItem(self.page_title,
+                    self.menu_item = commons_model.MenuItem(self.page_title,
                                  self.url.path.prt_to_str(0,1) + '/' + str(self.url.page_id),
                                  menu_name,
                                  True,
@@ -227,7 +222,7 @@ class EditFieldBasedContent(FieldBasedPageContent):
     def compile(self):
         if self.url.post:
             self._process_post()
-        decorator_hook(self._model)
+        wysiwyg.decorator_hook(self._model)
         return super().compile()
 
     def redirect(self, destination=None):
@@ -235,7 +230,7 @@ class EditFieldBasedContent(FieldBasedPageContent):
             destination = self.url.get_query['destination'][0]
         elif not destination:
             destination = str(self.url.path.prt_to_str(0, -1))
-        raise HTTPError(str(self.url), 302, 'Redirect',
+        raise error.HTTPError(str(self.url), 302, 'Redirect',
                         {('Location', destination), ('Connection', 'close')}, None)
 
 
@@ -249,9 +244,9 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
             content_type = self.url.path[2]
         else:
             raise TypeError
-        display_name = ContentTypes.get(content_type_name=content_type).display_name
+        display_name = coremodel.ContentTypes.get(content_type_name=content_type).display_name
         title = 'Add new ' + display_name + ' page'
-        return model.Page(content_type= content_type, title=title, creator=self.client.user)
+        return _model.Page(content_type= content_type, title=title, creator=self.client.user)
 
     def process_page(self):
         self.page.page_title = parse.unquote_plus(self.url.post['title'][0])
@@ -268,10 +263,10 @@ class AddFieldBasedContentHandler(EditFieldBasedContent):
 
     @property
     def title_options(self):
-        return [Label('Title', label_for='edit-title'), TextInput(element_id='edit-title', name='title', size=100, required=True)]
+        return [html.Label('Title', label_for='edit-title'), html.TextInput(element_id='edit-title', name='title', size=100, required=True)]
 
 
-class Overview(Content):
+class Overview(_cc.Content):
     def __init__(self, model, url):
         super().__init__(model)
         self.url = url
@@ -285,52 +280,52 @@ class Overview(Content):
         ]
 
     def max(self):
-        return model.Page.select().order_by('id desc').limit(1).oid
+        return _model.Page.select().order_by('id desc').limit(1).oid
 
     def scroll(self, range):
         acc = []
         if not range[0] <= 0:
             after = not_under(range[0] - 1, 0)
             before = not_under(range[0] - _step, 0)
-            acc.append(A(''.join([str(self.url.path), '?from=', str(before), '&to=', str(after)]), _scroll_left, classes={'page-tabs'}))
+            acc.append(html.A(''.join([str(self.url.path), '?from=', str(before), '&to=', str(after)]), _scroll_left, classes={'page-tabs'}))
         maximum = self.max()
         if not range[1] >= maximum:
             before = not_over(range[1] + 1, maximum)
             after = not_over(range[1] + _step, maximum)
-            acc.append(A(''.join([str(self.url.path), '?from=', str(before), '&to=', str(after)]), _scroll_right, classes={'page-tabs'}))
-        return ContainerElement(*acc)
+            acc.append(html.A(''.join([str(self.url.path), '?from=', str(before), '&to=', str(after)]), _scroll_right, classes={'page-tabs'}))
+        return html.ContainerElement(*acc)
 
     def process_content(self):
         range = self.get_range()
         def pages():
-            for a in model.Page.select().limit(','.join([str(a) for a in [range[0], range[1] - range[0] + 1]])).order_by( 'date_created desc'):
-                u = Url(str(self.url.path) + '/' + str(a.id))
+            for a in _model.Page.select().limit(','.join([str(a) for a in [range[0], range[1] - range[0] + 1]])).order_by( 'date_created desc'):
+                u = _url.Url(str(self.url.path) + '/' + str(a.id))
                 u.page_type = self.url.page_type
                 u.page_id = str(a.id)
-                m = Model()
+                m = mvc_model.Model()
                 FieldBasedPageContent(m, u).compile()
                 yield u, m
-        content = [ContainerElement(A(str(a.path), ContainerElement(b['page_title'], html_type='h2')), ContainerElement(b['content'])) for a, b in pages()]
+        content = [html.ContainerElement(html.A(str(a.path), html.ContainerElement(b['page_title'], html_type='h2')), html.ContainerElement(b['content'])) for a, b in pages()]
         content.append(self.scroll(range))
-        return ContainerElement(*content)
+        return html.ContainerElement(*content)
 
 
-@controller_function('iris', '$', post=False)
-@Regions
-@node_process
+@mvc_dec.controller_function('iris', '$', post=False)
+@comp_dec.Regions
+@decorator.node_process
 def overview(page_model, get):
     page_model.client.check_permission(' '.join(['access', 'iris', 'overview']))
     my_range = [
             int(get['from'][0]) if 'from' in get else 0,
             int(get['to'][0])   if 'to'   in get else _step
         ]
-    for a in model.Page.select().limit(','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]])).order_by('date_created desc'):
-        node = access_node(page_model, 'iris', a.oid)
-        node['title'] = A('/iris/' + str(a.oid), node['title'])
+    for a in _model.Page.select().limit(','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]])).order_by('date_created desc'):
+        node = _node.access_node(page_model, 'iris', a.oid)
+        node['title'] = html.A('/iris/' + str(a.oid), node['title'])
         yield node
 
 
-@controller_class
+@mvc_dec.controller_class
 class IrisController:
     handler_map = {
         _access_modifier: FieldBasedPageContent,
@@ -338,17 +333,17 @@ class IrisController:
         _add_modifier: AddFieldBasedContentHandler,
     }
 
-    @node_process
+    @decorator.node_process
     def overview(self, model, url):
         return Overview(model, url).compile()
 
-    @controller_method('iris', '/([1-9]+)/edit', get=False, post=True)
-    @node_process
+    @mvc_dec.controller_method('iris', '/([1-9]+)/edit', get=False, post=True)
+    @decorator.node_process
     def edit(self, model, node_id, post):
         pass
 
-    @controller_method('iris')
-    @Regions
+    @mvc_dec.controller_method('iris')
+    @comp_dec.Regions
     def handle(self, model, url, get, post):
         if len(url.path) == 3:
             if not url.path[1].isdigit():
@@ -378,8 +373,8 @@ class IrisController:
         url.page_type = url.path[0]
         return self.handler_map[page_modifier](model, url).compile()
 
-@controller_function('iris', '/([1-9]+)(?:/access)?', get=False, post=False)
-@Regions
-@node_process
+@mvc_dec.controller_function('iris', '/([1-9]+)(?:/access)?', get=False, post=False)
+@comp_dec.Regions
+@decorator.node_process
 def access(model, node_id):
-    return access_node(model, 'iris', int(node_id))
+    return _node.access_node(model, 'iris', int(node_id))

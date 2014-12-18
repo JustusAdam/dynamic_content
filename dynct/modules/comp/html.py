@@ -5,7 +5,7 @@ Framework for rendering HTML elements *incomplete*
 import html
 import re
 
-from dynct.util.html import to_html_head
+from dynct.util import html as html_util
 
 __author__ = 'justusadam'
 
@@ -33,7 +33,7 @@ class BaseElement:
         return str(self) + str(other)
 
     def render_head(self):
-        return to_html_head(self.html_type, self._value_params, self._params)
+        return html_util.to_html_head(self.html_type, self._value_params, self._params)
 
     def render(self):
         return '<' + self.render_head() + '>'

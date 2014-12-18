@@ -1,9 +1,9 @@
-from dynct.core.mvc.content_compiler import Content
+from dynct.core.mvc import content_compiler
 
 __author__ = 'justusadam'
 
 
-class Overview(Content):
+class Overview(content_compiler.Content):
     permission = 'access iris content overview'
 
     def process_content(self):

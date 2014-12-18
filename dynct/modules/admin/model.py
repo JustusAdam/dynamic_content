@@ -1,23 +1,23 @@
-from dynct.backend.orm import *
-from dynct.core.model import Module
+from dynct.backend import orm
+from dynct.core import model as coremodel
 
 __author__ = 'justusadam'
 
 
-class Category(BaseModel):
-    machine_name = CharField(unique=True)
-    display_name = CharField()
-    description = TextField(null=True)
-    weight = IntegerField(default=0)
+class Category(orm.BaseModel):
+    machine_name = orm.CharField(unique=True)
+    display_name = orm.CharField()
+    description = orm.TextField(null=True)
+    weight = orm.IntegerField(default=0)
 
 
 class Subcategory(Category):
-    category = ForeignKeyField(Category)
+    category = orm.ForeignKeyField(Category)
 
 
 class AdminPage(Category):
-    handler_module = ForeignKeyField(Module)
-    subcategory = ForeignKeyField(Subcategory)
+    handler_module = orm.ForeignKeyField(coremodel.Module)
+    subcategory = orm.ForeignKeyField(Subcategory)
 
     @property
     def category(self):

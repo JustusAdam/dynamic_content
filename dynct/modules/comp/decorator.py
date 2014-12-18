@@ -1,7 +1,6 @@
-from dynct.core.mvc.model import Model
-from dynct.modules.comp.regions import RegionHandler
-from dynct.util.config import read_config
-from dynct.util.decorators import apply_to_type
+from dynct.core.mvc import model as _model
+from dynct.modules.comp import regions
+from dynct.util import config as _config, decorators
 
 __author__ = 'justusadam'
 
@@ -11,17 +10,17 @@ __author__ = 'justusadam'
 
 
 
-@apply_to_type(Model, apply_before=False, return_from_decorator=False)
+@decorators.apply_to_type(_model.Model, apply_before=False, return_from_decorator=False)
 def Regions(model):
     def theme_config(theme):
-        return read_config('themes/' + theme + '/config.json')
+        return _config.read_config('themes/' + theme + '/config.json')
 
     def _regions(client, theme):
 
         config = theme_config(theme)['regions']
         r = []
         for region in config:
-            r.append(RegionHandler(region, config[region], theme, client))
+            r.append(regions.RegionHandler(region, config[region], theme, client))
         return r
 
     # check region flag

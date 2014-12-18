@@ -3,13 +3,13 @@ Implementation for file access and page creation. Latter may become dynamic in t
 own page handlers.
 """
 
-from pathlib import Path
-from urllib.parse import quote_plus
+import pathlib
+from urllib import parse
 import mimetypes
 
-from dynct.core.mvc.decorator import controller_class, controller_method
+from dynct.core.mvc import decorator as mvc_dec
 from dynct.includes import settings
-from dynct.modules.comp.html import ContainerElement, List
+from dynct.modules.comp import html
 
 
 __author__ = 'justusadam'
@@ -17,10 +17,10 @@ __author__ = 'justusadam'
 _template_path = 'themes/default_theme/template/page.html'
 
 
-@controller_class
+@mvc_dec.controller_class
 class PathHandler:
-    @controller_method('theme', get=False, post=False)
-    @controller_method('public', get=False, post=False)
+    @mvc_dec.controller_method('theme', get=False, post=False)
+    @mvc_dec.controller_method('public', get=False, post=False)
     def handle(self, model, url, *args):
         return self.parse_path(model, url)
 
@@ -32,13 +32,13 @@ class PathHandler:
             basedirs = (basedirs,)
         for basedir in basedirs:
             filepath = '/'.join([basedir] + url.path[1:])
-            filepath = Path(filepath)
+            filepath = pathlib.Path(filepath)
 
             if not filepath.exists():
                 continue
 
             filepath = filepath.resolve()
-            basedir = Path(basedir).resolve()
+            basedir = pathlib.Path(basedir).resolve()
 
             if not settings.ALLOW_HIDDEN_FILES and filepath.name.startswith('.'):
                 raise PermissionError
@@ -66,11 +66,11 @@ class PathHandler:
 
 
 def directory(model, url, real_dir):
-    if not isinstance(real_dir, Path):
-        real_dir = Path(real_dir)
-    model['content'] = List(
-            *[ContainerElement(
-                str(a.name), html_type='a', additional={'href': str(url.path) + quote_plus(str(a.name), )},
+    if not isinstance(real_dir, pathlib.Path):
+        real_dir = pathlib.Path(real_dir)
+    model['content'] = html.List(
+            *[html.ContainerElement(
+                str(a.name), html_type='a', additional={'href': str(url.path) + parse.quote_plus(str(a.name), )},
                 classes={'file-link'}
             ) for a in filter(lambda a: not str(a.name).startswith('.'), real_dir.iterdir())
             ], classes={'directory-index'}, item_classes={'directory-content'}

@@ -1,7 +1,7 @@
-from dynct.core.mvc.content_compiler import Content
+from dynct.core.mvc import content_compiler as _cc
 
 __author__ = 'justusadam'
 
 
-class DirectoryMusicPage(Content):
+class DirectoryMusicPage(_cc.Content):
     pass

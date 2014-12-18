@@ -1,6 +1,4 @@
-from .commons import TextCommons
-from .menus import Handler
-from .admin import MenuAdminController
+from . import commons, menus, admin, base
 
 __author__ = 'justusadam'
 
@@ -11,7 +9,7 @@ role = 'block_manager'
 
 def common_handler(item_type):
     handlers = {
-        'menu': Handler,
-        'com_text': TextCommons
+        'menu': menus.Handler,
+        'com_text': commons.TextCommons
     }
     return handlers[item_type]

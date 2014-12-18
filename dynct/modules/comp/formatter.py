@@ -1,7 +1,7 @@
-from pathlib import Path
+import pathlib
 import re
 import sys
-from dynct.http.response import Response
+from dynct.http import response
 from dynct.modules.comp import html
 from dynct.util.config import read_config
 
@@ -81,7 +81,7 @@ class TemplateFormatter:
             b= c.group(1)
             code, body, headers = self._map.get(b, self.compile_body)(self, self._model.view.lstrip(':' + b + ':'))
         headers |= self.model.headers
-        r = Response(body, code, headers, cookies)
+        r = response.Response(body, code, headers, cookies)
         for attr in ['content_type', 'encoding']:
             if hasattr(self.model, attr):
                 setattr(r, attr, getattr(self.model, attr))
@@ -122,7 +122,7 @@ class TemplateFormatter:
         return headers
 
     def _get_my_folder(self):
-        return str(Path(sys.modules[self.__class__.__module__].__file__).parent)
+        return str(pathlib.Path(sys.modules[self.__class__.__module__].__file__).parent)
 
     def _get_config_folder(self):
         return self._get_my_folder()

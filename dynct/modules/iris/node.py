@@ -1,5 +1,5 @@
-from dynct.core import Modules as _Modules
-from dynct.modules.comp.html import ContainerElement, List
+from dynct import core
+from dynct.modules.comp import html
 from dynct.modules.iris import model as _model
 
 __author__ = 'justusadam'
@@ -49,7 +49,7 @@ def join_permission(modifier, content_type):
 def get_fields(content_type, node_type, node_id, modifier):
     field_info = _model.FieldConfig.select().where(_model.FieldConfig.content_type==content_type)
     for a in field_info:
-        yield _Modules[a.handler_module].field_handler(a.machine_name, node_type, node_id, modifier)
+        yield core.Modules[a.handler_module].field_handler(a.machine_name, node_type, node_id, modifier)
 
 
 def handle_single_field_query(field_handler, query):
@@ -62,7 +62,7 @@ def handle_single_field_query(field_handler, query):
 
 def concatenate_content(fields):
     content = field_content(fields)
-    return ContainerElement(*list(content))
+    return html.ContainerElement(*list(content))
 
 
 def field_content(fields):
@@ -83,8 +83,8 @@ def editorial_list(client, modifier, content_type, node_type, node_id):
 def editorial(client, modifier, content_type, node_type, node_id):
     l = editorial_list(client, modifier, content_type, node_type, node_id)
     if l:
-        return List(
-            *[ContainerElement(name, html_type='a', classes={'editorial-link'}, additional={'href': link}) for
+        return html.List(
+            *[html.ContainerElement(name, html_type='a', classes={'editorial-link'}, additional={'href': link}) for
               name, link in l],
             classes={'editorial-list'}
         )

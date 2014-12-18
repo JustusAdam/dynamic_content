@@ -1,13 +1,13 @@
-from dynct.core.mvc.content_compiler import ContentCompiler
-from dynct.modules.comp.html import ContainerElement
-from dynct.modules.comp.page import Component
-from dynct.modules.wysiwyg import WysiwygTextarea
+from dynct.core.mvc import content_compiler as _cc
+from dynct.modules.comp import html
+from dynct.modules.comp import page
+from dynct.modules import wysiwyg
 from . import model
 
 __author__ = 'justusadam'
 
 
-class Field(ContentCompiler):
+class Field(_cc.ContentCompiler):
     _query = {}
     db_ops = None
 
@@ -26,10 +26,10 @@ class Field(ContentCompiler):
         self._query = value
 
     def compile(self):
-        content = ContainerElement(self.process_content(), element_id='field-' + self.machine_name, classes={'field'})
+        content = html.ContainerElement(self.process_content(), element_id='field-' + self.machine_name, classes={'field'})
         if not content:
             return False
-        return Component(content)
+        return page.Component(content)
 
     def get_field_title(self):
         return self.machine_name
@@ -73,7 +73,7 @@ class EditBaseFieldHandler(BaseFieldHandler):
 
     def process_content(self):
         content = self.get_content()
-        return WysiwygTextarea(content, name=self.machine_name, rows=30, cols=50,
+        return wysiwyg.WysiwygTextarea(content, name=self.machine_name, rows=30, cols=50,
                         classes={self.machine_name} | self.xtra_classes)
 
     @property
@@ -89,9 +89,9 @@ class EditBaseFieldHandler(BaseFieldHandler):
 class AddBaseFieldHandler(EditBaseFieldHandler):
     def process_content(self):
         if self.machine_name in self._query:
-            return WysiwygTextarea(self._query[self.machine_name][0], name=self.machine_name, rows=30, cols=50,
+            return wysiwyg.WysiwygTextarea(self._query[self.machine_name][0], name=self.machine_name, rows=30, cols=50,
                             classes={self.machine_name} | self.xtra_classes)
-        return WysiwygTextarea(name=self.machine_name, rows=30, cols=50, classes={self.machine_name} | self.xtra_classes)
+        return wysiwyg.WysiwygTextarea(name=self.machine_name, rows=30, cols=50, classes={self.machine_name} | self.xtra_classes)
 
     def process_post(self):
         model.field(self.machine_name)(self.page_id, self._query[self.machine_name][0], self.path_prefix).save()
@@ -113,10 +113,10 @@ class AccessFieldCompiler(FieldCompiler):
         self._query = value
 
     def compile(self):
-        content = ContainerElement(self.process_content(), element_id='field-' + self.machine_name, classes={'field'})
+        content = html.ContainerElement(self.process_content(), element_id='field-' + self.machine_name, classes={'field'})
         if not content:
             return False
-        return Component(content)
+        return page.Component(content)
 
     def get_field_title(self):
         return self.machine_name
