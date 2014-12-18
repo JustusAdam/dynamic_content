@@ -1,19 +1,18 @@
-from functools import wraps
+import functools
 import os
 import inspect
-from dynct.includes import log
-from dynct.includes.settings import LOGGING_LEVEL, LoggingLevel
+from dynct.includes import log, settings
 
 
 __author__ = 'justusadam'
 
 
 def deprecated(func):
-    @wraps(func)
+    @functools.wraps(func)
     def wrap(*args, **kwargs):
-        if LOGGING_LEVEL == LoggingLevel.throw_all:
+        if settings.LOGGING_LEVEL == settings.LoggingLevel.throw_all:
             raise DeprecationWarning
-        if LOGGING_LEVEL == LoggingLevel.log_warnings:
+        if settings.LOGGING_LEVEL == settings.LoggingLevel.log_warnings:
             log.write_warning(function=repr(func), message='using deprecated function')
         return func(*args, **kwargs)
     return wrap
@@ -70,7 +69,7 @@ class apply_to_type:
         self.decorator = decorator
 
         def wrap(func):
-            @wraps(func)
+            @functools.wraps(func)
             def wrap_inner(*args, **kwargs):
 
                 def applyd():
@@ -168,7 +167,7 @@ class singlecache:
 
 
 def typecast(func):
-    @wraps(func)
+    @functools.wraps(func)
     def wrap(*args, **kwargs):
         pass
     return wrap

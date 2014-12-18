@@ -1,7 +1,7 @@
 """
 Tool for convenient standard (json) config reading and writing
 """
-from pathlib import Path
+import pathlib
 
 __author__ = 'justusadam'
 
@@ -9,7 +9,7 @@ __author__ = 'justusadam'
 def read_config(path, file_type='json'):
     import json
 
-    if isinstance(path, Path):
+    if isinstance(path, pathlib.Path):
         path = str(path)
 
     if not path.endswith('.' + file_type):
