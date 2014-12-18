@@ -60,7 +60,7 @@ class FieldBasedPageContent(Content):
         self.url = url
         self.modules = Modules
         self.page = self.get_page()
-        self._theme = ContentTypes.get(ContentTypes.machine_name==self.page.content_type).theme
+        self._theme = self.page.content_type.theme
         self.fields = self.get_fields()
         self.permission = self.join_permission(self.modifier, self.page.content_type)
         self.permission_for_unpublished = self.join_permission('access unpublished', self.page.content_type)

@@ -28,9 +28,10 @@ class TemplateFormatter:
         if hasattr(model, 'encoding') and model.encoding:
             self.encoding = model.encoding
         self._model = model
-        self.module_config = read_config(self._get_config_folder() + '/config.json')
-        if 'active_theme' in self.module_config:
-            self._theme = self.module_config['active_theme']
+        # self.module_config = read_config(self._get_config_folder() + '/config.json')
+        # if 'active_theme' in self.module_config:
+        #     self._theme = self.module_config['active_theme']
+        self._theme = _default_theme
         self.theme_config = read_config(self.theme_path + '/config.json')
 
     def redirect(self, attr):
