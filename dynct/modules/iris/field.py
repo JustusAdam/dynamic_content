@@ -47,7 +47,7 @@ class Field(_cc.ContentCompiler):
     @property
     def my_field(self):
         if not hasattr(self, '_my_field'):
-            self._my_field = model.field(self.machine_name).get(path_prefix=self.path_prefix, page_id=self.page_id)
+            self._my_field = model.field(self.machine_name).get(path_prefix=self.path_prefix, page=self.page_id)
         return self._my_field
 
     def get_content(self):
@@ -134,7 +134,7 @@ class AccessFieldCompiler(FieldCompiler):
     @property
     def my_field(self):
         if not hasattr(self, '_my_field'):
-            self._my_field = model.field(self.machine_name).get(path_prefix=self.path_prefix, page_id=self.page_id)
+            self._my_field = model.field(self.machine_name).get(path_prefix=self.path_prefix, page=self.page_id)
         return self._my_field
 
     def get_content(self):

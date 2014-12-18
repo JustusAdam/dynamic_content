@@ -30,10 +30,8 @@ class MenuItem:
     def __init__(self, display_name, item_path, parent_item, weight, item_id):
         self.display_name = display_name
         self.item_path = item_path
-        if parent_item is None:
-            self.parent_item = parent_item
-        else:
-            self.parent_item = int(parent_item)
+        parent_item = parent_item.oid if isinstance(parent_item, model.MenuItem) else parent_item
+        self.parent_item = parent_item if parent_item is None else int(parent_item)
         self.weight = int(weight)
         self.children = []
         self.item_id = item_id
@@ -105,12 +103,14 @@ class Handler(Commons):
         return ul_list
 
 
-def get_items(name, item_class=MenuItem):
+def get_items(menu_i, item_class=MenuItem):
     """
     Calls the database operation obtaining data about the menu items and casts them onto MenuItems for convenience
     :return: List of MenuItems
     """
-    items = model.MenuItem.get_all(menu=name, enabled=True)
+    menu_i = model.Menu.get(machine_name=menu_i) if isinstance(menu_i, str) else menu_i
+    items = model.MenuItem.select().where(model.MenuItem.menu==menu_i,
+                                          model.MenuItem.enabled==True)
     return [item_class(
         a.display_name,
         a.path,
@@ -150,4 +150,4 @@ def order_items(name, source_table, language, items, root_class=MenuItem):
 
 
 def menu(name, source_table='menu', language='english', item_class=MenuItem):
-    return order_items(name, source_table, language, get_items(item_class), item_class)
+    return order_items(name, source_table, language, get_items(name, item_class), item_class)

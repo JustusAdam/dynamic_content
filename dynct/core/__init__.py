@@ -1,3 +1,6 @@
+from peewee import DoesNotExist
+from dynct.includes import log
+
 __author__ = 'justusadam'
 
 from . import model
@@ -16,10 +19,10 @@ def add_content_handler(handler_name, handler, prefix):
 
 
 def translate_alias(alias):
-    query_result = model.Alias.get(alias=alias)
-    if query_result:
-        return query_result.source_url
-    else:
+    try:
+        return model.Alias.get(alias=alias).source_url
+    except DoesNotExist as e:
+        log.write_info(message='could not find alias ' + alias, function='translate_alias', module='core')
         return alias
 
 

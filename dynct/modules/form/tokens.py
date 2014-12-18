@@ -1,15 +1,10 @@
 import binascii
 import os
-from dynct.backend import orm
+
+from dynct.modules.form.model import ARToken
 
 
 __author__ = 'justusadam'
-
-
-class ARToken(orm.BaseModel):
-    form_id = orm.CharField()
-    token = orm.BlobField()
-
 
 TOKEN_SIZE = 16
 

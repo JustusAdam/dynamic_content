@@ -25,9 +25,10 @@ class RegionHandler:
 
     def get_item(self, item:commonsmodel.CommonsConfig, render_args, show_title):
         try:
-            handler = self.modules[item.handler_module].common_handler(item.element_type)(item, render_args, show_title, self.client)
+            handler = self.modules[item.handler_module].common_handler(item.element_type)
+            handler = handler(item, render_args, show_title, self.client)
         except TypeError:
-            print(item.element_type)
+            print(item.element_type, handler)
             raise
         return Common(item.machine_name, handler, item.element_type)
 

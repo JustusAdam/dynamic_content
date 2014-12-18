@@ -116,8 +116,11 @@ class OverviewPage(_cc.Content, Overview):
 class OverviewCommon(base.Commons, Overview):
     source_table = 'admin'
 
-    def __init__(self, conf, client):
-        super().__init__(conf, None, True, client)
+    def __init__(self, conf, render_args, show_title, client):
+        super().__init__(conf=conf,
+                         render_args=render_args,
+                         show_title=show_title,
+                         client=client)
         Overview.__init__(self)
 
     def get_content(self, name):

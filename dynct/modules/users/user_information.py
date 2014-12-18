@@ -1,13 +1,13 @@
 from dynct.core.mvc.content_compiler import Content
 from dynct.modules.comp.html import TableElement, ContainerElement
-from dynct.modules.commons.commons import Commons
+from dynct.modules.commons import base as _base
 from .login import LOGOUT_BUTTON
 from . import users, model
 
 __author__ = 'justusadam'
 
 
-class UserInformationCommon(Commons):
+class UserInformationCommon(_base.Commons):
     source_table = 'user_management'
 
     def get_content(self, name):

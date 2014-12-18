@@ -16,7 +16,18 @@ class Page(orm.BaseModel):
     date_created = orm.DateField(default=time.utcnow())
 
 
+class BodyField(orm.BaseModel):
+    class Meta:
+        db_table = 'body' + '_data'
+
+    page = orm.ForeignKeyField(Page)
+    content = orm.TextField()
+    path_prefix = orm.CharField()
+
+
 def field(name):
+    if name == 'body':
+        return BodyField
     class GenericField(orm.BaseModel):
         class Meta:
             db_table = name + '_data'

@@ -1,6 +1,7 @@
 from dynct.core.mvc import model as _model
 from dynct.modules.comp import html
 from . import _elements
+from ._elements import WysiwygTextarea
 
 __author__ = 'justusadam'
 

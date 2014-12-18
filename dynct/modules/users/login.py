@@ -4,7 +4,7 @@ from urllib import error
 from dynct.core.mvc import decorator
 from dynct.modules.comp import html
 from dynct.modules.form import secure
-from dynct.modules.commons import commons
+from dynct.modules.commons import base
 from dynct.modules.users import session
 
 from .users import GUEST
@@ -41,7 +41,7 @@ LOGIN_COMMON = secure.SecureForm(
 )
 
 
-class LoginCommonHandler(commons.Commons):
+class LoginCommonHandler(base.Commons):
     source_table = 'user_management'
 
     def get_content(self, name):
