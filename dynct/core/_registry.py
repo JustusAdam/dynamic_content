@@ -1,10 +1,9 @@
 import pathlib
 import inspect
 from dynct.backend import orm
-import functools
 
 from .model import Module
-from dynct.util import config
+from dynct.util import config, lazy
 from dynct.includes import settings
 from dynct.core import model
 from dynct.util import module as _module
@@ -151,23 +150,13 @@ def get_active_modules():
     #     return {i: import_by_path('dynct/' + find(i, settings.MODULES_DIRECTORIES)) for i in settings.DEFAULT_MODULES}
 
 
-def ensure_loaded(func):
-    @functools.wraps(func)
-    def wrap(instance, *args, **kwargs):
-        if not instance.loaded:
-            instance.load()
-        return func(instance, *args, **kwargs)
-    return wrap
-
-
-class Modules(dict):
+class Modules(dict, lazy.Loadable):
     """
     Immutable Module dictionary.
     """
 
     def __init__(self):
         super().__init__()
-        self.loaded = False
 
     def reload(self):
         self.load()
@@ -181,15 +170,14 @@ class Modules(dict):
             dict.__setitem__(self, name, value)
         self.loaded = True
 
+    @lazy.ensure_loaded
     def __getitem__(self, key):
-        if not self.loaded:
-            self.load()
         return super().__getitem__(key)
 
     def __setitem__(self, key, value):
         raise PermissionError
 
-    @ensure_loaded
+    @lazy.ensure_loaded
     def _get_handlers(self, func, single_value):
         acc = {}
 
@@ -207,11 +195,13 @@ class Modules(dict):
                     add(a, getattr(self[a], b))
         return acc
 
+    @lazy.ensure_loaded
     def get_handlers_by_class(self, class_, single_value=False):
         return self._get_handlers(
             lambda a, b: inspect.isclass(b) and issubclass(b, class_), single_value
         )
 
+    @lazy.ensure_loaded
     def get_handlers_by_name(self, name:str, single_value=False):
         if name.startswith('_'):
             raise TypeError('name', 'identifier on non-hidden attribute (does not start with \'_\')')
@@ -219,6 +209,6 @@ class Modules(dict):
             lambda a, b: b == name, single_value
         )
 
-    @ensure_loaded
+    @lazy.ensure_loaded
     def __str__(self):
         return super().__str__()

@@ -6,11 +6,11 @@ __author__ = 'justusadam'
 
 def ensure_loaded(loadable):
     @functools.wraps(loadable)
-    def wrap(self, *args, **kwargs):
-        if not self.loaded:
-            self.load()
-            self.loaded = True
-        return loadable(self, *args, **kwargs)
+    def wrap(instance, *args, **kwargs):
+        if not instance.loaded:
+            instance.load()
+            instance.loaded = True
+        return loadable(instance, *args, **kwargs)
     return wrap
 
 
