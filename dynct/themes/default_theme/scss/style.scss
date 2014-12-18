@@ -34,6 +34,7 @@ li {
   background-color: #383633;
   min-height: 100%;
   height: 100%;
+  overflow: scroll;
 }
 
 #wrapper-middle {
@@ -107,10 +108,10 @@ footer {
   background-color: #383633;
   color: #ddd;
   min-height: 50px;
-  height: 100%;
+  height: auto;
   position: relative;
   font-size: 11px;
-  box-shadow: 0 0 8px #999;
+//  box-shadow: 0 0 8px #999;
 }
 
 #wrapper-footer {
