@@ -112,19 +112,30 @@ def remove_permission(permission):
     model.AccessGroupPermission.delete().where(model.AccessGroup.permission == permission)
 
 
-def add_user(username, password, email, first_name='', middle_name='', last_name=''):
+def add_user(username, password, email, first_name='', middle_name='', last_name='', access_group=AUTH):
     model.User.create(
-        usernam=username,
+        username=username,
         email_address=email,
         first_name=first_name,
         last_name=last_name,
-        access_group=GUEST_GRP,
+        access_group=access_group,
         middle_name=middle_name
     )
     passwd, salt = hash_and_new_salt(password)
     model.UserAuth.create(uid=model.User.get(model.User.username == username).oid,
                           password=passwd,
                           salt=salt)
+
+
+def assign_access_group(user, group):
+    user = get_single_user(user)
+    user.access_group = get_acc_grp(group)
+    user.save()
+
+
+
+def get_acc_grp(name_or_id:str):
+    return model.AccessGroup.get(oid=int(name_or_id)) if isinstance(name_or_id, (int, float)) or name_or_id.isnumeric() else model.AccessGroup.get(machine_name=name_or_id)
 
 
 def get_info(selection):

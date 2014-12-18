@@ -55,6 +55,7 @@ def initialize():
     from dynct.modules.users import users
     from dynct import core
     from dynct.modules.users import START_REGION, START_THEME
+    from dynct.includes import settings
 
     admin_menu_common = 'admin_menu'
 
@@ -93,6 +94,12 @@ def initialize():
         for permission in permission_list:
             users.new_permission(permission)
             users.assign_permission(access_group, permission)
+
+
+    if settings.RUNLEVEL in [settings.RunLevel.testing, settings.RunLevel.debug]:
+        users.add_user(username='admin', password='213', email='test@localhost', first_name='bod', last_name='barker')
+        users.assign_access_group('admin', ADMIN_GRP)
+
 
     # add some useful aliases
 
