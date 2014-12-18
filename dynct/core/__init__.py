@@ -12,7 +12,7 @@ Modules = E()
 del E
 
 def add_content_handler(handler_name, handler, prefix):
-    model.ContentHandler(handler, handler_name, prefix).save()
+    return model.ContentHandler(module=handler, machine_name=handler_name, path_prefix=prefix).save()
 
 
 def translate_alias(alias):
@@ -24,7 +24,7 @@ def translate_alias(alias):
 
 
 def add_alias(source, alias):
-    model.Alias.create(source_url=source, alias=alias)
+    return model.Alias.create(source_url=source, alias=alias)
 
 
 def add_theme(name, enabled=False):

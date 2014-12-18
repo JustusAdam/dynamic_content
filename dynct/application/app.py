@@ -6,7 +6,7 @@ from dynct.core import mvc
 
 from dynct.core.mvc import model as _model
 from dynct.modules.comp import formatter
-from dynct.util import typesafe
+from dynct.util import typesafe, loadable
 from dynct.includes import settings, log
 
 from . import config as _config
@@ -14,7 +14,7 @@ from . import config as _config
 __author__ = 'justusadam'
 
 
-class Application(threading.Thread):
+class Application(threading.Thread, loadable.Loadable):
     """
     Main Application (should only be instantiated once) inherits from thread to release main thread for signal handling
      ergo Ctrl+C will almost immediately stop the application.
@@ -27,14 +27,15 @@ class Application(threading.Thread):
     def __init__(self, config:_config.ApplicationConfig=_config.DefaultConfig()):
         if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(message='app starting')
         super().__init__()
+        loadable.Loadable.__init__(self)
         self.config = config
-        self.load()
 
     def load(self):
         if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(message='loading components')
 
         self.load_modules()
 
+    @loadable.ensure_loaded
     def run(self):
         if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(message='starting server')
         self.run_http_server_loop()
