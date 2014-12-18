@@ -62,7 +62,7 @@ def handle_single_field_query(field_handler, query):
 
 def concatenate_content(fields):
     content = field_content(fields)
-    return ContainerElement(*content)
+    return ContainerElement(*list(content))
 
 
 def field_content(fields):

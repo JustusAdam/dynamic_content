@@ -21,7 +21,7 @@ def add_commons_config(machine_name, commons_type, handler_module, access_type=0
 
 
 def assign_common(common_name, region, weight, theme, render_args=None, show_title=True):
-    compmodel.Common.create(name=common_name,
+    compmodel.Common.create(machine_name=common_name,
                   region=region,
                   weight=weight,
                   theme=compmodel.coremodel.Theme.get(machine_name=theme),

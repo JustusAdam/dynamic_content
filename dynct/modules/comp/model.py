@@ -5,7 +5,7 @@ __author__ = 'justusadam'
 
 
 class Common(BaseModel):
-    name = CharField(unique=True)
+    machine_name = CharField()
     region = CharField()
     weight = IntegerField(default=0)
     theme = ForeignKeyField(coremodel.Theme)

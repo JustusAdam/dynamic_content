@@ -23,7 +23,7 @@ class Commons:
         self.show_title = show_title
         self.client = client
         self.conf = conf
-        self.name = self.conf.element_name
+        self.name = self.conf.machine_name
         self.render_args = render_args
 
     @property

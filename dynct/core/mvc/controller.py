@@ -66,7 +66,8 @@ class ControllerMapper(dict):
                     continue
                 else:
                     return result
-            except (PermissionError, TypeError) as e:
+            # except (PermissionError, TypeError) as e:
+            except PermissionError as e:
                 print(e)
                 continue
         return 'error'

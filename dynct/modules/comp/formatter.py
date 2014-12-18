@@ -181,12 +181,14 @@ class TemplateFormatter:
             yield self.url.path[i], self.url.path.prt_to_str(0, i + 1)
 
     def render_breadcrumbs(self):
-        acc = []
-        for (name, location) in self.breacrumbs():
-            acc.append(
-                html.ContainerElement(self.breadcrumb_separator(), html_type='span', classes={'breadcrumb-separator'}))
-            acc.append(html.ContainerElement(name, html_type='a', classes={'breadcrumb'}, additional={'href': location}))
-        return html.ContainerElement(*acc, classes={'breadcrumbs'})
+        def acc():
+            for (name, location) in self.breacrumbs():
+                for i in [
+                    html.ContainerElement(self.breadcrumb_separator(), html_type='span', classes={'breadcrumb-separator'}),
+                    html.ContainerElement(name, html_type='a', classes={'breadcrumb'}, additional={'href': location})
+                ]:
+                    yield i
+        return html.ContainerElement(*list(acc()), classes={'breadcrumbs'})
 
 #
 # class DecoratorWithRegions(TemplateFormatter):

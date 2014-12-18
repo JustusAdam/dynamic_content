@@ -2,10 +2,10 @@ import pathlib
 import inspect
 from dynct.backend import orm
 
-from .model import Module
+from . import model
 from dynct.util import config, lazy
 from dynct.includes import settings
-from dynct.core import model
+from dynct.core import model as coremodel
 from dynct.util import module as _module
 from dynct.includes import log
 
@@ -63,28 +63,28 @@ def register_content_handler(module_conf):
     else:
         path_prefix = module_conf['name']
     try:
-        model.ContentHandler(module_conf['name'], module_conf['name'], path_prefix).save()
+        coremodel.ContentHandler(module_conf['name'], module_conf['name'], path_prefix).save()
     except IOError as error:
         print('Failed to register page handler ' + module_conf['name'])
         print(error)
 
 
 def get_module_id(module_name):
-    return Module.get(machine_name=module_name).id
+    return model.Module.get(machine_name=module_name).id
 
 
 def get_module_path(module):
-    return Module.get(machine_name=module).module_path
+    return model.Module.get(machine_name=module).module_path
 
 
 def _set_module_active(module_name):
-    a = Module.get(machine_name=module_name)
+    a = model.Module.get(machine_name=module_name)
     a.enabled = True
     a.save()
 
 
 def is_active(module_name):
-    result = Module.get(module_name=module_name)
+    result = model.Module.get(module_name=module_name)
     if result:
         return bool(result.enabled)
     else:
@@ -118,14 +118,14 @@ def register_modules(r_modules):
 def register_single_module(moduleconf):
     assert isinstance(moduleconf, dict)
     print('registering module ' + moduleconf['name'])
-    module = Module.select().where(Module.machine_name == moduleconf['name'])
+    module = model.Module.select().where(model.Module.machine_name == moduleconf['name'])
     if module.wrapped_count():
         module = module[0]
         if module.path != moduleconf['path']:
             module.path = moduleconf['path']
             module.save()
     else:
-        Module.create(machine_name=moduleconf['name'], path=moduleconf['path'])
+        model.Module.create(machine_name=moduleconf['name'], path=moduleconf['path'])
 
 
 def check_info(info):
@@ -138,7 +138,7 @@ def check_info(info):
 
 
 def get_active_modules():
-    modules = Module.select().where(Module.enabled==True)
+    modules = model.Module.select().where(model.Module.enabled==True)
     return {item.machine_name: _module.import_by_path('dynct/' + item.path) for item in modules}
     # except Exception:
     #     def find(name, paths):
@@ -172,6 +172,8 @@ class Modules(dict, lazy.Loadable):
 
     @lazy.ensure_loaded
     def __getitem__(self, key):
+        if isinstance(key, model.Module):
+            key = key.machine_name
         return super().__getitem__(key)
 
     def __setitem__(self, key, value):
