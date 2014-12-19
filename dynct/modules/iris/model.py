@@ -1,4 +1,4 @@
-from dynct.util import time
+from dynct.util import time, decorators
 from dynct.backend import orm
 from dynct.core import model as coremodel
 from dynct.modules.users import model as usersmodel
@@ -25,6 +25,7 @@ class BodyField(orm.BaseModel):
     path_prefix = orm.CharField()
 
 
+@decorators.multicache
 def field(name):
     if name == 'body':
         return BodyField

@@ -124,6 +124,7 @@ class requiredir:
 
 def implicit(arg):
     def w(func):
+        @functools.wraps(func)
         def wrapped(*args, **kwargs):
             return func(arg, *args, **kwargs)
         return wrapped
@@ -149,6 +150,7 @@ def for_method_and_func(_generic):
 
 def multicache(func):
     _cache = {}
+    @functools.wraps(func)
     def wrap(*args):
         return _cache.setdefault(args, func(*args))
     return wrap
