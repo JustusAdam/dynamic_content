@@ -1,5 +1,6 @@
 import collections
 import re
+from dynct.errors import exceptions
 from dynct.util import decorators
 
 
@@ -67,9 +68,8 @@ class ControllerMapper(dict):
                 else:
                     return result
             # except (PermissionError, TypeError) as e:
-            except PermissionError as e:
-                print(e)
-                continue
+            except exceptions.UnexpectedControllerArgumentError:
+                pass
         return 'error'
 
 

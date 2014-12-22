@@ -50,7 +50,7 @@ def close_session(uid_or_username):
 
 def authenticate_user(username_or_uid, password):
     if not isinstance(username_or_uid, int) or username_or_uid.isdigit():
-        username_or_uid = model.User.get(username=username_or_uid).uid
+        username_or_uid = model.User.get(username=username_or_uid).oid
     auth = model.UserAuth.get(uid=username_or_uid)
     if not auth:
         return False

@@ -1,3 +1,4 @@
+import functools
 import os
 import threading
 from dynct.backend import orm
@@ -48,7 +49,8 @@ class Application(threading.Thread, lazy.Loadable):
         core.Modules.load()
         mvc.controller_mapper.sort()
 
-    def handle_http_request(self, *args):
+    def run_http_server_loop(self):
+
         def http_callback(url, client):
             model = _model.Model()
             model.client = client
@@ -56,11 +58,10 @@ class Application(threading.Thread, lazy.Loadable):
             decorator = formatter.TemplateFormatter(model=model, url=url)
             return decorator.compile_response()
 
-        return self.config.http_request_handler(http_callback, *args)
+        request_handler = functools.partial(self.config.http_request_handler, http_callback)
 
-    def run_http_server_loop(self):
         server_address = (self.config.server_arguments['host'], self.config.server_arguments['port'])
-        httpd = self.config.server_class(server_address, self.handle_http_request)
+        httpd = self.config.server_class(server_address, request_handler)
         httpd.serve_forever()
 
     def set_working_directory(self):

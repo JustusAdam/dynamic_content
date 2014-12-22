@@ -7,6 +7,7 @@ from . import controller
 from .model import Model
 from dynct.util import decorators
 from dynct.util import typesafe
+from dynct.errors import exceptions
 
 __author__ = 'justusadam'
 
@@ -47,7 +48,7 @@ def q_comp(q, name):
         else:
             def hello(a):
                 if a:
-                    raise TypeError
+                    raise exceptions.UnexpectedControllerArgumentError('Unexpected Query: ' + str(a))
                 else:
                     return {}
             return hello
