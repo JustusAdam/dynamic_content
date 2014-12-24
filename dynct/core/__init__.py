@@ -5,6 +5,7 @@ __author__ = 'justusadam'
 
 from . import model
 from ._registry import Modules as E
+from .component import component, get_component, call_component, Component
 
 name = 'core'
 
