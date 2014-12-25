@@ -39,35 +39,27 @@ def not_under(a, val=0):
         return a
 
 
-def wrap_compiler(class_):
-    def wrapped(*args, **kwargs):
-        return class_(*args, **kwargs).compile()
-
-    return wrapped
-
-
-class FieldBasedPageContent(_cc.Content):
+@core.Component('AccessIris')
+class FieldBasedPageContent(object):
     modifier = _access_modifier
     _editorial_list_base = edits = [('edit', _edit_modifier)]
 
-    def __init__(self, model, url):
-        super().__init__(model)
-        self.url = url
-        self.modules = core.Modules
-        self.page = self.get_page()
-        self._theme = self.page.content_type.theme
+    def __init__(self):
         self.fields = self.get_fields()
-        self.permission = self.join_permission(self.modifier, self.page.content_type)
-        self.permission_for_unpublished = self.join_permission('access unpublished', self.page.content_type)
+        self.modules = core.Modules
 
-    def get_page(self):
-        return _model.Page.get(_model.Page.oid==self.url.page_id)
+    def __call__(self, model, url):
+        page = self.get_page(url)
+        self._theme = self.page.content_type.theme
+        permission = self.join_permission(self.modifier, self.page.content_type)
+        permission_for_unpublished = self.join_permission('access unpublished', self.page.content_type)
 
-    @property
-    def page_title(self):
-        return self.page.page_title
+    def get_page(self, url):
+        return _model.Page.get(_model.Page.oid==url.page_id)
 
-    def join_permission(self, modifier, content_type):
+
+    @staticmethod
+    def join_permission(modifier, content_type):
         return ' '.join([modifier, 'content type', content_type])
 
     def get_fields(self):

@@ -3,17 +3,12 @@ from dynct.includes import log
 
 __author__ = 'justusadam'
 
-from . import model
-from ._registry import Modules as E
 from .component import component, get_component, call_component, Component
-
-name = 'core'
-
-role = 'core'
+from . import model, _registry
 
 
-Modules = E()
-del E
+Modules = get_component('modules')
+
 
 def add_content_handler(handler_name, handler, prefix):
     return model.ContentHandler(module=handler, machine_name=handler_name, path_prefix=prefix).save()

@@ -2,7 +2,7 @@ import pathlib
 import inspect
 from dynct.backend import orm
 
-from . import model
+from . import model, Component
 from dynct.util import config, lazy
 from dynct.includes import settings
 from dynct.core import model as coremodel
@@ -150,6 +150,7 @@ def get_active_modules():
     #     return {i: import_by_path('dynct/' + find(i, settings.MODULES_DIRECTORIES)) for i in settings.DEFAULT_MODULES}
 
 
+@Component("modules")
 class Modules(dict, lazy.Loadable):
     """
     Immutable Module dictionary.

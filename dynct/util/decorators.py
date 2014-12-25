@@ -173,3 +173,21 @@ def typecast(func):
     def wrap(*args, **kwargs):
         pass
     return wrap
+
+
+def transformarg(transformer, name, index):
+    def wrap(func):
+        @functools.wraps(func)
+        def inner(*args, **kwargs):
+            if name in kwargs:
+                res = dict(**kwargs)
+                res[name] = transformer(kwargs[name])
+                return func(*args, **res)
+            else:
+                item = transformer(args[index])
+                return func(*args[:index] + (item,) + args[index+1:], **kwargs)
+        return inner
+    return wrap
+
+
+transform_with = lambda transformer: functools.partial(transformarg, transformer)
