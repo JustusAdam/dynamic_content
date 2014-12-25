@@ -1,7 +1,8 @@
+import functools
 from urllib import parse, error
 
 from dynct import core
-from dynct.core.mvc import content_compiler as _cc, decorator as mvc_dec, model as mvc_model
+from dynct.core.mvc import decorator as mvc_dec, model as mvc_model
 from dynct.modules.comp import decorator as comp_dec
 from dynct.modules.comp import html
 from dynct.modules.iris import node as _node
@@ -39,101 +40,119 @@ def not_under(a, val=0):
         return a
 
 
-@core.Component('AccessIris')
+@core.Component('Iris')
 class FieldBasedPageContent(object):
-    modifier = _access_modifier
     _editorial_list_base = edits = [('edit', _edit_modifier)]
+    _view_name = 'page'
+    page_type = 'iris'
 
-    def __init__(self):
+    def __init__(self, content_type):
+        self.content_type = content_type
         self.fields = self.get_fields()
         self.modules = core.Modules
+        self.dbobj = coremodel.ContentTypes.get(machine_name=content_type)
+        self.theme = self.dbobj.theme
 
-    def __call__(self, model, url):
-        page = self.get_page(url)
-        self._theme = self.page.content_type.theme
-        permission = self.join_permission(self.modifier, self.page.content_type)
-        permission_for_unpublished = self.join_permission('access unpublished', self.page.content_type)
+    def get_permission(self, page, modifier):
+        return self.join_permission(modifier) if page.published else \
+            self.join_permission('access unpublished')
 
-    def get_page(self, url):
-        return _model.Page.get(_model.Page.oid==url.page_id)
+    def compile(self, model, page_id, modifier, pre_compile_hook=None, post_compile_hook=None, content_compiler_hook=None):
+        page = self.get_page(page_id)
+        model.client.check_permission(self.get_permission(page, modifier))
 
+        pre_compile_hook() if pre_compile_hook else None
 
-    @staticmethod
-    def join_permission(modifier, content_type):
-        return ' '.join([modifier, 'content type', content_type])
+        model['editorial'] = self.editorial(page)
+        model['content'] = content_compiler_hook(page) if content_compiler_hook else self.concatenate_content(page)
+        model['title'] = self.page_title
+
+        post_compile_hook() if post_compile_hook else None
+
+        return self._view_name
+
+    @mvc_dec.controller_method('iris', '/([0-9]+)(?:/access)?', post=False, get=False)
+    def access(self, model, page_id):
+        return self.compile(model, page_id, 'access')
+
+    @mvc_dec.controller_method('iris', '/([0-9]+)/edit', get=False, post=False)
+    def edit(self, model, page_id):
+        return self.compile(model, page_id, 'edit', content_compiler_hook=functools.partial(self.edit_form, self))
+
+    @mvc_dec.controller_method('iris', '/([0-9]+)/edit', get=False, post=True)
+    def edit_post(self, model, page_id, post):
+        page = self.get_page(page_id)
+        model.client.check_permission(self.get_permission(page, 'add'))
+
+        success = True
+        return ':redirect:/iris/' + str(page_id) if success else '/iris/' + str(page_id) + '/add'
+
+    @mvc_dec.controller_method('iris', '/add', get=False, post=False)
+    def add(self):
+        pass
+
+    def edit_form(self, page):
+        content = [self.title_options(page)]
+        content += self.field_content(page)
+        table = html.TableElement(*content, classes={'edit', page.content_type, 'edit-form'})
+        return html.FormElement(table, self.admin_options(), action='/iris/' + str(page_id) + '/edit')
+
+    def editorial(self, page):
+        l = self.editorial_list(page)
+        if l:
+            return html.List(
+                *[html.ContainerElement(name, html_type='a', classes={'editorial-link'}, additional={'href': link}) for
+                  name, link in l],
+                classes={'editorial-list'}
+            )
+        else:
+            return ''
+
+    def get_page(self, page_id):
+        return _model.Page.get(oid=page_id)
+
+    def join_permission(self, modifier):
+        return ' '.join([modifier, 'content type', self.content_type])
 
     def get_fields(self):
         field_info = _model.FieldConfig.get_all(_model.FieldConfig.content_type==self.page.content_type)
         for a in field_info:
             yield self.get_field_handler(a.machine_name, a.handler_module)
 
-    def handle_single_field_post(self, field_handler):
-        query_keys = field_handler.get_post_query_keys()
-        if query_keys:
-            vals = {}
-            for key in query_keys:
-                if key in self.url.post:
-                    vals[key] = self.url.post[key]
-            if vals:
-                field_handler.process_post(_url.UrlQuery(vals))
-
-    def handle_single_field_get(self, field_handler):
-        query_keys = field_handler.get_post_query_keys()
-        if query_keys:
-            vals = {}
-            for key in query_keys:
-                if key in self.url.get_query:
-                    vals[key] = self.url.post[key]
-            if vals:
-                field_handler.process_get(_url.UrlQuery(vals))
-
     def get_field_handler(self, name, module):
         return self.modules[module].field_handler(name, self.url.page_type, self.url.page_id, self.modifier)
 
-    def concatenate_content(self, fields):
-        content = self.field_content(fields)
+    def concatenate_content(self, page):
+        content = self.field_content(page)
         return html.ContainerElement(*content)
 
-    def field_content(self, fields):
-        content = []
-        for field in fields:
-            content.append(field.compile().content)
-        return content
+    def field_content(self, page):
+        for field in self.fields:
+            yield field(page)
 
-    def process_content(self):
-        return self.concatenate_content(self.fields)
-
-    def editorial_list(self):
+    def editorial_list(self, page):
         for (name, modifier) in self._editorial_list_base:
-            if self.check_permission(self.join_permission(modifier, self.page.content_type)):
-                yield (name, '/'.join(['', self.url.page_type, str(self.url.page_id), modifier]))
+            if self.check_permission(self.join_permission(modifier)):
+                yield (name, '/'.join(['', self.page_type, str(page.oid), modifier]))
 
 
 class EditFieldBasedContent(FieldBasedPageContent):
     modifier = _edit_modifier
     _editorial_list_base = [('show', _access_modifier)]
     field_identifier_separator = '-'
-    theme = 'admin_theme'
 
-    def __init__(self, model, url):
-        super().__init__(model, url)
-        self.menu_item = commons_model.MenuItem.get_all(item_path=self.url.path.prt_to_str(0, -1))
-        if self.menu_item:
-            self.menu_item = self.menu_item[0]
+    def __init__(self, content_type):
+        super().__init__(content_type)
+        self.theme = 'admin_theme'
 
-    @property
-    def page_title(self):
-        return ' '.join([self.modifier, self.page.content_type, 'page'])
-
-    @property
-    def title_options(self):
+    def title_options(self, page):
         return [html.Label('Title', label_for='edit-title'),
-                html.TextInput(element_id='edit-title', name='title', value=self.page.page_title, required=True, size=100)]
+                html.TextInput(element_id='edit-title', name='title', value=page.page_title, required=True, size=100)]
 
-    def concatenate_content(self, fields):
-        content = [self.title_options]
-        content += self.field_content(fields)
-        table = html.TableElement(*content, classes={'edit', self.page.content_type, 'edit-form'})
+    def concatenate_content(self, page):
+        content = [self.title_options(page)]
+        content += self.field_content(page)
+        table = html.TableElement(*content, classes={'edit', page.content_type, 'edit-form'})
         return html.FormElement(table, self.admin_options(), action=str(self.url))
 
     def field_content(self, fields):
@@ -163,13 +182,9 @@ class EditFieldBasedContent(FieldBasedPageContent):
 
         return html.TableElement(publishing_options, menu_options, classes={'admin-options'})
 
-    def process_fields(self, fields):
-        for field in fields:
-            field.process_post()
+    def __call__(self, model, page, post, get, *args, **kwargs):
+        return self.compile(model, page)
 
-    def assign_inputs(self, fields):
-        for field in fields:
-            field.query = {key: [parse.unquote_plus(a) for a in self.url.post[key]] for key in field.post_query_keys}
 
     def process_page(self):
         if not 'title' in self.url.post:
@@ -210,12 +225,6 @@ class EditFieldBasedContent(FieldBasedPageContent):
             self.redirect(page)
         except ValueError:
             pass
-
-    def compile(self):
-        if self.url.post:
-            self._process_post()
-        wysiwyg.decorator_hook(self._model)
-        return super().compile()
 
     def redirect(self, destination=None):
         if 'destination' in self.url.get_query:
@@ -329,7 +338,7 @@ class IrisController:
     def overview(self, model, url):
         return Overview(model, url).compile()
 
-    @mvc_dec.controller_method('iris', '/([1-9]+)/edit', get=False, post=True)
+    @mvc_dec.controller_method('iris', '/([0-9]+)/edit', get=False, post=True)
     @decorator.node_process
     def edit(self, model, node_id, post):
         pass
