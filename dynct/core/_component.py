@@ -1,3 +1,4 @@
+import functools
 from dynct.includes import log
 from dynct.util import decorators
 
@@ -67,3 +68,21 @@ Component = component = _decorator
 
 def register(name, obj):
     get_component[name] = obj
+
+
+def inject(component, argname):
+    """
+    Inject a component when the function is called. (decorator)
+
+    Component will be injected as keyword argument
+    :param component:
+    :param argname:
+    :return:
+    """
+    def inner(func):
+        @functools.wraps(func)
+        def wrap(*args, **kwargs):
+            kwargs[argname] = get_component(component)
+            return func(*args, **kwargs)
+        return wrap
+    return inner

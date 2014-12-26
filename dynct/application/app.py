@@ -3,7 +3,6 @@ import os
 import threading
 from dynct.backend import orm
 from dynct import core
-from dynct.core import mvc
 
 from dynct.core.mvc import model as _model
 from dynct.modules.comp import formatter
@@ -47,14 +46,14 @@ class Application(threading.Thread, lazy.Loadable):
             dynct.modules.cms.temporary_setup_script.init_tables()
             dynct.modules.cms.temporary_setup_script.initialize()
         core.Modules.load()
-        mvc.controller_mapper.sort()
+        core.get_component('ControllerMapping').sort()
 
     def run_http_server_loop(self):
 
         def http_callback(url, client):
             model = _model.Model()
             model.client = client
-            model.view = mvc.controller_mapper(model, url)
+            model.view = core.get_component('ControllerMapping')(model, url)
             decorator = formatter.TemplateFormatter(model=model, url=url)
             return decorator.compile_response()
 

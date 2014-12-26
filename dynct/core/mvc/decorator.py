@@ -4,12 +4,16 @@ import re
 
 from . import Config, DefaultConfig
 from . import controller
+from .. import _component
 from .model import Model
 from dynct.util import decorators
 from dynct.util import typesafe
 from dynct.errors import exceptions
 
 __author__ = 'justusadam'
+
+
+controller_mapper = _component.get_component('ControllerMapping')
 
 
 class Autoconf:
@@ -96,7 +100,7 @@ class RestControlFunction(ControlFunction):
 def __controller_function(class_, prefix, regex:str=None, *, get=True, post=True):
     def wrap(func):
         wrapped = class_(func, prefix, regex, get, post)
-        controller.controller_mapper.add_controller(prefix, wrapped)
+        controller_mapper.add_controller(prefix, wrapped)
         return wrapped
     return wrap
 
@@ -115,11 +119,11 @@ def controller_class(class_):
     c_funcs = list(filter(lambda a: isinstance(a, ControlFunction), class_.__dict__.values()))
     if c_funcs:
         instance = class_()
-        controller.controller_mapper._controller_classes.append(instance)
+        controller_mapper._controller_classes.append(instance)
         for item in c_funcs:
             for wrapped in item.wrapping:
                 wrapped.instance = instance
-                controller.controller_mapper.add_controller(wrapped.prefix, wrapped)
+                controller_mapper.add_controller(wrapped.prefix, wrapped)
     return class_
 
 

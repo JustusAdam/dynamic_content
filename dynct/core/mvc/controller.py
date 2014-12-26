@@ -2,6 +2,7 @@ import collections
 import re
 from dynct.errors import exceptions
 from dynct.util import decorators
+from .. import _component
 
 
 __author__ = 'justusadam'
@@ -15,6 +16,7 @@ class Controller(dict):
     pass
 
 
+@_component.Component('ControllerMapping')
 class ControllerMapper(dict):
 
     def __init__(self, **kwargs):
@@ -23,8 +25,7 @@ class ControllerMapper(dict):
         self.register_modules()
 
     def register_modules(self):
-        from dynct.core import Modules
-        self.modules = Modules
+        self.modules = _component.get_component('Modules')
 
     def sort(self):
         """
@@ -71,7 +72,3 @@ class ControllerMapper(dict):
             except exceptions.UnexpectedControllerArgumentError:
                 pass
         return 'error'
-
-
-
-controller_mapper = ControllerMapper()
