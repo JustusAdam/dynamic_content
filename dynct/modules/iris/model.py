@@ -22,7 +22,6 @@ class BodyField(orm.BaseModel):
 
     page = orm.ForeignKeyField(Page)
     content = orm.TextField()
-    path_prefix = orm.CharField()
 
 
 @decorators.multicache
@@ -33,9 +32,10 @@ def field(name):
         class Meta:
             db_table = name + '_data'
 
-        page = orm.ForeignKeyField(Page)
+        page_type = orm.CharField()
+        page_id = orm.IntegerField()
         content = orm.TextField()
-        path_prefix = orm.CharField()
+
     return GenericField
 
 

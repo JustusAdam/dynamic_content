@@ -71,6 +71,9 @@ class ContainerElement(BaseClassIdElement):
         super().__init__(html_type, classes, element_id, additional)
         self.content = content
 
+    def __bool__(self):
+        return bool(self.content)
+
     @property
     def list_replacement(self):
         if self._list_replacement:

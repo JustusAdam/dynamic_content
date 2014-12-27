@@ -126,10 +126,7 @@ class FieldBasedPageContent(object):
     def get_fields(self):
         field_info = _model.FieldConfig.get_all(_model.FieldConfig.content_type==self.content_type)
         for a in field_info:
-            yield self.get_field_handler(a.machine_name, a.handler_module)
-
-    def get_field_handler(self, name, module):
-        return self.modules[module].field_handler(name, self.page_type)
+            yield core.get_component('fieldtypes')[a.field_type](a, self.page_type)
 
     def concatenate_content(self, page):
         content = self.field_content(page)

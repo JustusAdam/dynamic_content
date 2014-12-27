@@ -1,11 +1,10 @@
 import functools
 from dynct.includes import log
-from dynct.util import decorators
 
 __author__ = 'justusadam'
 
 
-_name_transform = decorators.transform_with(lambda name: name.lower().replace('_', '').replace(' ', ''))
+_name_transform = lambda name: name.lower().replace('_', '').replace(' ', '')
 
 
 class ComponentContainer(dict):
@@ -23,6 +22,7 @@ class ComponentContainer(dict):
     """
     def __init__(self):
         super().__init__()
+        self.classmap = {}
 
     def __call__(self, *args, **kwargs):
         if len(args) == 0:
@@ -32,17 +32,22 @@ class ComponentContainer(dict):
                 return self.__getitem__(args[0])
         return self.__getitem__(args[0])(*args[1:], **kwargs)
 
-    @_name_transform('key', 1)
     def __setitem__(self, key, value):
-        if key in self:
-            message = ' '.join(["overwriting key", key, "of value", repr(super().__getitem__(key)), "with value", repr(value)])
-            log.write_error(segment="ComponentContainer", message=message)
-            print(message)
-        return super().__setitem__(key, value)
+        if isinstance(key, type):
+            return self.classmap.__setitem__(key, value)
+        else:
+            if key in self:
+                message = ' '.join(["overwriting key", key, "of value", repr(super().__getitem__(key)), "with value", repr(value)])
+                log.write_error(segment="ComponentContainer", message=message)
+                print(message)
+            self.classmap.__setitem__(type(value), value)
+            return super().__setitem__(key, value)
 
-    @_name_transform('key', 1)
     def __getitem__(self, key):
-        return super().__getitem__(key)
+        if isinstance(key, type):
+            return self.classmap[key]
+        else:
+            return super().__getitem__(key)
 
     def __getattr__(self, item):
         return self.__getitem__(item)
@@ -70,7 +75,7 @@ def register(name, obj):
     get_component[name] = obj
 
 
-def inject(component, argname):
+def inject_kwarg(component, argname):
     """
     Inject a component when the function is called. (decorator)
 
@@ -84,5 +89,14 @@ def inject(component, argname):
         def wrap(*args, **kwargs):
             kwargs[argname] = get_component(component)
             return func(*args, **kwargs)
+        return wrap
+    return inner
+
+
+def inject_arg(component):
+    def inner(func):
+        @functools.wraps(func)
+        def wrap(*args, **kwargs):
+            return func(get_component(component), *args, **kwargs)
         return wrap
     return inner

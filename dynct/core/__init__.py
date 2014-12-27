@@ -3,7 +3,7 @@ from dynct.includes import log
 
 __author__ = 'justusadam'
 
-from ._component import component, get_component, call_component, Component
+from ._component import component, get_component, call_component, Component, inject_kwarg
 from . import model, _registry
 from . import mvc
 
