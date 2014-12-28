@@ -19,10 +19,10 @@ class MyTestCase(unittest.TestCase):
         c, b = 'hello', 'you'
 
         self.assertEqual(a(c,b), c + b)
-        self.assertRaises(AssertionError, a, (c,1))
+        self.assertRaises(TypeError, a, (c,1))
 
         self.assertEqual(f('g'), 'g')
-        self.assertRaises(AssertionError, f, 2)
+        self.assertRaises(TypeError, f, 2)
 
 
 if __name__ == '__main__':

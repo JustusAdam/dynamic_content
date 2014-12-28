@@ -1,5 +1,5 @@
 import unittest
-from dynct.core.mvc import controller_mapper
+from dynct import core
 from dynct.core.mvc.decorator import controller_function
 from dynct.core.mvc.model import Model
 from dynct.util.url import Url
@@ -19,7 +19,7 @@ class TestDecorator(unittest.TestCase):
         def handle(model, arg, get):
             return model, arg, get
 
-        result_model, result_arg, result_get = controller_mapper(model, url1)
+        result_model, result_arg, result_get = core.get_component('ControllerMapping')(model, url1)
         self.assertEqual(result_model, model)
         self.assertEqual(result_arg, testpath)
         self.assertEqual(result_get, {})
