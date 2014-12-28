@@ -3,7 +3,7 @@ from http import cookies
 from urllib import error
 from dynct.core.mvc import decorator
 from dynct.modules.comp import html
-from dynct.modules.form import secure
+from dynct.modules import form
 from dynct.modules.commons import base
 from dynct.modules.users import session
 
@@ -25,7 +25,7 @@ LOGOUT_TARGET = '/login'
 LOGOUT_BUTTON = html.ContainerElement('Logout', html_type='a', classes={'logout', 'button'},
                                  additional={'href': '/' + logout_prefix})
 
-LOGIN_FORM = secure.SecureForm(
+LOGIN_FORM = form.SecureForm(
     html.TableElement(
         USERNAME_INPUT,
         PASSWORD_INPUT
@@ -33,7 +33,7 @@ LOGIN_FORM = secure.SecureForm(
     , action='/' + login_prefix, classes={'login-form'}, submit=html.SubmitButton(value='Login')
 )
 
-LOGIN_COMMON = secure.SecureForm(
+LOGIN_COMMON = form.SecureForm(
     html.ContainerElement(
         *USERNAME_INPUT + PASSWORD_INPUT
     )

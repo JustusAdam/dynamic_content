@@ -4,7 +4,7 @@ from urllib import error
 
 from dynct.core.mvc import content_compiler as _cc
 from dynct.modules.comp import html
-from dynct.modules.form import secure
+from dynct.modules import form
 from . import user_information as uinf, model, users
 
 
@@ -103,7 +103,7 @@ class CreateUser(_cc.Content):
                     arguments['value'] = kwargs[name]
                 yield [html.Label(display_name, label_for=name), html.Input(name=name, **arguments)]
 
-        return secure.SecureForm(
+        return form.SecureForm(
             html.TableElement(
                 *list(acc())
             ), action=self.target_url(), element_id='admin_form'
@@ -243,7 +243,7 @@ class EditPermissions(PermissionOverview):
         return super().compile()
 
     def permission_table(self):
-        return secure.SecureForm(
+        return form.SecureForm(
             super().permission_table()
             , action=str(self.url.path)
         )
