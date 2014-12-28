@@ -27,17 +27,14 @@ class FieldExists(DCException):
 
 class _Field(object):
 
-    def __init__(self, config):
+    def __init__(self, config, page_type):
         super().__init__()
         self.config = config
+        self.page_type = page_type
 
     @property
     def name(self):
         return self.config.machine_name
-
-    @property
-    def page_type(self):
-        return self.config.page_type
 
     def access(self, page_id):
         db_obj = self.from_db(page_id)
@@ -62,3 +59,6 @@ class _Field(object):
 
     def get_field_title(self):
         return self.name
+
+
+Field = _Field

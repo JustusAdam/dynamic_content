@@ -1,15 +1,14 @@
 import functools
-from urllib import parse
 
 from dynct import core
 from dynct.core.mvc import content_compiler as _cc, decorator as mvc_dec, model as mvc_model
 from dynct.modules.comp import decorator as comp_dec
 from dynct.modules.comp import html
 from dynct.modules.iris import node as _node
-from dynct.util import url as _url
+from dynct.util import url as _url, lazy
 from dynct.core import model as coremodel
-from dynct.modules.commons import menus as _menus, model as commons_model
-from . import model as _model, decorator, node as _nodemodule
+from dynct.modules.commons import menus as _menus
+from . import model as _model, decorator, node as _nodemodule, field
 
 
 __author__ = 'justusadam'
@@ -40,21 +39,18 @@ def not_under(a, val=0):
 
 
 @core.Component('IrisCompilers')
-class Compilers(dict):
+class Compilers(lazy.Loadable):
     def __init__(self):
-        cts = coremodel.ContentTypes.select()
-        cts = {ct.machine_name: FieldBasedPageContent(ct) for ct in cts}
-        super().__init__(**cts)
+        super().__init__()
 
+    @lazy.ensure_loaded
     def __getitem__(self, item):
         if isinstance(item, coremodel.ContentTypes):
             item = item.machine_name
-        return super().__getitem__(item)
+        return self._dict[item]
 
-    def __setitem__(self, key, value):
-        if isinstance(key, coremodel.ContentTypes):
-            key = key.machine_name
-        return super().__setitem__(key, value)
+    def load(self):
+        self._dict = {ct.machine_name: FieldBasedPageContent(ct) for ct in coremodel.ContentTypes.select()}
 
 
 class FieldBasedPageContent(object):
@@ -135,9 +131,9 @@ class FieldBasedPageContent(object):
         return ' '.join([modifier, 'content type', self.content_type])
 
     def get_fields(self):
-        field_info = _model.FieldConfig.get_all(_model.FieldConfig.content_type==self.content_type)
+        field_info = _model.FieldConfig.select().where(_model.FieldConfig.content_type==self.dbobj)
         for a in field_info:
-            yield core.get_component('fieldtypes')[a.field_type](a, self.page_type)
+            yield field.Field(a, self.page_type)
 
     def editorial_list(self, page, client):
         for (name, modifier) in self._editorial_list_base:
@@ -173,7 +169,7 @@ def handle_compile(model, page_id, modifier):
     modifiers = {
 
     }
-    return getattr(core.get_component('IrisCompilers')[page.content_type], modifiers.get(modifier, modifier))(model, page)
+    return getattr(core.get_component('IrisCompilers')[page.content_type], modifiers.get(modifier, modifier) if modifier else 'access')(model, page)
 
 
 @mvc_dec.controller_function('iris', '/([0-9]+)/edit', get=False, post=True)

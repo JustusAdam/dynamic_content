@@ -213,7 +213,7 @@ def initialize():
     # add some initial pages
 
     bodyfield = field('body')
-    # bodyfield.create_table()
+    bodyfield.create_table()
 
     page = Page.create(content_type=_ct1, page_title="Welcome to \"dynamic_content\"", creator=1, published=True)
     bodyfield.create(page=page, path_prefix='iris',

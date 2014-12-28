@@ -36,6 +36,7 @@ class ComponentContainer(dict):
         if isinstance(key, type):
             return self.classmap.__setitem__(key, value)
         else:
+            key = _name_transform(key)
             if key in self:
                 message = ' '.join(["overwriting key", key, "of value", repr(super().__getitem__(key)), "with value", repr(value)])
                 log.write_error(segment="ComponentContainer", message=message)
@@ -47,7 +48,7 @@ class ComponentContainer(dict):
         if isinstance(key, type):
             return self.classmap[key]
         else:
-            return super().__getitem__(key)
+            return super().__getitem__(_name_transform(key))
 
     def __getattr__(self, item):
         return self.__getitem__(item)
@@ -60,8 +61,8 @@ call_component = get_component = ComponentContainer()
 del ComponentContainer
 
 
-def _decorator(name):
-    def inner(class_, *args, **kwargs):
+def _decorator(name, *args, **kwargs):
+    def inner(class_):
         register(name, class_(*args, **kwargs))
         return class_
     return inner

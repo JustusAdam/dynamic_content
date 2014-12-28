@@ -16,18 +16,8 @@ class Page(orm.BaseModel):
     date_created = orm.DateField(default=time.utcnow())
 
 
-class BodyField(orm.BaseModel):
-    class Meta:
-        db_table = 'body' + '_data'
-
-    page = orm.ForeignKeyField(Page)
-    content = orm.TextField()
-
-
 @decorators.multicache
 def field(name):
-    if name == 'body':
-        return BodyField
     class GenericField(orm.BaseModel):
         class Meta:
             db_table = name + '_data'
@@ -40,9 +30,7 @@ def field(name):
 
 
 class FieldConfig(orm.BaseModel):
-    machine_name = orm.CharField(unique=True)
-    display_name = orm.CharField()
+    machine_name = orm.CharField()
     content_type = orm.ForeignKeyField(coremodel.ContentHandler)
-    handler_module = orm.ForeignKeyField(coremodel.Module)
     weight = orm.IntegerField(default=0)
     description = orm.TextField(null=True)
