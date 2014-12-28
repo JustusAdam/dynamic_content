@@ -77,7 +77,7 @@ class FieldBasedPageContent(object):
 
         node = _nodemodule.Node(
             editorial=self.editorial(page, model.client),
-            content=content_compiler_hook(page) if content_compiler_hook else ''.join(self.field_contents(page)),
+            content=content_compiler_hook(page) if content_compiler_hook else ''.join(str(a) for a in self.field_contents(page)),
             title=page.page_title)
 
         post_compile_hook() if post_compile_hook else None
