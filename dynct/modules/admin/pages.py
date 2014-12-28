@@ -88,7 +88,7 @@ class Overview(_cc.ContentCompiler):
     def order_tree(self, parents, children):
         mapping = collections.defaultdict(list)
         for item in children:
-            mapping[item.parent].append(item)
+            mapping[item.parent.machine_name].append(item)
         return [Category(name=parent.machine_name,
                          display_name=parent.display_name,
                          sub=mapping.get(parent.machine_name, None))

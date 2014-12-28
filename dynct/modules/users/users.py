@@ -47,7 +47,9 @@ def hash_and_new_salt(password):
 
 
 def get_user(user:str):
-    if isinstance(user, int) or user.isdigit():
+    if isinstance(user, model.User):
+        return user
+    elif isinstance(user, int) or user.isdigit():
         return model.User.get(model.User.oid == user)
     else:
         return model.User.get(model.User.username==user)
