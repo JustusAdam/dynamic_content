@@ -5,15 +5,11 @@ Currently uses the framework to dynamically create elements, once the basic site
 and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
 """
 from dynct.backend.database import Database
-from dynct.modules.comp import html
-from dynct.util.config import read_config
+from dynct.util import html
 from dynct.core.mvc import decorator as mvc_dec
 from dynct.includes import settings
 from dynct.modules import form
-
-from . import Modules
-from . import _registry
-
+from dynct.modules.users import admin_actions as user_actions, users
 
 __author__ = 'justusadam'
 
@@ -166,29 +162,19 @@ def setup_controller(model, pid):
 
 @mvc_dec.controller_function('setup', '/5', post=True, get=False)
 def create_initial_user(post):
-    # TODO handle query
-    pass
+    args = user_actions.post_to_args(post)
+    try:
+        users.add_user(**args)
+        return ':redirect:/'
+    except:
+        return ':redirect:/setup/5'
 
 
 def setup():
+    from dynct.modules.cms import temporary_setup_script
+    temporary_setup_script.init_tables()
+    temporary_setup_script.initialize()
 
-    core_config = read_config('core/config')
-    core_config['path'] = 'core'
-
-    try:
-        # HACK separately registering and activating core
-        _registry.activate_module(core_config)
-
-        _registry.register_installed_modules()
-        for module in settings.DEFAULT_MODULES:
-            if not _registry.activate_module(module):
-                print('Could not activate module ' + module)
-                return False
-        Modules().reload()
-        return True
-    except IOError as err:
-        print(err)
-        return False
 
 def setup_wrapper():
     if setup():

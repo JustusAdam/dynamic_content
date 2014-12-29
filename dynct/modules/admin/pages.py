@@ -2,20 +2,15 @@ import collections
 
 from dynct.core.mvc import decorator as mvc_dec
 from dynct.modules.comp import decorator as comp_dec
-from dynct.modules.comp import html
+from dynct.util import html
 from dynct.modules.commons import base
-
+from dynct.modules.users import decorator as user_dec
 from . import model
 
 __author__ = 'justusadam'
 
 ADMIN_PATH = '/admin'
 
-
-@mvc_dec.controller_function('admin', '', get=False, post=False)
-@comp_dec.Regions
-def overview(model):
-    return OverviewPage(model, None).compile()
 
 
 @mvc_dec.controller_function('admin', '/(\w+)$', get=False, post=False)
@@ -54,19 +49,22 @@ def subcategory(model, subcategory):
 #         return handler(model, url).compile()
 
 
-class Overview(_cc.ContentCompiler):
-    classes = {'admin-menu', 'overview'}
+@mvc_dec.controller_function('admin', '', get=False, post=False)
+@user_dec.authorize('access admin pages')
+@comp_dec.Regions
+def overview(modelmap):
 
-    def __init__(self):
-        self.page_title = 'Website Administration'
+    modelmap.pageclasses = {'admin-menu', 'overview', 'admin-page'}
+    modelmap['title'] = 'Website Administration'
+    modelmap.theme = 'admin_theme'
 
-    def get_children_data(self):
+    def get_children_data():
         return model.Subcategory.select()
 
-    def get_parents_data(self):
+    def get_parents_data():
         return model.Category.select()
 
-    def base_path(self):
+    def base_path():
         return ADMIN_PATH
 
     def render_categories(self, *subcategories):
@@ -81,10 +79,10 @@ class Overview(_cc.ContentCompiler):
                 classes=self.classes
             )
 
-    def element_tree(self):
-        return self.order_tree(self.get_parents_data(), self.get_children(Category))
+    def element_tree():
+        return order_tree(get_parents_data(), get_children(Category))
 
-    def order_tree(self, parents, children):
+    def order_tree(parents, children):
         mapping = collections.defaultdict(list)
         for item in children:
             mapping[item.parent.machine_name].append(item)
@@ -93,26 +91,14 @@ class Overview(_cc.ContentCompiler):
                          sub=mapping.get(parent.machine_name, None))
                 for parent in parents]
 
-    def get_children(self, child_class):
+    def get_children(child_class):
         return [child_class(child.machine_name, child.display_name, child.category, None) for child in
-                self.get_children_data()]
+                get_children_data()]
+
+    modelmap['content'] = render_categories(*element_tree())
 
 
-class OverviewPage(_cc.Content, Overview):
-    permission = 'access admin pages'
-    theme = 'admin_theme'
-
-    def __init__(self, model, url):
-        super().__init__(model)
-        Overview.__init__(self)
-        self.classes = {'admin-menu', 'overview', 'admin-page'}
-        self.url = url
-
-    def process_content(self):
-        return self.render_categories(*self.element_tree())
-
-
-class OverviewCommon(base.Commons, Overview):
+class OverviewCommon(base.Commons):
     source_table = 'admin'
 
     def __init__(self, conf, render_args, show_title, client):

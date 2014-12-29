@@ -1,7 +1,7 @@
 import re
 
 from dynct.core.mvc import decorator as mvc_dec
-from dynct.modules.comp import html
+from dynct.util import html
 from dynct.modules import form
 from . import model, users, decorator
 
@@ -84,22 +84,21 @@ def create_user_action(model, post):
         if post['confirm-password'] != post['password']:
             return 'error'
         else:
-            args = {
-                key: post[key][0] for key in [
-                    'username', 'password', 'email', 'last_name', 'first_name', 'middle_name'
-                ] if key in post
-            }
+            args = post_to_args(post)
             u = users.add_user(**args)
             return ':redirect:/users/' + str(u.oid)
 
 
-@mvc_dec.controller_function('users', '/([0-9]+0)/edit', get=False, post=True)
-def edit_user_action(model, uid, post):
-    args = {
+post_to_args = lambda post: {
         key: post[key][0] for key in [
             'username', 'password', 'email', 'last_name', 'first_name', 'middle_name'
         ] if key in post
     }
+
+
+@mvc_dec.controller_function('users', '/([0-9]+0)/edit', get=False, post=True)
+def edit_user_action(model, uid, post):
+    args = post_to_args(post)
     users.edit_user(uid, **args)
 
     return ':redirect:/'

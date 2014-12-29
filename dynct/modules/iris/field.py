@@ -1,10 +1,11 @@
 import peewee
+
 from dynct import core
 from dynct.errors.exceptions import DCException
-from dynct.modules.comp import html
 from dynct.modules import wysiwyg
 from . import model, node
-from dynct.util import lazy
+from dynct.util import lazy, html
+
 
 __author__ = 'justusadam'
 

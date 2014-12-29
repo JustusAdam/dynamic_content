@@ -1,8 +1,8 @@
 from dynct.core.mvc import decorator as mvc_dec
-from dynct.modules.comp.html import TableElement, ContainerElement
+from dynct.util.html import TableElement, ContainerElement
 from dynct.modules.commons import base as _base
 from .login import LOGOUT_BUTTON
-from . import users, model
+from . import users
 
 __author__ = 'justusadam'
 

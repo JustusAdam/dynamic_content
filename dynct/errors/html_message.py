@@ -1,4 +1,4 @@
-from dynct.modules.comp.html import ContainerElement
+from dynct.util.html import ContainerElement
 
 __author__ = 'justusadam'
 

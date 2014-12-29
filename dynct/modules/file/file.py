@@ -9,7 +9,7 @@ import mimetypes
 
 from dynct.core.mvc import decorator as mvc_dec
 from dynct.includes import settings
-from dynct.modules.comp import html
+from dynct.util import html
 
 
 __author__ = 'justusadam'

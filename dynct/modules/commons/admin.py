@@ -1,6 +1,6 @@
 from dynct.core.mvc import decorator as mvc_decorator
 from dynct.modules.comp import decorator as comp_decorator
-from dynct.modules.comp import html
+from dynct.util import html
 from dynct.modules import i18n
 from dynct.modules import form
 from . import model as _model, menus as _menus

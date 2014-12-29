@@ -3,8 +3,7 @@ import functools
 from dynct import core
 from dynct.core.mvc import decorator as mvc_dec
 from dynct.modules.comp import decorator as comp_dec
-from dynct.modules.comp import html
-from dynct.util import lazy
+from dynct.util import lazy, html
 from dynct.core import model as coremodel
 from dynct.modules.commons import menus as _menus
 from dynct.modules.users import decorator as user_dec

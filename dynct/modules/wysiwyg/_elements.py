@@ -1,4 +1,4 @@
-from dynct.modules.comp import html
+from dynct.util import html
 
 __author__ = 'justusadam'
 

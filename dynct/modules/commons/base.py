@@ -1,5 +1,5 @@
 from dynct.modules import i18n
-from dynct.modules.comp import html
+from dynct.util import html
 from dynct.modules.comp import page
 from . import model
 

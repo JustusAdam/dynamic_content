@@ -1,8 +1,9 @@
 import pathlib
 import re
 import sys
+
 from dynct.http import response
-from dynct.modules.comp import html
+from dynct.util import html
 from dynct.util.config import read_config
 
 

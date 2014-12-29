@@ -1,12 +1,12 @@
 import datetime
 from http import cookies
 from urllib import error
+
 from dynct.core.mvc import decorator
-from dynct.modules.comp import html
+from dynct.util import html
 from dynct.modules import form
 from dynct.modules.commons import base
 from dynct.modules.users import session
-
 from .users import GUEST
 
 

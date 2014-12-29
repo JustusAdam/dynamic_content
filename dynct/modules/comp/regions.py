@@ -1,6 +1,7 @@
 from dynct import core
 from dynct.modules.commons import model as commonsmodel
-from . import html, page, model
+from . import page, model
+from dynct.util import html
 
 __author__ = 'justusadam'
 

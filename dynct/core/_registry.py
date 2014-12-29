@@ -140,17 +140,9 @@ def check_info(info):
 def get_active_modules():
     modules = model.Module.select().where(model.Module.enabled == True)
     return {item.machine_name: _module.import_by_path('dynct/' + item.path) for item in modules}
-    # except Exception:
-    # def find(name, paths):
-    #         for path in paths:
-    #             for file in Path(path).iterdir():
-    #                 if file.stem == name: return str(file)
-    #         else:
-    #             raise FileNotFoundError('default module ' + name + ' is missing')
-    #     return {i: import_by_path('dynct/' + find(i, settings.MODULES_DIRECTORIES)) for i in settings.DEFAULT_MODULES}
 
 
-@Component("modules")
+@Component("Modules")
 class Modules(dict, lazy.Loadable):
     """
     Immutable Module dictionary.

@@ -1,9 +1,11 @@
 import collections
 import itertools
-from dynct.modules.comp import html
+
+from dynct.util import html
 from dynct.modules import i18n
 from . import model
 from .base import Commons
+
 
 __author__ = 'justusadam'
 
