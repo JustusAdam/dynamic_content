@@ -12,43 +12,6 @@ __author__ = 'justusadam'
 ADMIN_PATH = '/admin'
 
 
-
-@mvc_dec.controller_function('admin', '/(\w+)$', get=False, post=False)
-@comp_dec.Regions
-def category(model, category):
-    return CategoryPage(model, category).compile()
-
-
-@mvc_dec.controller_function('admin', '/\w+/(\w+)$', get=False, post=False)
-@comp_dec.Regions
-def subcategory(model, subcategory):
-    return SubcategoryPage(model, subcategory).compile()
-
-
-#
-# @controller_class
-# class AdminController:
-# @controller_method('admin')
-#     @Regions
-#     def handle(self, model, url, get, post):
-#         url.post = post
-#         if model.client.user == GUEST:
-#             model['content'] = 'Not authorized.'
-#             model['title'] = 'Not Authorized.'
-#             return 'page'
-#         tail = url.path[1:]
-#         if not tail:
-#             handler = OverviewPage
-#         elif len(tail) == 1:
-#             handler = CategoryPage
-#         elif len(tail) == 2:
-#             handler = SubcategoryPage
-#         else:
-#             page = ar.AdminPage.get(machine_name=tail[2])
-#             handler = Modules[page.handler_module].admin_handler(tail[2])
-#         return handler(model, url).compile()
-
-
 @mvc_dec.controller_function('admin', '', get=False, post=False)
 @user_dec.authorize('access admin pages')
 @comp_dec.Regions
@@ -58,44 +21,34 @@ def overview(modelmap):
     modelmap['title'] = 'Website Administration'
     modelmap.theme = 'admin_theme'
 
-    def get_children_data():
-        return model.Subcategory.select()
+    tree = order_tree(model.Category.select(),
+                  [Category(child.machine_name, child.display_name, child.category, None) for child in
+                model.Subcategory.select()])
 
-    def get_parents_data():
-        return model.Category.select()
+    modelmap['content'] = render_categories(*tree)
 
-    def base_path():
-        return ADMIN_PATH
 
-    def render_categories(self, *subcategories):
-        subcategories = [a.render(self.base_path()) for a in subcategories]
-        if len(subcategories) == 1:
-            return html.ContainerElement(*subcategories, classes=self.classes)
-        else:
-            half = len(subcategories) // 2
-            return html.ContainerElement(
-                html.ContainerElement(*subcategories[:half], classes={'left-column'}),
-                html.ContainerElement(*subcategories[half:], classes={'right-column'}),
-                classes=self.classes
-            )
+def render_categories(*subcategories, basepath=ADMIN_PATH, classes=set()):
+    subcategories = [a.render(basepath) for a in subcategories]
+    if len(subcategories) == 1:
+        return html.ContainerElement(*subcategories, classes=classes)
+    else:
+        half = len(subcategories) // 2
+        return html.ContainerElement(
+            html.ContainerElement(*subcategories[:half], classes={'left-column'}),
+            html.ContainerElement(*subcategories[half:], classes={'right-column'}),
+            classes=classes
+        )
 
-    def element_tree():
-        return order_tree(get_parents_data(), get_children(Category))
+def order_tree(parents, children):
+    mapping = collections.defaultdict(list)
+    for item in children:
+        mapping[item.parent.machine_name].append(item)
+    return [Category(name=parent.machine_name,
+                     display_name=parent.display_name,
+                     sub=mapping.get(parent.machine_name, None))
+            for parent in parents]
 
-    def order_tree(parents, children):
-        mapping = collections.defaultdict(list)
-        for item in children:
-            mapping[item.parent.machine_name].append(item)
-        return [Category(name=parent.machine_name,
-                         display_name=parent.display_name,
-                         sub=mapping.get(parent.machine_name, None))
-                for parent in parents]
-
-    def get_children(child_class):
-        return [child_class(child.machine_name, child.display_name, child.category, None) for child in
-                get_children_data()]
-
-    modelmap['content'] = render_categories(*element_tree())
 
 
 class OverviewCommon(base.Commons):
@@ -106,10 +59,11 @@ class OverviewCommon(base.Commons):
                          render_args=render_args,
                          show_title=show_title,
                          client=client)
-        Overview.__init__(self)
 
     def get_content(self, name):
-        subcategories = [a.render(self.base_path()) for a in self.element_tree()]
+        subcategories = [a.render(ADMIN_PATH) for a in order_tree(model.Category.select(),
+                  [Category(child.machine_name, child.display_name, child.category, None) for child in
+                model.Subcategory.select()])]
         return subcategories
 
     @property
@@ -117,43 +71,37 @@ class OverviewCommon(base.Commons):
         return html.ContainerElement(super().title, html_type='a', additional={'href': '/admin'})
 
 
-class CategoryPage(OverviewPage):
-    classes = {'admin-menu', 'category'}
+@mvc_dec.controller_function('admin', '/\w+/(\w+)$', get=False, post=False)
+@comp_dec.Regions
+def category(modelmap, name):
+    modelmap.pageclasses = {'admin-menu', 'category'}
 
-    def __init__(self, model, url):
-        super().__init__(model, url)
-        if isinstance(url, str):
-            self.name = url
-        else:
-            self.name = url.path[1]
-        self.page_title = self.name
+    parents = model.Category.get(machine_name=name)
 
-    def base_path(self):
-        return '/admin'
+    children = [Category(child.machine_name, child.display_name, child.category, None) for child in
+                model.Subcategory.select().where(model.Subcategory.category == name)]
 
-    def get_parents_data(self):
-        return [model.Category.get(model.Subcategory.machine_name == self.name)]
+    tree = order_tree(parents, children)
 
-    def get_children_data(self):
-        return model.Subcategory.select().where(model.Subcategory.category == self.name)
+    modelmap['content'] = render_categories(*tree)
+
+    return 'page'
 
 
-class SubcategoryPage(CategoryPage):
-    classes = {'admin-menu', 'subcategory'}
+@mvc_dec.controller_function('admin', '/(\w+)$', get=False, post=False)
+@comp_dec.Regions
+def subcategory(modelmap, name):
+    modelmap.pageclasses = {'admin-menu', 'subcategory'}
 
-    def __init__(self, model, url):
-        super().__init__(model, url)
-        if isinstance(url, str):
-            self.name = url
-        else:
-            self.name = self.url.path[2]
-        self.page_title = self.name
+    parents = [model.Subcategory.get(model.Subcategory.machine_name == name)]
 
-    def get_parents_data(self):
-        return [model.Subcategory.get(model.Subcategory.machine_name == self.name)]
+    children = model.AdminPage.select().where(model.AdminPage.subcategory == parents[0])
 
-    def get_children_data(self):
-        return model.AdminPage.select().where(model.AdminPage.subcategory == self.get_parents_data()[0])
+    tree = order_tree(parents, children)
+
+    modelmap['content'] = render_categories(*tree)
+
+    return 'page'
 
 
 class Category:
