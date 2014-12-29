@@ -36,6 +36,7 @@ def init_tables():
 
     Modules.load()
     for module in Modules.values():
+        _init_module(module)
         try:
             m = import_module('.model', module.__name__)
             _init_module(m)
@@ -49,7 +50,7 @@ def initialize():
 
     from dynct.modules.commons.model import MenuItem, CommonData, Menu
     from dynct.modules.comp import add_commons_config, assign_common
-    from dynct.modules.iris.model import FieldConfig, Page, field
+    from dynct.modules.iris import model as iris_model
 
     from dynct.modules import admin
     from dynct.modules.users import users
@@ -204,22 +205,24 @@ def initialize():
                         displey_name='Simple Article',
                         content_handler=_module,
                         theme=core.get_theme('active'))
-    FieldConfig.create(machine_name='body',
-                       display_name='Body',
+
+    bodytype = iris_model.FieldType.create(machine_name='body', handler='iris.text_field_handler')
+
+    iris_model.FieldConfig.create(
+        field_type=bodytype,
                        content_type=_ct1,
-                       handler_module=_module,
                        weight=1)
 
     # add some initial pages
 
-    bodyfield = field('body')
+    bodyfield = iris_model.field('body')
     bodyfield.create_table()
 
-    page = Page.create(content_type=_ct1, page_title="Welcome to \"dynamic_content\"", creator=1, published=True)
+    page = iris_model.Page.create(content_type=_ct1, page_title="Welcome to \"dynamic_content\"", creator=1, published=True)
     bodyfield.create(page_id=page.oid, page_type='iris',
                 content='<div><h3>Welcome to your \"dynamic_content\" installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you\'ll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div><image src=\"http://imgs.xkcd.com/comics/server_attention_span.png\" width=\"550px\" style=\"padding:20px 0px\">')
 
-    page = Page.create(content_type=_ct1, page_title='Wuhuuu', creator=1, published=True)
+    page = iris_model.Page.create(content_type=_ct1, page_title='Wuhuuu', creator=1, published=True)
     bodyfield.create(page_id=page.oid,
                 content='<p>More content is good</p><iframe src="http://www.xkcd.com" height="840px" width="600px" seamless></iframe>', page_type='iris')
 

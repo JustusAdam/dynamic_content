@@ -18,7 +18,7 @@ class Page(orm.BaseModel):
 
 @decorators.multicache
 def field(name):
-    class GenericField(orm.BaseModel):
+    class FieldData(orm.BaseModel):
         class Meta:
             db_table = name + '_data'
 
@@ -26,11 +26,16 @@ def field(name):
         page_id = orm.IntegerField()
         content = orm.TextField()
 
-    return GenericField
+    return FieldData
+
+
+class FieldType(orm.BaseModel):
+    machine_name = orm.CharField(unique=True)
+    handler = orm.CharField(null=False)
 
 
 class FieldConfig(orm.BaseModel):
-    machine_name = orm.CharField()
+    field_type = orm.ForeignKeyField(FieldType)
     content_type = orm.ForeignKeyField(coremodel.ContentHandler)
     weight = orm.IntegerField(default=0)
     description = orm.TextField(null=True)

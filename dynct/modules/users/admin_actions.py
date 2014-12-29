@@ -180,6 +180,7 @@ def permission_overview(model):
                 'Please note, that permissions assigned to the group \'any authorized user\' automatically apply to any other group as well as any authenticated user',
                 classes={'alert'}), table
         )
+    return 'page'
 
 
 

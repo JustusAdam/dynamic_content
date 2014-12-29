@@ -1,13 +1,13 @@
 import functools
 
 from dynct import core
-from dynct.core.mvc import content_compiler as _cc, decorator as mvc_dec, model as mvc_model
+from dynct.core.mvc import decorator as mvc_dec
 from dynct.modules.comp import decorator as comp_dec
 from dynct.modules.comp import html
-from dynct.modules.iris import node as _node
-from dynct.util import url as _url, lazy
+from dynct.util import lazy
 from dynct.core import model as coremodel
 from dynct.modules.commons import menus as _menus
+from dynct.modules.users import decorator as user_dec
 from . import model as _model, decorator, node as _nodemodule, field
 
 
@@ -41,6 +41,7 @@ def not_under(a, val=0):
 @core.Component('IrisCompilers')
 class Compilers(lazy.Loadable):
     def __init__(self):
+        self._dict = None
         super().__init__()
 
     @lazy.ensure_loaded
@@ -86,13 +87,13 @@ class FieldBasedPageContent(object):
 
     def field_contents(self, page):
         f = lambda a: a['content']
-        for field in self.fields:
-            yield f(field.access(page))
+        for single_field in self.fields:
+            yield f(single_field.access(page))
 
     def field_edit(self, page):
         f = lambda a: (html.Label(a.name, label_for=a.name), a['content'])
-        for field in self.fields:
-            for s in f(field.edit(page)):
+        for single_field in self.fields:
+            for s in f(single_field.edit(page)):
                 yield s
 
     def access(self, model, page):
@@ -103,7 +104,7 @@ class FieldBasedPageContent(object):
 
     def process_edit(self, model, page, post):
         model.client.check_permission(self.get_permission(page, 'add'))
-
+        print(post)
         success = True
         return ':redirect:/iris/' + str(page.oid) + ('' if success else '/add')
 
@@ -140,7 +141,8 @@ class FieldBasedPageContent(object):
             if client.check_permission(self.join_permission(modifier)):
                 yield (name, '/'.join(['', self.page_type, str(page.oid), modifier]))
 
-    def admin_options(self, page):
+    @staticmethod
+    def admin_options(page):
         if page.menu_item:
             parent = '-1' if page.menu_item.parent_item is None else page.menu_item.parent_item
             selected = '-'.join([page.menu_item.menu, str(parent)])
@@ -156,7 +158,8 @@ class FieldBasedPageContent(object):
 
         return html.TableElement(publishing_options, menu_options, classes={'admin-options'})
 
-    def title_options(self, page):
+    @staticmethod
+    def title_options(page):
         return [html.Label('Title', label_for='edit-title'),
                 html.TextInput(element_id='edit-title', name='title', value=page.page_title, required=True, size=100)]
 
@@ -178,60 +181,17 @@ def handle_edit(model, page_id, post):
     return core.get_component('IrisCompilers')[page.content_type.machine_name].process_edit(model, page_id, post)
 
 
-class Overview(_cc.Content):
-    def __init__(self, model, url):
-        super().__init__(model)
-        self.url = url
-        self.page_title = 'Overview'
-        self.permission = ' '.join(['access', self.url.page_type, 'overview'])
-
-    def get_range(self):
-        return [
-            int(self.url.get_query['from'][0]) if 'from' in self.url.get_query else 0,
-            int(self.url.get_query['to'][0])   if 'to'   in self.url.get_query else _step
-        ]
-
-    def max(self):
-        return _model.Page.select().order_by('id desc').limit(1).oid
-
-    def scroll(self, range):
-        def acc():
-            if not range[0] <= 0:
-                after = not_under(range[0] - 1, 0)
-                before = not_under(range[0] - _step, 0)
-                yield html.A(''.join([str(self.url.path), '?from=', str(before), '&to=', str(after)]), _scroll_left, classes={'page-tabs'})
-            maximum = self.max()
-            if not range[1] >= maximum:
-                before = not_over(range[1] + 1, maximum)
-                after = not_over(range[1] + _step, maximum)
-                yield html.A(''.join([str(self.url.path), '?from=', str(before), '&to=', str(after)]), _scroll_right, classes={'page-tabs'})
-        return html.ContainerElement(*list(acc()))
-
-    def process_content(self):
-        range = self.get_range()
-        def pages():
-            for a in _model.Page.select().limit(','.join([str(a) for a in [range[0], range[1] - range[0] + 1]])).order_by( 'date_created desc'):
-                u = _url.Url(str(self.url.path) + '/' + str(a.id))
-                u.page_type = self.url.page_type
-                u.page_id = str(a.id)
-                m = mvc_model.Model()
-                FieldBasedPageContent(m, u).compile()
-                yield u, m
-        content = [html.ContainerElement(html.A(str(a.path), html.ContainerElement(b['page_title'], html_type='h2')), html.ContainerElement(b['content'])) for a, b in pages()]
-        content.append(self.scroll(range))
-        return html.ContainerElement(*content)
-
-
 @mvc_dec.controller_function('iris', '$', post=False)
+@user_dec.authorize(' '.join(['access', 'iris', 'overview']))
 @comp_dec.Regions
 @decorator.node_process
 def overview(page_model, get):
-    page_model.client.check_permission(' '.join(['access', 'iris', 'overview']))
+    compiler_map = core.get_component('IrisCompilers')
     my_range = [
             int(get['from'][0]) if 'from' in get else 0,
             int(get['to'][0])   if 'to'   in get else _step
         ]
     for a in _model.Page.select().limit(','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]])).order_by('date_created desc'):
-        node = _node.access_node(page_model, 'iris', a.oid)
+        node = compiler_map[a.content_type.machine_name].access(page_model, a.oid)
         node['title'] = html.A('/iris/' + str(a.oid), node['title'])
         yield node

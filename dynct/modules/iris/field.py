@@ -4,13 +4,33 @@ from dynct.errors.exceptions import DCException
 from dynct.modules.comp import html
 from dynct.modules import wysiwyg
 from . import model, node
+from dynct.util import lazy
 
 __author__ = 'justusadam'
 
 
+DEFAULT_FIELD_HANDLER_NAME = 'FieldHandler'
+
+
 @core.Component('FieldTypes')
-class Fields(dict):
-    pass
+class Fields(lazy.Loadable):
+    def __init__(self):
+        super().__init__()
+        self._inner = None
+
+    @staticmethod
+    def _get_handler(string:str):
+        module, *function = string.split('.', 1)
+        return getattr(core.get_component('Modules')[module], function if function else DEFAULT_FIELD_HANDLER_NAME)
+
+    def load(self):
+        self._inner = {
+            a.machine_name:self._get_handler(a.handler) for a in model.FieldType.select()
+        }
+
+    @lazy.ensure_loaded
+    def __getitem__(self, item):
+        return self._inner[item]
 
 
 @core.inject_kwarg('Fields', 'fields')
@@ -34,7 +54,7 @@ class _Field(object):
 
     @property
     def name(self):
-        return self.config.machine_name
+        return self.config.field_type.machine_name
 
     def access(self, page_id):
         db_obj = self.from_db(page_id)

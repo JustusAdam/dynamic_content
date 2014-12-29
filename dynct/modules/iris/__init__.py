@@ -9,6 +9,9 @@ role = 'page_handler'
 path_prefix = 'iris'
 
 
+text_field_handler = field.Field
+
+
 def admin_handler(h_name):
     return None
 

@@ -1,4 +1,4 @@
-from . import user_information as uinf, login, admin_actions as actions, controller
+from . import user_information as uinf, login, admin_actions as actions
 
 __author__ = 'justusadam'
 
@@ -13,10 +13,10 @@ START_THEME = 'default_theme'
 
 def admin_handler(h_name):
     handlers = {
-        'create_user': actions.CreateUser,
-        'user_overview': controller.UsersOverview,
-        'view_permissions': actions.PermissionOverview,
-        'edit_permissions': actions.EditPermissions
+        'create_user': actions.create_user_form,
+        'user_overview': uinf.user_information,
+        'view_permissions': actions.permission_overview,
+        'edit_permissions': actions.edit_permissions
     }
     return handlers[h_name]
 
