@@ -10,7 +10,8 @@ def authorize(permission):
         @wraps(func)
         @apply_to_type(Model, apply_before=True)
         def inner(model):
-            assert model.client.check_permission(permission)
+            if not model.client.check_permission(permission):
+                raise PermissionError
         return inner
     return wrap
 
