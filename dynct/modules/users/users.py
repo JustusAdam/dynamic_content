@@ -115,7 +115,7 @@ def remove_permission(permission):
 
 
 def add_user(username, password, email, first_name='', middle_name='', last_name='', access_group=AUTH):
-    model.User.create(
+    a = model.User.create(
         username=username,
         email_address=email,
         first_name=first_name,
@@ -124,9 +124,10 @@ def add_user(username, password, email, first_name='', middle_name='', last_name
         middle_name=middle_name
     )
     passwd, salt = hash_and_new_salt(password)
-    model.UserAuth.create(uid=model.User.get(model.User.username == username).oid,
+    model.UserAuth.create(uid=a,
                           password=passwd,
                           salt=salt)
+    return a
 
 
 def assign_access_group(user, group):

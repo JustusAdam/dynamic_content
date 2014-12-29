@@ -1,8 +1,7 @@
 import re
 import copy
-from urllib import error
 
-from dynct.core.mvc import content_compiler as _cc
+from dynct.core.mvc import content_compiler as _cc, decorator as mvc_dec
 from dynct.modules.comp import html
 from dynct.modules import form
 from . import user_information as uinf, model, users
@@ -49,7 +48,6 @@ def factory(url):
     if url.page_id == 0:
         if url.page_modifier == 'new':
             return CreateUser
-        return uinf.UsersOverview
     handlers = {
         'edit': EditUser,
         'overview': uinf.UsersOverview,
@@ -69,94 +67,71 @@ def split_list(l, func):
     return true, false
 
 
-class CreateUser(_cc.Content):
-    page_title = 'Create User'
-    destination = '/'
-    message = ''
-    permission = 'edit user accounts'
-    published = True
-    theme = 'admin_theme'
+def user_form(**values):
+    for (display_name, name) in _edit_user_table_order:
+        kwargs = _edit_user_form.get(name, {})
+        kwargs.__setitem__('value', values[name]) if name in values else None
+        yield [html.Label(display_name, label_for=name), html.Input(name=name, **kwargs)]
 
-    def __init__(self, model, url):
-        super().__init__(model)
-        self.url = url
 
-    def process_content(self):
+@mvc_dec.controller_function('users', '/new', get=False, post=False)
+def create_user_form(model):
+    if not model.client.check_permission('edit user accounts'):
+        return 'error'
 
-        return html.ContainerElement(
-            self.message, self.user_form())
-
-    def target_url(self):
-        if 'destination' in self.url.get_query:
-            target_url = str(self.url)
-        else:
-            target_url = str(self.url) + '?destination=' + self.destination + ''
-        return target_url
-
-    def user_form(self, **kwargs):
-        def acc():
-            for (display_name, name) in _edit_user_table_order:
-                arguments = {}
-                if name in _edit_user_form:
-                    arguments = _edit_user_form[name]
-                if name in kwargs:
-                    arguments['value'] = kwargs[name]
-                yield [html.Label(display_name, label_for=name), html.Input(name=name, **arguments)]
-
-        return form.SecureForm(
+    model.theme = 'admin_theme'
+    model['title'] = 'Create User'
+    model['content'] = form.SecureForm(
             html.TableElement(
-                *list(acc())
-            ), action=self.target_url(), element_id='admin_form'
+                *list(user_form())
+            ), action='/users/new', element_id='admin_form'
         )
+    return 'page'
 
-    def _process_post(self):
-        if 'password' in self.url.post:
-            if self.url.post['confirm-password'] != self.url.post['password']:
-                self.message = html.ContainerElement('Your passwords did not match.', classes={'alert'})
+
+@mvc_dec.controller_function('users', '/new', get=False, post=True)
+def create_user_action(model, post):
+    if 'password' in post:
+        if post['confirm-password'] != post['password']:
+            return 'error'
         else:
-            args = dict()
-            for key in ['username', 'password', 'email', 'last_name', 'first_name', 'middle_name']:
-                if key in self.url.post:
-                    args[key] = self.url.post[key][0]
-            self.action(**args)
-            self.redirect(str(self.url.path))
-
-    def compile(self):
-        if self.url.post:
-            self._process_post()
-        return super().compile()
+            args = {
+                key: post[key][0] for key in [
+                   'username', 'password', 'email', 'last_name', 'first_name', 'middle_name'
+                ] if key in post
+            }
+            u = users.add_user(**args)
+            return ':redirect:/users/' + str(u.oid)
 
 
-    def action(self, **kwargs):
-        users.add_user(**kwargs)
+@mvc_dec.controller_function('users', '/([0-9]+0)/edit', get=False, post=True)
+def edit_user_action(model, uid, post):
+    args = {
+                key: post[key][0] for key in [
+                   'username', 'password', 'email', 'last_name', 'first_name', 'middle_name'
+                ] if key in post
+            }
+    users.edit_user(uid, **args)
 
-    def redirect(self, destination=None):
-        if 'destination' in self.url.get_query:
-            destination = self.url.get_query['destination'][0]
-        elif not destination:
-            destination = str(self.url.path.prt_to_str(0, -1))
-        raise error.HTTPError(str(self.url), 302, 'Redirect',
-                        {('Location', destination), ('Connection', 'close')}, None)
+    return ':redirect:/'
 
 
-class EditUser(CreateUser):
-    page_title = 'Edit User'
-    destination = '/'
-    message = ''
+@mvc_dec.controller_function('users', '/([0-9]+)/edit', get=False, post=False)
+def edit_user_form(model, uid):
+    model['title'] = 'Edit User'
 
-    def action(self, **kwargs):
-        users.edit_user(self.url.page_id, **kwargs)
-
-    def user_form(self, **kwargs):
-        (user_id, username, email, first_name, middle_name, last_name, date_created) = users.get_single_user(
-            self.url.page_id)
-        return super().user_form(user_id=user_id,
-                                 username=username,
-                                 email=email,
-                                 first_name=first_name,
-                                 middle_name=middle_name,
-                                 last_name=last_name,
-                                 date_created=date_created)
+    (user_id, username, email, first_name, middle_name, last_name, date_created) = users.get_single_user(
+        int(uid))
+    uf = user_form(user_id=user_id,
+                 username=username,
+                 email=email,
+                 first_name=first_name,
+                 middle_name=middle_name,
+                 last_name=last_name,
+                 date_created=date_created)
+    model.theme = 'admin_theme'
+    model['content'] = uf
+    return 'page'
 
 
 class PermissionOverview(_cc.Content):
