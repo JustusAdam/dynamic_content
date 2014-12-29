@@ -5,7 +5,6 @@ from dynct.http import server
 
 __author__ = 'justusadam'
 
-
 _basedir = pathlib.Path(__file__).parent.parent.resolve()
 
 

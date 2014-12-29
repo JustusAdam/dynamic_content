@@ -3,7 +3,6 @@ from dynct.includes import log
 
 __author__ = 'justusadam'
 
-
 _name_transform = lambda name: name.lower().replace('_', '').replace(' ', '')
 
 
@@ -20,6 +19,7 @@ class ComponentContainer(dict):
     thus "_my Property" = "myproperty"
 
     """
+
     def __init__(self):
         super().__init__()
         self.classmap = {}
@@ -38,7 +38,8 @@ class ComponentContainer(dict):
         else:
             key = _name_transform(key)
             if key in self:
-                message = ' '.join(["overwriting key", key, "of value", repr(super().__getitem__(key)), "with value", repr(value)])
+                message = ' '.join(
+                    ["overwriting key", key, "of value", repr(super().__getitem__(key)), "with value", repr(value)])
                 log.write_error(segment="ComponentContainer", message=message)
                 print(message)
             self.classmap.__setitem__(type(value), value)
@@ -65,8 +66,8 @@ def _decorator(name, *args, **kwargs):
     def inner(class_):
         register(name, class_(*args, **kwargs))
         return class_
-    return inner
 
+    return inner
 
 
 Component = component = _decorator
@@ -85,12 +86,15 @@ def inject_kwarg(component, argname):
     :param argname:
     :return:
     """
+
     def inner(func):
         @functools.wraps(func)
         def wrap(*args, **kwargs):
             kwargs[argname] = get_component(component)
             return func(*args, **kwargs)
+
         return wrap
+
     return inner
 
 
@@ -99,5 +103,7 @@ def inject_arg(component):
         @functools.wraps(func)
         def wrap(*args, **kwargs):
             return func(get_component(component), *args, **kwargs)
+
         return wrap
+
     return inner

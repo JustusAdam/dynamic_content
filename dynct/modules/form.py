@@ -6,7 +6,6 @@ from dynct.modules.comp import html
 
 __author__ = 'justusadam'
 
-
 TOKEN_SIZE = 16
 
 _form_identifier_name = 'form_id'
@@ -57,5 +56,6 @@ class SecureForm(html.FormElement):
     def render_token(self):
         tid, token = new()
         return html.ContainerElement(
-            html.Input(input_type='hidden', name=_form_token_name, value=token), html.Input(input_type='hidden', name=_form_identifier_name, value=tid)
-        , additional={'style': 'display:none;'})
+            html.Input(input_type='hidden', name=_form_token_name, value=token),
+            html.Input(input_type='hidden', name=_form_identifier_name, value=tid)
+            , additional={'style': 'display:none;'})

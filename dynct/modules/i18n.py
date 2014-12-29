@@ -11,6 +11,7 @@ def _get_table(lang):
 
         class Meta:
             db_table = lang
+
     return Lang
 
 

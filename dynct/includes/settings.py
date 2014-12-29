@@ -9,6 +9,7 @@ from pathlib import Path
 
 __author__ = 'justusadam'
 
+
 class EnumLevel:
     def __init__(self, *levels):
         if len(levels) == 1 and not isinstance(levels[0], str) and hasattr(levels[0], '__iter__'):
@@ -29,7 +30,6 @@ class EnumLevel:
 
     def __repr__(self):
         return '\n'.join(repr(item) for item in zip(range(len(self.levels)), self.levels))
-
 
 
 LoggingLevel = EnumLevel(*['log_warnings', 'log_errors', 'throw_errors', 'throw_all'])
@@ -71,8 +71,8 @@ DEFAULT_ADMIN_THEME = 'admin_theme'
 LOGGING_LEVEL = LoggingLevel.throw_all
 SERVER = namedtuple('server', ['host', 'port'])(port=9012, host='localhost')
 DATABASE = (namedtuple('database',
-                      ['type', 'user', 'autocommit', 'password', 'name', 'host'])
-                      ('mysql', 'python_cms', True, 'python_cms', 'python_cms', 'localhost'))
+                       ['type', 'user', 'autocommit', 'password', 'name', 'host'])
+            ('mysql', 'python_cms', True, 'python_cms', 'python_cms', 'localhost'))
 BASEDIR = str(Path(__file__).parent.resolve())
 RUNLEVEL = RunLevel.testing
 I18N_SUPPORT_ENABLED = False

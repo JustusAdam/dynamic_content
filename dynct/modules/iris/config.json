@@ -1,4 +1,4 @@
 {
-    "single_node_template": "templates/node",
-    "multi_node_template": "templates/multi_node"
+  "single_node_template": "templates/node",
+  "multi_node_template": "templates/multi_node"
 }

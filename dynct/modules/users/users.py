@@ -52,7 +52,7 @@ def get_user(user:str):
     elif isinstance(user, int) or user.isdigit():
         return model.User.get(model.User.oid == user)
     else:
-        return model.User.get(model.User.username==user)
+        return model.User.get(model.User.username == user)
 
 
 def acc_grp(user):
@@ -136,9 +136,9 @@ def assign_access_group(user, group):
     user.save()
 
 
-
 def get_acc_grp(name_or_id:str):
-    return model.AccessGroup.get(oid=int(name_or_id)) if isinstance(name_or_id, (int, float)) or name_or_id.isnumeric() else model.AccessGroup.get(machine_name=name_or_id)
+    return model.AccessGroup.get(oid=int(name_or_id)) if isinstance(name_or_id, (
+    int, float)) or name_or_id.isnumeric() else model.AccessGroup.get(machine_name=name_or_id)
 
 
 def get_info(selection):

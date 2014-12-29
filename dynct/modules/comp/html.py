@@ -27,7 +27,7 @@ class BaseElement:
         self._params = set()
 
     def render_value_params(self):
-        return [str(k) + '="' + html.escape(v) + '"' for k,v in self._value_params.items() if v]
+        return [str(k) + '="' + html.escape(v) + '"' for k, v in self._value_params.items() if v]
 
     def __add__(self, other):
         return str(self) + str(other)
@@ -67,6 +67,7 @@ class BaseClassIdElement(BaseElement):
 
 class ContainerElement(BaseClassIdElement):
     _list_replacement = None
+
     def __init__(self, *content, html_type='div', classes:set=None, element_id:str=None, additional:dict=None):
         super().__init__(html_type, classes, element_id, additional)
         self.content = content
@@ -135,7 +136,6 @@ class AbstractList(ContainerElement):
             return self.subtype_wrapper(*value)
         else:
             return self.subtype_wrapper(value)
-
 
 
 class A(ContainerElement):
@@ -243,12 +243,15 @@ class List(AbstractList):
             return super().ensure_subtype(value)
 
     def subtype_wrapper(self, *args):
-        return ContainerElement(*args, html_type=self._subtypes[0], classes=self.item_classes, additional=self.item_additionals)
+        return ContainerElement(*args, html_type=self._subtypes[0], classes=self.item_classes,
+                                additional=self.item_additionals)
 
 
 class Select(AbstractList):
     _subtypes = ['option']
-    def __init__(self, *content, classes:set=None, element_id:str=None, additional:dict=None, form:str=None, required:bool=False, disabled=False, name:str=None, selected:str=None):
+
+    def __init__(self, *content, classes:set=None, element_id:str=None, additional:dict=None, form:str=None,
+                 required:bool=False, disabled=False, name:str=None, selected:str=None):
         self.selected = selected
         super().__init__(*content, html_type='select', classes=classes, element_id=element_id, additional=additional)
         self._value_params['form'] = form
@@ -365,7 +368,7 @@ class TextInput(Input):
     def __init__(self, classes:set=None, element_id:str=None, name:str=None, form:str=None,
                  value:str=None, size:int=60, required=False, additional:dict=None):
         super().__init__(classes=classes, element_id=element_id, input_type='text', name=name, form=form,
-                 value=value, required=required, additional=additional)
+                         value=value, required=required, additional=additional)
         self._value_params['size'] = size
 
 

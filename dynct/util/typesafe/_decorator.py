@@ -8,6 +8,7 @@ def typesafe(func):
     spec = inspect.getfullargspec(func)
     types = spec.annotations
     def_args = spec.args
+
     def checkargs(argval):
         for arg, value in argval:
             if arg in types:
@@ -23,4 +24,5 @@ def typesafe(func):
         res = func(*args, **kwargs)
         checkargs([['return', res]])
         return res
+
     return wrap

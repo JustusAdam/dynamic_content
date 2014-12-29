@@ -1,5 +1,6 @@
 __author__ = 'justusadam'
 
+
 class Config(dict):
     pass
 

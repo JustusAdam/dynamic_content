@@ -70,10 +70,10 @@ def create_user_form(model):
     model.theme = 'admin_theme'
     model['title'] = 'Create User'
     model['content'] = form.SecureForm(
-            html.TableElement(
-                *list(user_form())
-            ), action='/users/new', element_id='admin_form'
-        )
+        html.TableElement(
+            *list(user_form())
+        ), action='/users/new', element_id='admin_form'
+    )
     return 'page'
 
 
@@ -86,8 +86,8 @@ def create_user_action(model, post):
         else:
             args = {
                 key: post[key][0] for key in [
-                   'username', 'password', 'email', 'last_name', 'first_name', 'middle_name'
-                ] if key in post
+                'username', 'password', 'email', 'last_name', 'first_name', 'middle_name'
+            ] if key in post
             }
             u = users.add_user(**args)
             return ':redirect:/users/' + str(u.oid)
@@ -96,10 +96,10 @@ def create_user_action(model, post):
 @mvc_dec.controller_function('users', '/([0-9]+0)/edit', get=False, post=True)
 def edit_user_action(model, uid, post):
     args = {
-                key: post[key][0] for key in [
-                   'username', 'password', 'email', 'last_name', 'first_name', 'middle_name'
-                ] if key in post
-            }
+        key: post[key][0] for key in [
+        'username', 'password', 'email', 'last_name', 'first_name', 'middle_name'
+    ] if key in post
+    }
     users.edit_user(uid, **args)
 
     return ':redirect:/'
@@ -112,12 +112,12 @@ def edit_user_form(model, uid):
     (user_id, username, email, first_name, middle_name, last_name, date_created) = users.get_single_user(
         int(uid))
     uf = user_form(user_id=user_id,
-                 username=username,
-                 email=email,
-                 first_name=first_name,
-                 middle_name=middle_name,
-                 last_name=last_name,
-                 date_created=date_created)
+                   username=username,
+                   email=email,
+                   first_name=first_name,
+                   middle_name=middle_name,
+                   last_name=last_name,
+                   date_created=date_created)
     model.theme = 'admin_theme'
     model['content'] = uf
     return 'page'
@@ -151,20 +151,20 @@ def compile_permission_list(permissions_list, checkbox_hook):
 
 def permission_table(checkbox):
     return html.TableElement(
-            *[
-                html.TableRow(
-                    *[
-                         html.TableData(a[0], classes=_permission_table_permissions_classes)
-                     ] + [
-                        html.TableData(b, classes=_permission_table_boolean_classes) for b in a[1:]
-                    ]
-                )
-                for a in compile_permission_list(
-                    _sort_perm_list([(a.aid, a.permission) for a in model.AccessGroupPermission.get_all()]),
-                    checkbox
-                )
-            ], classes=_permission_table_classes
-        )
+        *[
+            html.TableRow(
+                *[
+                     html.TableData(a[0], classes=_permission_table_permissions_classes)
+                 ] + [
+                     html.TableData(b, classes=_permission_table_boolean_classes) for b in a[1:]
+                 ]
+            )
+            for a in compile_permission_list(
+                _sort_perm_list([(a.aid, a.permission) for a in model.AccessGroupPermission.get_all()]),
+                checkbox
+            )
+        ], classes=_permission_table_classes
+    )
 
 
 @mvc_dec.controller_function('users', '/permissions', post=False, get=False)
@@ -176,12 +176,11 @@ def permission_overview(model):
     table = permission_table(lambda a, b: '&#x2713;' if a else '')
 
     model['content'] = html.ContainerElement(
-            html.ContainerElement(
-                'Please note, that permissions assigned to the group \'any authorized user\' automatically apply to any other group as well as any authenticated user',
-                classes={'alert'}), table
-        )
+        html.ContainerElement(
+            'Please note, that permissions assigned to the group \'any authorized user\' automatically apply to any other group as well as any authenticated user',
+            classes={'alert'}), table
+    )
     return 'page'
-
 
 
 permission_structure = re.compile('(\d)+-([0-9a-zA-Z_-]+)')

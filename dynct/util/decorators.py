@@ -15,8 +15,8 @@ def deprecated(func):
         if settings.LOGGING_LEVEL == settings.LoggingLevel.log_warnings:
             log.write_warning(function=repr(func), message='using deprecated function')
         return func(*args, **kwargs)
-    return wrap
 
+    return wrap
 
 
 def filter_args(types, args, kwargs):
@@ -57,7 +57,9 @@ class apply_to_type:
      will be the return value from the wrapped decorator
 
     """
-    def __init__(self, *types, apply_before=True, return_from_decorator=False, apply_in_decorator=False, overwrite_input=False):
+
+    def __init__(self, *types, apply_before=True, return_from_decorator=False, apply_in_decorator=False,
+                 overwrite_input=False):
         assert len(set(types)) == len(types)
         self.types = types
         self.apply_before = apply_before
@@ -99,7 +101,9 @@ class apply_to_type:
                     resd = applyd()
 
                 return self.return_ if resd else resf
+
             return wrap_inner
+
         return wrap
 
     def __repr__(self):
@@ -127,7 +131,9 @@ def implicit(arg):
         @functools.wraps(func)
         def wrapped(*args, **kwargs):
             return func(arg, *args, **kwargs)
+
         return wrapped
+
     return w
 
 
@@ -136,23 +142,28 @@ def for_method_and_func(_generic):
         def _method(self, *args, **kwargs):
             args, kwargs = _generic(*args, **kwargs)
             return func(self, *args, **kwargs)
+
         def _function(*args, **kwargs):
             args, kwargs = _generic(*args, **kwargs)
             return func(*args, **kwargs)
+
         if inspect.ismethod(func):
             return _method
         elif inspect.isfunction(func):
             return _function
         else:
             raise TypeError
+
     return wrap
 
 
 def multicache(func):
     _cache = {}
+
     @functools.wraps(func)
     def wrap(*args):
         return _cache.setdefault(args, func(*args))
+
     return wrap
 
 
@@ -172,6 +183,7 @@ def typecast(func):
     @functools.wraps(func)
     def wrap(*args, **kwargs):
         pass
+
     return wrap
 
 
@@ -185,8 +197,10 @@ def transformarg(transformer, name, index):
                 return func(*args, **res)
             else:
                 item = transformer(args[index])
-                return func(*args[:index] + (item,) + args[index+1:], **kwargs)
+                return func(*args[:index] + (item,) + args[index + 1:], **kwargs)
+
         return inner
+
     return wrap
 
 

@@ -2,7 +2,6 @@
  *  Test CSS Stylesheet for my cms
  *  copyright 2014 Justus Adam
  */
-
 @import "../../scss_base/scss/positioning";
 @import "../../scss_base/scss/transition";
 
@@ -111,7 +110,7 @@ footer {
   height: auto;
   position: relative;
   font-size: 11px;
-//  box-shadow: 0 0 8px #999;
+  //  box-shadow: 0 0 8px #999;
 }
 
 #wrapper-footer {
@@ -436,8 +435,8 @@ ul.editorial-list {
   }
 }
 
-.menu-overview{
-  tr{
+.menu-overview {
+  tr {
     @include bright-row-hover-animation;
     @include nice-bright-row;
   }

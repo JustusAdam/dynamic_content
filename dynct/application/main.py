@@ -9,7 +9,6 @@ import re
 
 __author__ = 'justusadam'
 
-
 _basedir = pathlib.Path(__file__).parent.parent.resolve()
 
 # if framework is not in the path yet, add it and import it
@@ -17,9 +16,10 @@ if not str(_basedir.parent) in sys.path:
     sys.path.append(str(_basedir.parent))
 
 os.chdir(str(_basedir))
-#print(_basedir.parent)
+# print(_basedir.parent)
 
 del _basedir
+
 
 def main():
     from dynct.includes import settings

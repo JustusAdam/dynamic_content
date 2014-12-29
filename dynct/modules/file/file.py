@@ -69,11 +69,11 @@ def directory(model, url, real_dir):
     if not isinstance(real_dir, pathlib.Path):
         real_dir = pathlib.Path(real_dir)
     model['content'] = html.List(
-            *[html.ContainerElement(
-                str(a.name), html_type='a', additional={'href': str(url.path) + parse.quote_plus(str(a.name), )},
-                classes={'file-link'}
-            ) for a in filter(lambda a: not str(a.name).startswith('.'), real_dir.iterdir())
-            ], classes={'directory-index'}, item_classes={'directory-content'}
-        )
+        *[html.ContainerElement(
+            str(a.name), html_type='a', additional={'href': str(url.path) + parse.quote_plus(str(a.name), )},
+            classes={'file-link'}
+        ) for a in filter(lambda a: not str(a.name).startswith('.'), real_dir.iterdir())
+        ], classes={'directory-index'}, item_classes={'directory-content'}
+    )
     model['title'] = real_dir.name
     return 'page'

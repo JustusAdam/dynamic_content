@@ -63,7 +63,7 @@ class ARObject(object):
     @classmethod
     def _get(cls, descriptors, _tail:str=''):
         return cls.database.select(cls._keys(), cls._table,
-                                   ' and '.join([a + '=%(' + a + ')s' for a in descriptors]),  _tail, descriptors)
+                                   ' and '.join([a + '=%(' + a + ')s' for a in descriptors]), _tail, descriptors)
 
     def save(self, **descriptors):
         """
@@ -77,7 +77,9 @@ class ARObject(object):
         :return:
         """
         print(self.primary_key())
-        if not descriptors and (not self.primary_key() or (getattr(self, self.primary_key()) == inspect.signature(self.__init__).parameters[self.primary_key()].default)):
+        if not descriptors and (not self.primary_key() or (
+            getattr(self, self.primary_key()) == inspect.signature(self.__init__).parameters[
+            self.primary_key()].default)):
             self.insert()
         else:
             try:
@@ -96,7 +98,8 @@ class ARObject(object):
     def insert(self):
         keys = self._keys()[:]
         if self.primary_key():
-            if not hasattr(self, self.primary_key()) or getattr(self, self.primary_key()) == inspect.signature(self.__init__).parameters[self.primary_key()].default:
+            if not hasattr(self, self.primary_key()) or getattr(self, self.primary_key()) == \
+                    inspect.signature(self.__init__).parameters[self.primary_key()].default:
                 keys.remove(self.primary_key())
         self.database.insert(self._table, self._values(keys))
 
@@ -104,7 +107,7 @@ class ARObject(object):
         if not keys:
             keys = self._keys()
         params = inspect.signature(self.__init__).parameters
-        return {a:getattr(self, a) for a in keys if getattr(self, a) != params[a] or (exceptions and a in exceptions)}
+        return {a: getattr(self, a) for a in keys if getattr(self, a) != params[a] or (exceptions and a in exceptions)}
 
     @classmethod
     def primary_key(cls):
@@ -122,12 +125,12 @@ class ARObject(object):
         if self._primary_key:
             return {self.primary_key(): getattr(self, self.primary_key())}
         else:
-            return {a:getattr(self, a) for a in self._keys()}
+            return {a: getattr(self, a) for a in self._keys()}
 
     def _get_one_special_value(self, name, q_tail):
         values = self._keys()[:]
         values.remove(name)
-        descriptors = {a:getattr(self, a) for a in values}
+        descriptors = {a: getattr(self, a) for a in values}
         return self.database.select(name, self._table,
                                     ' and '.join([a + '=%(' + a + ')s' for a in descriptors]), q_tail,
                                     descriptors).fetchone()[0]
@@ -152,7 +155,7 @@ class PartiallyLazyARObject(ARObject):
         a = super().__getattribute__(item)
         if not a:
             if item in self._lazy_values:
-                existing = {f:getattr(self, f) for f in self._keys()}
+                existing = {f: getattr(self, f) for f in self._keys()}
                 a = self.database.select(item, self._table, ' and '.join([b + '=%(' + b + ')s' for b in existing]),
                                          params=existing)
                 # execute query to get value

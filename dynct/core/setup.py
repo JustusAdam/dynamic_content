@@ -5,7 +5,6 @@ Currently uses the framework to dynamically create elements, once the basic site
 and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
 """
 from urllib import error
-from dynct.core.mvc.content_compiler import Content
 from dynct.backend.database import Database
 from dynct.modules.comp.html import ContainerElement, List, TableElement
 from dynct.util.config import read_config, write_config
@@ -32,7 +31,7 @@ def try_database_connection():
             return ContainerElement(
                 'The connection with the database was successfully established, you may continue with this setup',
                 html_type='p') + ContainerElement('Continue', html_type='a', classes={'continue', 'button'},
-                                                  additional={'href':'/setup/{next_page}'})
+                                                  additional={'href': '/setup/{next_page}'})
         else:
             return ContainerElement(
                 'The connection with the database could not be established. Please review your settings '
@@ -43,7 +42,7 @@ def try_database_connection():
             'reload this page', html_type='p')
 
 
-class SetupHandler(Content):
+class SetupHandler(object):
     def __init__(self, model, url):
         super().__init__(model)
         self._url = url
@@ -67,7 +66,7 @@ class SetupHandler(Content):
                         ContainerElement(
                             'I hope that you will enjoy and be pleased with \'dynamic_content\'.', html_type='p'),
                         ContainerElement('Continue', html_type='a', classes={'continue', 'button'},
-                                         additional={'href':'/setup/{next_page}'})
+                                         additional={'href': '/setup/{next_page}'})
                     )
                 )
             },
@@ -83,7 +82,7 @@ class SetupHandler(Content):
                             list_type='ul'
                         ),
                         ContainerElement('Continue', html_type='a', classes={'continue', 'button'},
-                                         additional={'href':'/setup/{next_page}'})
+                                         additional={'href': '/setup/{next_page}'})
                     )
                 )
             },
@@ -117,7 +116,7 @@ class SetupHandler(Content):
                             'If you are certain, that the database has been properly configured to allow sufficient access to \'dynamic_content\' and are content with this software making changes to your database please click \'Continue\'',
                             html_type='p'),
                         ContainerElement('Continue', html_type='a', classes={'button', 'continue'},
-                                         additional={'href':'/setup/{next_page}'})
+                                         additional={'href': '/setup/{next_page}'})
                     )
                 )
             },
@@ -127,7 +126,7 @@ class SetupHandler(Content):
                     ContainerElement(
                         '{message}',
                         ContainerElement('{link}', html_type='a', classes={'continue', 'button'},
-                                         additional={'href':'{target}'})))
+                                         additional={'href': '{target}'})))
             },
             5: {
                 'title': 'Create an admin account',
@@ -216,7 +215,7 @@ class SetupHandler(Content):
                             'You may delete all existing tables that should be created by clicking reset',
                             html_type='p'),
                         ContainerElement('Reset', html_type='a', classes={'button'},
-                                         additional={'href':'{this}?reset=True'}))),
+                                         additional={'href': '{this}?reset=True'}))),
                 'target': '/setup',
                 'link': 'Restart'
             }

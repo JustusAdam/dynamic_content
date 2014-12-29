@@ -9,7 +9,10 @@ __author__ = 'justusadam'
 
 
 def menu_chooser(name='menu_chooser', **kwargs):
-    menus = [[('none', 'None')]] + [[(single_menu.element_name + '-' + a[0], a[1]) for a in single_menu(name=single_menu.element_name, item_class=MenuChooseItem).render()] for single_menu in model.CommonsConfig.select().where(model.CommonsConfig.element_type=='menu')]
+    menus = [[('none', 'None')]] + [[(single_menu.element_name + '-' + a[0], a[1]) for a in
+                                     single_menu(name=single_menu.element_name, item_class=MenuChooseItem).render()] for
+                                    single_menu in
+                                    model.CommonsConfig.select().where(model.CommonsConfig.element_type == 'menu')]
     return html.Select(*list(itertools.chain(*menus)), name=name, **kwargs)
 
 
@@ -74,15 +77,16 @@ class HTMLMenuItem(MenuItem):
     def render_self(self, depth):
         if self.item_path:
             return html.ContainerElement(self.display_name, html_type='a', classes={'layer-' + str(depth), 'menu'},
-                                    additional={'href': self.item_path})
+                                         additional={'href': self.item_path})
         else:
             return html.ContainerElement(self.display_name, html_type='span', classes={'layer-' + str(depth), 'menu'})
 
     def render_children(self, depth=0, max_depth=-1):
         if not self.children:
             return ''
-        return html.List(*[a.render(depth, max_depth) for a in self.children], list_type='ul', item_classes={'layer-' + str(depth)},
-                    classes={'layer-' + str(depth), 'menu'})
+        return html.List(*[a.render(depth, max_depth) for a in self.children], list_type='ul',
+                         item_classes={'layer-' + str(depth)},
+                         classes={'layer-' + str(depth), 'menu'})
 
     def render(self, depth=0, max_depth=-1):
         if 0 <= max_depth <= depth:
@@ -109,8 +113,8 @@ def get_items(menu_i, item_class=MenuItem):
     :return: List of MenuItems
     """
     menu_i = model.Menu.get(machine_name=menu_i) if isinstance(menu_i, str) else menu_i
-    items = model.MenuItem.select().where(model.MenuItem.menu==menu_i,
-                                          model.MenuItem.enabled==True)
+    items = model.MenuItem.select().where(model.MenuItem.menu == menu_i,
+                                          model.MenuItem.enabled == True)
     return [item_class(
         a.display_name,
         a.path,

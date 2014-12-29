@@ -7,7 +7,6 @@ from .. import _component
 
 __author__ = 'justusadam'
 
-
 _register_controllers = True
 
 
@@ -18,7 +17,6 @@ class Controller(dict):
 
 @_component.Component('ControllerMapping')
 class ControllerMapper(dict):
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._controller_classes = []

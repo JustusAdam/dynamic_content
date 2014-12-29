@@ -12,7 +12,9 @@ def authorize(permission):
         def inner(model):
             if not model.client.check_permission(permission):
                 raise PermissionError
+
         return inner
+
     return wrap
 
 
@@ -22,5 +24,7 @@ def authorize_group(group):
         @apply_to_type(Model, apply_before=True)
         def inner(model):
             pass
+
         return inner
+
     return wrap

@@ -8,12 +8,13 @@ __author__ = 'justusadam'
 basic_script = html.Script(src='/public/tinymce/tinymce.min.js')
 
 apply_script = html.Script(
-        'tinymce.init({selector: "textarea#' + _elements.identifier + '"});'
-    )
+    'tinymce.init({selector: "textarea#' + _elements.identifier + '"});'
+)
 
 
 def init(model:_model.Model):
     from . import _elements
+
     model.decorator_attributes.add('include module wysiwyg')
     return _elements
 

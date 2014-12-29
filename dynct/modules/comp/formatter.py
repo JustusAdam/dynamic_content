@@ -8,7 +8,6 @@ from dynct.util.config import read_config
 
 __author__ = 'justusadam'
 
-
 VAR_REGEX = re.compile("\{([\w_-]*?)\}")
 
 ARG_REGEX = re.compile(":(\w+?):")
@@ -30,7 +29,7 @@ class TemplateFormatter:
         self._model = model
         # self.module_config = read_config(self._get_config_folder() + '/config.json')
         # if 'active_theme' in self.module_config:
-        #     self._theme = self.module_config['active_theme']
+        # self._theme = self.module_config['active_theme']
         self._theme = _default_theme
         self.theme_config = read_config(self.theme_path + '/config.json')
 
@@ -78,7 +77,7 @@ class TemplateFormatter:
         if not c:
             code, body, headers = self.document()
         else:
-            b= c.group(1)
+            b = c.group(1)
             code, body, headers = self._map.get(b, self.compile_body)(self, self._model.view.lstrip(':' + b + ':'))
         headers |= self.model.headers
         r = response.Response(body, code, headers, cookies)
@@ -156,7 +155,8 @@ class TemplateFormatter:
             favicon = self.theme_config['favicon']
         else:
             favicon = 'favicon.icon'
-        return str(html.LinkElement('/theme/' + self.theme + '/' + favicon, rel='shortcut icon', element_type='image/png'))
+        return str(
+            html.LinkElement('/theme/' + self.theme + '/' + favicon, rel='shortcut icon', element_type='image/png'))
 
     def initial_pairing(self) -> dict:
         a = self.model.copy()
@@ -169,8 +169,9 @@ class TemplateFormatter:
         a.setdefault('pagetitle',
                      html.A('/', 'dynamic_content - fast, python and extensible'))
         a.setdefault('footer', str(
-            html.ContainerElement(html.ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', html_type='p'),
-                             element_id='powered_by', classes={'common', 'copyright'})))
+            html.ContainerElement(
+                html.ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', html_type='p'),
+                element_id='powered_by', classes={'common', 'copyright'})))
         return a
 
     def breadcrumb_separator(self):
@@ -184,30 +185,32 @@ class TemplateFormatter:
         def acc():
             for (name, location) in self.breacrumbs():
                 for i in [
-                    html.ContainerElement(self.breadcrumb_separator(), html_type='span', classes={'breadcrumb-separator'}),
+                    html.ContainerElement(self.breadcrumb_separator(), html_type='span',
+                                          classes={'breadcrumb-separator'}),
                     html.ContainerElement(name, html_type='a', classes={'breadcrumb'}, additional={'href': location})
                 ]:
                     yield i
+
         return html.ContainerElement(*list(acc()), classes={'breadcrumbs'})
 
-#
-# class DecoratorWithRegions(TemplateFormatter):
-#     _theme = None
-#     view_name = 'page'
-#
-#     def __init__(self, model, url, client_info):
-#         super().__init__(model, url, client_info)
-#
-#     @property
-#     def regions(self):
-#         config = self.theme_config['regions']
-#         r = []
-#         for region in config:
-#             r.append(RegionHandler(region, config[region], self.theme, self.client))
-#         return r
-#
-#     def initial_pairing(self):
-#         if not 'no-commons' in self.model.decorator_attributes:
-#             for region in self.regions:
-#                 self._model[region.name] = str(region.compile())
-#         return super().initial_pairing()
+        #
+        # class DecoratorWithRegions(TemplateFormatter):
+        # _theme = None
+        #     view_name = 'page'
+        #
+        #     def __init__(self, model, url, client_info):
+        #         super().__init__(model, url, client_info)
+        #
+        #     @property
+        #     def regions(self):
+        #         config = self.theme_config['regions']
+        #         r = []
+        #         for region in config:
+        #             r.append(RegionHandler(region, config[region], self.theme, self.client))
+        #         return r
+        #
+        #     def initial_pairing(self):
+        #         if not 'no-commons' in self.model.decorator_attributes:
+        #             for region in self.regions:
+        #                 self._model[region.name] = str(region.compile())
+        #         return super().initial_pairing()

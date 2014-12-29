@@ -12,7 +12,6 @@ from dynct.errors import exceptions
 
 __author__ = 'justusadam'
 
-
 controller_mapper = _component.get_component('ControllerMapping')
 
 
@@ -24,6 +23,7 @@ class Autoconf:
      Model.config > custom config argument? > Controller.config? > DefaultConfig
      ? is optional, will be omitted if bool(?) == false
     """
+
     @typesafe.typesafe
     def __init__(self, conf:Config):
         self.custom_conf = conf
@@ -37,8 +37,9 @@ class Autoconf:
                 self.custom_conf,
                 self.get_controller_conf(controller),
                 DefaultConfig
-                ]
-            if a])
+            ]
+                                                  if a])
+
         return wrap
 
     def get_controller_conf(self, controller):
@@ -48,16 +49,17 @@ class Autoconf:
 def q_comp(q, name):
     if type(q) == bool:
         if q:
-            return lambda a:{name:a}
+            return lambda a: {name: a}
         else:
             def hello(a):
                 if a:
                     raise exceptions.UnexpectedControllerArgumentError('Unexpected Query: ' + str(a))
                 else:
                     return {}
+
             return hello
-    elif issubclass(type(q), (list,tuple)):
-        return lambda a: {arg:a.get(arg) for arg in q}
+    elif issubclass(type(q), (list, tuple)):
+        return lambda a: {arg: a.get(arg) for arg in q}
     else:
         raise TypeError
 
@@ -86,7 +88,8 @@ class ControlFunction:
 
     def __repr__(self):
         if self.instance:
-            return '<ControlMethod for prefix \'' + self.prefix + '\' with function ' + repr(self.function) + ' and instance ' + repr(self.instance) + '>'
+            return '<ControlMethod for prefix \'' + self.prefix + '\' with function ' + repr(
+                self.function) + ' and instance ' + repr(self.instance) + '>'
         return '<ControlFunction for prefix \'' + self.prefix + '\' with function ' + repr(self.function) + '>'
 
 
@@ -102,6 +105,7 @@ def __controller_function(class_, prefix, regex:str=None, *, get=True, post=True
         wrapped = class_(func, prefix, regex, get, post)
         controller_mapper.add_controller(prefix, wrapped)
         return wrapped
+
     return wrap
 
 
@@ -109,6 +113,7 @@ def __controller_method(class_, prefix, regex:str=None, *, get=True, post=True):
     def wrap(func):
         wrapped = class_(func, prefix, regex, get, post)
         return wrapped
+
     return wrap
 
 
@@ -129,9 +134,7 @@ def controller_class(class_):
 
 controller_method = functools.partial(__controller_method, ControlFunction)
 
-
 rest_controller_function = functools.partial(__controller_function, RestControlFunction)
-
 
 rest_controller_method = functools.partial(__controller_method, RestControlFunction)
 
@@ -154,6 +157,7 @@ class url_args:
     :param strict: boolean
     :return:
     """
+
     def __init__(self, regex, *, get=False, post=False, strict:bool=False):
         self.get = self.q_comp(get, 'get')
         self.post = self.q_comp(post, 'post')
@@ -163,12 +167,12 @@ class url_args:
     def q_comp(self, q, name):
         if type(q) == bool:
             if q:
-                return lambda a:{name:a}
+                return lambda a: {name: a}
             elif self.strict:
                 return lambda a: bool(a) if False else {}
             else:
                 return lambda a: {}
-        elif issubclass(type(q), (list,tuple)):
+        elif issubclass(type(q), (list, tuple)):
             if self.strict:
                 def f(a:list, b:dict):
                     d = b.copy()
@@ -176,8 +180,9 @@ class url_args:
                         if item not in d:
                             raise TypeError
                     return d
+
                 return lambda a: len(q) == len(a.keys()) if f(q, a) else False
-            return lambda a: {arg:a.get(arg) for arg in q}
+            return lambda a: {arg: a.get(arg) for arg in q}
         else:
             raise TypeError
 
@@ -191,4 +196,5 @@ class url_args:
                     kwargs.update(result)
             # return re.match(regex, str(url.path)).groups(), kwargs
             return func(*(model, ) + re.match(self.regex, url.path.prt_to_str(1)).groups(), **kwargs)
+
         return _generic

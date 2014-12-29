@@ -3,7 +3,6 @@ from dynct.core import model as coremodel
 
 __author__ = 'justusadam'
 
-
 access_types = ['default_granted', 'override']
 
 

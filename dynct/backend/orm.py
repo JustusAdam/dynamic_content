@@ -18,7 +18,8 @@ def proxy_db():
                              user=settings.DATABASE.user,
                              password=settings.DATABASE.password,
                              host=settings.DATABASE.host).connect()
-    else: raise ValueError
+    else:
+        raise ValueError
 
 
 database_proxy = proxy_db()
@@ -26,5 +27,6 @@ database_proxy = proxy_db()
 
 class BaseModel(Model):
     oid = PrimaryKeyField()
+
     class Meta:
         database = database_proxy

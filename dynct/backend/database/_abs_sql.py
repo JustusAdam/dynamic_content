@@ -90,7 +90,7 @@ class SQLDatabase(AbstractDatabase):
 
     def update(self, table, pairing:dict, where_condition, params:dict):
         set_clause = ', '.join([a + '=%(set_' + a + ')s' for a in pairing])
-        p = {'set_' + b:pairing[b] for b in pairing}
+        p = {'set_' + b: pairing[b] for b in pairing}
         s = True
         while s:
             s = False

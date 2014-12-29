@@ -23,6 +23,7 @@ class Application(threading.Thread, lazy.Loadable):
 
     call with .run() to execute in main thread (not recommended)
     """
+
     @typesafe.typesafe
     def __init__(self, config:_config.ApplicationConfig=_config.DefaultConfig()):
         if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(message='app starting')
@@ -43,6 +44,7 @@ class Application(threading.Thread, lazy.Loadable):
     def load_modules(self):
         if hasattr(orm.database_proxy, 'database') and orm.database_proxy.database == ':memory:':
             import dynct.modules.cms.temporary_setup_script
+
             dynct.modules.cms.temporary_setup_script.init_tables()
             dynct.modules.cms.temporary_setup_script.initialize()
         core.Modules.load()
@@ -64,7 +66,8 @@ class Application(threading.Thread, lazy.Loadable):
         httpd.serve_forever()
 
     def set_working_directory(self):
-        if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info('setting working directory (' + str(self.config.basedir) + ')')
+        if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(
+            'setting working directory (' + str(self.config.basedir) + ')')
         os.chdir(self.config.basedir)
 
     def process_request(self, request):

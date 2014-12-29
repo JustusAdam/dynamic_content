@@ -7,7 +7,6 @@ from dynct.modules.users import model as usersmodel
 __author__ = 'justusadam'
 
 
-
 class Page(orm.BaseModel):
     content_type = orm.ForeignKeyField(coremodel.ContentTypes)
     page_title = orm.CharField()

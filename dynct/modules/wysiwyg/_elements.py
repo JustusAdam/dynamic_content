@@ -2,8 +2,8 @@ from dynct.modules.comp import html
 
 __author__ = 'justusadam'
 
-
 identifier = 'wysiwyg'
+
 
 class WysiwygTextarea(html.Textarea):
     def __init__(self, *content, classes:set=None, name:str=None, form:str=None, required=False,

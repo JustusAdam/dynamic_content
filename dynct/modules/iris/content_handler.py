@@ -8,7 +8,7 @@ from dynct.util import lazy
 from dynct.core import model as coremodel
 from dynct.modules.commons import menus as _menus
 from dynct.modules.users import decorator as user_dec
-from . import model as _model, decorator, node as _nodemodule, field
+from . import model as _model, node as _nodemodule, field
 
 
 __author__ = 'justusadam'
@@ -25,12 +25,13 @@ _scroll_left = '<'
 _scroll_right = '>'
 
 
-
 def not_over(a, val):
     if a > val:
         return val
     else:
         return a
+
+
 def not_under(a, val=0):
     if a < val:
         return val
@@ -78,7 +79,8 @@ class FieldBasedPageContent(object):
 
         node = _nodemodule.Node(
             editorial=self.editorial(page, model.client),
-            content=content_compiler_hook(page) if content_compiler_hook else ''.join(str(a) for a in self.field_contents(page)),
+            content=content_compiler_hook(page) if content_compiler_hook else ''.join(
+                str(a) for a in self.field_contents(page)),
             title=page.page_title)
 
         post_compile_hook() if post_compile_hook else None
@@ -132,7 +134,7 @@ class FieldBasedPageContent(object):
         return ' '.join([modifier, 'content type', self.content_type])
 
     def get_fields(self):
-        field_info = _model.FieldConfig.select().where(_model.FieldConfig.content_type==self.dbobj)
+        field_info = _model.FieldConfig.select().where(_model.FieldConfig.content_type == self.dbobj)
         for a in field_info:
             yield field.Field(a, self.page_type)
 
@@ -150,11 +152,11 @@ class FieldBasedPageContent(object):
         else:
             m_c = _menus.menu_chooser('parent-menu')
         menu_options = html.TableRow(
-            html.Label('Menu Parent', label_for='parent-menu') , m_c, classes={'menu-parent'})
+            html.Label('Menu Parent', label_for='parent-menu'), m_c, classes={'menu-parent'})
         publishing_options = html.TableRow(
             html.Label('Published', label_for='toggle-published'),
-               html.Checkbox(element_id='toggle-published', value=_publishing_flag, name=_publishing_flag,
-                        checked=page.published), classes={'toggle-published'})
+            html.Checkbox(element_id='toggle-published', value=_publishing_flag, name=_publishing_flag,
+                          checked=page.published), classes={'toggle-published'})
 
         return html.TableElement(publishing_options, menu_options, classes={'admin-options'})
 
@@ -166,13 +168,14 @@ class FieldBasedPageContent(object):
 
 @mvc_dec.controller_function('iris', '/([0-9]+)/?(access)?', get=False, post=False)
 @comp_dec.Regions
-@decorator.node_process
+@_nodemodule.node_process
 def handle_compile(model, page_id, modifier):
     page = _model.Page.get(oid=page_id)
     modifiers = {
 
     }
-    return getattr(core.get_component('IrisCompilers')[page.content_type], modifiers.get(modifier, modifier) if modifier else 'access')(model, page)
+    return getattr(core.get_component('IrisCompilers')[page.content_type],
+                   modifiers.get(modifier, modifier) if modifier else 'access')(model, page)
 
 
 @mvc_dec.controller_function('iris', '/([0-9]+)/edit', get=False, post=True)
@@ -184,14 +187,15 @@ def handle_edit(model, page_id, post):
 @mvc_dec.controller_function('iris', '$', post=False)
 @user_dec.authorize(' '.join(['access', 'iris', 'overview']))
 @comp_dec.Regions
-@decorator.node_process
+@_nodemodule.node_process
 def overview(page_model, get):
     compiler_map = core.get_component('IrisCompilers')
     my_range = [
-            int(get['from'][0]) if 'from' in get else 0,
-            int(get['to'][0])   if 'to'   in get else _step
-        ]
-    for a in _model.Page.select().limit(','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]])).order_by('date_created desc'):
+        int(get['from'][0]) if 'from' in get else 0,
+        int(get['to'][0]) if 'to' in get else _step
+    ]
+    for a in _model.Page.select().limit(
+            ','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]])).order_by('date_created desc'):
         node = compiler_map[a.content_type.machine_name].access(page_model, a.oid)
         node['title'] = html.A('/iris/' + str(a.oid), node['title'])
         yield node

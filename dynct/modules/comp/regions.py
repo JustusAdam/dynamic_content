@@ -16,16 +16,19 @@ class RegionHandler:
         self.config = region_config
 
     def get_all_commons(self, name, theme):
-        region_info = model.Common.select().where(model.Common.region==name,
-                                                  model.Common.theme==core.model.Theme.get(machine_name=theme))
+        region_info = model.Common.select().where(model.Common.region == name,
+                                                  model.Common.theme == core.model.Theme.get(machine_name=theme))
         if region_info:
-            return [self.get_item(commonsmodel.CommonsConfig.get(commonsmodel.CommonsConfig.machine_name==a.machine_name), a.render_args, a.show_title) for a in region_info]
+            return [
+                self.get_item(commonsmodel.CommonsConfig.get(commonsmodel.CommonsConfig.machine_name == a.machine_name),
+                              a.render_args, a.show_title) for a in region_info]
         else:
             return []
 
     def get_item(self, item:commonsmodel.CommonsConfig, render_args, show_title):
 
-        handler = self.modules[item.handler_module].common_handler(item.element_type)(item, render_args, show_title, self.client)
+        handler = self.modules[item.handler_module].common_handler(item.element_type)(item, render_args, show_title,
+                                                                                      self.client)
 
         return Common(item.machine_name, handler, item.element_type)
 
@@ -36,7 +39,8 @@ class RegionHandler:
                 classes.append(self.config['classes'])
             else:
                 classes += self.config['classes']
-        return html.ContainerElement(html.ContainerElement(*value, classes={'region-wrapper', 'wrapper'}), classes=set(classes))
+        return html.ContainerElement(html.ContainerElement(*value, classes={'region-wrapper', 'wrapper'}),
+                                     classes=set(classes))
 
     def compile(self):
         stylesheets = []

@@ -91,11 +91,10 @@ def initialize():
 
     for access_group, name, permission_list in permissions:
         users.add_acc_grp(name, access_group)
-        for grp in users.model.AccessGroup.select() : print(grp.machine_name, grp.oid)
+        for grp in users.model.AccessGroup.select(): print(grp.machine_name, grp.oid)
         for permission in permission_list:
             users.new_permission(permission)
             users.assign_permission(access_group, permission)
-
 
     if settings.RUNLEVEL in [settings.RunLevel.testing, settings.RunLevel.debug]:
         users.add_user(username='admin', password='213', email='test@localhost', first_name='bod', last_name='barker')
@@ -110,7 +109,7 @@ def initialize():
     ]
 
     for alias, source in aliases:
-      core.add_alias(source, alias)
+        core.add_alias(source, alias)
 
 
 
@@ -124,18 +123,15 @@ def initialize():
         core.add_theme(name=name,
                        enabled=enabled)
 
-
-
-
     for machine_name, enabled, children in [
-        ('start_menu', True ,
-            [
-                ('<root>', '', True, None, 1),
-                ('welcome', '/iris/1', True, '<root>', 1),
-                ('welcome', '/iris/1', True, '<root>', 1),
-                ('testpage', '/iris/2', True, '<root>', 2),
-                ('setup', '/setup', True, 'welcome', 1)
-            ]
+        ('start_menu', True,
+         [
+             ('<root>', '', True, None, 1),
+             ('welcome', '/iris/1', True, '<root>', 1),
+             ('welcome', '/iris/1', True, '<root>', 1),
+             ('testpage', '/iris/2', True, '<root>', 2),
+             ('setup', '/setup', True, 'welcome', 1)
+         ]
         )
     ]:
         menu = Menu.create(
@@ -158,15 +154,13 @@ def initialize():
             content=content
         )
 
-
-
     for machine_name, type_, handler, access_type in [
         # commons from comp
         ('start_menu', 'menu', 'commons', 0),
         ('copyright', 'com_text', 'commons', 0),
         # commons from users
-        ('login', 'login', 'users', 1), # login common
-        ('user_information', 'user_information', 'users', 1), # user information common
+        ('login', 'login', 'users', 1),  # login common
+        ('user_information', 'user_information', 'users', 1),  # user information common
         # from admin
         (admin_menu_common, 'menu', 'admin', 1)
     ]:
@@ -191,7 +185,6 @@ def initialize():
                       theme=theme,
                       show_title=show_title)
 
-
     name = 'iris'
 
     _module = core.get_module(name)
@@ -199,32 +192,34 @@ def initialize():
     path_prefix = 'iris'
 
     coremodel.ContentHandler.create(machine_name='iris',
-                          module=_module,
-                          path_prefix=path_prefix)
+                                    module=_module,
+                                    path_prefix=path_prefix)
     _ct1 = coremodel.ContentTypes.create(machine_name='article',
-                        displey_name='Simple Article',
-                        content_handler=_module,
-                        theme=core.get_theme('active'))
+                                         displey_name='Simple Article',
+                                         content_handler=_module,
+                                         theme=core.get_theme('active'))
 
     bodytype = iris_model.FieldType.create(machine_name='body', handler='iris.text_field_handler')
 
     iris_model.FieldConfig.create(
         field_type=bodytype,
-                       content_type=_ct1,
-                       weight=1)
+        content_type=_ct1,
+        weight=1)
 
     # add some initial pages
 
     bodyfield = iris_model.field('body')
     bodyfield.create_table()
 
-    page = iris_model.Page.create(content_type=_ct1, page_title="Welcome to \"dynamic_content\"", creator=1, published=True)
+    page = iris_model.Page.create(content_type=_ct1, page_title="Welcome to \"dynamic_content\"", creator=1,
+                                  published=True)
     bodyfield.create(page_id=page.oid, page_type='iris',
-                content='<div><h3>Welcome to your \"dynamic_content\" installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you\'ll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div><image src=\"http://imgs.xkcd.com/comics/server_attention_span.png\" width=\"550px\" style=\"padding:20px 0px\">')
+                     content='<div><h3>Welcome to your \"dynamic_content\" installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you\'ll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div><image src=\"http://imgs.xkcd.com/comics/server_attention_span.png\" width=\"550px\" style=\"padding:20px 0px\">')
 
     page = iris_model.Page.create(content_type=_ct1, page_title='Wuhuuu', creator=1, published=True)
     bodyfield.create(page_id=page.oid,
-                content='<p>More content is good</p><iframe src="http://www.xkcd.com" height="840px" width="600px" seamless></iframe>', page_type='iris')
+                     content='<p>More content is good</p><iframe src="http://www.xkcd.com" height="840px" width="600px" seamless></iframe>',
+                     page_type='iris')
 
     # add admin pages
 

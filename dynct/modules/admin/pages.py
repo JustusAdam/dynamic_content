@@ -1,6 +1,5 @@
 import collections
 
-from dynct.core.mvc import content_compiler as _cc
 from dynct.core.mvc import decorator as mvc_dec
 from dynct.modules.comp import decorator as comp_dec
 from dynct.modules.comp import html
@@ -11,7 +10,6 @@ from . import model
 __author__ = 'justusadam'
 
 ADMIN_PATH = '/admin'
-
 
 
 @mvc_dec.controller_function('admin', '', get=False, post=False)
@@ -31,10 +29,11 @@ def category(model, category):
 def subcategory(model, subcategory):
     return SubcategoryPage(model, subcategory).compile()
 
+
 #
 # @controller_class
 # class AdminController:
-#     @controller_method('admin')
+# @controller_method('admin')
 #     @Regions
 #     def handle(self, model, url, get, post):
 #         url.post = post
@@ -147,7 +146,7 @@ class CategoryPage(OverviewPage):
         return '/admin'
 
     def get_parents_data(self):
-        return [model.Category.get(model.Subcategory.machine_name==self.name)]
+        return [model.Category.get(model.Subcategory.machine_name == self.name)]
 
     def get_children_data(self):
         return model.Subcategory.select().where(model.Subcategory.category == self.name)

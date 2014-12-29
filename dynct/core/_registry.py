@@ -97,7 +97,8 @@ def register_installed_modules():
 
 def discover_modules():
     for directory in settings.MODULES_DIRECTORIES + settings.COREMODULES_DIRECTORIES:
-        for file in filter(lambda s: (s.is_dir() or s.suffix == '.py') and not s.name.startswith('_'), pathlib.Path(directory).iterdir()):
+        for file in filter(lambda s: (s.is_dir() or s.suffix == '.py') and not s.name.startswith('_'),
+                           pathlib.Path(directory).iterdir()):
             yield {
                 'name': str(file.stem),
                 'path': str(file)
@@ -112,7 +113,6 @@ def register_modules(r_modules):
             register_single_module(module)
     else:
         raise ValueError
-
 
 
 def register_single_module(moduleconf):
@@ -138,10 +138,10 @@ def check_info(info):
 
 
 def get_active_modules():
-    modules = model.Module.select().where(model.Module.enabled==True)
+    modules = model.Module.select().where(model.Module.enabled == True)
     return {item.machine_name: _module.import_by_path('dynct/' + item.path) for item in modules}
     # except Exception:
-    #     def find(name, paths):
+    # def find(name, paths):
     #         for path in paths:
     #             for file in Path(path).iterdir():
     #                 if file.stem == name: return str(file)

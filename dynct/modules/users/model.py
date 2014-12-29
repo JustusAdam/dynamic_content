@@ -14,6 +14,7 @@ class AccessGroup(orm.BaseModel):
 class AccessGroupPermission(orm.BaseModel):
     group = orm.ForeignKeyField(AccessGroup)
     permission = orm.CharField()
+
     class Meta:
         primary_key = orm.CompositeKey('group', 'permission')
 

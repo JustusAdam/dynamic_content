@@ -8,7 +8,6 @@ from dynct.util import lazy
 
 __author__ = 'justusadam'
 
-
 DEFAULT_FIELD_HANDLER_NAME = 'FieldHandler'
 
 
@@ -25,7 +24,7 @@ class Fields(lazy.Loadable):
 
     def load(self):
         self._inner = {
-            a.machine_name:self._get_handler(a.handler) for a in model.FieldType.select()
+            a.machine_name: self._get_handler(a.handler) for a in model.FieldType.select()
         }
 
     @lazy.ensure_loaded
@@ -38,6 +37,7 @@ def field(field_type, fields):
     def inner(class_):
         fields[field_type] = class_
         return class_
+
     return inner
 
 
@@ -46,7 +46,6 @@ class FieldExists(DCException):
 
 
 class _Field(object):
-
     def __init__(self, config, page_type):
         super().__init__()
         self.config = config
@@ -58,12 +57,14 @@ class _Field(object):
 
     def access(self, page_id):
         db_obj = self.from_db(page_id)
-        return node.Node(content=html.ContainerElement(db_obj.content, classes={'field', 'field-' + self.name}), title=self.get_field_title())
+        return node.Node(content=html.ContainerElement(db_obj.content, classes={'field', 'field-' + self.name}),
+                         title=self.get_field_title())
 
     def edit(self, page_id):
         try:
             db_obj = self.from_db(page_id)
-            return node.Node(content=wysiwyg.WysiwygTextarea(db_obj.content, classes={'field', 'field-' + self.name, 'edit'}))
+            return node.Node(
+                content=wysiwyg.WysiwygTextarea(db_obj.content, classes={'field', 'field-' + self.name, 'edit'}))
         except:
             raise
 

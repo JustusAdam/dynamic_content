@@ -18,12 +18,13 @@ logout_prefix = 'logout'
 _cookie_time_format = '%a, %d %b %Y %H:%M:%S GMT'
 
 USERNAME_INPUT = html.Label('Username', label_for='username'), html.Input(name='username', required=True)
-PASSWORD_INPUT = html.Label('Password', label_for='password'), html.Input(input_type='password', required=True, name='password')
+PASSWORD_INPUT = html.Label('Password', label_for='password'), html.Input(input_type='password', required=True,
+                                                                          name='password')
 
 LOGOUT_TARGET = '/login'
 
 LOGOUT_BUTTON = html.ContainerElement('Logout', html_type='a', classes={'logout', 'button'},
-                                 additional={'href': '/' + logout_prefix})
+                                      additional={'href': '/' + logout_prefix})
 
 LOGIN_FORM = form.SecureForm(
     html.TableElement(
@@ -68,8 +69,6 @@ def login(model, username, password):
         return ':redirect:/'
     else:
         return ':redirect:/login/failed'
-
-
 
 
 def logout(model, url):

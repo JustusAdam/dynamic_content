@@ -20,10 +20,9 @@ from dynct.util.config import read_config
 
 __author__ = 'justusadam'
 
-
 db_types = {
-        'mysql': 'mysql'
-    }
+    'mysql': 'mysql'
+}
 
 # HACK setting config path here (hard), needs to be changed
 

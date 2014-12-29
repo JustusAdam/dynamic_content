@@ -3,7 +3,6 @@ import functools
 __author__ = 'justusadam'
 
 
-
 def ensure_loaded(loadable):
     @functools.wraps(loadable)
     def wrap(instance, *args, **kwargs):
@@ -11,6 +10,7 @@ def ensure_loaded(loadable):
             instance.load()
             instance.loaded = True
         return loadable(instance, *args, **kwargs)
+
     return wrap
 
 

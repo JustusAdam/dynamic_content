@@ -1,19 +1,19 @@
 {
-    "template_directory": "template",
-    "stylesheet_directory": "css",
-    "stylesheets": ["style.css"],
-    "show_powered_by": true,
-    "favicon": "favicon.png",
-    "regions": {
-        "navigation": {
-            "classes": ["vertical"]
-        },
-        "footer": {},
-        "sidebar_left": {
-            "classes": ["sidebar"]
-        },
-        "sidebar_right": {
-            "classes": ["sidebar"]
-        }
+  "template_directory": "template",
+  "stylesheet_directory": "css",
+  "stylesheets": ["style.css"],
+  "show_powered_by": true,
+  "favicon": "favicon.png",
+  "regions": {
+    "navigation": {
+      "classes": ["vertical"]
+    },
+    "footer": {},
+    "sidebar_left": {
+      "classes": ["sidebar"]
+    },
+    "sidebar_right": {
+      "classes": ["sidebar"]
     }
+  }
 }
