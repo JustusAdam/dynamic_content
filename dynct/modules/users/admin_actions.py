@@ -86,8 +86,8 @@ def create_user_action(model, post):
         else:
             args = {
                 key: post[key][0] for key in [
-                'username', 'password', 'email', 'last_name', 'first_name', 'middle_name'
-            ] if key in post
+                    'username', 'password', 'email', 'last_name', 'first_name', 'middle_name'
+                ] if key in post
             }
             u = users.add_user(**args)
             return ':redirect:/users/' + str(u.oid)
@@ -97,8 +97,8 @@ def create_user_action(model, post):
 def edit_user_action(model, uid, post):
     args = {
         key: post[key][0] for key in [
-        'username', 'password', 'email', 'last_name', 'first_name', 'middle_name'
-    ] if key in post
+            'username', 'password', 'email', 'last_name', 'first_name', 'middle_name'
+        ] if key in post
     }
     users.edit_user(uid, **args)
 
