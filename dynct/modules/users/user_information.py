@@ -1,4 +1,5 @@
-from dynct.core.mvc import decorator as mvc_dec
+from dynct.core import mvc
+from dynct import dchttp
 from dynct.util.html import TableElement, ContainerElement
 from dynct.modules.commons import base as _base
 from .login import LOGOUT_BUTTON
@@ -30,7 +31,7 @@ class UserInformationCommon(_base.Commons):
         return users.get_user(user).date_created
 
 
-@mvc_dec.controller_function('users', '/([0-9]+)', get=False, post=False)
+@mvc.controller_function('users', '/([0-9]+)', method=dchttp.RequestMethods.GET, query=False)
 def user_information(model, uid):
     if not (
             model.client.check_permission('view own user')
@@ -56,7 +57,7 @@ def user_information(model, uid):
     return 'page'
 
 
-@mvc_dec.controller_function('users', '$', get=True, post=False)
+@mvc.controller_function('users', '$', method=dchttp.RequestMethods.GET, query=True)
 def users_overview(model, get_query):
     if not model.client.check_permission('access users overview'):
         return 'error'

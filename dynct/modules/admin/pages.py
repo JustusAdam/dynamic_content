@@ -1,6 +1,7 @@
 import collections
 
-from dynct.core.mvc import decorator as mvc_dec
+from dynct.core import mvc
+from dynct import dchttp
 from dynct.modules.comp import decorator as comp_dec
 from dynct.util import html
 from dynct.modules.commons import base
@@ -12,7 +13,7 @@ __author__ = 'justusadam'
 ADMIN_PATH = '/admin'
 
 
-@mvc_dec.controller_function('admin', '', get=False, post=False)
+@mvc.controller_function('admin', '', method=dchttp.RequestMethods.GET, query=False)
 @user_dec.authorize('access admin pages')
 @comp_dec.Regions
 def overview(modelmap):
@@ -71,7 +72,7 @@ class OverviewCommon(base.Commons):
         return html.ContainerElement(super().title, html_type='a', additional={'href': '/admin'})
 
 
-@mvc_dec.controller_function('admin', '/\w+/(\w+)$', get=False, post=False)
+@mvc.controller_function('admin', '/\w+/(\w+)$', method=dchttp.RequestMethods.GET, query=False)
 @comp_dec.Regions
 def category(modelmap, name):
     modelmap.pageclasses = {'admin-menu', 'category'}
@@ -88,7 +89,7 @@ def category(modelmap, name):
     return 'page'
 
 
-@mvc_dec.controller_function('admin', '/(\w+)$', get=False, post=False)
+@mvc.controller_function('admin', '/(\w+)$', method=dchttp.RequestMethods.GET, query=False)
 @comp_dec.Regions
 def subcategory(modelmap, name):
     modelmap.pageclasses = {'admin-menu', 'subcategory'}

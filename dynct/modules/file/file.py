@@ -6,8 +6,9 @@ own page handlers.
 import pathlib
 from urllib import parse
 import mimetypes
+from dynct import dchttp
 
-from dynct.core.mvc import decorator as mvc_dec
+from dynct.core import mvc
 from dynct.includes import settings
 from dynct.util import html
 
@@ -17,10 +18,10 @@ __author__ = 'justusadam'
 _template_path = 'themes/default_theme/template/page.html'
 
 
-@mvc_dec.controller_class
+@mvc.controller_class
 class PathHandler:
-    @mvc_dec.controller_method('theme', get=False, post=False)
-    @mvc_dec.controller_method('public', get=False, post=False)
+    @mvc.controller_method('theme', method=dchttp.RequestMethods.GET)
+    @mvc.controller_method('public', method=dchttp.RequestMethods.GET)
     def handle(self, model, url, *args):
         return self.parse_path(model, url)
 

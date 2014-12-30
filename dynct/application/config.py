@@ -1,7 +1,7 @@
 import pathlib
 import sys
-from dynct.http import request
-from dynct.http import server
+from dynct.dchttp import request
+from dynct.dchttp import server
 
 __author__ = 'justusadam'
 

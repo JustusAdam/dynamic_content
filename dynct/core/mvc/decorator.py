@@ -5,10 +5,10 @@ import re
 from . import Config, DefaultConfig
 from . import controller
 from .. import _component
+from dynct import dchttp
 from .model import Model
 from dynct.util import decorators
 from dynct.util import typesafe
-from dynct.errors import exceptions
 
 __author__ = 'justusadam'
 
@@ -46,27 +46,9 @@ class Autoconf:
         return controller.config if hasattr(controller, 'config') else None
 
 
-def q_comp(q, name):
-    if type(q) == bool:
-        if q:
-            return lambda a: {name: a}
-        else:
-            def hello(a):
-                if a:
-                    raise exceptions.UnexpectedControllerArgumentError('Unexpected Query: ' + str(a))
-                else:
-                    return {}
-
-            return hello
-    elif issubclass(type(q), (list, tuple)):
-        return lambda a: {arg: a.get(arg) for arg in q}
-    else:
-        raise TypeError
-
-
 class ControlFunction:
-    def __init__(self, function, prefix:str, regex:str, get, post):
-        assert isinstance(regex, str) or regex is None
+    @typesafe.typesafe
+    def __init__(self, function, prefix:str, regex:(str, type(None)), method:str, query:(str, list, tuple, set, dict, bool)):
         if isinstance(function, ControlFunction):
             self.function = function.function
             self.wrapping = function.wrapping
@@ -77,8 +59,8 @@ class ControlFunction:
         self.prefix = prefix
         self.orig_pattern = regex
         self.regex = re.compile(regex) if regex else None
-        self.get = q_comp(get, 'get')
-        self.post = q_comp(post, 'post')
+        self.method = method
+        self.query = query
         self.instance = None
 
     def __call__(self, *args, **kwargs):
@@ -100,18 +82,18 @@ class RestControlFunction(ControlFunction):
         return model
 
 
-def __controller_function(class_, prefix, regex:str=None, *, get=True, post=True):
+def __controller_function(class_, prefix, regex:str=None, *, method=dchttp.RequestMethods.GET, query=False):
     def wrap(func):
-        wrapped = class_(func, prefix, regex, get, post)
+        wrapped = class_(func, prefix, regex, method, query)
         controller_mapper.add_controller(prefix, wrapped)
         return wrapped
 
     return wrap
 
 
-def __controller_method(class_, prefix, regex:str=None, *, get=True, post=True):
+def __controller_method(class_, prefix, regex:str=None, *, method=dchttp.RequestMethods.GET, query=False):
     def wrap(func):
-        wrapped = class_(func, prefix, regex, get, post)
+        wrapped = class_(func, prefix, regex, method, query)
         return wrapped
 
     return wrap

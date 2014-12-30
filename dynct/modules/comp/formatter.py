@@ -2,7 +2,7 @@ import pathlib
 import re
 import sys
 
-from dynct.http import response
+from dynct.dchttp import response
 from dynct.util import html
 from dynct.util.config import read_config
 

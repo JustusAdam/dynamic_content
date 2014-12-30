@@ -5,6 +5,7 @@ Currently uses the framework to dynamically create elements, once the basic site
 and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
 """
 from dynct.backend.database import Database
+from dynct import dchttp
 from dynct.util import html
 from dynct.core.mvc import decorator as mvc_dec
 from dynct.includes import settings
@@ -125,7 +126,7 @@ def setup_pages(pid=0):
 
 
 
-@mvc_dec.controller_function('setup', '/?([0-9]+)?', post=False, get=False)
+@mvc_dec.controller_function('setup', '/?([0-9]+)?', method=dchttp.RequestMethods.GET, query=False)
 def setup_controller(model, pid):
     pid = int(pid)
     # config = read_config('cms/config')
@@ -160,8 +161,8 @@ def setup_controller(model, pid):
     return 'page'
 
 
-@mvc_dec.controller_function('setup', '/5', post=True, get=False)
-def create_initial_user(post):
+@mvc_dec.controller_function('setup', '/5', method=dchttp.RequestMethods.POST, query=True)
+def create_initial_user(model, post):
     args = user_actions.post_to_args(post)
     try:
         users.add_user(**args)

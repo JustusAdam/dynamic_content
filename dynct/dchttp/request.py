@@ -16,7 +16,6 @@ import re
 
 from dynct.includes import settings
 from dynct.util import url as _url_mod
-from dynct.util import config
 from dynct.modules.users import client
 from dynct.includes import log
 from dynct import core
@@ -48,6 +47,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
 
         # construct Url object from path for accessibility
         url = _url_mod.Url(self.path, post_query)
+        url.method = 'post'
         if not form.validation_hook(url):
             self.send_error(403)
             return 0
@@ -57,6 +57,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
     def do_GET(self):
         # construct Url object from path for accessibility
         url = _url_mod.Url(self.path, False)
+        url.method = 'get'
         return self.do_any(url)
 
     def do_any(self, url):
@@ -173,10 +174,3 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             raise HTTPError(str(url), 404, None, None, None)
 
         return self.callback(url, client_info)
-
-    def start_setup(self, url):
-        if not config.read_config('cms/config.json')['setup']:
-            raise HTTPError(str(url), 403, 'Request disabled via server config', None, None)
-        from dynct.core.setup import SetupHandler
-
-        return SetupHandler(None, None)

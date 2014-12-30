@@ -1,6 +1,4 @@
-import collections
 import re
-from dynct.errors import exceptions
 from dynct.util import decorators
 from .. import _component
 
@@ -21,6 +19,7 @@ class ControllerMapper(dict):
         super().__init__(**kwargs)
         self._controller_classes = []
         self.register_modules()
+        self.any_method = {}
 
     def register_modules(self):
         self.modules = _component.get_component('Modules')
@@ -35,13 +34,21 @@ class ControllerMapper(dict):
 
         This should in theory ensure, that more specific 'paths' are preferred over generic ones.
         """
-        for item in self.values():
-            # TODO check if this works correctly
-            item.sort(key=lambda a: int(a.get is True) + int(a.post is True))
-            item.sort(key=lambda a: len(a.orig_pattern) if a.orig_pattern else 0, reverse=True)
+        for ditem in self.values():
+            for item in ditem.values():
+                # TODO check if this works correctly
+                item.sort(key=lambda a: int(bool(a.method)))
+                item.sort(key=lambda a: len(a.orig_pattern) if a.orig_pattern else 0, reverse=True)
 
     def add_controller(self, prefix, function):
-        self.setdefault(prefix, list()).append(function)
+        if function.method:
+            if isinstance(function.method, str):
+                self.setdefault(function.method.lower(), dict()).setdefault(prefix, list()).append(function)
+            elif isinstance(function.method, (list, tuple, set)):
+                for method in function.method:
+                    self.setdefault(method.lower(), dict()).setdefault(prefix, list()).append(function)
+        else:
+            self.any_method.setdefault(prefix, list()).append(function)
 
 
     def __call__(self, model, url):
@@ -49,24 +56,47 @@ class ControllerMapper(dict):
         if not l[0] == '' or len(l) < 2: raise AttributeError
         prefix = l[1]
         path = '/' + l[2] if len(l) > 2 else ''
-        elements = self[prefix]
-        for element in elements:
+
+        query = url.get_query if url.method == 'get' else url.post
+
+        def proc_one(element):
             if element.regex:
                 m = re.fullmatch(element.regex, path)
                 if not m:
-                    continue
+                    return
                 else:
                     args = m.groups()
             else:
                 args = (url, )
-            try:
-                get, post = element.get(url.get_query), element.post(url.post)
-                result = element(model, *args, **dict(collections.ChainMap(get, post)))
-                if not result:
-                    continue
+
+            if query:
+                if isinstance(element.query, str):
+                    return element(model, *args, **{element.query: query.get(element.query, None)})
+                elif isinstance(element.query, (list, tuple, set)):
+                    return element(model, *args, **{a : query.get(a, None) for a in element.query})
+                elif isinstance(element.query, dict):
+                    return element(model, *args, **{b : query.get(a, None) for a, b in element.query.items()})
+            else:
+                if element.query is False:
+                    return element(model, *args)
                 else:
-                    return result
-            # except (PermissionError, TypeError) as e:
-            except exceptions.UnexpectedControllerArgumentError:
-                pass
+                    return
+
+        def proc_all(elements):
+            for element in elements:
+                res = proc_one(element)
+                if res:
+                    return res
+
+        e = self[url.method.lower()][prefix]
+
+        res = proc_all(e)
+
+        if res:
+            return res
+        else:
+            res = proc_all(self.any_method[prefix])
+            if res:
+                return res
+
         return 'error'

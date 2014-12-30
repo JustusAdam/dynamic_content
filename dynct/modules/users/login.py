@@ -2,7 +2,8 @@ import datetime
 from http import cookies
 from urllib import error
 
-from dynct.core.mvc import decorator
+from dynct.core import mvc
+from dynct import dchttp
 from dynct.util import html
 from dynct.modules import form
 from dynct.modules.commons import base
@@ -49,14 +50,14 @@ class LoginCommonHandler(base.Commons):
         return LOGIN_COMMON
 
 
-@decorator.controller_function('login', '$|(/?failed)', get=False, post=False)
+@mvc.controller_function('login', '$|(/?failed)', method=dchttp.RequestMethods.GET, query=False)
 def login(model, failed):
     message = html.ContainerElement('Your Login failed, please try again.', classes={'alert'}) if failed else ''
     model['content'] = html.ContainerElement(message, LOGIN_FORM)
     return 'page'
 
 
-@decorator.controller_function('login', '$', get=False, post=['username', 'password'])
+@mvc.controller_function('login', '$', method=dchttp.RequestMethods.POST, query=['username', 'password'])
 def login(model, username, password):
     if not model.client.check_permission('access login page'):
         raise error.HTTPError('/login', 403, None, None, None)

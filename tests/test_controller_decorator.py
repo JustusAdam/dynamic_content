@@ -1,7 +1,8 @@
 import unittest
 from dynct import core
-from dynct.core.mvc.decorator import controller_function
+from dynct.core import mvc
 from dynct.core.mvc.model import Model
+from dynct import dchttp
 from dynct.util.url import Url
 
 __author__ = 'justusadam'
@@ -11,11 +12,11 @@ class TestDecorator(unittest.TestCase):
 
     def test_discovery(self):
 
-        prefix1, regex1, get1, post1 = 'hello', '(.*)', True, False
+        prefix1, regex1 = 'hello', '(.*)'
         testpath = '/somepath35'
         url1 = Url('/hello' + testpath)
         model = Model()
-        @controller_function(prefix1, regex1, get=get1, post=post1)
+        @mvc.controller_function(prefix1, regex1, method=dchttp.RequestMethods.GET, query=True)
         def handle(model, arg, get):
             return model, arg, get
 

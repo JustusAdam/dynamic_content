@@ -15,6 +15,7 @@ class Url:
 
     def __init__(self, url, post=None):
         parsed = parse.urlsplit(url)
+        self.method = 'get'
         self._path = UrlPath(parsed.path)
         self._location = UrlLocation(parsed.fragment)
         self._get_query = UrlQuery(parsed.query, safe='/')

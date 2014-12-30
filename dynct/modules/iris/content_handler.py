@@ -1,7 +1,8 @@
 import functools
 
 from dynct import core
-from dynct.core.mvc import decorator as mvc_dec
+from dynct.core import mvc
+from dynct import dchttp
 from dynct.modules.comp import decorator as comp_dec
 from dynct.util import lazy, html
 from dynct.core import model as coremodel
@@ -165,7 +166,7 @@ class FieldBasedPageContent(object):
                 html.TextInput(element_id='edit-title', name='title', value=page.page_title, required=True, size=100)]
 
 
-@mvc_dec.controller_function('iris', '/([0-9]+)/?(access)?', get=False, post=False)
+@mvc.controller_function('iris', '/([0-9]+)/?(access)?', method=dchttp.RequestMethods.GET, query=False)
 @comp_dec.Regions
 @_nodemodule.node_process
 def handle_compile(model, page_id, modifier):
@@ -177,13 +178,13 @@ def handle_compile(model, page_id, modifier):
                    modifiers.get(modifier, modifier) if modifier else 'access')(model, page)
 
 
-@mvc_dec.controller_function('iris', '/([0-9]+)/edit', get=False, post=True)
+@mvc.controller_function('iris', '/([0-9]+)/edit', method=dchttp.RequestMethods.POST, query=True)
 def handle_edit(model, page_id, post):
     page = _model.Page.get(oid=page_id)
     return core.get_component('IrisCompilers')[page.content_type.machine_name].process_edit(model, page_id, post)
 
 
-@mvc_dec.controller_function('iris', '$', post=False)
+@mvc.controller_function('iris', '$', method=dchttp.RequestMethods.GET, query=True)
 @user_dec.authorize(' '.join(['access', 'iris', 'overview']))
 @comp_dec.Regions
 @_nodemodule.node_process
