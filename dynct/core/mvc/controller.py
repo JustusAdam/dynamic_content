@@ -1,4 +1,6 @@
 import re
+from urllib import error
+from dynct import dchttp
 from dynct.util import decorators
 from .. import _component
 
@@ -57,7 +59,7 @@ class ControllerMapper(dict):
         prefix = l[1]
         path = '/' + l[2] if len(l) > 2 else ''
 
-        query = url.get_query if url.method == 'get' else url.post
+        query = url.get_query if url.method == dchttp.RequestMethods.POST else url.post
 
         def proc_one(element):
             if element.regex:
@@ -65,11 +67,13 @@ class ControllerMapper(dict):
                 if not m:
                     return
                 else:
-                    args = m.groups()
+                    args = tuple(m.groups())
             else:
                 args = (url, )
 
-            if query:
+            if element.query is True:
+                return element(model, *args + (query, ))
+            elif query:
                 if isinstance(element.query, str):
                     return element(model, *args, **{element.query: query.get(element.query, None)})
                 elif isinstance(element.query, (list, tuple, set)):
@@ -86,17 +90,21 @@ class ControllerMapper(dict):
             for element in elements:
                 res = proc_one(element)
                 if res:
+                    print(element.function)
                     return res
+        try:
+            e = self[url.method.lower()][prefix]
 
-        e = self[url.method.lower()][prefix]
+            res = proc_all(e)
 
-        res = proc_all(e)
-
-        if res:
-            return res
-        else:
-            res = proc_all(self.any_method[prefix])
             if res:
                 return res
+            else:
+                res = proc_all(self.any_method[prefix])
+                if res:
+                    return res
+        except KeyError as err:
+            print(err)
+            raise error.HTTPError(str(url), 404, 'no page matching query found', None, None)
 
         return 'error'

@@ -15,7 +15,7 @@ class UserInformationCommon(_base.Commons):
         return ContainerElement(
             TableElement(
                 ('Username: ', self.get_username(self.client.user)),
-                ('Access Group: ', self.client.access_group),
+                ('Access Group: ', self.client.access_group.machine_name),
                 ('Joined: ', self.get_date_joined(self.client.user))
             ), LOGOUT_BUTTON
         )

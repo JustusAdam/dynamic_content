@@ -1,14 +1,12 @@
 import datetime
 from http import cookies
-from urllib import error
 
 from dynct.core import mvc
 from dynct import dchttp
 from dynct.util import html
 from dynct.modules import form
 from dynct.modules.commons import base
-from dynct.modules.users import session
-from .users import GUEST
+from . import session, users, decorator
 
 
 __author__ = 'justusadam'
@@ -58,9 +56,8 @@ def login(model, failed):
 
 
 @mvc.controller_function('login', '$', method=dchttp.RequestMethods.POST, query=['username', 'password'])
+@decorator.authorize('access login page')
 def login(model, username, password):
-    if not model.client.check_permission('access login page'):
-        raise error.HTTPError('/login', 403, None, None, None)
     username = username[0]
     password = password[0]
     token = session.start_session(username, password)
@@ -72,16 +69,17 @@ def login(model, username, password):
         return ':redirect:/login/failed'
 
 
-def logout(model, url):
+@mvc.controller_function('logout', '$', method=dchttp.RequestMethods.GET, query=True)
+def logout(model, query):
     user = model.client.user
-    if user == GUEST:
+    if user == users.GUEST:
         return ':redirect:/login'
     else:
         session.close_session(user)
         time = datetime.datetime.utcnow() - datetime.timedelta(days=1)
 
-        if 'destination' in url.get_query:
-            dest = url.get_query['destination'][0]
+        if 'destination' in query:
+            dest = query['destination'][0]
         else:
             dest = '/'
         model.cookies.load({'SESS': ''})

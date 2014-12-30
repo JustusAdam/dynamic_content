@@ -63,7 +63,7 @@ class FieldBasedPageContent(object):
     def __init__(self, content_type):
         self.dbobj = content_type
         self.content_type = content_type.machine_name
-        self.fields = self.get_fields()
+        self.fields = list(self.get_fields())
         self.modules = core.Modules
         self.theme = self.dbobj.theme
 
@@ -73,7 +73,8 @@ class FieldBasedPageContent(object):
 
     def compile(self, model, page, modifier, pre_compile_hook=None, post_compile_hook=None, content_compiler_hook=None):
 
-        model.client.check_permission(self.get_permission(page, modifier))
+        if not model.client.check_permission(self.get_permission(page, modifier)):
+            return None
 
         pre_compile_hook() if pre_compile_hook else None
 
@@ -105,7 +106,8 @@ class FieldBasedPageContent(object):
         return self.compile(model, page, 'edit', content_compiler_hook=functools.partial(self.edit_form, self))
 
     def process_edit(self, model, page, post):
-        model.client.check_permission(self.get_permission(page, 'add'))
+        if not model.client.check_permission(self.get_permission(page, 'add')):
+            return None
         print(post)
         success = True
         return ':redirect:/iris/' + str(page.oid) + ('' if success else '/add')
