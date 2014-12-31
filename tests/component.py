@@ -1,5 +1,5 @@
 import unittest
-from dynct import core
+from dyc import core
 
 
 __author__ = 'justusadam'

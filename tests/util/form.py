@@ -1,6 +1,6 @@
 __author__ = 'justusadam'
 
-from dynct.modules import form
+from dyc.modules import form
 
 
 def _print_db():

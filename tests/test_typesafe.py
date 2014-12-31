@@ -1,4 +1,4 @@
-from dynct.util.typesafe import typesafe
+from dyc.util.typesafe import typesafe
 
 __author__ = 'justusadam'
 

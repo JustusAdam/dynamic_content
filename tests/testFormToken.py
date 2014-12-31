@@ -1,5 +1,5 @@
 import binascii
-from dynct.modules import form
+from dyc.modules import form
 
 __author__ = 'justusadam'
 

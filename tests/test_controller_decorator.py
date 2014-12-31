@@ -1,9 +1,9 @@
 import unittest
-from dynct import core
-from dynct.core import mvc
-from dynct.core.mvc.model import Model
-from dynct import dchttp
-from dynct.util.url import Url
+from dyc import core
+from dyc.core import mvc
+from dyc.core.mvc.model import Model
+from dyc import dchttp
+from dyc.util.url import Url
 
 __author__ = 'justusadam'
 

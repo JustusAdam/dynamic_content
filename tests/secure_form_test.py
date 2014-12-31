@@ -3,7 +3,7 @@ import peewee
 __author__ = 'justusadam'
 
 import unittest
-from dynct.modules import form
+from dyc.modules import form
 import binascii
 
 
