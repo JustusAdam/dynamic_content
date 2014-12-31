@@ -39,9 +39,33 @@ class WildcardSegment(_AbstractSegment):
         super().__init__('**', handler=handler)
 
 
-def parse_path(path:str):
-    return path.split('/')
+class TypeArg(object):
+    def __init__(self, name, t):
+        self.name = name
+        self.type = t
 
+
+def parse_path(path:str):
+    def _inner(segment:str):
+        typemap = {
+                    'int': int,
+                    'str': str,
+                    'integer': int,
+                    'string': str,
+                    'float': float
+                }
+        if segment.startswith('{') and segment.endswith('}'):
+            t, *name = segment[1:-1].split(' ')
+            if len(name) == 0:
+                return typemap[t]
+            elif len(name) == 1:
+                return TypeArg(name[0], typemap[t])
+            else:
+                raise PathHandlerException
+        else:
+            return segment
+    for a in path.split('/'):
+        yield _inner(a)
 
 
 @core.Component('PathMapper')
@@ -54,7 +78,21 @@ class PathMapper(object):
 
         *path_segments, destination = path
 
-        m = self.get_path(path_segments, create_unknown=True, allow_wildcard=False)
+        old = self.segments
+        new = None
+
+        for segment in path_segments:
+            if isinstance(segment, str):
+                new = old.setdefault(segment, Segment(segment))
+            elif isinstance(segment, type):
+                new = old.types.setdefault(segment, Segment(segment))
+            else:
+                raise TypeError('Expected Type <str> or <type> not ' + str(type(segment)))
+            if not isinstance(new, Segment):
+                new = old[segment] = Segment(segment, new)
+            old = new
+
+        m = new
 
         if destination in m:
             s = m[destination]
@@ -68,35 +106,62 @@ class PathMapper(object):
 
     def __getitem__(self, item):
         *path, item = parse_path(item)
-        path = self.get_path(path, create_unknown=False, allow_wildcard=True)
+        path = self.get_path(path)
         return path.handler if isinstance(path, Segment) else path
 
-    def get_path(self, path, create_unknown=False, allow_wildcard=True):
-        old = self.segments
-        new = None
+    def __call__(self, path, *args, **kwargs):
+        *path, last = path.split('/')
+
+        iargs, ikwargs = [], {}
+
+        handler = None
+
+        segment_chain = [self.segments]
 
         empty = object()
 
-        if create_unknown:
-            for segment in path:
-                new = old.setdefault(segment, Segment(segment))
-                if not isinstance(new, Segment):
-                    new = old[segment] = Segment(segment, new)
-                old = new
-
-        else:
-            *path, dest = path
-            for segment in path:
-                new = old.get(segment, empty)
-                if not isinstance(new, Segment):
-                    if allow_wildcard:
-                        return old.wildcard
-                    else:
-                        raise PathHandlerException
-                old = new
-            if dest in path:
-                return dest
+        def get_wildcard():
+            for segment in reversed(segment_chain):
+                if not segment.wildcard is None:
+                    return segment.wildcard
             else:
                 raise PathHandlerException
 
-        return new
+        def get_new(old, segment:str):
+
+            def handle_type(segment, t):
+                x = old.types[t]
+                if x.name:
+                    ikwargs[x.name] = t(segment)
+                else:
+                    iargs.append(t(segment))
+                return x
+
+            if not isinstance(segment, str):
+                raise TypeError('Expected type <str> got ' + str(type(segment)))
+            try:
+                return old[segment]
+            except KeyError:
+                t = float if segment.isnumeric() else str
+                return handle_type(segment, t)
+
+        for segment in path:
+            new = get_new(segment_chain[-1], segment)
+            segment_chain.append(new)
+
+            if not isinstance(new, Segment):
+                handler = get_wildcard()
+
+        if not handler:
+            new = get_new(segment_chain[-1], last)
+            segment_chain.append(new)
+            if isinstance(new, Segment):
+                handler = new.handler if new.handler is not None else get_wildcard()
+            elif new is empty:
+                handler = get_wildcard()
+            else:
+                handler = new
+
+        iargs.extend(args)
+        ikwargs.update(kwargs)
+        return handler(*iargs, **ikwargs)
