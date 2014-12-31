@@ -20,61 +20,23 @@ class PathHandlerException(exceptions.DCException):
     __str__ = __repr__
 
 
-class Segment(dict):
-    def __init__(self, name, **kwargs):
-        super().__init__(**kwargs)
+class _AbstractSegment(object):
+    def __init__(self, name, handler=None):
         self.name = name
+        self.handler = handler
+
+
+class Segment(dict, _AbstractSegment):
+    def __init__(self, name, handler=None, **kwargs):
+        super().__init__(**kwargs)
+        _AbstractSegment.__init__(self, name, handler)
         self.types = {}
         self.wildcard = None
 
-    def __getitem__(self, item):
-        try:
-            super().__getitem__(item)
-        except KeyError:
-            if self.types:
-                for t in self.types:
-                    if _typecheck[t](item):
-                        return self.types[t]
-            if not self.wildcard is None:
-                return None
-            raise
 
-    def __setitem__(self, key, value):
-        if key == '**':
-            if self.wildcard is None:
-                self.wildcard = value
-                return
-            else:
-                raise TypeError('Overwriting a set wildcard is not allowed')
-        elif isinstance(key, str):
-            if super().__contains__(key):
-                raise TypeError('Overwriting a set key is not allowed')
-            else:
-                super().__setitem__(key, value)
-        elif isinstance(key, type):
-            if key in self.types:
-                raise TypeError('Overwriting a set type is not allowed')
-            else:
-                self.types[key] = value
-                return
-        else:
-            raise TypeError('Expected type <string> or <type> for item assignment')
-
-    def __contains__(self, item):
-        if item == '**':
-            return not self.wildcard is None
-        elif isinstance(item, str):
-            return super().__contains__(item)
-        elif isinstance(item, type):
-            return item in self.types
-
-    def setdefault(self, k, d=None):
-        if self.__contains__(k):
-            return self.__getitem__(k)
-        else:
-            self.__setitem__(k, d)
-            return d
-
+class WildcardSegment(_AbstractSegment):
+    def __init__(self, handler):
+        super().__init__('**', handler=handler)
 
 
 def parse_path(path:str):
@@ -85,19 +47,56 @@ def parse_path(path:str):
 @core.Component('PathMapper')
 class PathMapper(object):
     def __init__(self):
-        self.segments = {}
+        self.segments = Segment('/')
 
     def add_path(self, path, handler):
         path = parse_path(path)
 
-        m = self.segments
+        *path_segments, destination = path
 
-        destination, *path_segments = reversed(path)
+        m = self.get_path(path_segments, create_unknown=True, allow_wildcard=False)
 
-        for segment in path_segments:
-            m = m.setdefault(segment, Segment(segment))
-
-        try:
+        if destination in m:
+            s = m[destination]
+            if isinstance(s, Segment):
+                if s.wildcard is None:
+                    s.wildcard = handler
+                    return
+            raise PathHandlerException('Overwriting set Handlers is not allowed')
+        else:
             m[destination] = handler
-        except TypeError:
-            raise
+
+    def __getitem__(self, item):
+        *path, item = parse_path(item)
+        path = self.get_path(path, create_unknown=False, allow_wildcard=True)
+        return path.handler if isinstance(path, Segment) else path
+
+    def get_path(self, path, create_unknown=False, allow_wildcard=True):
+        old = self.segments
+        new = None
+
+        empty = object()
+
+        if create_unknown:
+            for segment in path:
+                new = old.setdefault(segment, Segment(segment))
+                if not isinstance(new, Segment):
+                    new = old[segment] = Segment(segment, new)
+                old = new
+
+        else:
+            *path, dest = path
+            for segment in path:
+                new = old.get(segment, empty)
+                if not isinstance(new, Segment):
+                    if allow_wildcard:
+                        return old.wildcard
+                    else:
+                        raise PathHandlerException
+                old = new
+            if dest in path:
+                return dest
+            else:
+                raise PathHandlerException
+
+        return new
