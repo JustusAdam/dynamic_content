@@ -1,6 +1,6 @@
-from .. import Component
 import functools
 from dyc.errors import exceptions
+from .. import _component
 
 __author__ = 'justusadam'
 
@@ -73,18 +73,18 @@ def parse_path(path:str):
         yield _inner(a)
 
 
+@_component.Component('PathMap')
+class PathMapper(Segment):
+    def __init__(self, **kwargs):
+        super().__init__('/', **kwargs)
 
-@Component('PathMapper')
-class PathMapper(object):
-    def __init__(self):
-        self.segments = Segment('/')
-
-    def add_path(self, path, handler):
+    def add_path(self, path:str, handler):
+        path = path[1:] if path.startswith('/') else path
         path = parse_path(path)
 
         *path_segments, destination = path
 
-        new = old = self.segments
+        new = old = self
 
         for segment in path_segments:
             if segment == '**':
@@ -122,17 +122,32 @@ class PathMapper(object):
         else:
             m[destination] = handler
 
-    def __getitem__(self, item):
-        *path, item = parse_path(item)
-        path = self.get_path(path)
-        return path.handler if isinstance(path, Segment) else path
+    def __call__(self, model, path:str, query):
+        handler = self.get_handler(path, model)
+        element = handler.func
+        if element.query is True:
+            return handler(query)
+        elif query:
+            if isinstance(element.query, str):
+                return handler(**{element.query: query.get(element.query, None)})
+            elif isinstance(element.query, (list, tuple, set)):
+                return handler(**{a : query.get(a, None) for a in element.query})
+            elif isinstance(element.query, dict):
+                return handler(**{b : query.get(a, None) for a, b in element.query.items()})
+        else:
+            if element.query is False:
+                return handler()
+            else:
+                return
 
-    def __call__(self, path, *args, **kwargs):
+
+
+    def get_handler(self, path:str, *args, **kwargs):
         origin = path
-        path= path.split('/')
+        path = path.split('/')[1:] if path.startswith('/') else path.split('/')
         iargs, ikwargs = [], {}
         wildcard = None
-        segment_chain = [self.segments]
+        segment_chain = [self]
 
         def get_new(old, segment:str):
 
@@ -159,7 +174,6 @@ class PathMapper(object):
         for segment in path:
             if isinstance(new, Segment):
                 if new.wildcard:
-                    print(iargs, ikwargs)
                     wildcard = functools.partial(new.wildcard, *iargs, **ikwargs)
             else:
                 break
@@ -176,12 +190,10 @@ class PathMapper(object):
                 handler = new.handler
             else:
                 handler = new
-
-            iargs.extend(args)
             ikwargs.update(kwargs)
-            return handler(*iargs, **ikwargs)
+            return functools.partial(handler, *args + tuple(iargs), **ikwargs)
 
         if wildcard is None:
             raise PathHandlerException
         else:
-            return wildcard(*args + (origin, ), **kwargs)
+            return functools.partial(wildcard, *args + (origin, ), **kwargs)

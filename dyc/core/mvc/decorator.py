@@ -48,7 +48,7 @@ class Autoconf:
 
 class ControlFunction:
     @typesafe.typesafe
-    def __init__(self, function, prefix:str, regex:(str, type(None)), method:str, query:(str, list, tuple, set, dict, bool)):
+    def __init__(self, function, value:str, method:str, query:(str, list, tuple, set, dict, bool)):
         if isinstance(function, ControlFunction):
             self.function = function.function
             self.wrapping = function.wrapping
@@ -56,9 +56,7 @@ class ControlFunction:
             self.wrapping = []
             self.function = function
         self.wrapping.append(self)
-        self.prefix = prefix
-        self.orig_pattern = regex
-        self.regex = re.compile(regex) if regex else None
+        self.value = value
         self.method = method
         self.query = query
         self.instance = None
@@ -70,9 +68,9 @@ class ControlFunction:
 
     def __repr__(self):
         if self.instance:
-            return '<ControlMethod for prefix \'' + self.prefix + '\' with function ' + repr(
+            return '<ControlMethod for path \'' + self.value + '\' with function ' + repr(
                 self.function) + ' and instance ' + repr(self.instance) + '>'
-        return '<ControlFunction for prefix \'' + self.prefix + '\' with function ' + repr(self.function) + '>'
+        return '<ControlFunction for path \'' + self.value + '\' with function ' + repr(self.function) + '>'
 
 
 class RestControlFunction(ControlFunction):
@@ -82,18 +80,18 @@ class RestControlFunction(ControlFunction):
         return model
 
 
-def __controller_function(class_, prefix, regex:str=None, *, method=dchttp.RequestMethods.GET, query=False):
+def __controller_function(class_, value, *, method=dchttp.RequestMethods.GET, query=False):
     def wrap(func):
-        wrapped = class_(func, prefix, regex, method, query)
-        controller_mapper.add_controller(prefix, wrapped)
+        wrapped = class_(func, value, method, query)
+        controller_mapper.add_controller(value, wrapped)
         return wrapped
 
     return wrap
 
 
-def __controller_method(class_, prefix, regex:str=None, *, method=dchttp.RequestMethods.GET, query=False):
+def __controller_method(class_, value, *, method=dchttp.RequestMethods.GET, query=False):
     def wrap(func):
-        wrapped = class_(func, prefix, regex, method, query)
+        wrapped = class_(func, value, method, query)
         return wrapped
 
     return wrap
@@ -110,7 +108,7 @@ def controller_class(class_):
         for item in c_funcs:
             for wrapped in item.wrapping:
                 wrapped.instance = instance
-                controller_mapper.add_controller(wrapped.prefix, wrapped)
+                controller_mapper.add_controller(wrapped.value, wrapped)
     return class_
 
 
