@@ -1,6 +1,8 @@
 from .config import Config, DefaultConfig
 from .decorator import Autoconf, controller_function, controller_method, controller_class
-from . import controller
+from . import controller, _pathmapper
+
+del _pathmapper
 
 __author__ = 'justusadam'
 

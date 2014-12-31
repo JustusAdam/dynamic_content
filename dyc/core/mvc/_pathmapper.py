@@ -1,4 +1,5 @@
-from dyc import core
+from .. import Component
+import functools
 from dyc.errors import exceptions
 
 __author__ = 'justusadam'
@@ -18,6 +19,10 @@ class PathHandlerException(exceptions.DCException):
         return self.__class__.__name__ + self.message
 
     __str__ = __repr__
+
+
+class PathNotFound(PathHandlerException):
+    pass
 
 
 class _AbstractSegment(object):
@@ -68,7 +73,8 @@ def parse_path(path:str):
         yield _inner(a)
 
 
-@core.Component('PathMapper')
+
+@Component('PathMapper')
 class PathMapper(object):
     def __init__(self):
         self.segments = Segment('/')
@@ -78,29 +84,41 @@ class PathMapper(object):
 
         *path_segments, destination = path
 
-        old = self.segments
-        new = None
+        new = old = self.segments
 
         for segment in path_segments:
-            if isinstance(segment, str):
+            if segment == '**':
+                raise PathHandlerException('Midsection cannot be wildcard')
+            elif isinstance(segment, str):
                 new = old.setdefault(segment, Segment(segment))
             elif isinstance(segment, type):
-                new = old.types.setdefault(segment, Segment(segment))
+                new = old.types.setdefault(segment, Segment(None))
+            elif isinstance(segment, TypeArg):
+                new = old.types.setdefault(segment.type, Segment(segment.name))
             else:
                 raise TypeError('Expected Type <str> or <type> not ' + str(type(segment)))
             if not isinstance(new, Segment):
                 new = old[segment] = Segment(segment, new)
             old = new
 
-        m = new
+        if isinstance(destination, str):
+            m = new
+        elif isinstance(destination, type):
+            m = new.types
+        else:
+            raise TypeError('Expected Type <str> or <type> not ' + str(type(destination)))
 
-        if destination in m:
+        if destination == '**':
+            if m.wildcard is None:
+                m.wildcard = handler
+            else:
+                raise PathHandlerException
+        elif destination in m:
             s = m[destination]
-            if isinstance(s, Segment):
-                if s.wildcard is None:
-                    s.wildcard = handler
-                    return
-            raise PathHandlerException('Overwriting set Handlers is not allowed')
+            if isinstance(s, Segment) and s.handler is None:
+                    s.handler = handler
+            else:
+                raise PathHandlerException('Overwriting set Handlers is not allowed')
         else:
             m[destination] = handler
 
@@ -110,58 +128,60 @@ class PathMapper(object):
         return path.handler if isinstance(path, Segment) else path
 
     def __call__(self, path, *args, **kwargs):
-        *path, last = path.split('/')
-
+        origin = path
+        path= path.split('/')
         iargs, ikwargs = [], {}
-
-        handler = None
-
+        wildcard = None
         segment_chain = [self.segments]
-
-        empty = object()
-
-        def get_wildcard():
-            for segment in reversed(segment_chain):
-                if not segment.wildcard is None:
-                    return segment.wildcard
-            else:
-                raise PathHandlerException
 
         def get_new(old, segment:str):
 
             def handle_type(segment, t):
-                x = old.types[t]
-                if x.name:
-                    ikwargs[x.name] = t(segment)
-                else:
-                    iargs.append(t(segment))
-                return x
+                try:
+                    x = old.types[t]
+                    if isinstance(x, Segment) and x.name:
+                        ikwargs[x.name] = t(segment)
+                    else:
+                        iargs.append(t(segment))
+                    return x
+                except KeyError:
+                    raise PathNotFound(segment)
 
             if not isinstance(segment, str):
                 raise TypeError('Expected type <str> got ' + str(type(segment)))
             try:
                 return old[segment]
             except KeyError:
-                t = float if segment.isnumeric() else str
+                t = int if segment.isnumeric() else str
                 return handle_type(segment, t)
 
+        new = segment_chain[-1]
         for segment in path:
-            new = get_new(segment_chain[-1], segment)
-            segment_chain.append(new)
-
-            if not isinstance(new, Segment):
-                handler = get_wildcard()
-
-        if not handler:
-            new = get_new(segment_chain[-1], last)
-            segment_chain.append(new)
             if isinstance(new, Segment):
-                handler = new.handler if new.handler is not None else get_wildcard()
-            elif new is empty:
-                handler = get_wildcard()
+                if new.wildcard:
+                    print(iargs, ikwargs)
+                    wildcard = functools.partial(new.wildcard, *iargs, **ikwargs)
+            else:
+                break
+
+            try:
+                new = get_new(segment_chain[-1], segment)
+            except PathNotFound:
+                break
+            segment_chain.append(new)
+
+
+        else:
+            if isinstance(new, Segment):
+                handler = new.handler
             else:
                 handler = new
 
-        iargs.extend(args)
-        ikwargs.update(kwargs)
-        return handler(*iargs, **ikwargs)
+            iargs.extend(args)
+            ikwargs.update(kwargs)
+            return handler(*iargs, **ikwargs)
+
+        if wildcard is None:
+            raise PathHandlerException
+        else:
+            return wildcard(*args + (origin, ), **kwargs)
