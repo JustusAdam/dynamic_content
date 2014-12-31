@@ -168,25 +168,25 @@ class FieldBasedPageContent(object):
                 html.TextInput(element_id='edit-title', name='title', value=page.page_title, required=True, size=100)]
 
 
-@mvc.controller_function('iris', '/([0-9]+)/?(access)?', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function({'iris/{int}', 'iris/{int}/access'}, method=dchttp.RequestMethods.GET, query=False)
 @comp_dec.Regions
 @_nodemodule.node_process
-def handle_compile(model, page_id, modifier):
+def handle_compile(model, page_id):
     page = _model.Page.get(oid=page_id)
     modifiers = {
 
     }
     return getattr(core.get_component('IrisCompilers')[page.content_type],
-                   modifiers.get(modifier, modifier) if modifier else 'access')(model, page)
+                   'access')(model, page)
 
 
-@mvc.controller_function('iris', '/([0-9]+)/edit', method=dchttp.RequestMethods.POST, query=True)
+@mvc.controller_function('iris/{int}/edit', method=dchttp.RequestMethods.POST, query=True)
 def handle_edit(model, page_id, post):
     page = _model.Page.get(oid=page_id)
     return core.get_component('IrisCompilers')[page.content_type.machine_name].process_edit(model, page_id, post)
 
 
-@mvc.controller_function('iris', '$', method=dchttp.RequestMethods.GET, query=True)
+@mvc.controller_function('iris', method=dchttp.RequestMethods.GET, query=True)
 @user_dec.authorize(' '.join(['access', 'iris', 'overview']))
 @comp_dec.Regions
 @_nodemodule.node_process

@@ -205,3 +205,19 @@ def transformarg(transformer, name, index):
 
 
 transform_with = lambda transformer: functools.partial(transformarg, transformer)
+
+
+def catch(exception, return_value=None, print_error=True, log_error=True):
+    def wrap(func):
+        @functools.wraps(func)
+        def _inner(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except exception as e:
+                if print_error:
+                    print(e)
+                if log_error:
+                    log.write_error(function=repr(func), message=repr(e))
+                return return_value
+        return _inner
+    return wrap

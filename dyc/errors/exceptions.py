@@ -11,3 +11,11 @@ class ControllerError(DCException):
 
 class UnexpectedControllerArgumentError(ControllerError):
     pass
+
+
+class PathResolving(ControllerError):
+    pass
+
+
+class MethodHandlerNotFound(ControllerError):
+    pass

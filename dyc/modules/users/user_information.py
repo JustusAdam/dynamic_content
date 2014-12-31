@@ -31,7 +31,7 @@ class UserInformationCommon(_base.Commons):
         return users.get_user(user).date_created
 
 
-@mvc.controller_function('users', '/([0-9]+)', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function('users/{int}', method=dchttp.RequestMethods.GET, query=False)
 def user_information(model, uid):
     if not (
             model.client.check_permission('view own user')
@@ -57,7 +57,7 @@ def user_information(model, uid):
     return 'page'
 
 
-@mvc.controller_function('users', '$', method=dchttp.RequestMethods.GET, query=True)
+@mvc.controller_function('users', method=dchttp.RequestMethods.GET, query=True)
 def users_overview(model, get_query):
     if not model.client.check_permission('access users overview'):
         return 'error'

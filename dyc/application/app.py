@@ -48,14 +48,13 @@ class Application(threading.Thread, lazy.Loadable):
             dyc.modules.cms.temporary_setup_script.init_tables()
             dyc.modules.cms.temporary_setup_script.initialize()
         core.Modules.load()
-        core.get_component('ControllerMapping').sort()
 
     def run_http_server_loop(self):
 
         def http_callback(url, client):
             model = _model.Model()
             model.client = client
-            model.view = core.get_component('ControllerMapping')(model, url)
+            model.view = core.get_component('PathMap')(model, url)
             decorator = formatter.TemplateFormatter(model=model, url=url)
             return decorator.compile_response()
 

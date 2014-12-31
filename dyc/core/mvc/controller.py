@@ -1,4 +1,3 @@
-import re
 from urllib import error
 from dyc import dchttp
 from dyc.util import decorators
@@ -15,6 +14,7 @@ class Controller(dict):
     pass
 
 
+@decorators.deprecated
 @_component.Component('ControllerMapping')
 class ControllerMapper(object):
     def __init__(self):
@@ -62,34 +62,4 @@ class ControllerMapper(object):
 
 
         def proc_one(element):
-            if element.query is True:
-                return element(model, (query, ))
-            elif query:
-                if isinstance(element.query, str):
-                    return element(model, *args, **{element.query: query.get(element.query, None)})
-                elif isinstance(element.query, (list, tuple, set)):
-                    return element(model, *args, **{a : query.get(a, None) for a in element.query})
-                elif isinstance(element.query, dict):
-                    return element(model, *args, **{b : query.get(a, None) for a, b in element.query.items()})
-            else:
-                if element.query is False:
-                    return element(model, *args)
-                else:
-                    return
-
-        try:
-            e = self[url.method.lower()](path)
-
-            res = proc_one(e)
-
-            if res:
-                return res
-            else:
-                res = proc_one(self.any_method[prefix])
-                if res:
-                    return res
-        except KeyError as err:
-            print(err)
-            raise error.HTTPError(str(url), 404, 'no page matching query found', None, None)
-
-        return 'error'
+            pass

@@ -13,7 +13,7 @@ __author__ = 'justusadam'
 ADMIN_PATH = '/admin'
 
 
-@mvc.controller_function('admin', '', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function('admin', method=dchttp.RequestMethods.GET, query=False)
 @user_dec.authorize('access admin pages')
 @comp_dec.Regions
 def overview(modelmap):
@@ -72,7 +72,7 @@ class OverviewCommon(base.Commons):
         return html.ContainerElement(super().title, html_type='a', additional={'href': '/admin'})
 
 
-@mvc.controller_function('admin', '/\w+/(\w+)$', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function('admin/{str}', method=dchttp.RequestMethods.GET, query=False)
 @comp_dec.Regions
 def category(modelmap, name):
     modelmap.pageclasses = {'admin-menu', 'category'}
@@ -89,9 +89,9 @@ def category(modelmap, name):
     return 'page'
 
 
-@mvc.controller_function('admin', '/(\w+)$', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function('admin/{str}/{str}', method=dchttp.RequestMethods.GET, query=False)
 @comp_dec.Regions
-def subcategory(modelmap, name):
+def subcategory(modelmap, category_name,  name):
     modelmap.pageclasses = {'admin-menu', 'subcategory'}
 
     parents = [model.Subcategory.get(model.Subcategory.machine_name == name)]

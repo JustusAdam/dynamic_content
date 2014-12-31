@@ -12,7 +12,7 @@ from dyc.util import typesafe
 
 __author__ = 'justusadam'
 
-controller_mapper = _component.get_component('ControllerMapping')
+controller_mapper = lambda :_component.get_component('PathMap')
 
 
 class Autoconf:
@@ -46,9 +46,20 @@ class Autoconf:
         return controller.config if hasattr(controller, 'config') else None
 
 
+def _to_set(my_input, allowed_vals=str):
+    if isinstance(my_input, (list, tuple, set)):
+        for i in my_input:
+            if not isinstance(i, allowed_vals):
+                raise TypeError('Expected type ' + repr(allowed_vals) + ' got ' + repr(type(my_input)))
+        return set(my_input)
+    elif isinstance(my_input, allowed_vals):
+        return {my_input}
+    else:
+        raise TypeError('Expected type ' + repr((list, tuple, set)) + ' or ' + repr(allowed_vals) + ' got ' + repr(type(my_input)))
+
+
 class ControlFunction:
-    @typesafe.typesafe
-    def __init__(self, function, value:str, method:str, query:(str, list, tuple, set, dict, bool)):
+    def __init__(self, function, value, method, query):
         if isinstance(function, ControlFunction):
             self.function = function.function
             self.wrapping = function.wrapping
@@ -56,9 +67,9 @@ class ControlFunction:
             self.wrapping = []
             self.function = function
         self.wrapping.append(self)
-        self.value = value
-        self.method = method
-        self.query = query
+        self.value = _to_set(value, str)
+        self.method = _to_set(method, str)
+        self.query = query if isinstance(query, (dict, bool)) else _to_set(query)
         self.instance = None
 
     def __call__(self, *args, **kwargs):
@@ -68,9 +79,9 @@ class ControlFunction:
 
     def __repr__(self):
         if self.instance:
-            return '<ControlMethod for path \'' + self.value + '\' with function ' + repr(
+            return '<ControlMethod for path\'s \'' + repr(self.value) + '\' with function ' + repr(
                 self.function) + ' and instance ' + repr(self.instance) + '>'
-        return '<ControlFunction for path \'' + self.value + '\' with function ' + repr(self.function) + '>'
+        return '<ControlFunction for path\'s \'' + repr(self.value) + '\' with function ' + repr(self.function) + '>'
 
 
 class RestControlFunction(ControlFunction):
@@ -83,17 +94,17 @@ class RestControlFunction(ControlFunction):
 def __controller_function(class_, value, *, method=dchttp.RequestMethods.GET, query=False):
     def wrap(func):
         wrapped = class_(func, value, method, query)
-        controller_mapper.add_controller(value, wrapped)
+        for val in wrapped.value:
+            controller_mapper().add_path(val, wrapped)
         return wrapped
-
     return wrap
+
 
 
 def __controller_method(class_, value, *, method=dchttp.RequestMethods.GET, query=False):
     def wrap(func):
         wrapped = class_(func, value, method, query)
         return wrapped
-
     return wrap
 
 
@@ -104,11 +115,12 @@ def controller_class(class_):
     c_funcs = list(filter(lambda a: isinstance(a, ControlFunction), class_.__dict__.values()))
     if c_funcs:
         instance = class_()
-        controller_mapper._controller_classes.append(instance)
+        controller_mapper()._controller_classes.append(instance)
         for item in c_funcs:
             for wrapped in item.wrapping:
                 wrapped.instance = instance
-                controller_mapper.add_controller(wrapped.value, wrapped)
+                for item in wrapped.value:
+                    controller_mapper().add_path(item, wrapped)
     return class_
 
 

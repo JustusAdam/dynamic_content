@@ -126,7 +126,7 @@ def setup_pages(pid=0):
 
 
 
-@mvc_dec.controller_function('setup', '/?([0-9]+)?', method=dchttp.RequestMethods.GET, query=False)
+@mvc_dec.controller_function({'setup/{int}', 'setup'}, method=dchttp.RequestMethods.GET, query=False)
 def setup_controller(model, pid):
     pid = int(pid)
     # config = read_config('cms/config')
@@ -161,7 +161,7 @@ def setup_controller(model, pid):
     return 'page'
 
 
-@mvc_dec.controller_function('setup', '/5', method=dchttp.RequestMethods.POST, query=True)
+@mvc_dec.controller_function('setup/5', method=dchttp.RequestMethods.POST, query=True)
 def create_initial_user(model, post):
     args = user_actions.post_to_args(post)
     try:

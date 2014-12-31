@@ -48,14 +48,14 @@ class LoginCommonHandler(base.Commons):
         return LOGIN_COMMON
 
 
-@mvc.controller_function('login', '$|(/?failed)', method=dchttp.RequestMethods.GET, query=False)
-def login(model, failed):
+@mvc.controller_function({'login'}, method=dchttp.RequestMethods.GET, query=False)
+def login(model, failed=False):
     message = html.ContainerElement('Your Login failed, please try again.', classes={'alert'}) if failed else ''
     model['content'] = html.ContainerElement(message, LOGIN_FORM)
     return 'page'
 
 
-@mvc.controller_function('login', '$', method=dchttp.RequestMethods.POST, query=['username', 'password'])
+@mvc.controller_function('login', method=dchttp.RequestMethods.POST, query=['username', 'password'])
 @decorator.authorize('access login page')
 def login(model, username, password):
     username = username[0]
@@ -69,7 +69,7 @@ def login(model, username, password):
         return ':redirect:/login/failed'
 
 
-@mvc.controller_function('logout', '$', method=dchttp.RequestMethods.GET, query=True)
+@mvc.controller_function('logout', method=dchttp.RequestMethods.GET, query=True)
 def logout(model, query):
     user = model.client.user
     if user == users.GUEST:

@@ -62,7 +62,7 @@ def user_form(**values):
         yield [html.Label(display_name, label_for=name), html.Input(name=name, **kwargs)]
 
 
-@mvc.controller_function('users', '/new', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function('users/new', method=dchttp.RequestMethods.GET, query=False)
 @decorator.authorize('edit user accounts')
 def create_user_form(model):
     if not model.client.check_permission():
@@ -78,7 +78,7 @@ def create_user_form(model):
     return 'page'
 
 
-@mvc.controller_function('users', '/new', method=dchttp.RequestMethods.POST, query=True)
+@mvc.controller_function('users/new', method=dchttp.RequestMethods.POST, query=True)
 @decorator.authorize('edit user accounts')
 def create_user_action(model, post):
     if 'password' in post:
@@ -97,7 +97,7 @@ post_to_args = lambda post: {
     }
 
 
-@mvc.controller_function('users', '/([0-9]+0)/edit', method=dchttp.RequestMethods.POST, query=True)
+@mvc.controller_function('users/{int}/edit', method=dchttp.RequestMethods.POST, query=True)
 def edit_user_action(model, uid, post):
     args = post_to_args(post)
     users.edit_user(uid, **args)
@@ -105,7 +105,7 @@ def edit_user_action(model, uid, post):
     return ':redirect:/'
 
 
-@mvc.controller_function('users', '/([0-9]+)/edit', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function('users/{int}/edit', method=dchttp.RequestMethods.GET, query=False)
 def edit_user_form(model, uid):
     model['title'] = 'Edit User'
 
@@ -167,7 +167,7 @@ def permission_table(checkbox):
     )
 
 
-@mvc.controller_function('users', '/permissions', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function('users/permissions', method=dchttp.RequestMethods.GET, query=False)
 @decorator.authorize('view permissions')
 def permission_overview(model):
     model['title'] = 'Permissions Overview'
@@ -186,7 +186,7 @@ def permission_overview(model):
 permission_structure = re.compile('(\d)+-([0-9a-zA-Z_-]+)')
 
 
-@mvc.controller_function('users', '/permissions/edit', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function('users/permissions/edit', method=dchttp.RequestMethods.GET, query=False)
 @decorator.authorize('edit permissions')
 def edit_permissions(model):
     model['title'] = 'Edit Permissions'
@@ -198,7 +198,7 @@ def edit_permissions(model):
     return 'page'
 
 
-@mvc.controller_function('users', '/permissions/edit', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function('users/permissions/edit', method=dchttp.RequestMethods.POST, query=False)
 @decorator.authorize('edit permissions')
 def edit_permissions_action(model, post):
     permissions_list = _sort_perm_list([(a.aid, a.permission) for a in model.AccessGroupPermission.get_all()])

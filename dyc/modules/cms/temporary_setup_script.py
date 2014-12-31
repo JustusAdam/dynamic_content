@@ -267,3 +267,4 @@ def initialize():
                        handler_module=getattr(modules, handler))
 
 
+    core.Modules.load()
