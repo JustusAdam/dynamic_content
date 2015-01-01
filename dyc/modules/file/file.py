@@ -20,9 +20,8 @@ _template_path = 'themes/default_theme/template/page.html'
 
 @mvc.controller_class
 class PathHandler:
-    @mvc.controller_method('theme/**', method=dchttp.RequestMethods.GET)
-    @mvc.controller_method('public/**', method=dchttp.RequestMethods.GET)
-    def handle(self, model, path, *args):
+    @mvc.controller_method({'theme/**', 'public/**'}, method=dchttp.RequestMethods.GET)
+    def handle(self, model, path):
         return self.parse_path(model, path)
 
     def parse_path(self, model, path):

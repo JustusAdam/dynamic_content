@@ -119,8 +119,8 @@ def controller_class(class_):
         for item in c_funcs:
             for wrapped in item.wrapping:
                 wrapped.instance = instance
-                for item in wrapped.value:
-                    controller_mapper().add_path(item, wrapped)
+                for i in wrapped.value:
+                    controller_mapper().add_path(i, wrapped)
     return class_
 
 

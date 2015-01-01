@@ -1,6 +1,6 @@
 import unittest
 
-from dyc.core.mvc._pathmapper import PathHandlerException
+from dyc.errors.exceptions import ControllerError
 from dyc import core
 
 __author__ = 'justusadam'
@@ -35,4 +35,4 @@ class TestPathMapper(unittest.TestCase):
             self.assertTupleEqual(p.get_handler(teststring)(), result)
 
         for path, handler, teststring, result in testpaths[0:2]:
-            self.assertRaises(PathHandlerException, p.add_path, path, handler)
+            self.assertRaises(ControllerError, p.add_path, path, handler)

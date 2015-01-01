@@ -1,8 +1,10 @@
 import functools
+
 from dyc import dchttp
 from dyc.errors import exceptions
 from .. import _component
 from dyc.util import decorators
+
 
 __author__ = 'justusadam'
 
@@ -13,17 +15,7 @@ _typecheck = {
 }
 
 
-class PathHandlerException(exceptions.DCException):
-    def __init__(self, message):
-        self.message = message
-
-    def __repr__(self):
-        return self.__class__.__name__ + self.message
-
-    __str__ = __repr__
-
-
-class PathNotFound(PathHandlerException):
+class PathNotFound(exceptions.ControllerError):
     pass
 
 
@@ -89,7 +81,7 @@ def parse_path(path:str):
             elif len(name) == 1:
                 return TypeArg(name[0], typemap[t])
             else:
-                raise PathHandlerException
+                raise exceptions.ControllerError
         else:
             return segment
     for a in path.split('/'):
@@ -112,7 +104,7 @@ class PathMapper(Segment):
 
         for segment in path_segments:
             if segment == '**':
-                raise PathHandlerException('Midsection cannot be wildcard')
+                raise exceptions.ControllerError('Midsection cannot be wildcard')
             elif isinstance(segment, str):
                 new = old.setdefault(segment, Segment(segment))
             elif isinstance(segment, type):
@@ -137,15 +129,15 @@ class PathMapper(Segment):
                 if getattr(container, a) is None:
                     setattr(container, a, handler_func)
                 else:
-                    raise PathHandlerException('Overwriting set Handlers is not allowed')
+                    raise exceptions.ControllerError('Overwriting set Handlers is not allowed')
 
         if destination == '**':
             if m.wildcard is None:
                 m.wildcard = HandlerContainer(**{a.lower():handler for a in handler.method})
-            if isinstance(m.wildcard, HandlerContainer):
+            elif isinstance(m.wildcard, HandlerContainer):
                 add_to_container(m.wildcard, handler)
             else:
-                raise PathHandlerException
+                raise exceptions.ControllerError
         elif destination in m:
             s = m[destination]
             if isinstance(s, Segment):
@@ -156,7 +148,7 @@ class PathMapper(Segment):
             elif isinstance(s, HandlerContainer):
                 add_to_container(s, handler)
             else:
-                raise PathHandlerException('Overwriting set Handlers is not allowed')
+                raise exceptions.ControllerError('Overwriting set Handlers is not allowed')
         else:
             m[destination] = HandlerContainer(**{a.lower():handler for a in handler.method})
 
@@ -184,7 +176,7 @@ class PathMapper(Segment):
         origin = path
         path = path.split('/')[1:] if path.startswith('/') else path.split('/')
         iargs, ikwargs = [], {}
-        wildcard = None
+        wildcard = getattr(self.wildcard, method) if self.wildcard is not None else None
         segment_chain = [self]
 
         def get_new(old, segment:str):
@@ -211,7 +203,7 @@ class PathMapper(Segment):
         new = segment_chain[-1]
         for segment in path:
             if isinstance(new, Segment):
-                if new.wildcard and hasattr(new.wildcard, method):
+                if new.wildcard and getattr(new.wildcard, method) is not None:
                     wildcard = functools.partial(getattr(new.wildcard, method), *iargs, **ikwargs)
             else:
                 break
@@ -234,7 +226,8 @@ class PathMapper(Segment):
                 return functools.partial(handler_func, *args + tuple(iargs), **ikwargs)
 
 
-        if wildcard is None or getattr(wildcard, method) is None:
+        if wildcard is None:
             raise exceptions.MethodHandlerNotFound('Mo handler found for request method ' + method + ' for path ' + origin)
         else:
-            return functools.partial(getattr(wildcard, method), *args + (origin, ), **kwargs)
+            wildcard.keywords.update(kwargs)
+            return functools.partial(wildcard.function, *wildcard.args + args + (origin, ), **wildcard.keywords)

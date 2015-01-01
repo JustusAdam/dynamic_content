@@ -6,7 +6,13 @@ class DCException(Exception):
 
 
 class ControllerError(DCException):
-    pass
+    def __init__(self, message):
+        self.message = message
+
+    def __repr__(self):
+        return self.message
+
+    __str__ = __repr__
 
 
 class UnexpectedControllerArgumentError(ControllerError):
@@ -19,3 +25,5 @@ class PathResolving(ControllerError):
 
 class MethodHandlerNotFound(ControllerError):
     pass
+
+
