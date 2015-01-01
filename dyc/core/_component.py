@@ -12,7 +12,7 @@ def method_proxy(func):
         if obj._wwrapped is None:
             raise exceptions.ComponentNotLoaded(obj._wname)
         else:
-            return func(obj._wwrapped, *args, **kwargs)
+            return getattr(obj._wwrapped, func.__name__)(*args, **kwargs)
     return call
 
 
@@ -50,7 +50,19 @@ class ComponentWrapper(object):
 
     @method_proxy
     def __call__(self, *args, **kwargs):
-        pass
+        raise NotImplementedError
+
+    @method_proxy
+    def __getitem__(self, item):
+        raise NotImplementedError
+
+    @method_proxy
+    def __setitem__(self, key, value):
+        raise NotImplementedError
+
+    @method_proxy
+    def __delitem__(self, key):
+        raise NotImplementedError
 
 
 class ComponentContainer(dict):

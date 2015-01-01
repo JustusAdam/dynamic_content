@@ -13,12 +13,16 @@ class Category(orm.BaseModel):
 
 class Subcategory(Category):
     category = orm.ForeignKeyField(Category)
+    machine_name = orm.CharField(unique=False)
+
+    class Meta(object):
+        primary_key = orm.CompositeKey('category', 'machine_name')
 
 
 class AdminPage(Category):
+    machine_name = orm.CharField(unique=False)
     handler_module = orm.ForeignKeyField(coremodel.Module)
     subcategory = orm.ForeignKeyField(Subcategory)
 
-    @property
-    def category(self):
-        return self.subcategory
+    class Meta(object):
+        primary_key = orm.CompositeKey('subcategory', 'machine_name')

@@ -40,6 +40,7 @@ def render_categories(*subcategories, basepath=ADMIN_PATH, classes=set()):
             classes=classes
         )
 
+
 def order_tree(parents, children):
     mapping = collections.defaultdict(list)
     for item in children:
@@ -95,7 +96,7 @@ def subcategory(modelmap, category_name,  name):
     modelmap.pageclasses = {'admin-menu', 'subcategory'}
     modelmap.theme = 'admin_theme'
 
-    parent = model.Subcategory.get(model.Subcategory.machine_name == name)
+    parent = model.Subcategory.get(machine_name=name, category=model.Category.get(machine_name=category_name))
 
     children = Category.from_db(model.AdminPage.select().where(model.AdminPage.subcategory == parent))
 
@@ -105,6 +106,11 @@ def subcategory(modelmap, category_name,  name):
     modelmap['content'] = render_categories(*tree)
 
     return 'page'
+
+
+@mvc.controller_function('adin/{str}/{str}/{str}', method=dchttp.RequestMethods.GET, query=False)
+def page(modelmap, category_name, subcategory_name, page_name):
+    pass
 
 
 class Category:
