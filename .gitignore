@@ -55,7 +55,7 @@ docs/_build/
 target/
 
 # databases
-.db
+*.db
 
 # custom additions
 *.scssc
