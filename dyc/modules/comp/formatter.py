@@ -179,8 +179,10 @@ class TemplateFormatter:
         return '>>'
 
     def breacrumbs(self):
-        for i in range(len(self.url.path)):
-            yield self.url.path[i], self.url.path.prt_to_str(0, i + 1)
+        path = self.url.path.split('/')
+        yield 'home', '/'
+        for i in range(1, len(path)):
+            yield path[i], '/'.join(path[:i+1])
 
     def render_breadcrumbs(self):
         def acc():

@@ -27,6 +27,7 @@ def overview(modelmap):
                 model.Subcategory.select()])
 
     modelmap['content'] = render_categories(*tree)
+    return 'page'
 
 
 def render_categories(*subcategories, basepath=ADMIN_PATH, classes=set()):
@@ -77,12 +78,12 @@ class OverviewCommon(base.Commons):
 def category(modelmap, name):
     modelmap.pageclasses = {'admin-menu', 'category'}
 
-    parents = model.Category.get(machine_name=name)
+    parent = model.Category.get(machine_name=name)
 
     children = [Category(child.machine_name, child.display_name, child.category, None) for child in
-                model.Subcategory.select().where(model.Subcategory.category == name)]
+                model.Subcategory.select().where(model.Subcategory.category == parent)]
 
-    tree = order_tree(parents, children)
+    tree = order_tree([parent], children)
 
     modelmap['content'] = render_categories(*tree)
 

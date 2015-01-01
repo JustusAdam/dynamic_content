@@ -65,15 +65,17 @@ class HandlerContainer(object):
             super().__setattr__(key, value)
 
 
+typemap = {
+    'int': int,
+    'str': str,
+    'integer': int,
+    'string': str,
+    'float': float
+}
+
+
 def parse_path(path:str):
     def _inner(segment:str):
-        typemap = {
-                    'int': int,
-                    'str': str,
-                    'integer': int,
-                    'string': str,
-                    'float': float
-                }
         if segment.startswith('{') and segment.endswith('}'):
             t, *name = segment[1:-1].split(' ')
             if len(name) == 0:
@@ -81,7 +83,7 @@ def parse_path(path:str):
             elif len(name) == 1:
                 return TypeArg(name[0], typemap[t])
             else:
-                raise exceptions.ControllerError
+                raise exceptions.ControllerError('Name cannot contain spaces')
         else:
             return segment
     for a in path.split('/'):
@@ -152,20 +154,19 @@ class PathMapper(Segment):
         else:
             m[destination] = HandlerContainer(**{a.lower():handler for a in handler.method})
 
-    @decorators.catch(exception=exceptions.ControllerError, return_value='error', log_error=True, print_error=True)
+    @decorators.catch(exception=(exceptions.ControllerError, PermissionError), return_value='error', log_error=True, print_error=True)
     def __call__(self, model, url):
-        query = url.get_query if url.method.lower() == dchttp.RequestMethods.GET else url.post
         handler = self.get_handler(str(url.path), url.method, model)
         element = handler.func
         if element.query is True:
-            return handler(query)
-        elif query:
+            return handler(url.query)
+        elif url.query:
             if isinstance(element.query, str):
-                return handler(**{element.query: query.get(element.query, None)})
+                return handler(**{element.query: url.query.get(element.query, None)})
             elif isinstance(element.query, (list, tuple, set)):
-                return handler(**{a : query.get(a, None) for a in element.query})
+                return handler(**{a : url.query.get(a, None) for a in element.query})
             elif isinstance(element.query, dict):
-                return handler(**{b : query.get(a, None) for a, b in element.query.items()})
+                return handler(**{b : url.query.get(a, None) for a, b in element.query.items()})
         else:
             if element.query is False:
                 return handler()

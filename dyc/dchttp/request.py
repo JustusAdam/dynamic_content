@@ -56,7 +56,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         # construct Url object from path for accessibility
-        url = _url_mod.Url(self.path, False)
+        url = _url_mod.Url(self.path, None)
         url.method = 'get'
         return self.do_any(url)
 

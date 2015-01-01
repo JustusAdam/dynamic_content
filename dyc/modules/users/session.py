@@ -26,11 +26,7 @@ def new_exp_time():
 def start_session(uid_or_username:str, password):
     if not authenticate_user(uid_or_username, password):
         return None
-    if isinstance(uid_or_username, int) or uid_or_username.isdigit():
-        user = model.User.get(oid=uid_or_username)
-    else:
-        user = model.User.get(username=uid_or_username)
-
+    user = users.get_single_user(uid_or_username)
     try:
         token = model.Session.get(user=user)
         token = token.token
@@ -42,19 +38,14 @@ def start_session(uid_or_username:str, password):
 
 
 def close_session(uid_or_username):
-    if isinstance(uid_or_username, str):
-        if uid_or_username.isdigit() or isinstance(uid_or_username, int):
-            uid_or_username = int(uid_or_username)
-        else:
-            uid_or_username = model.User.get(username=uid_or_username).uid
-    model.Session.get(uid=uid_or_username).delete()
+    user = users.get_single_user(uid_or_username)
+    model.Session.get(user=user).delete()
 
 
 def authenticate_user(username_or_uid, password):
-    if not isinstance(username_or_uid, int) or username_or_uid.isdigit():
-        username_or_uid = model.User.get(username=username_or_uid).oid
+    user = users.get_single_user(username_or_uid)
     try:
-        auth = model.UserAuth.get(uid=int(username_or_uid))
+        auth = model.UserAuth.get(uid=user)
         return users.check_ident(password, auth.salt, auth.password)
     except peewee.DoesNotExist:
         return False
