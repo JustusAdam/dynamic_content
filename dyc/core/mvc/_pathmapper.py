@@ -2,7 +2,7 @@ import functools
 
 from dyc.errors import exceptions
 from .. import _component
-from dyc.util import decorators, typesafe
+from dyc.util import decorators, typesafe, console
 
 
 __author__ = 'justusadam'
@@ -92,6 +92,7 @@ class PathMapper(Segment):
         self._controller_classes = []
 
     def add_path(self, path:str, handler):
+        console.cprint('Registering on path ' + path + '     Handler: ' + repr(handler))
         path = path[1:] if path.startswith('/') else path
         path = parse_path(path)
 

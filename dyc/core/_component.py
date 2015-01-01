@@ -9,44 +9,46 @@ _name_transform = lambda name: name.lower().replace('_', '').replace(' ', '')
 def method_proxy(func):
     name = func if isinstance(func, str) else func.__name__
     def call(obj, *args, **kwargs):
-        if obj._wwrapped is None:
-            raise exceptions.ComponentNotLoaded(obj._wname)
+        if obj._wrapped is None:
+            raise exceptions.ComponentNotLoaded(obj._name)
         else:
-            return getattr(obj._wwrapped, name)(*args, **kwargs)
+            return getattr(obj._wrapped, name)(*args, **kwargs)
     return call if isinstance(func, str) else functools.wraps(func)(call)
 
 
 class ComponentWrapper(object):
-    _wname = _wwrapped = __allow_reload = None
+    _name = _wrapped = _allow_reload = None
 
     def __init__(self, name, allow_reload=False):
-        self.__dict__['_wname'] = name
-        self.__dict__['_wwrapped'] = None
+        self.__dict__['_name'] = name
+        self.__dict__['_wrapped'] = None
         self.__dict__['_allow_reload'] = allow_reload
 
     def __getattr__(self, item):
-        if self.__getattribute__('_wwrapped') is None:
+        if self.__getattribute__('_wrapped') is None:
             raise exceptions.ComponentNotLoaded(item)
-        return getattr(self._wwrapped, item)
+        return getattr(self._wrapped, item)
 
     def __setattr__(self, key, value):
-        if key == '_wwrapped':
-            if self._wwrapped is None:
+        if key == '_wrapped':
+            if self._wrapped is None:
                 return super().__setattr__(key, value)
             elif self._allow_reload is False:
-                raise exceptions.ComponentLoaded(self._wname)
+                raise exceptions.ComponentLoaded(self._name)
         else:
-            setattr(self._wwrapped, key, value)
+            setattr(self._wrapped, key, value)
 
     def __delattr__(self, item):
-        if item is '_wwrapped':
+        if item is '_wrapped':
             raise TypeError('Cannot delete wrapped object')
         else:
-            delattr(self._wwrapped, item)
+            delattr(self._wrapped, item)
+
+    def __call__(self, *args, **kwargs):
+        return self._wrapped(*args, **kwargs)
 
     __dir__ = method_proxy('__dir__')
     __str__ = method_proxy('__str__')
-    __call__ = method_proxy('__call__')
     __setitem__ = method_proxy('__setitem__')
     __delitem__ = method_proxy('__delitem__')
     __getitem__ = method_proxy('__getitem__')
@@ -80,7 +82,7 @@ class ComponentContainer(dict):
         elif not isinstance(key, type):
             raise TypeError('Expected Type ' + repr(str) + ' or ' + repr(type) + ', got ' + repr(type(key)))
         item = super().setdefault(key, ComponentWrapper(key))
-        item._wwrapped = value
+        item._wrapped = value
 
     def __getitem__(self, key):
         if isinstance(key, type):
