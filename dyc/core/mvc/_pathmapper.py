@@ -230,4 +230,4 @@ class PathMapper(Segment):
             raise exceptions.MethodHandlerNotFound('Mo handler found for request method ' + method + ' for path ' + origin)
         else:
             wildcard.keywords.update(kwargs)
-            return functools.partial(wildcard.function, *wildcard.args + args + (origin, ), **wildcard.keywords)
+            return functools.partial(wildcard.func, *wildcard.args + args + (origin, ), **wildcard.keywords)

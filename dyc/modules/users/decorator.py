@@ -6,16 +6,12 @@ __author__ = 'justusadam'
 
 
 def authorize(permission):
-    def wrap(func):
-        @wraps(func)
-        @apply_to_type(Model, apply_before=True)
-        def inner(model):
-            if not model.client.check_permission(permission):
-                raise PermissionError
+    @apply_to_type(Model, apply_before=True)
+    def inner(model):
+        if not model.client.check_permission(permission):
+            raise PermissionError
 
-        return inner
-
-    return wrap
+    return inner
 
 
 def authorize_group(group):
