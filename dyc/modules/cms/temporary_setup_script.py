@@ -9,7 +9,7 @@ __author__ = 'justusadam'
 def init_tables():
     from dyc.includes import log
     from importlib import import_module
-    from dyc.backend.orm import BaseModel
+    from dyc.backend import orm
     from dyc.core import Modules
     import inspect
     from dyc.includes import settings
@@ -19,7 +19,7 @@ def init_tables():
     def _init_module(m):
         for item in dir(m):
             item = getattr(m, item)
-            if inspect.isclass(item) and issubclass(item, BaseModel):
+            if inspect.isclass(item) and issubclass(item, orm.Model):
                 try:
                     item.create_table()
                     print('creating table ' + str(item._meta.db_table))

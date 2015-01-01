@@ -11,18 +11,18 @@ class Category(orm.BaseModel):
     weight = orm.IntegerField(default=0)
 
 
-class Subcategory(Category):
+class Subcategory(orm.BaseModel):
+    display_name = orm.CharField()
+    description = orm.TextField(null=True)
+    weight = orm.IntegerField(default=0)
     category = orm.ForeignKeyField(Category)
     machine_name = orm.CharField(unique=False)
 
-    class Meta(object):
-        primary_key = orm.CompositeKey('category', 'machine_name')
 
-
-class AdminPage(Category):
+class AdminPage(orm.BaseModel):
     machine_name = orm.CharField(unique=False)
+    display_name = orm.CharField()
+    description = orm.TextField(null=True)
+    weight = orm.IntegerField(default=0)
     handler_module = orm.ForeignKeyField(coremodel.Module)
     subcategory = orm.ForeignKeyField(Subcategory)
-
-    class Meta(object):
-        primary_key = orm.CompositeKey('subcategory', 'machine_name')

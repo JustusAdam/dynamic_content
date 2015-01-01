@@ -7,13 +7,13 @@ _name_transform = lambda name: name.lower().replace('_', '').replace(' ', '')
 
 
 def method_proxy(func):
-    @functools.wraps(func)
+    name = func if isinstance(func, str) else func.__name__
     def call(obj, *args, **kwargs):
         if obj._wwrapped is None:
             raise exceptions.ComponentNotLoaded(obj._wname)
         else:
-            return getattr(obj._wwrapped, func.__name__)(*args, **kwargs)
-    return call
+            return getattr(obj._wwrapped, name)(*args, **kwargs)
+    return call if isinstance(func, str) else functools.wraps(func)(call)
 
 
 class ComponentWrapper(object):
@@ -44,25 +44,12 @@ class ComponentWrapper(object):
         else:
             delattr(self._wwrapped, item)
 
-    __dir__ = method_proxy(dir)
-
-    __str__ = method_proxy(str)
-
-    @method_proxy
-    def __call__(self, *args, **kwargs):
-        raise NotImplementedError
-
-    @method_proxy
-    def __getitem__(self, item):
-        raise NotImplementedError
-
-    @method_proxy
-    def __setitem__(self, key, value):
-        raise NotImplementedError
-
-    @method_proxy
-    def __delitem__(self, key):
-        raise NotImplementedError
+    __dir__ = method_proxy('__dir__')
+    __str__ = method_proxy('__str__')
+    __call__ = method_proxy('__call__')
+    __setitem__ = method_proxy('__setitem__')
+    __delitem__ = method_proxy('__delitem__')
+    __getitem__ = method_proxy('__getitem__')
 
 
 class ComponentContainer(dict):
