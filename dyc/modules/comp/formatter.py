@@ -1,5 +1,6 @@
 import pathlib
 import re
+from dyc.util import decorators
 import sys
 
 from dyc.dchttp import response
@@ -14,25 +15,58 @@ VAR_REGEX = re.compile("\{([\w_-]*?)\}")
 ARG_REGEX = re.compile(":(\w+?):")
 
 _default_theme = 'default_theme'
+_default_view = 'page'
+_default_content_type = 'text/html'
+_default_encoding = sys.getfilesystemencoding()
+
 
 
 class TemplateFormatter:
-    def __init__(self, model, url):
-        self._theme = _default_theme
-        self.view_name = 'page'
-        self.content_type = 'text/html'
-        self.encoding = sys.getfilesystemencoding()
-        self._url = url
-        if hasattr(model, 'content_type') and model.content_type:
-            self.content_type = model.content_type
-        if hasattr(model, 'encoding') and model.encoding:
-            self.encoding = model.encoding
-        self._model = model
+    @decorators.multicache
+    def theme_config(self, theme):
+        return read_config('themes/' + theme + '/config.json')
+
+    def __call__(self, view_name, model, url):
+        theme = model.theme if model.theme else _default_theme
+        content_type = model.content_type if hasattr(model, 'content_type') and model.content_type else _default_content_type
+        encoding = model.encoding if hasattr(model, 'encoding') and model.encoding else _default_encoding
         # self.module_config = read_config(self._get_config_folder() + '/config.json')
         # if 'active_theme' in self.module_config:
         # self._theme = self.module_config['active_theme']
-        self._theme = _default_theme
-        self.theme_config = read_config(self.theme_path + '/config.json')
+        theme_config = self.theme_config(theme)
+
+        c = ARG_REGEX.match(view_name) if view_name else None
+
+        if 'no-encode' in model.decorator_attributes:
+            document = model['content']
+
+        if 'no_view' in model.decorator_attributes or view_name is None:
+            document = model['content'].encode(encoding)
+        else:
+            pairing = self.initial_pairing()
+            file = open(self.view_path(theme, view_name)).read()
+            for a in VAR_REGEX.finditer(file):
+                if a.group(1) not in pairing:
+                    pairing.__setitem__(a.group(1), '')
+            document = file.format(**{a: str(pairing[a]) for a in pairing})
+
+
+        cookies = model.cookies
+
+        if not c:
+            code = 200
+        else:
+            b = c.group(1)
+            code, body, headers = self._map.get(b, self.compile_body)(self, self._model.view.lstrip(':' + b + ':'))
+        headers = model.headers
+        r = response.Response(document, code, headers, cookies)
+        for attr in ['content_type', 'encoding']:
+            if hasattr(model, attr):
+                setattr(r, attr, getattr(model, attr))
+            return r
+
+    def view_path(self, theme, view):
+        return '/'.join(['', 'themes', theme, 'templates', view + '.html'])
 
     def redirect(self, attr):
         if not attr:
@@ -43,71 +77,9 @@ class TemplateFormatter:
         headers.add(("Location", attr))
         return code, body, headers
 
-    def document(self):
-        return 200, self.compile_body(self.model.view), self.headers
-
     _map = {
         'redirect': redirect
     }
-
-    @property
-    def url(self):
-        return self._url
-
-    def compile_body(self, view_name):
-        if 'no-encode' in self.model.decorator_attributes:
-            return self.model['content']
-        if 'no_view' in self.model.decorator_attributes:
-            content = self.model['content']
-        else:
-            pairing = self.initial_pairing()
-            file = open(self.view_path(view_name)).read()
-            for a in VAR_REGEX.finditer(file):
-                if a.group(1) not in pairing:
-                    pairing.__setitem__(a.group(1), '')
-            content = file.format(**{a: str(pairing[a]) for a in pairing})
-        if hasattr(self.model, 'encoding'):
-            encoding = self.model.encoding
-        else:
-            encoding = self.encoding
-        return content.encode(encoding)
-
-    def compile_response(self):
-        cookies = self.model.cookies
-        c = ARG_REGEX.match(self._model.view)
-        if not c:
-            code, body, headers = self.document()
-        else:
-            b = c.group(1)
-            code, body, headers = self._map.get(b, self.compile_body)(self, self._model.view.lstrip(':' + b + ':'))
-        headers |= self.model.headers
-        r = response.Response(body, code, headers, cookies)
-        for attr in ['content_type', 'encoding']:
-            if hasattr(self.model, attr):
-                setattr(r, attr, getattr(self.model, attr))
-        return r
-
-    @property
-    def client(self):
-        return self._model.client
-
-    @property
-    def model(self):
-        return self._model
-
-    @property
-    def theme(self):
-        if hasattr(self._model, 'theme'):
-            if self._model.theme:
-                return self._model.theme
-        return self._theme
-
-    def view_path(self, name):
-        return self.theme_path + '/template/' + name + '.html'
-
-    @property
-    def theme_path(self):
-        return 'themes/' + self.theme
 
     @property
     def theme_path_alias(self):
@@ -136,9 +108,9 @@ class TemplateFormatter:
                       in self.theme_config['stylesheets'])
         return ''.join([str(a) for a in s])
 
-    def _list_from_model(self, ident):
-        if ident in self.model:
-            return self.model[ident]
+    def _list_from_model(self, model,  ident):
+        if ident in model:
+            return model[ident]
         else:
             return []
 
