@@ -5,7 +5,6 @@ from dyc.backend import orm
 from dyc import core
 
 from dyc.core.mvc import model as _model
-from dyc.modules.comp import formatter
 from dyc.util import typesafe, lazy
 from dyc.includes import settings, log
 
@@ -30,6 +29,7 @@ class Application(threading.Thread, lazy.Loadable):
         super().__init__()
         lazy.Loadable.__init__(self)
         self.config = config
+        self.decorator = core.get_component('TemplateFormatter')
 
     def load(self):
         if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(message='loading components')
@@ -54,9 +54,8 @@ class Application(threading.Thread, lazy.Loadable):
         def http_callback(url, client):
             model = _model.Model()
             model.client = client
-            model.view = core.get_component('PathMap')(model, url)
-            decorator = formatter.TemplateFormatter(model=model, url=url)
-            return decorator.compile_response()
+            view = model.view = core.get_component('PathMap')(model, url)
+            return self.decorator(view, model, url)
 
         request_handler = functools.partial(self.config.http_request_handler, http_callback)
 

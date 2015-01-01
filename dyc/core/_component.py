@@ -1,9 +1,56 @@
 import functools
-from dyc.includes import log
+from dyc.errors import exceptions
 
 __author__ = 'justusadam'
 
 _name_transform = lambda name: name.lower().replace('_', '').replace(' ', '')
+
+
+def method_proxy(func):
+    @functools.wraps(func)
+    def call(obj, *args, **kwargs):
+        if obj._wwrapped is None:
+            raise exceptions.ComponentNotLoaded(obj._wname)
+        else:
+            return func(obj._wwrapped, *args, **kwargs)
+    return call
+
+
+class ComponentWrapper(object):
+    _wname = _wwrapped = __allow_reload = None
+
+    def __init__(self, name, allow_reload=False):
+        self.__dict__['_wname'] = name
+        self.__dict__['_wwrapped'] = None
+        self.__dict__['_allow_reload'] = allow_reload
+
+    def __getattr__(self, item):
+        if self.__getattribute__('_wwrapped') is None:
+            raise exceptions.ComponentNotLoaded(item)
+        return getattr(self._wwrapped, item)
+
+    def __setattr__(self, key, value):
+        if key == '_wwrapped':
+            if self._wwrapped is None:
+                return super().__setattr__(key, value)
+            elif self._allow_reload is False:
+                raise exceptions.ComponentLoaded(self._wname)
+        else:
+            setattr(self._wwrapped, key, value)
+
+    def __delattr__(self, item):
+        if item is '_wwrapped':
+            raise TypeError('Cannot delete wrapped object')
+        else:
+            delattr(self._wwrapped, item)
+
+    __dir__ = method_proxy(dir)
+
+    __str__ = method_proxy(str)
+
+    @method_proxy
+    def __call__(self, *args, **kwargs):
+        pass
 
 
 class ComponentContainer(dict):
@@ -20,10 +67,6 @@ class ComponentContainer(dict):
 
     """
 
-    def __init__(self):
-        super().__init__()
-        self.classmap = {}
-
     def __call__(self, *args, **kwargs):
         if len(args) == 0:
             raise AttributeError
@@ -33,23 +76,19 @@ class ComponentContainer(dict):
         return self.__getitem__(args[0])(*args[1:], **kwargs)
 
     def __setitem__(self, key, value):
-        if isinstance(key, type):
-            return self.classmap.__setitem__(key, value)
-        else:
+        if isinstance(key, str):
             key = _name_transform(key)
-            if key in self:
-                message = ' '.join(
-                    ["overwriting key", key, "of value", repr(super().__getitem__(key)), "with value", repr(value)])
-                log.write_error(segment="ComponentContainer", message=message)
-                print(message)
-            self.classmap.__setitem__(type(value), value)
-            return super().__setitem__(key, value)
+        elif not isinstance(key, type):
+            raise TypeError('Expected Type ' + repr(str) + ' or ' + repr(type) + ', got ' + repr(type(key)))
+        item = super().setdefault(key, ComponentWrapper(key))
+        item._wwrapped = value
 
     def __getitem__(self, key):
         if isinstance(key, type):
-            return self.classmap[key]
+            return self.classmap.setdefault(key, ComponentWrapper(key))
         else:
-            return super().__getitem__(_name_transform(key))
+            new_key = _name_transform(key)
+            return super().setdefault(new_key, ComponentWrapper(new_key))
 
     def __getattr__(self, item):
         return self.__getitem__(item)

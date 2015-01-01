@@ -1,11 +1,10 @@
 import pathlib
 import re
-from dyc.util import decorators
 import sys
 
 from dyc.dchttp import response
-from dyc.util import html
-from dyc.util.config import read_config
+from dyc.util import html, decorators, config
+from dyc import core
 
 
 __author__ = 'justusadam'
@@ -20,11 +19,11 @@ _default_content_type = 'text/html'
 _default_encoding = sys.getfilesystemencoding()
 
 
-
+@core.Component('TemplateFormatter')
 class TemplateFormatter:
     @decorators.multicache
     def theme_config(self, theme):
-        return read_config('themes/' + theme + '/config.json')
+        return config.read_config('themes/' + theme + '/config.json')
 
     def __call__(self, view_name, model, url):
         theme = model.theme if model.theme else _default_theme
@@ -167,25 +166,3 @@ class TemplateFormatter:
                     yield i
 
         return html.ContainerElement(*list(acc()), classes={'breadcrumbs'})
-
-        #
-        # class DecoratorWithRegions(TemplateFormatter):
-        # _theme = None
-        #     view_name = 'page'
-        #
-        #     def __init__(self, model, url, client_info):
-        #         super().__init__(model, url, client_info)
-        #
-        #     @property
-        #     def regions(self):
-        #         config = self.theme_config['regions']
-        #         r = []
-        #         for region in config:
-        #             r.append(RegionHandler(region, config[region], self.theme, self.client))
-        #         return r
-        #
-        #     def initial_pairing(self):
-        #         if not 'no-commons' in self.model.decorator_attributes:
-        #             for region in self.regions:
-        #                 self._model[region.name] = str(region.compile())
-        #         return super().initial_pairing()
