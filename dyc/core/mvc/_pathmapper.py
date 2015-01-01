@@ -13,26 +13,17 @@ _typecheck = {
     str: lambda a: True
 }
 
-
-class _AbstractSegment(object):
-    def __init__(self, name, handler=None):
-        self.name = name
-        self.handler = handler
-
-
-class Segment(dict, _AbstractSegment):
+class Segment(dict):
+    """A egment of the path structure"""
     def __init__(self, name, handler=None, **kwargs):
         super().__init__(**kwargs)
-        _AbstractSegment.__init__(self, name, handler)
+        self.name = name
+        self.handler = handler
         self.wildcard = None
 
 
-class WildcardSegment(_AbstractSegment):
-    def __init__(self, handler):
-        super().__init__('**', handler=handler)
-
-
 class TypeArg(object):
+    """A Path argument with a name."""
     @typesafe.typesafe
     def __init__(self, name:str, t):
         self.name = name

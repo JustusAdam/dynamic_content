@@ -17,6 +17,13 @@ def method_proxy(func):
 
 
 class ComponentWrapper(object):
+    """
+    A Proxy object for components to allow modules to bind
+    components to local variables before the component as been registered
+
+    This means that if a non-existent component is being requested there will be no error
+    only using the component will throw the ComponentNotLoaded exception.
+    """
     _name = _wrapped = _allow_reload = None
 
     def __init__(self, name, allow_reload=False):
@@ -47,6 +54,9 @@ class ComponentWrapper(object):
     def __call__(self, *args, **kwargs):
         return self._wrapped(*args, **kwargs)
 
+    def __bool__(self):
+        return bool(self._wrapped)
+
     __dir__ = method_proxy('__dir__')
     __str__ = method_proxy('__str__')
     __setitem__ = method_proxy('__setitem__')
@@ -60,7 +70,8 @@ class ComponentContainer(dict):
 
     Dictionary with some special properties.
 
-    Keys are transformed into all lower case and spaces and underscores are removed.
+    Keys have to be strings or types and in the case of strings,
+     are transformed into all lower case and spaces and underscores are removed.
 
     => "_my Property" -> "myproperty"
 
@@ -95,6 +106,7 @@ class ComponentContainer(dict):
         return self.__getitem__(item)
 
 
+# the only real singleton in the framework
 call_component = get_component = ComponentContainer()
 
 
@@ -110,18 +122,24 @@ def _decorator(name, *args, **kwargs):
     return inner
 
 
+# some convenient decorators for registering components
 Component = component = _decorator
+
+del _decorator
 
 
 def register(name, obj):
     get_component[name] = obj
 
 
-def inject_kwarg(component, argname):
+def inject(*components, **kwcomponents):
     """
-    Inject a component when the function is called. (decorator)
+    Injects components into the function.
 
-    Component will be injected as keyword argument
+    All *components will be prepended to the *args the function is being called with.
+
+    All **kwcomponents will be added (and overwrite on key collision) to the **kwargs the function is being called with.
+
     :param component:
     :param argname:
     :return:
@@ -130,20 +148,9 @@ def inject_kwarg(component, argname):
     def inner(func):
         @functools.wraps(func)
         def wrap(*args, **kwargs):
-            kwargs[argname] = get_component(component)
-            return func(*args, **kwargs)
-
-        return wrap
-
-    return inner
-
-
-def inject_arg(component):
-    def inner(func):
-        @functools.wraps(func)
-        def wrap(*args, **kwargs):
-            return func(get_component(component), *args, **kwargs)
-
+            for a, b in kwcomponents.items():
+                kwargs[a] = get_component(b)
+            return func(*tuple(get_component(a) for a in components) + args, **kwargs)
         return wrap
 
     return inner
