@@ -27,3 +27,5 @@ class MethodHandlerNotFound(ControllerError):
     pass
 
 
+class PathNotFound(ControllerError):
+    pass

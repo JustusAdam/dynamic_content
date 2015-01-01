@@ -14,10 +14,6 @@ _typecheck = {
 }
 
 
-class PathNotFound(exceptions.ControllerError):
-    pass
-
-
 class _AbstractSegment(object):
     def __init__(self, name, handler=None):
         self.name = name
@@ -193,7 +189,7 @@ class PathMapper(Segment):
                         iargs.append(t(segment))
                     return x
                 except KeyError:
-                    raise PathNotFound(segment)
+                    raise exceptions.PathNotFound(segment)
 
             if not isinstance(segment, str):
                 raise TypeError('Expected type <str> got ' + str(type(segment)))
@@ -213,7 +209,7 @@ class PathMapper(Segment):
 
             try:
                 new = get_new(segment_chain[-1], segment)
-            except PathNotFound:
+            except exceptions.PathNotFound:
                 break
             segment_chain.append(new)
 
