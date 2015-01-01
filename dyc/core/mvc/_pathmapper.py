@@ -1,9 +1,8 @@
 import functools
 
-from dyc import dchttp
 from dyc.errors import exceptions
 from .. import _component
-from dyc.util import decorators
+from dyc.util import decorators, typesafe
 
 
 __author__ = 'justusadam'
@@ -29,7 +28,6 @@ class Segment(dict, _AbstractSegment):
     def __init__(self, name, handler=None, **kwargs):
         super().__init__(**kwargs)
         _AbstractSegment.__init__(self, name, handler)
-        self.types = {}
         self.wildcard = None
 
 
@@ -39,7 +37,8 @@ class WildcardSegment(_AbstractSegment):
 
 
 class TypeArg(object):
-    def __init__(self, name, t):
+    @typesafe.typesafe
+    def __init__(self, name:str, t):
         self.name = name
         self.type = t
 
@@ -110,21 +109,24 @@ class PathMapper(Segment):
             elif isinstance(segment, str):
                 new = old.setdefault(segment, Segment(segment))
             elif isinstance(segment, type):
-                new = old.types.setdefault(segment, Segment(None))
+                new = old.setdefault(segment, Segment(None))
             elif isinstance(segment, TypeArg):
-                new = old.types.setdefault(segment.type, Segment(segment.name))
+                new = old.setdefault(segment.type, Segment(segment.name))
             else:
                 raise TypeError('Expected Type <str> or <type> not ' + str(type(segment)))
+
             if not isinstance(new, Segment):
-                new = old[segment] = Segment(segment, new)
+                if isinstance(segment, str):
+                    new = old[segment] = Segment(segment, new)
+                elif isinstance(segment, type):
+                    new = old[segment] = Segment(None, new)
+                elif isinstance(segment, TypeArg):
+                    new = old[segment.type] = Segment(segment.name, new)
+                else:
+                    raise TypeError('Expected Type <str> or <type> not ' + str(type(segment)))
             old = new
 
-        if isinstance(destination, str):
-            m = new
-        elif isinstance(destination, type):
-            m = new.types
-        else:
-            raise TypeError('Expected Type <str> or <type> not ' + str(type(destination)))
+        m = new
 
         def add_to_container(container, handler_func):
             for a in handler_func.method:
@@ -184,7 +186,7 @@ class PathMapper(Segment):
 
             def handle_type(segment, t):
                 try:
-                    x = old.types[t]
+                    x = old[t]
                     if isinstance(x, Segment) and x.name:
                         ikwargs[x.name] = t(segment)
                     else:

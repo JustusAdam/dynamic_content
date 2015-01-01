@@ -20,9 +20,8 @@ class ARToken(orm.BaseModel):
 
 
 def validation_hook(url):
-    if 'form_token' in url.post:
-        print(str(url.get_query))
-        return validate(url.post)
+    if 'form_token' in url.query:
+        return validate(url.query)
     return True
 
 
