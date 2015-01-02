@@ -84,6 +84,7 @@ SUPPORTED_LANGUAGES = {
 }
 BASE_LANGUAGE = 'en_us'
 DEFAULT_LANGUAGE = 'en_us'
+PATHMAP_TYPE = 'Tree'
 
 
 # delete names that are not settings

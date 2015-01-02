@@ -1,8 +1,10 @@
 import functools
+import collections
 
 from dyc.errors import exceptions
 from .. import _component
 from dyc.util import decorators, typesafe, console
+from dyc.includes import settings
 
 
 __author__ = 'justusadam'
@@ -14,12 +16,20 @@ _typecheck = {
 }
 
 class Segment(dict):
-    """A egment of the path structure"""
+    """A Segment of the path structure"""
     def __init__(self, name, handler=None, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.handler = handler
         self.wildcard = None
+
+    @staticmethod
+    def add_to_container(container, handler_func):
+        for a in handler_func.method:
+            if getattr(container, a) is None:
+                setattr(container, a, handler_func)
+            else:
+                raise exceptions.ControllerError('Overwriting set Handlers is not allowed')
 
 
 class TypeArg(object):
@@ -60,32 +70,71 @@ typemap = {
 }
 
 
-def parse_path(path:str):
-    def _inner(segment:str):
-        if segment.startswith('{') and segment.endswith('}'):
-            t, *name = segment[1:-1].split(' ')
-            if len(name) == 0:
-                return typemap[t]
-            elif len(name) == 1:
-                return TypeArg(name[0], typemap[t])
-            else:
-                raise exceptions.ControllerError('Name cannot contain spaces')
-        else:
-            return segment
-    for a in path.split('/'):
-        yield _inner(a)
-
-
-@_component.Component('PathMap')
-class PathMapper(Segment):
+class PathMap(Segment):
     def __init__(self, **kwargs):
         super().__init__('/', **kwargs)
         self._controller_classes = []
 
+    def __iadd__(self, other):
+        if isinstance(other, (tuple, list)) and len(other) == 2:
+            path, handler = other
+            self.add_path(path, handler)
+            return self
+        elif isinstance(other, dict):
+            path, handler = other['path'], other['handler']
+            self.add_path(path, handler)
+            return self
+        else:
+            raise TypeError('Argument must be tuple or list of path and handler')
+
+    def add_path(self, path:str, handler):
+        raise NotImplementedError
+
+    @decorators.catch(exception=(exceptions.ControllerError, PermissionError), return_value='error', log_error=True, print_error=True)
+    def __call__(self, model, url):
+        handler = self.get_handler(str(url.path), url.method, model)
+        element = handler.func
+        if element.query is True:
+            return handler(url.query)
+        elif url.query:
+            if isinstance(element.query, str):
+                return handler(**{element.query: url.query.get(element.query, None)})
+            elif isinstance(element.query, (list, tuple, set)):
+                return handler(**{a : url.query.get(a, None) for a in element.query})
+            elif isinstance(element.query, dict):
+                return handler(**{b : url.query.get(a, None) for a, b in element.query.items()})
+        else:
+            if element.query is False:
+                return handler()
+            else:
+                return
+
+    def get_handler(self, path:str, method, *args, **kwargs):
+        raise NotImplementedError
+
+
+
+class TreePathMap(PathMap):
+    @staticmethod
+    def parse_path(path:str):
+        def _inner(segment:str):
+            if segment.startswith('{') and segment.endswith('}'):
+                t, *name = segment[1:-1].split(' ')
+                if len(name) == 0:
+                    return typemap[t]
+                elif len(name) == 1:
+                    return TypeArg(name[0], typemap[t])
+                else:
+                    raise exceptions.ControllerError('Name cannot contain spaces')
+            else:
+                return segment
+        for a in path.split('/'):
+            yield _inner(a)
+
     def add_path(self, path:str, handler):
         console.cprint('Registering on path ' + path + '     Handler: ' + repr(handler))
         path = path[1:] if path.startswith('/') else path
-        path = parse_path(path)
+        path = self.parse_path(path)
 
         *path_segments, destination = path
 
@@ -116,18 +165,11 @@ class PathMapper(Segment):
 
         m = new
 
-        def add_to_container(container, handler_func):
-            for a in handler_func.method:
-                if getattr(container, a) is None:
-                    setattr(container, a, handler_func)
-                else:
-                    raise exceptions.ControllerError('Overwriting set Handlers is not allowed')
-
         if destination == '**':
             if m.wildcard is None:
                 m.wildcard = HandlerContainer(**{a.lower():handler for a in handler.method})
             elif isinstance(m.wildcard, HandlerContainer):
-                add_to_container(m.wildcard, handler)
+                self.add_to_container(m.wildcard, handler)
             else:
                 raise exceptions.ControllerError
         elif destination in m:
@@ -136,32 +178,13 @@ class PathMapper(Segment):
                 if s.handler is None:
                     s.handler = HandlerContainer(**{a.lower():handler for a in handler.method})
                 else:
-                    add_to_container(s.handler, handler)
+                    self.add_to_container(s.handler, handler)
             elif isinstance(s, HandlerContainer):
-                add_to_container(s, handler)
+                self.add_to_container(s, handler)
             else:
                 raise exceptions.ControllerError('Overwriting set Handlers is not allowed')
         else:
             m[destination] = HandlerContainer(**{a.lower():handler for a in handler.method})
-
-    @decorators.catch(exception=(exceptions.ControllerError, PermissionError), return_value='error', log_error=True, print_error=True)
-    def __call__(self, model, url):
-        handler = self.get_handler(str(url.path), url.method, model)
-        element = handler.func
-        if element.query is True:
-            return handler(url.query)
-        elif url.query:
-            if isinstance(element.query, str):
-                return handler(**{element.query: url.query.get(element.query, None)})
-            elif isinstance(element.query, (list, tuple, set)):
-                return handler(**{a : url.query.get(a, None) for a in element.query})
-            elif isinstance(element.query, dict):
-                return handler(**{b : url.query.get(a, None) for a, b in element.query.items()})
-        else:
-            if element.query is False:
-                return handler()
-            else:
-                return
 
     def get_handler(self, path:str, method, *args, **kwargs):
         origin = path
@@ -222,3 +245,105 @@ class PathMapper(Segment):
         else:
             wildcard.keywords.update(kwargs)
             return functools.partial(wildcard.func, *wildcard.args + args + (origin, ), **wildcard.keywords)
+
+
+class MultiTableSegment(Segment):
+    def get_handler_container(self, path):
+        first, *rest = path
+
+        if rest:
+            if first in self:
+                b = self[first]
+                if isinstance(b, HandlerContainer):
+                    b = self[first] = self.__class__(first, b)
+                elif not isinstance(b, self.__class__):
+                    raise exceptions.ControllerError('Expected Handler, or Segment, found ' + repr(type(b)))
+            else:
+                b = self[first] = self.__class__(first)
+
+            return b.get_handler_container(rest)
+        else:
+            a = self.setdefault(first, HandlerContainer())
+            if isinstance(a, self.__class__):
+                if a.handler is None:
+                    a.handler = HandlerContainer()
+
+                a = a.handler
+            return a
+
+    def segment_get_handler(self, path:str):
+        rest = collections.deque()
+        p = path
+
+        while p:
+            if p in self:
+                if rest:
+                    if not isinstance(self[p], self.__class__):
+                        raise exceptions.PathResolving(path)
+                    return self[p].get_handler('/'.join(rest))
+                else:
+                    return self[p].handler if isinstance(self[p], self.__class__) else self[p]
+            else:
+                p, r = p.rsplit('/', 1)
+                rest.appendleft(r)
+        else:
+            p = int(rest[0]) if rest[0].isnumeric() else rest[0]
+
+
+
+class MultiTablePathMap(MultiTableSegment, PathMap):
+    @staticmethod
+    def parse_path(path):
+        def split_segments(path:str):
+            def _inner(segment):
+                if segment.startswith('{') and segment.endswith('}'):
+                    t, *name = segment[1:-1].split(' ')
+                    if len(name) == 0:
+                        return typemap[t]
+                    elif len(name) == 1:
+                        return TypeArg(name[0], typemap[t])
+                    else:
+                        raise exceptions.ControllerError('Name cannot contain spaces')
+                else:
+                    return segment
+            first, *rest = path.split('/')
+            if first != '':
+                yield _inner(first)
+            for a in rest:
+                yield _inner(a)
+
+        segments = split_segments(path)
+
+        r = []
+        p = []
+
+        def flush_p():
+            if p:
+                r.append('/'.join(p))
+                p.clear()
+
+        for s in segments:
+            if isinstance(s, str):
+                p.append(s)
+            elif isinstance(s, type) or isinstance(s, TypeArg):
+                flush_p()
+                r.append(s)
+        else:
+            flush_p()
+
+        return r
+
+
+    def add_path(self, path:str, handler):
+        self.add_to_container(self.get_handler_container(self.parse_path(path)), handler)
+
+    def get_handler(self, path:str, method, *args, **kwargs):
+        return self.segment_get_handler(path, )
+
+
+_component.Component('PathMap')(
+    {
+        'multitable': MultiTablePathMap,
+        'tree': TreePathMap
+    }[settings.PATHMAP_TYPE.lower()]
+)
