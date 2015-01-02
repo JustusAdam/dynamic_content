@@ -10,12 +10,14 @@ from .model import Model
 from dyc.util import decorators
 from dyc.util import typesafe
 
+
 __author__ = 'justusadam'
+
 
 controller_mapper = _component.get_component('PathMap')
 
 
-class Autoconf:
+class Autoconf(object):
     """
     Chains Custom config, model config and default conf and assigns it to the model.
 
@@ -58,7 +60,7 @@ def _to_set(my_input, allowed_vals=str):
         raise TypeError('Expected type ' + repr((list, tuple, set)) + ' or ' + repr(allowed_vals) + ' got ' + repr(type(my_input)))
 
 
-class ControlFunction:
+class ControlFunction(object):
     def __init__(self, function, value, method, query):
         if isinstance(function, ControlFunction):
             self.function = function.function
@@ -129,7 +131,8 @@ rest_controller_function = functools.partial(__controller_function, RestControlF
 rest_controller_method = functools.partial(__controller_method, RestControlFunction)
 
 
-class url_args:
+@decorators.deprecated
+class url_args(object):
     """
     Function decorator for controller Methods. Parses the Input (url) without prefix according to the regex.
     Unpacks groups into function call arguments.

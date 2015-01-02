@@ -51,11 +51,13 @@ class Application(threading.Thread, lazy.Loadable):
 
     def run_http_server_loop(self):
 
-        def http_callback(url, client):
+        def http_callback(request):
             model = _model.Model()
-            model.client = client
-            view = model.view = core.get_component('PathMap')(model, url)
-            return self.decorator(view, model, url)
+            handler, args, kwargs = core.get_component('PathMap').find_handler(request)
+
+
+            view = model.view = handler(*(model, ) + args, **kwargs)
+            return self.decorator(view, model, request)
 
         request_handler = functools.partial(self.config.http_request_handler, http_callback)
 

@@ -14,15 +14,14 @@ class TestDecorator(unittest.TestCase):
 
         prefix1 = 'hello/{str}'
         testpath = 'somepath35'
-        url1 = Url('/hello/' + testpath)
-        url1.method = 'get'
         model = Model()
 
         @mvc.controller_function(prefix1, method=dchttp.RequestMethods.GET, query=True)
         def handle(model, arg, get):
             return model, arg, get
 
-        result_model, result_arg, result_get = core.get_component('PathMap')(model, url1)
+        r = dchttp.Request('/hello/' + testpath, 'get', None)
+        result_model, result_arg, result_get = core.get_component('PathMap').resolve(r)
         self.assertEqual(model, result_model)
         self.assertEqual(testpath, result_arg)
         self.assertEqual({}, result_get)

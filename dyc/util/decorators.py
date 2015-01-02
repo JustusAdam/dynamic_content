@@ -19,6 +19,9 @@ def deprecated(func):
     return wrap
 
 
+Deprecated = deprecated
+
+
 def filter_args(types, args, kwargs):
     all_args = list(args) + list(kwargs.values())
     for t in types:

@@ -1,7 +1,7 @@
 import pathlib
 import sys
-from dyc.dchttp import request
 from dyc.dchttp import server
+from dyc.dchttp.request_handler import RequestHandler
 
 __author__ = 'justusadam'
 
@@ -30,4 +30,4 @@ class DefaultConfig(ApplicationConfig):
         "host": ""
     }
     server_class = server.ThreadedHTTPServer
-    http_request_handler = request.RequestHandler
+    http_request_handler = RequestHandler

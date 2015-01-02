@@ -1,5 +1,4 @@
 from ._abs import AbstractDatabase
-from dyc import errors
 
 __author__ = 'justusadam'
 

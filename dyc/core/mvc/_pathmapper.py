@@ -1,5 +1,6 @@
 import functools
 import collections
+from dyc import dchttp
 
 from dyc.errors import exceptions
 from .. import _component
@@ -14,6 +15,7 @@ _typecheck = {
     int: str.isnumeric,
     str: lambda a: True
 }
+
 
 class Segment(dict):
     """A Segment of the path structure"""
@@ -96,33 +98,34 @@ class PathMap(Segment):
         raise NotImplementedError
 
     @decorators.catch(exception=(exceptions.ControllerError, PermissionError), return_value='error', log_error=True, print_error=True)
-    def __call__(self, model, url):
+    def resolve(self, request):
         """Resolve and handle a request to given url"""
-        handler = self.get_handler(str(url.path), url.method, model)
-        element = handler.func
-        if element.query is True:
-            return handler(url.query)
-        elif url.query:
-            if isinstance(element.query, str):
-                return handler(**{element.query: url.query.get(element.query, None)})
-            elif isinstance(element.query, (list, tuple, set)):
-                return handler(**{a : url.query.get(a, None) for a in element.query})
-            elif isinstance(element.query, dict):
-                return handler(**{b : url.query.get(a, None) for a, b in element.query.items()})
-        else:
-            if element.query is False:
-                return handler()
-            else:
-                return
+        handler, args, kwargs = self.find_handler(request)
 
-    def get_handler(self, path:str, method, *args, **kwargs):
+        if handler.query is True:
+            args += (request.query, )
+        elif request.query:
+            if isinstance(handler.query, str):
+                kwargs[handler.query] = request.query.get(handler.query, None)
+            elif isinstance(handler.query, (list, tuple, set)):
+                for name in handler.query:
+                    kwargs[name] = request.query.get(name, None)
+            elif isinstance(handler.query, dict):
+                for name, proxy in handler.query.items():
+                    kwargs[proxy] = request.query.get(name, None)
+        else:
+            if not handler.query is False:
+                raise exceptions.ControllerError
+
+        return handler, args, kwargs
+
+    def find_handler(self, request:dchttp.Request):
         """Resolve the appropriate handler for the given path and request method
 
          :return partial function encapsulating the handler function
          with arguments constructed form path, as well as *args and **kwargs
         """
         raise NotImplementedError
-
 
 
 class TreePathMap(PathMap):
@@ -198,11 +201,10 @@ class TreePathMap(PathMap):
         else:
             m[destination] = HandlerContainer(**{a.lower():handler for a in handler.method})
 
-    def get_handler(self, path:str, method, *args, **kwargs):
-        origin = path
-        path = path.split('/')[1:] if path.startswith('/') else path.split('/')
+    def find_handler(self, request):
+        path = request.path.split('/')[1:] if request.path.startswith('/') else request.path.split('/')
         iargs, ikwargs = [], {}
-        wildcard = getattr(self.wildcard, method) if self.wildcard is not None else None
+        wildcard = getattr(self.wildcard, request.method) if self.wildcard is not None else None
         segment_chain = [self]
 
         def get_new(old, segment:str):
@@ -229,8 +231,8 @@ class TreePathMap(PathMap):
         new = segment_chain[-1]
         for segment in path:
             if isinstance(new, Segment):
-                if new.wildcard and getattr(new.wildcard, method) is not None:
-                    wildcard = functools.partial(getattr(new.wildcard, method), *iargs, **ikwargs)
+                if new.wildcard and getattr(new.wildcard, request.method) is not None:
+                    wildcard = functools.partial(getattr(new.wildcard, request.method), *iargs, **ikwargs)
             else:
                 break
 
@@ -244,19 +246,17 @@ class TreePathMap(PathMap):
         else:
             handler = new.handler if isinstance(new, Segment) else new
             try:
-                handler_func = getattr(handler, method)
+                handler_func = getattr(handler, request.method)
             except AttributeError:
-                raise AttributeError('Unrecognized Request method ' + repr(method))
+                raise AttributeError('Unrecognized Request method ' + repr(request.method))
             if not handler_func is None:
-                ikwargs.update(kwargs)
-                return functools.partial(handler_func, *args + tuple(iargs), **ikwargs)
+                return functools.partial(handler_func, *iargs, **ikwargs)
 
 
         if wildcard is None:
-            raise exceptions.MethodHandlerNotFound('Mo handler found for request method ' + method + ' for path ' + origin)
+            raise exceptions.MethodHandlerNotFound('Mo handler found for request method ' + request.method + ' for path ' + request.path)
         else:
-            wildcard.keywords.update(kwargs)
-            return functools.partial(wildcard.func, *wildcard.args + args + (origin, ), **wildcard.keywords)
+            return functools.partial(wildcard.func, *wildcard.args + (request.path, ), **wildcard.keywords)
 
 
 class MultiTableSegment(Segment):
@@ -348,7 +348,6 @@ class MultiTableSegment(Segment):
                     if exception is None else exception
 
 
-
 class MultiTablePathMap(MultiTableSegment, PathMap):
     """Path mapper implementation based on junction stacked hash tables"""
     @staticmethod
@@ -414,14 +413,15 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
         handler.typeargs = typeargs
         self.add_to_container(self.get_handler_container(path_list), handler)
 
-    def get_handler(self, path:str, method, *args, **kwargs):
-        handler, typeargs = self.segment_get_handler(path, method)
+    def find_handler(self, request):
+        handler, typeargs = self.segment_get_handler(request.path, request.method)
 
         def process_args(typeargs, values):
             args = []
+            kwargs = {}
             for targ, val in zip(typeargs, values):
                 if targ == '**':
-                    args.append(path)
+                    args.append(request.path)
                 elif isinstance(targ, TypeArg):
                     kwargs[targ.name] = val
                 elif isinstance(targ, type):
@@ -429,14 +429,14 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
                 else:
                     raise TypeError('Expected Type ' + repr(type) + ' or ' + repr(TypeArg) + ' got ' + repr(type(targ)))
 
-            return tuple(args)
+            return tuple(args), kwargs
 
         if handler.typeargs:
-            targs = process_args(handler.typeargs, typeargs)
+            args, kwargs = process_args(handler.typeargs, typeargs)
 
-            return functools.partial(handler, *args + targs, **kwargs)
+            return handler, args, kwargs
 
-        return functools.partial(handler, *args, **kwargs)
+        return handler, (), {}
 
 
 _component.Component('PathMap')(
