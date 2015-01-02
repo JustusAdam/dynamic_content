@@ -27,6 +27,7 @@ def main():
     parser.add_argument('--runlevel', '-r', type=str, choices=settings.RunLevel.levels)
     parser.add_argument('--logfile', type=str)
     parser.add_argument('--loglevel', type=str, choices=settings.LoggingLevel.levels)
+    parser.add_argument('--pathmap', type=str, choices=settings.PathMaps)
 
     startargs = parser.parse_args()
 

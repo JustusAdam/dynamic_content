@@ -73,6 +73,7 @@ typemap = {
 class PathMap(Segment):
     def __init__(self, **kwargs):
         super().__init__('/', **kwargs)
+        console.cprint('Utilizing PathMapType:   ' + self.__class__.__name__)
         self._controller_classes = []
 
     def __iadd__(self, other):
@@ -387,6 +388,7 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
 
 
     def add_path(self, path:str, handler):
+        console.cprint('Registering on path /' + path + '     Handler: ' + repr(handler))
         path_list = self.parse_path(path)
         typeargs = tuple(filter(lambda a: isinstance(a, type) or isinstance(a, TypeArg) or a == '**', path_list))
         handler.typeargs = typeargs

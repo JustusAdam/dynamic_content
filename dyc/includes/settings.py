@@ -34,6 +34,10 @@ class EnumLevel(object):
 
 LoggingLevel = EnumLevel(*['log_warnings', 'log_errors', 'throw_errors', 'throw_all'])
 RunLevel = EnumLevel(*['testing', 'debug', 'production'])
+PathMaps = {
+    'multitable',
+    'tree'
+}
 
 
 # the order in this list dictates the order in which these modules will be activated
