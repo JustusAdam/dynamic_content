@@ -54,6 +54,8 @@ docs/_build/
 # PyBuilder
 target/
 
+# databases
+*.db
 
 # custom additions
 *.scssc

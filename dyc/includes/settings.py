@@ -10,21 +10,21 @@ from pathlib import Path
 __author__ = 'justusadam'
 
 
-class EnumLevel:
+class EnumLevel(object):
     def __init__(self, *levels):
         if len(levels) == 1 and not isinstance(levels[0], str) and hasattr(levels[0], '__iter__'):
             levels = levels[0]
         self.levels = levels
 
     def __getattr__(self, item):
-        if item in self.levels:
-            return self.levels.index(item)
-        raise AttributeError
+        return self.__getitem__(item)
 
     def __getitem__(self, item):
         if isinstance(item, int):
             return self.levels[item]
-        if item in self.levels:
+        elif item in self.levels:
+            return self.levels.index(item)
+        elif item.lower() in self.levels:
             return self.levels.index(item)
         raise KeyError
 
@@ -34,6 +34,10 @@ class EnumLevel:
 
 LoggingLevel = EnumLevel(*['log_warnings', 'log_errors', 'throw_errors', 'throw_all'])
 RunLevel = EnumLevel(*['testing', 'debug', 'production'])
+PathMaps = {
+    'multitable',
+    'tree'
+}
 
 
 # the order in this list dictates the order in which these modules will be activated
@@ -84,6 +88,8 @@ SUPPORTED_LANGUAGES = {
 }
 BASE_LANGUAGE = 'en_us'
 DEFAULT_LANGUAGE = 'en_us'
+PATHMAP_TYPE = 'MultiTable'
+LOGFILE = 'app.log'
 
 
 # delete names that are not settings

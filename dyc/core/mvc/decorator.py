@@ -12,7 +12,7 @@ from dyc.util import typesafe
 
 __author__ = 'justusadam'
 
-controller_mapper = lambda :_component.get_component('PathMap')
+controller_mapper = _component.get_component('PathMap')
 
 
 class Autoconf:
@@ -67,10 +67,11 @@ class ControlFunction:
             self.wrapping = []
             self.function = function
         self.wrapping.append(self)
-        self.value = _to_set(value, str)
+        self.value = _to_set(value)
         self.method = _to_set(method, str)
         self.query = query if isinstance(query, (dict, bool)) else _to_set(query)
         self.instance = None
+        self.typeargs = []
 
     def __call__(self, *args, **kwargs):
         if self.instance:
@@ -78,10 +79,7 @@ class ControlFunction:
         return self.function(*args, **kwargs)
 
     def __repr__(self):
-        if self.instance:
-            return '<ControlMethod for path\'s \'' + repr(self.value) + '\' with function ' + repr(
-                self.function) + ' and instance ' + repr(self.instance) + '>'
-        return '<ControlFunction for path\'s \'' + repr(self.value) + '\' with function ' + repr(self.function) + '>'
+        return '<ControlFunction for path(s) \'' + repr(self.value) + '\' with ' + repr(self.function) + '>'
 
 
 class RestControlFunction(ControlFunction):
@@ -95,7 +93,7 @@ def __controller_function(class_, value, *, method=dchttp.RequestMethods.GET, qu
     def wrap(func):
         wrapped = class_(func, value, method, query)
         for val in wrapped.value:
-            controller_mapper().add_path(val, wrapped)
+            controller_mapper.add_path(val, wrapped)
         return wrapped
     return wrap
 
@@ -115,12 +113,12 @@ def controller_class(class_):
     c_funcs = list(filter(lambda a: isinstance(a, ControlFunction), class_.__dict__.values()))
     if c_funcs:
         instance = class_()
-        controller_mapper()._controller_classes.append(instance)
+        controller_mapper._controller_classes.append(instance)
         for item in c_funcs:
             for wrapped in item.wrapping:
                 wrapped.instance = instance
                 for i in wrapped.value:
-                    controller_mapper().add_path(i, wrapped)
+                    controller_mapper.add_path(i, wrapped)
     return class_
 
 

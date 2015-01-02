@@ -9,7 +9,7 @@ The goal is to create a fast and easily expandable, modular CMS for every use im
 
 Currently there is no documentation and few comments and docstrings and it is by no means feature complete. Pull requests, contributions and feedback is very much welcome.
 
-100% Python ... almost.
+100% Python 3
 
 ## Requirements
 
@@ -36,10 +36,11 @@ Currently there is no documentation and few comments and docstrings and it is by
     * theme based styling &#x2713;
     * configuration and editing via web interface &#x2718; (partially done) 
     * module based handling of editing and content &#x2713; (for all currently available content types)
-    
+
 * Extensibility
     * Added several decorators to allow easy use of core functionality
-    
+    * Added dynamic path mapping allow for easy addition of custom controllers    
+
 * MISC Features
     * Special handling for other requests like traceroute etc. &#x2718;
 

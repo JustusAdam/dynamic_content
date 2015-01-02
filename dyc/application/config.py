@@ -13,7 +13,7 @@ if not str(_basedir.parent) in sys.path:
     sys.path.append(str(_basedir.parent))
 
 
-class ApplicationConfig:
+class ApplicationConfig(object):
     server_arguments = {}
     server_class = None
     http_request_handler = None

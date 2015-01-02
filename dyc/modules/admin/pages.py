@@ -22,9 +22,7 @@ def overview(modelmap):
     modelmap['title'] = 'Website Administration'
     modelmap.theme = 'admin_theme'
 
-    tree = order_tree(model.Category.select(),
-                  [Category(child.machine_name, child.display_name, child.category, None) for child in
-                model.Subcategory.select()])
+    tree = order_tree(model.Category.select(), Category.from_db(model.Subcategory.select()))
 
     modelmap['content'] = render_categories(*tree)
     return 'page'
@@ -41,6 +39,7 @@ def render_categories(*subcategories, basepath=ADMIN_PATH, classes=set()):
             html.ContainerElement(*subcategories[half:], classes={'right-column'}),
             classes=classes
         )
+
 
 def order_tree(parents, children):
     mapping = collections.defaultdict(list)
@@ -77,14 +76,15 @@ class OverviewCommon(base.Commons):
 @comp_dec.Regions
 def category(modelmap, name):
     modelmap.pageclasses = {'admin-menu', 'category'}
+    modelmap.theme = 'admin_theme'
 
     parent = model.Category.get(machine_name=name)
 
-    children = [Category(child.machine_name, child.display_name, child.category, None) for child in
-                model.Subcategory.select().where(model.Subcategory.category == parent)]
+    children = Category.from_db(model.Subcategory.select().where(model.Subcategory.category == parent))
 
     tree = order_tree([parent], children)
 
+    modelmap['title'] = parent.display_name if parent.display_name else parent.machine_name
     modelmap['content'] = render_categories(*tree)
 
     return 'page'
@@ -94,20 +94,45 @@ def category(modelmap, name):
 @comp_dec.Regions
 def subcategory(modelmap, category_name,  name):
     modelmap.pageclasses = {'admin-menu', 'subcategory'}
+    modelmap.theme = 'admin_theme'
 
-    parents = [model.Subcategory.get(model.Subcategory.machine_name == name)]
+    parent = model.Subcategory.get(machine_name=name, category=model.Category.get(machine_name=category_name))
 
-    children = model.AdminPage.select().where(model.AdminPage.subcategory == parents[0])
+    children = Category.from_db(model.AdminPage.select().where(model.AdminPage.subcategory == parent))
 
-    tree = order_tree(parents, children)
+    tree = order_tree([parent], children)
 
+    modelmap['title'] = parent.display_name if parent.display_name else parent.machine_name
     modelmap['content'] = render_categories(*tree)
 
     return 'page'
 
 
+@mvc.controller_function('adin/{str}/{str}/{str}', method=dchttp.RequestMethods.GET, query=False)
+def page(modelmap, category_name, subcategory_name, page_name):
+    pass
+
+
 class Category:
     classes = {'category'}
+
+    @classmethod
+    def from_db(cls, objects):
+        for item in objects:
+            yield cls.from_db_obj(item)
+
+    @classmethod
+    def from_db_obj(cls, dbobj):
+        if isinstance(dbobj, model.AdminPage):
+            parent = dbobj.subcategory
+        elif isinstance(dbobj, model.Subcategory):
+            parent = dbobj.category
+        elif isinstance(dbobj, model.Category):
+            parent = None
+        else:
+            raise TypeError('Expected type ' + ', '.join([repr(type(model.Category)), repr(type(model.Subcategory)), repr(type(model.AdminPage))]) + ' got ' + repr(type(dbobj)))
+
+        return cls(dbobj.machine_name, dbobj.display_name, parent, None)
 
     def __init__(self, name, display_name, parent=None, sub=None):
         self.name = name

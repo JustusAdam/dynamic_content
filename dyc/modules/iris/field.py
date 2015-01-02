@@ -33,7 +33,7 @@ class Fields(lazy.Loadable):
         return self._inner[item]
 
 
-@core.inject_kwarg('Fields', 'fields')
+@core.inject(fields='fields')
 def field(field_type, fields):
     def inner(class_):
         fields[field_type] = class_

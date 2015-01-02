@@ -1,6 +1,6 @@
-from . import model as compmodel
+from . import formatter, model as compmodel
 from dyc.modules.commons import model as commonsmodel
-from dyc.core.model import Module
+from dyc.core import model as coremodel
 
 __author__ = 'justusadam'
 
@@ -11,7 +11,7 @@ role = 'theme_engine'
 
 def add_commons_config(machine_name, commons_type, handler_module, access_type=0):
     if isinstance(handler_module, str):
-        handler_module = Module.get(machine_name=handler_module)
+        handler_module = coremodel.Module.get(machine_name=handler_module)
     elif not isinstance(handler_module, (int, float)):
         raise ValueError
     commonsmodel.CommonsConfig.create(machine_name=machine_name,
