@@ -132,7 +132,7 @@ class TreePathMap(PathMap):
             yield _inner(a)
 
     def add_path(self, path:str, handler):
-        console.cprint('Registering on path ' + path + '     Handler: ' + repr(handler))
+        console.cprint('Registering on path /' + path + '     Handler: ' + repr(handler))
         path = path[1:] if path.startswith('/') else path
         path = self.parse_path(path)
 

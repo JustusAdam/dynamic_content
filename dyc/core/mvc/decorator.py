@@ -78,10 +78,7 @@ class ControlFunction:
         return self.function(*args, **kwargs)
 
     def __repr__(self):
-        if self.instance:
-            return '<ControlMethod for path\'s \'' + repr(self.value) + '\' with function ' + repr(
-                self.function) + ' and instance ' + repr(self.instance) + '>'
-        return '<ControlFunction for path\'s \'' + repr(self.value) + '\' with function ' + repr(self.function) + '>'
+        return '<ControlFunction for path(s) \'' + repr(self.value) + '\' with ' + repr(self.function) + '>'
 
 
 class RestControlFunction(ControlFunction):
