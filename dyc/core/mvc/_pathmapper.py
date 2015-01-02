@@ -252,42 +252,87 @@ class MultiTableSegment(Segment):
         first, *rest = path
 
         if rest:
-            if first in self:
+            if first == '**':
+                raise exceptions.ControllerError('Midsection cannot be wildcard')
+            elif first in self:
                 b = self[first]
                 if isinstance(b, HandlerContainer):
-                    b = self[first] = self.__class__(first, b)
-                elif not isinstance(b, self.__class__):
+                    b = self[first] = MultiTableSegment(first, b)
+                elif not isinstance(b, MultiTableSegment):
                     raise exceptions.ControllerError('Expected Handler, or Segment, found ' + repr(type(b)))
             else:
-                b = self[first] = self.__class__(first)
+                b = self[first] = MultiTableSegment(first)
 
             return b.get_handler_container(rest)
         else:
-            a = self.setdefault(first, HandlerContainer())
-            if isinstance(a, self.__class__):
+            if first == '**':
+                if self.wildcard is None:
+                    self.wildcard = HandlerContainer()
+                a = self.wildcard
+            else:
+                a = self.setdefault(first, HandlerContainer())
+            if isinstance(a, MultiTableSegment):
                 if a.handler is None:
                     a.handler = HandlerContainer()
 
                 a = a.handler
             return a
 
-    def segment_get_handler(self, path:str):
+    def segment_get_handler(self, path:str, method):
         rest = collections.deque()
-        p = path
+        p = '/' + path if not path.startswith('/') else path
 
-        while p:
-            if p in self:
-                if rest:
-                    if not isinstance(self[p], self.__class__):
-                        raise exceptions.PathResolving(path)
-                    return self[p].get_handler('/'.join(rest))
-                else:
-                    return self[p].handler if isinstance(self[p], self.__class__) else self[p]
+        def rethandler_func(func):
+            handler = func.handler if isinstance(func, MultiTableSegment) else func
+            if getattr(handler, method) is None:
+                raise exceptions.MethodHandlerNotFound(repr(handler))
             else:
-                p, r = p.rsplit('/', 1)
-                rest.appendleft(r)
+                return getattr(handler, method)
+
+        exception = None
+
+        while p != '':
+            if p in self:
+                match = self[p]
+                if rest:
+                    try:
+                        return match.segment_get_handler('/'.join(rest), method)
+                    except (exceptions.PathResolving, exceptions.MethodHandlerNotFound) as e:
+                        if exception is None:
+                            exception = e
+                else:
+                    try:
+                        return rethandler_func(match), ()
+                    except exceptions.MethodHandlerNotFound as e:
+                        if exception is None:
+                            exception = e
+
+            p, r = p.rsplit('/', 1)
+            rest.appendleft(r)
+
         else:
-            p = int(rest[0]) if rest[0].isnumeric() else rest[0]
+            p, *rest = rest
+            p, t = (int(p), int) if p.isnumeric() else (p, str)
+            if t in self:
+                match = self[t]
+                if rest:
+                    try:
+                        func, args = match.segment_get_handler('/'.join(rest), method)
+                        return func, (p, ) + args
+                    except (exceptions.PathResolving, exceptions.MethodHandlerNotFound) as e:
+                        if exception is None:
+                            exception = e
+                else:
+                    try:
+                        return rethandler_func(match), (p, )
+                    except exceptions.MethodHandlerNotFound as e:
+                        if exception is None:
+                            exception = e
+            if self.wildcard is not None:
+                return rethandler_func(self.wildcard), (None, )
+            else:
+                raise exceptions.PathResolving('No matching path could be found for ' + path) \
+                    if exception is None else exception
 
 
 
@@ -308,7 +353,8 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
                     return segment
             first, *rest = path.split('/')
             if first != '':
-                yield _inner(first)
+                yield ''
+            yield _inner(first)
             for a in rest:
                 yield _inner(a)
 
@@ -319,12 +365,18 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
 
         def flush_p():
             if p:
+                if p[0] != '':
+                    p.insert(0,'')
                 r.append('/'.join(p))
                 p.clear()
 
         for s in segments:
             if isinstance(s, str):
-                p.append(s)
+                if s == '**':
+                    flush_p()
+                    r.append(s)
+                else:
+                    p.append(s)
             elif isinstance(s, type) or isinstance(s, TypeArg):
                 flush_p()
                 r.append(s)
@@ -335,10 +387,34 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
 
 
     def add_path(self, path:str, handler):
-        self.add_to_container(self.get_handler_container(self.parse_path(path)), handler)
+        path_list = self.parse_path(path)
+        typeargs = tuple(filter(lambda a: isinstance(a, type) or isinstance(a, TypeArg) or a == '**', path_list))
+        handler.typeargs = typeargs
+        self.add_to_container(self.get_handler_container(path_list), handler)
 
     def get_handler(self, path:str, method, *args, **kwargs):
-        return self.segment_get_handler(path, )
+        handler, typeargs = self.segment_get_handler(path, method)
+
+        def process_args(typeargs, values):
+            args = []
+            for targ, val in zip(typeargs, values):
+                if targ == '**':
+                    args.append(path)
+                elif isinstance(targ, TypeArg):
+                    kwargs[targ.name] = val
+                elif isinstance(targ, type):
+                    args.append(val)
+                else:
+                    raise TypeError('Expected Type ' + repr(type) + ' or ' + repr(TypeArg) + ' got ' + repr(type(targ)))
+
+            return tuple(args)
+
+        if handler.typeargs:
+            targs = process_args(handler.typeargs, typeargs)
+
+            return functools.partial(handler, *args + targs, **kwargs)
+
+        return functools.partial(handler, *args, **kwargs)
 
 
 _component.Component('PathMap')(

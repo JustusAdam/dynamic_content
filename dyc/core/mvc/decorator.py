@@ -67,10 +67,11 @@ class ControlFunction:
             self.wrapping = []
             self.function = function
         self.wrapping.append(self)
-        self.value = _to_set(value, str)
+        self.value = _to_set(value)
         self.method = _to_set(method, str)
         self.query = query if isinstance(query, (dict, bool)) else _to_set(query)
         self.instance = None
+        self.typeargs = []
 
     def __call__(self, *args, **kwargs):
         if self.instance:
