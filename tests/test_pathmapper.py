@@ -80,12 +80,15 @@ class TestTreeMapper(unittest.TestCase):
         method = 'get'
 
         for path, handler, teststring, result in testpaths[0:4]:
+            handler = ControlFunction(handler, path, method, False)
             self.mapper.add_path(path, handler)
             self.assertEqual(self.mapper.get_handler(teststring, method)(), result)
 
         for path, handler, teststring, result in testpaths[4:]:
+            handler = ControlFunction(handler, path, method, False)
             self.mapper.add_path(path, handler)
             self.assertTupleEqual(self.mapper.get_handler(teststring, method)(), result)
 
         for path, handler, teststring, result in testpaths[0:2]:
+            handler = ControlFunction(handler, path, method, False)
             self.assertRaises(ControllerError, self.mapper.add_path, path, handler)
