@@ -41,6 +41,7 @@ class TypeArg(object):
 
 
 class HandlerContainer(object):
+    """Value object for holding handlers to various request types with some convenience methods for value access"""
     items = {
         'get', 'post'
     }
@@ -71,12 +72,14 @@ typemap = {
 
 
 class PathMap(Segment):
+    """Abstract Baseclass for path mappers"""
     def __init__(self, **kwargs):
         super().__init__('/', **kwargs)
         console.cprint('Utilizing PathMapType:   ' + self.__class__.__name__)
         self._controller_classes = []
 
     def __iadd__(self, other):
+        """convenience  function for adding new path handlers"""
         if isinstance(other, (tuple, list)) and len(other) == 2:
             path, handler = other
             self.add_path(path, handler)
@@ -89,10 +92,12 @@ class PathMap(Segment):
             raise TypeError('Argument must be tuple or list of path and handler')
 
     def add_path(self, path:str, handler):
+        """registers given handler at given path"""
         raise NotImplementedError
 
     @decorators.catch(exception=(exceptions.ControllerError, PermissionError), return_value='error', log_error=True, print_error=True)
     def __call__(self, model, url):
+        """Resolve and handle a request to given url"""
         handler = self.get_handler(str(url.path), url.method, model)
         element = handler.func
         if element.query is True:
@@ -111,11 +116,17 @@ class PathMap(Segment):
                 return
 
     def get_handler(self, path:str, method, *args, **kwargs):
+        """Resolve the appropriate handler for the given path and request method
+
+         :return partial function encapsulating the handler function
+         with arguments constructed form path, as well as *args and **kwargs
+        """
         raise NotImplementedError
 
 
 
 class TreePathMap(PathMap):
+    """Hashmap tree based path mapper implementation"""
     @staticmethod
     def parse_path(path:str):
         def _inner(segment:str):
@@ -249,6 +260,7 @@ class TreePathMap(PathMap):
 
 
 class MultiTableSegment(Segment):
+    """Special Subclass of segment used for the MultiMap path mapper"""
     def get_handler_container(self, path):
         first, *rest = path
 
@@ -338,8 +350,16 @@ class MultiTableSegment(Segment):
 
 
 class MultiTablePathMap(MultiTableSegment, PathMap):
+    """Path mapper implementation based on junction stacked hash tables"""
     @staticmethod
     def parse_path(path):
+        """
+        Split path into list of segments, parsed according to the path mapping minilanguage
+         with the structure needed for incorporation into the MultiMap path mapper
+
+        :param path:
+        :return:
+        """
         def split_segments(path:str):
             def _inner(segment):
                 if segment.startswith('{') and segment.endswith('}'):
