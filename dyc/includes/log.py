@@ -2,20 +2,24 @@ import pathlib
 import datetime
 import functools
 
+from . import settings
+
 __author__ = 'justusadam'
 
 
+_path = pathlib.Path(settings.LOGFILE) if settings.LOGFILE.startswith('/') else pathlib.Path(__file__).parent / settings.LOGFILE
+if _path.is_dir():
+    raise IsADirectoryError
+elif not _path.exists():
+    _path.touch()
+
 def open_log():
-    path = pathlib.Path(__file__).parent / 'app.log'
-    if not path.is_file():
-        path.touch()
-    return open(str(path), mode='a')
+    return open(str(_path), mode='a')
 
 
 def write(line):
-    log = open_log()
-    log.write(str(line) + '\n')
-    log.close()
+    with open_log() as log:
+        print(line, file=log)
 
 
 def write_any(line):

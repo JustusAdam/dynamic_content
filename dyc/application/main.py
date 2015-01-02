@@ -1,11 +1,10 @@
 """
 Main file that runs the application.
 """
-import collections
 import os
 import pathlib
+import argparse
 import sys
-import re
 
 __author__ = 'justusadam'
 
@@ -24,16 +23,19 @@ del _basedir
 def main():
     from dyc.includes import settings
 
-    startargs = collections.defaultdict(list)
-    arg_regex = re.compile('(\w+)=(\w+)')
-    for arg in sys.argv[1:]:
-        m = re.fullmatch(arg_regex, arg)
-        if m: startargs[m.group(1).lower()].append(m.group(2).split(','))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--runlevel', '-r', type=str, choices=settings.RunLevel.levels)
+    parser.add_argument('--logfile', type=str)
+    parser.add_argument('--loglevel', type=str, choices=settings.LoggingLevel.levels)
 
-    if 'runlevel' in startargs:
-        if len(startargs['runlevel']) != 1:
-            raise ValueError
-        settings.RUNLEVEL = settings.RunLevel[startargs['runlevel'][0]]
+    startargs = parser.parse_args()
+
+    if startargs.runlevel:
+        settings.RUNLEVEL = settings.RunLevel[startargs.runlevel]
+    if startargs.logfile:
+        settings.LOGFILE = startargs.logfile
+    if startargs.loglevel:
+        settings.LOGGING_LEVEL = settings.LoggingLevel[startargs.loglevel]
 
     from dyc import application
     from dyc.util import config as _config
