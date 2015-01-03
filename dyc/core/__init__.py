@@ -6,6 +6,7 @@ __author__ = 'justusadam'
 from ._component import component, get_component, call_component, Component, inject
 from . import model, _registry
 from . import mvc
+from ._middleware import middleware, Middleware
 
 
 Modules = get_component('modules')

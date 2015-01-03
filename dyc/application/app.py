@@ -13,6 +13,9 @@ from . import config as _config
 __author__ = 'justusadam'
 
 
+middleware = core.get_component('Middleware')
+
+
 class Application(threading.Thread, lazy.Loadable):
     """
     Main Application (should only be instantiated once) inherits from thread to release main thread for signal handling
@@ -52,11 +55,26 @@ class Application(threading.Thread, lazy.Loadable):
     def run_http_server_loop(self):
 
         def http_callback(request):
+            for func in middleware.request:
+                res = func(request)
+                if res is not None:
+                    return res
+
             model = _model.Model()
             handler, args, kwargs = core.get_component('PathMap').find_handler(request)
 
+            for func in middleware.view:
+                res = func(request, handler, args, kwargs)
+                if res is not None:
+                    return res
 
             view = model.view = handler(*(model, ) + args, **kwargs)
+
+            for func in middleware.response:
+                res = func(request, view, model)
+                if res is not None:
+                    return res
+
             return self.decorator(view, model, request)
 
         request_handler = functools.partial(self.config.http_request_handler, http_callback)
