@@ -4,9 +4,7 @@ __author__ = 'justusadam'
 
 
 class Response(object):
-    def __init__(self, body=None, code=200, headers={}, cookies=None, encoding='utf-8', content_type='text/html'):
-        self.encoding = encoding
-        self.content_type = content_type
+    def __init__(self, body=None, code=200, headers={}, cookies=None):
         self.body = body
         self.code = code
         self.headers = headers
@@ -21,7 +19,7 @@ class Response(object):
 
 class Redirect(Response):
     def __init__(self, location, code=302, headers={}, cookies=None):
-        if not code in (302, 301):
+        if not code in (302, 301, 303):
             raise TypeError('Expected code 301 or 302, got ' + str(code))
         headers['Location'] = location
         super().__init__(code=code, cookies=cookies, headers=headers, body=None)

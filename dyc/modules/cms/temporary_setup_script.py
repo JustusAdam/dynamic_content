@@ -3,6 +3,9 @@ This is a temporary script that will execute some queries on the database to fil
 to get some basic site setup done. It will be done in this script to avoid trying to insert into tables that have not
 been created yet.
 """
+from dyc.util import console
+
+
 __author__ = 'justusadam'
 
 
@@ -22,9 +25,9 @@ def init_tables():
             if inspect.isclass(item) and issubclass(item, orm.Model):
                 try:
                     item.create_table()
-                    print('creating table ' + str(item._meta.db_table))
+                    console.cprint('creating table ' + str(item._meta.db_table))
                 except Exception as e:
-                    print(e)
+                    console.cprint(e)
                     log.write_error(function='create_table', message=str(e))
 
     _init_module(model)
@@ -41,7 +44,7 @@ def init_tables():
             m = import_module('.model', module.__name__)
             _init_module(m)
         except Exception as error:
-            print(error)
+            console.cprint(error)
             log.write_error(function='init_tables', message=str(error))
 
 
@@ -64,13 +67,6 @@ def initialize():
 
     ADMIN_GRP = 5
 
-    from dyc.modules.users.model import AccessGroup
-
-    for item in AccessGroup.select():
-        print(item.oid, item.machine_name)
-
-    print(AccessGroup._meta.database.database)
-
     users.add_acc_grp('control_group', users.CONTROL_GROUP)
 
     permissions = [
@@ -91,7 +87,6 @@ def initialize():
 
     for access_group, name, permission_list in permissions:
         users.add_acc_grp(name, access_group)
-        for grp in users.model.AccessGroup.select(): print(grp.machine_name, grp.oid)
         for permission in permission_list:
             users.new_permission(permission)
             users.assign_permission(access_group, permission)

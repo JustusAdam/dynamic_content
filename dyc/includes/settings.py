@@ -93,6 +93,11 @@ LOGFILE = 'app.log'
 MIDDLEWARE = (
 
 )
+ANTI_CSRF = True
+DEFAULT_HEADERS = {
+    'Content-Type': 'text/html; charset=utf-8',
+    'Cache-Control': 'no-cache'
+}
 
 
 # delete names that are not settings

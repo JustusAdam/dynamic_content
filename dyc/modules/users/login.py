@@ -4,7 +4,7 @@ from http import cookies
 from dyc.core import mvc
 from dyc import dchttp
 from dyc.util import html
-from dyc.modules import form
+from dyc.modules import anti_csrf
 from dyc.modules.commons import base
 from . import session, users, decorator
 
@@ -25,7 +25,7 @@ LOGOUT_TARGET = '/login'
 LOGOUT_BUTTON = html.ContainerElement('Logout', html_type='a', classes={'logout', 'button'},
                                       additional={'href': '/' + logout_prefix})
 
-LOGIN_FORM = form.SecureForm(
+LOGIN_FORM = anti_csrf.SecureForm(
     html.TableElement(
         USERNAME_INPUT,
         PASSWORD_INPUT
@@ -33,7 +33,7 @@ LOGIN_FORM = form.SecureForm(
     , action='/' + login_prefix, classes={'login-form'}, submit=html.SubmitButton(value='Login')
 )
 
-LOGIN_COMMON = form.SecureForm(
+LOGIN_COMMON = anti_csrf.SecureForm(
     html.ContainerElement(
         *USERNAME_INPUT + PASSWORD_INPUT
     )

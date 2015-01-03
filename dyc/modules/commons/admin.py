@@ -2,7 +2,7 @@ from dyc.core.mvc import decorator as mvc_decorator
 from dyc.modules.comp import decorator as comp_decorator
 from dyc.util import html
 from dyc.modules import i18n
-from dyc.modules import form
+from dyc.modules import anti_csrf
 from . import model as _model, menus as _menus
 
 __author__ = 'justusadam'
@@ -26,7 +26,7 @@ class MenuAdminController:
                 html.A(str(url.path) + '/' + item.machine_name, i18n.translate(item.display_name)),
                 html.Checkbox(checked=bool(item.enabled))
             ] for item in menus]
-        model['content'] = form.SecureForm(html.TableElement(*l, classes={'menu-overview'}))
+        model['content'] = anti_csrf.SecureForm(html.TableElement(*l, classes={'menu-overview'}))
         model['title'] = 'Menus Overview'
         model.theme = 'admin_theme'
         return 'page'

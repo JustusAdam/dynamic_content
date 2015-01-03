@@ -1,3 +1,28 @@
+"""
+This module defines decorators to use for registering and interacting
+with the dynamic_content model-view-controller implementation
+
+Important interactions are:
+
+ Registering a new view/controller function:
+
+  Annotate the function with @controller_function(*args) or @rest_controller_function(*args)
+
+  ... more doc to follow
+
+  **options allow you to specify further flags and options that
+  might be interesting to other parts of the framework, mostly used by view middleware
+
+  known options are:
+
+   anti_csrf:  boolean indicating whether to use or not to use anti csrf
+   for requests to this path
+
+
+It is recommended to not directly use ControllerFunction and RestControllerFunction.
+"""
+
+
 import collections
 import functools
 import re
@@ -61,7 +86,7 @@ def _to_set(my_input, allowed_vals=str):
 
 
 class ControlFunction(object):
-    def __init__(self, function, value, method, query):
+    def __init__(self, function, value, method, query, options={}):
         if isinstance(function, ControlFunction):
             self.function = function.function
             self.wrapping = function.wrapping
@@ -74,6 +99,7 @@ class ControlFunction(object):
         self.query = query if isinstance(query, (dict, bool)) else _to_set(query)
         self.instance = None
         self.typeargs = []
+        self.options = options
 
     def __call__(self, *args, **kwargs):
         if self.instance:
@@ -91,9 +117,9 @@ class RestControlFunction(ControlFunction):
         return model
 
 
-def __controller_function(class_, value, *, method=dchttp.RequestMethods.GET, query=False):
+def __controller_function(class_, value, *, method=dchttp.RequestMethods.GET, query=False, **options):
     def wrap(func):
-        wrapped = class_(func, value, method, query)
+        wrapped = class_(func, value, method, query, options)
         for val in wrapped.value:
             controller_mapper.add_path(val, wrapped)
         return wrapped
@@ -101,9 +127,9 @@ def __controller_function(class_, value, *, method=dchttp.RequestMethods.GET, qu
 
 
 
-def __controller_method(class_, value, *, method=dchttp.RequestMethods.GET, query=False):
+def __controller_method(class_, value, *, method=dchttp.RequestMethods.GET, query=False, **options):
     def wrap(func):
-        wrapped = class_(func, value, method, query)
+        wrapped = class_(func, value, method, query, options)
         return wrapped
     return wrap
 

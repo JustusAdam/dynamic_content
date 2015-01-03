@@ -3,7 +3,7 @@ import re
 from dyc.core import mvc
 from dyc import dchttp
 from dyc.util import html
-from dyc.modules import form
+from dyc.modules import anti_csrf
 from . import model, users, decorator
 
 
@@ -70,7 +70,7 @@ def create_user_form(model):
 
     model.theme = 'admin_theme'
     model['title'] = 'Create User'
-    model['content'] = form.SecureForm(
+    model['content'] = anti_csrf.SecureForm(
         html.TableElement(
             *list(user_form())
         ), action='/users/new', element_id='admin_form'
@@ -191,7 +191,7 @@ permission_structure = re.compile('(\d)+-([0-9a-zA-Z_-]+)')
 def edit_permissions(model):
     model['title'] = 'Edit Permissions'
     model.theme = 'admin_theme'
-    model['content'] = form.SecureForm(
+    model['content'] = anti_csrf.SecureForm(
         permission_table(lambda name, value: html.Checkbox(name=name, value=name, checked=value)),
         action='/users/permissions/edit'
     )

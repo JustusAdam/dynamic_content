@@ -11,6 +11,7 @@ import shutil
 import sys
 import traceback
 from urllib.error import HTTPError
+import collections
 from dyc.dchttp import Request
 from dyc.includes import log, settings
 from dyc.util import console
@@ -113,23 +114,20 @@ class RequestHandler(server.BaseHTTPRequestHandler):
                 raise TypeError
 
     def send_document(self, response):
-        document = response.body
-        headers = response.headers
 
         self.send_error(response.code) if response.code >= 400 else self.send_response(response.code)
 
-        if document:
-            self.send_header("Content-type", "{content_type}; charset={encoding}".format(
-                content_type=response.content_type, encoding=response.encoding))
-            self.send_header("Content-Length", str(len(document)))
-        if headers:
-            self.process_headers(*headers)
-        if not settings.BROWSER_CACHING:
-            self.send_header('Cache-Control', 'no-cache')
+        if response.code == 200:
+            response.headers.setdefault("Content-Length", str(len(response.body)))
+            headers = collections.ChainMap(response.headers, settings.DEFAULT_HEADERS)
+        else:
+            headers = response.headers
+
+        self.process_headers(*headers)
         self.end_headers()
-        if document:
+        if response.body:
             stream = io.BytesIO()
-            stream.write(document)
+            stream.write(response.body)
             stream.seek(0)
             try:
                 shutil.copyfileobj(stream, self.wfile)

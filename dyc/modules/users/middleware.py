@@ -23,6 +23,6 @@ class AuthorizationMiddleware(middleware.Handler):
                         request.client = client.Information(user)
                         return None
                 except peewee.DoesNotExist:
-                    return response.Redirect('/login', cookies={SESSION_TOKEN_IDENTIFIER:''})
+                    return response.Redirect('/login', code=303,  cookies={SESSION_TOKEN_IDENTIFIER:''})
 
         request.client = client.Information(users.GUEST)

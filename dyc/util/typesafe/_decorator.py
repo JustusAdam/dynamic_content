@@ -1,10 +1,12 @@
 import inspect
 from functools import wraps
+from dyc.includes import settings
 
 __author__ = 'justusadam'
 
 
 def typesafe(func):
+    if settings.RUNLEVEL == settings.RunLevel.production: return func
     spec = inspect.getfullargspec(func)
     types = spec.annotations
     def_args = spec.args
