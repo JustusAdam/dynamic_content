@@ -64,7 +64,6 @@ class FieldBasedPageContent(object):
         self.dbobj = content_type
         self.content_type = content_type.machine_name
         self.fields = list(self.get_fields())
-        self.modules = core.Modules
         self.theme = self.dbobj.theme
 
     def get_permission(self, page, modifier):

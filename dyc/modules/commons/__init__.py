@@ -1,4 +1,5 @@
 from . import commons, menus, admin, base
+from .component import register
 
 __author__ = 'justusadam'
 

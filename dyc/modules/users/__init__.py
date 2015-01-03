@@ -1,10 +1,7 @@
-from . import user_information as uinf, login, admin_actions as actions, middleware
+from . import user_information as uinf, login, admin_actions as actions, middleware, users
 
 __author__ = 'justusadam'
 
-name = 'users'
-
-role = 'user_management'
 
 START_REGION = 'sidebar_left'
 

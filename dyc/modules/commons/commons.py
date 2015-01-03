@@ -1,8 +1,10 @@
 from . import model, base
+from . import component
 
 __author__ = 'justusadam'
 
 
+# @component.implements('text')
 class TextCommons(base.Commons):
     com_type = 'text'
 

@@ -1,5 +1,6 @@
 import pathlib
 import inspect
+import peewee
 from dyc.backend import orm
 
 from . import model, Component
@@ -118,13 +119,12 @@ def register_modules(r_modules):
 def register_single_module(moduleconf):
     assert isinstance(moduleconf, dict)
     print('registering module ' + moduleconf['name'])
-    module = model.Module.select().where(model.Module.machine_name == moduleconf['name'])
-    if module.wrapped_count():
-        module = module[0]
+    try:
+        module = model.Module.get(machine_name=moduleconf['name'])
         if module.path != moduleconf['path']:
             module.path = moduleconf['path']
             module.save()
-    else:
+    except peewee.DoesNotExist:
         model.Module.create(machine_name=moduleconf['name'], path=moduleconf['path'])
 
 
@@ -139,6 +139,7 @@ def check_info(info):
 
 def get_active_modules():
     modules = model.Module.select().where(model.Module.enabled == True)
+    modules = tuple(modules)
     return {item.machine_name: _module.import_by_path('dyc/' + item.path) for item in modules}
 
 
@@ -157,8 +158,6 @@ class Modules(dict, lazy.Loadable):
     def load(self):
         register_installed_modules()
         all_ = get_active_modules()
-        # from dyc import core
-        # all_['core'] = core
         for name, value in all_.items():
             dict.__setitem__(self, name, value)
         self.loaded = True

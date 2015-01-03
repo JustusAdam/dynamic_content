@@ -47,27 +47,8 @@ class ARToken(orm.BaseModel):
     token = orm.BlobField()
 
 
-def validation_hook(url):
-    if 'form_token' in url.query:
-        return validate(url.query)
-    return True
-
-
 def gen_token():
     return os.urandom(TOKEN_SIZE)
-
-
-def _validate(fid, token):
-    a = ARToken.get(form_id=fid, token=binascii.unhexlify(token))
-    if a:
-        a.delete_instance()
-        return True
-    else:
-        return False
-
-
-def validate(query):
-    return _validate(fid=query[_form_identifier_name][0], token=query[_form_token_name][0])
 
 
 def new():
