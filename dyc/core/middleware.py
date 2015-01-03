@@ -15,7 +15,7 @@ class Container(object):
         self.finalized = True
         self._wrapped = tuple(self._wrapped)
 
-    def register(self, obj, options):
+    def register(self, obj, *options):
         if self.finalized:
             self._wrapped = self._wrapped + (obj, )
         self._wrapped.append(obj)
@@ -35,7 +35,7 @@ class Handler(object):
 cmw = get_component('Middleware')
 
 
-def middleware(options=(), args=(), kwargs={}):
+def register(options=(), args=(), kwargs={}):
     def _inner(cls):
         if inspect.isclass(cls) and issubclass(cls, Handler):
             cmw.register(cls(*args, **kwargs))
@@ -43,10 +43,10 @@ def middleware(options=(), args=(), kwargs={}):
             cmw.register(cls)
         else:
             raise TypeError('Expected a subclass or instance of ' + repr(Handler))
-    if not args and not kwargs and len(options) == 1 and (callable(options[0]) or inspect.isclass(options[0])):
-        return _inner(options[0])
+    if not args and not kwargs and (callable(options) or inspect.isclass(options)):
+        return _inner(options)
     else:
         return _inner
 
 
-register = register_as_middleware = register_middleware = middleware
+register_as_middleware = register_middleware = register

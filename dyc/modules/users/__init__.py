@@ -1,4 +1,4 @@
-from . import user_information as uinf, login, admin_actions as actions
+from . import user_information as uinf, login, admin_actions as actions, middleware
 
 __author__ = 'justusadam'
 

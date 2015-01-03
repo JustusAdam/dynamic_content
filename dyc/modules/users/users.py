@@ -19,15 +19,20 @@ _value_mapping = {
 # unless you reset the database and reinstall
 CONTROL_GROUP = 0
 
-
-# special usernames
-UNKNOWN = -1  # placeholder - user undetermined
-GUEST = 0  # Not a authenticated User
+model.User.create_table(fail_silently=True)
+model.AccessGroup.create_table(fail_silently=True)
 
 # special access groups
 UNKNOWN_GRP = -1  # placeholder - user group undetermined
-GUEST_GRP = 1  # Not an authenticated User
-AUTH = 2  # Default group for users. users that have no particular group assigned to them
+GUEST_GRP = model.AccessGroup(oid=1, machine_name='_GUEST_GROUP')  # Not an authenticated User
+GUEST_GRP.save()
+AUTH = model.AccessGroup(oid=2, machine_name='_AUTH')  # Default group for users. users that have no particular group assigned to them
+AUTH.save()
+
+# special usernames
+UNKNOWN = -1  # placeholder - user undetermined
+GUEST = model.User(oid=0, username='_GUEST', access_group=GUEST_GRP, email_address='test@test')  # Not a authenticated User
+GUEST.save()
 
 
 def hash_password(password, salt):

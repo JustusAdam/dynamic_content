@@ -4,9 +4,7 @@ from dyc.includes import log
 __author__ = 'justusadam'
 
 from ._component import component, get_component, call_component, Component, inject
-from . import model, _registry
-from . import mvc
-from .middleware import middleware
+from . import model, _registry, mvc, middleware
 
 
 Modules = get_component('modules')

@@ -4,18 +4,24 @@ __author__ = 'justusadam'
 
 
 class Response(object):
-    encoding = 'utf-8'
-    content_type = 'text/html'
-
-    def __init__(self, body=None, code=200, headers=set(), cookies=SimpleCookie()):
+    def __init__(self, body=None, code=200, headers={}, cookies=None, encoding='utf-8', content_type='text/html'):
+        self.encoding = encoding
+        self.content_type = content_type
         self.body = body
         self.code = code
-        self._headers = headers
+        self.headers = headers
+        if isinstance(cookies, dict) and cookies:
+            cookies = SimpleCookie.load(SimpleCookie(), cookies)
+        if cookies is None:
+            cookies = SimpleCookie()
+        else:
+            self.headers['Set-Cookie'] = cookies.output(header='')[1:]
         self.cookies = cookies
 
-    @property
-    def headers(self):
-        if self.cookies:
-            return self._headers | {str(self.cookies)}
-        else:
-            return self._headers
+
+class Redirect(Response):
+    def __init__(self, location, code=302, headers={}, cookies=None):
+        if not code in (302, 301):
+            raise TypeError('Expected code 301 or 302, got ' + str(code))
+        headers['Location'] = location
+        super().__init__(code=code, cookies=cookies, headers=headers, body=None)

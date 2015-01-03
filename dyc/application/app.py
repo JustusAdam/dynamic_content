@@ -35,13 +35,13 @@ class Application(threading.Thread, lazy.Loadable):
         self.decorator = core.get_component('TemplateFormatter')
 
     def load(self):
-        if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(message='loading components')
+        if settings.RUNLEVEL == settings.RunLevel.debug: log.write_info(message='loading components')
 
         self.load_modules()
 
     @lazy.ensure_loaded
     def run(self):
-        if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(message='starting server')
+        if settings.RUNLEVEL == settings.RunLevel.debug: log.write_info(message='starting server')
         self.run_http_server_loop()
 
     def load_modules(self):
@@ -50,7 +50,8 @@ class Application(threading.Thread, lazy.Loadable):
 
             dyc.modules.cms.temporary_setup_script.init_tables()
             dyc.modules.cms.temporary_setup_script.initialize()
-        core.Modules.load()
+        else:
+            core.Modules.load()
 
     def run_http_server_loop(self):
 

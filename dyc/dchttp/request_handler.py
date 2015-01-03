@@ -1,19 +1,27 @@
-import copy
+"""
+Implementation of the request handler.
+
+This class is being instantiated by the HTTP server when a request is received. This file should not be changed by
+non-core developers as it *should* not need altering.
+"""
 from http import server
 import io
+import re
 import shutil
 import sys
 import traceback
 from urllib.error import HTTPError
-from dyc import core
 from dyc.dchttp import Request
-from dyc.dchttp.request import _catch_errors, HEADER_SPLIT_REGEX
 from dyc.includes import log, settings
-from dyc.modules import form
-from dyc.modules.users import client
-from dyc.util import url as _url_mod
+from dyc.util import console
 
 __author__ = 'justusadam'
+
+
+_catch_errors = False
+
+HEADER_SPLIT_REGEX = re.compile("(\S+?)\s*:\s*(\S+)")
+
 
 
 class RequestHandler(server.BaseHTTPRequestHandler):
@@ -22,37 +30,19 @@ class RequestHandler(server.BaseHTTPRequestHandler):
         super().__init__(request, client_address, server)
 
     def do_POST(self):
-        """
-        Method that gets called by this handler if it receives a post request.
-
-        Post requests have to be handled by the same methods and handlers. This is to avoid that should a form be sent
-        which contains incorrect input the content/field handlers can opt to send the provided inputs back as "value"
-        fields to not have the user enter everything again.
-        :return:
-        """
         post_query = self.rfile.read(int(self.headers['Content-Length'])).decode()
 
-        # construct Url object from path for accessibility
-        url = _url_mod.Url(self.path, post_query)
-        url.method = 'post'
-        if not form.validation_hook(url):
-            self.send_error(403)
-            return 0
+        request = Request.from_path_and_post(self.path, 'post', self.headers, post_query)
 
-        return self.do_any(url)
+        return self.do_any(request)
 
     def do_GET(self):
-        # construct Url object from path for accessibility
-        url = _url_mod.Url(self.path, None)
-        url.method = 'get'
-        return self.do_any(url)
+        request = Request.from_path_and_post(self.path, 'get', self.headers)
+        return self.do_any(request)
 
-    def do_any(self, url):
-        # construct client information from headers
-        client_information = client.ClientInfoImpl(self.headers)
-
+    def do_any(self, request):
         try:
-            response = self.error_wrapper(self.get_response)(url, client_information)
+            response = self.error_wrapper(self.callback)(request)
         except HTTPError as error:
             return self.process_http_error(error)
 
@@ -89,7 +79,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             return function
 
     def process_http_error(self, error, response=None):
-        print(error)
+        console.cprint(error)
         if error.code >= 400:
             if error.reason:
                 log.write_warning(message='HTTPError, code: ' + str(error.code) + ', message: ' + error.reason)
@@ -111,7 +101,10 @@ class RequestHandler(server.BaseHTTPRequestHandler):
 
     def process_headers(self, *headers:tuple):
         for header in headers:
-            if isinstance(header, str):
+            if isinstance(header, dict):
+                for k, v in header.items():
+                    self.send_header(k, v)
+            elif isinstance(header, str):
                 self.send_header(*HEADER_SPLIT_REGEX.match(header).groups())
             elif hasattr(header, '__iter__') and len(header) == 2:
                 self.send_header(*header)
@@ -123,10 +116,8 @@ class RequestHandler(server.BaseHTTPRequestHandler):
         document = response.body
         headers = response.headers
 
-        if response.code >= 400:
-            self.send_error(response.code)
-        else:
-            self.send_response(response.code)
+        self.send_error(response.code) if response.code >= 400 else self.send_response(response.code)
+
         if document:
             self.send_header("Content-type", "{content_type}; charset={encoding}".format(
                 content_type=response.content_type, encoding=response.encoding))
@@ -144,23 +135,3 @@ class RequestHandler(server.BaseHTTPRequestHandler):
                 shutil.copyfileobj(stream, self.wfile)
             finally:
                 stream.close()
-
-    def check_path(self, url):
-        if url.path.trailing_slash:
-            new_dest = copy.copy(url)
-            new_dest.path.trailing_slash = False
-            raise HTTPError(str(url), 301, 'Destination invalid', [("Location", str(new_dest))], None)
-
-    def get_response(self, url, client_info):
-
-        url.path = core.translate_alias(str(url.path))
-
-        request = Request(url.path, url.method, url.query)
-        request.client = client_info
-
-        # self.check_path(url)
-
-        if len(url.path) == 0:
-            raise HTTPError(str(url), 404, None, None, None)
-
-        return self.callback(request)
