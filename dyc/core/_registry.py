@@ -102,7 +102,7 @@ def discover_modules():
             yield {
                 'name': str(file.stem),
                 'path': str(file)
-            }
+                }
 
 
 def register_modules(r_modules):
@@ -194,7 +194,7 @@ class Modules(dict, lazy.Loadable):
     def get_handlers_by_class(self, class_, single_value=False):
         return self._get_handlers(
             lambda a, b: inspect.isclass(b) and issubclass(b, class_), single_value
-        )
+            )
 
     @lazy.ensure_loaded
     def get_handlers_by_name(self, name:str, single_value=False):
@@ -202,7 +202,7 @@ class Modules(dict, lazy.Loadable):
             raise TypeError('name', 'identifier on non-hidden attribute (does not start with \'_\')')
         return self._get_handlers(
             lambda a, b: b == name, single_value
-        )
+            )
 
     @lazy.ensure_loaded
     def __str__(self):

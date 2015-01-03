@@ -15,4 +15,4 @@ __all__ = [
     'Config',
     'DefaultConfig',
     'controller_class'
-]
+    ]

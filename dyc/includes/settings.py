@@ -13,7 +13,7 @@ __author__ = 'justusadam'
 class EnumLevel(object):
     def __init__(self, *levels):
         if len(levels) == 1 and not isinstance(levels[0], str) and hasattr(levels[0], '__iter__'):
-            levels = levels[0]
+            levels = tuple(levels[0])
         self.levels = levels
 
     def __getattr__(self, item):
@@ -32,8 +32,8 @@ class EnumLevel(object):
         return '\n'.join(repr(item) for item in zip(range(len(self.levels)), self.levels))
 
 
-LoggingLevel = EnumLevel(*['log_warnings', 'log_errors', 'throw_errors', 'throw_all'])
-RunLevel = EnumLevel(*['testing', 'debug', 'production'])
+LoggingLevel = EnumLevel(*('log_warnings', 'log_errors', 'throw_errors', 'throw_all'))
+RunLevel = EnumLevel(*('testing', 'debug', 'production'))
 PathMaps = {
     'multitable',
     'tree'
@@ -41,25 +41,25 @@ PathMaps = {
 
 
 # the order in this list dictates the order in which these modules will be activated
-DEFAULT_MODULES = [
+DEFAULT_MODULES = (
     'form', 'admin', 'comp', 'users', 'commons', 'file',
     'iris',
     'i18n'
-]
+)
 FILE_DIRECTORIES = {
-    'theme': [
+    'theme': (
         'custom/themes',
         'themes'
-    ],
+    ),
     'private': 'custom/files/private',
     'public': 'custom/files/public'
 }
-MODULES_DIRECTORIES = ['custom/modules', 'modules']
-NECESSARY_MODULE_ATTRIBUTES = [
+MODULES_DIRECTORIES = ('custom/modules', 'modules')
+NECESSARY_MODULE_ATTRIBUTES = (
     'name',
     'role'
-]
-COREMODULES_DIRECTORIES = ['core']
+)
+COREMODULES_DIRECTORIES = ('core',)
 MODULE_CONFIG_NAME = 'config.json'
 ALLOW_HIDDEN_FILES = False
 # Setting the above option to true will allow access to files starting with a '.' via the file handler/url
@@ -73,9 +73,9 @@ SALT_LENGTH = 16
 DEFAULT_THEME = 'default_theme'
 DEFAULT_ADMIN_THEME = 'admin_theme'
 LOGGING_LEVEL = LoggingLevel.throw_all
-SERVER = namedtuple('server', ['host', 'port'])(port=9012, host='localhost')
+SERVER = namedtuple('server', ('host', 'port'))(port=9012, host='localhost')
 DATABASE = (namedtuple('database',
-                       ['type', 'user', 'autocommit', 'password', 'name', 'host'])
+                       ('type', 'user', 'autocommit', 'password', 'name', 'host'))
             ('mysql', 'python_cms', True, 'python_cms', 'python_cms', 'localhost'))
 BASEDIR = str(Path(__file__).parent.resolve())
 RUNLEVEL = RunLevel.testing
@@ -90,6 +90,9 @@ BASE_LANGUAGE = 'en_us'
 DEFAULT_LANGUAGE = 'en_us'
 PATHMAP_TYPE = 'MultiTable'
 LOGFILE = 'app.log'
+MIDDLEWARE = (
+
+)
 
 
 # delete names that are not settings
