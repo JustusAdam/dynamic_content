@@ -39,13 +39,17 @@ class TestMultiTableMapper(unittest.TestCase):
             handler = ControlFunction(handler, path, method, False)
             handler.typeargs = typeargs
             self.mapper.add_path(path, handler)
-            self.assertEqual(self.mapper.resolve(dchttp.Request(teststring, method, None))(), result)
+            request = dchttp.Request(teststring, method, None)
+            handler, args, kwargs = self.mapper.find_handler(request)
+            self.assertEqual(handler(*args, **kwargs), result)
 
         for path, handler, teststring, result, typeargs in testpaths[4:]:
             handler = ControlFunction(handler, path, method, False)
             handler.typeargs = typeargs
             self.mapper.add_path(path, handler)
-            self.assertTupleEqual(self.mapper.resolve(dchttp.Request(teststring, method, None))(), result)
+            request = dchttp.Request(teststring, method, None)
+            handler, args, kwargs = self.mapper.resolve(request)
+            self.assertTupleEqual(handler(*args, **kwargs), result)
 
         for path, handler, teststring, result, typeargs in testpaths[0:2]:
             handler = ControlFunction(handler, path, method, False)
@@ -83,12 +87,16 @@ class TestTreeMapper(unittest.TestCase):
         for path, handler, teststring, result in testpaths[0:4]:
             handler = ControlFunction(handler, path, method, False)
             self.mapper.add_path(path, handler)
-            self.assertEqual(self.mapper.find_handler(teststring, method)(), result)
+            request = dchttp.Request(teststring, method, None)
+            handler, args, kwargs = self.mapper.find_handler(request)
+            self.assertEqual(handler(*args, **kwargs), result)
 
         for path, handler, teststring, result in testpaths[4:]:
             handler = ControlFunction(handler, path, method, False)
             self.mapper.add_path(path, handler)
-            self.assertTupleEqual(self.mapper.find_handler(teststring, method)(), result)
+            request = dchttp.Request(teststring, method, None)
+            handler, args, kwargs = self.mapper.resolve(request)
+            self.assertTupleEqual(handler(*args, **kwargs), result)
 
         for path, handler, teststring, result in testpaths[0:2]:
             handler = ControlFunction(handler, path, method, False)

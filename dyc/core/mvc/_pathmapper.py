@@ -1,4 +1,3 @@
-import functools
 import collections
 from dyc import dchttp
 
@@ -204,7 +203,7 @@ class TreePathMap(PathMap):
     def find_handler(self, request):
         path = request.path.split('/')[1:] if request.path.startswith('/') else request.path.split('/')
         iargs, ikwargs = [], {}
-        wildcard = getattr(self.wildcard, request.method) if self.wildcard is not None else None
+        wildcard = (getattr(self.wildcard, request.method), (), {}) if self.wildcard is not None else None
         segment_chain = [self]
 
         def get_new(old, segment:str):
@@ -232,7 +231,7 @@ class TreePathMap(PathMap):
         for segment in path:
             if isinstance(new, Segment):
                 if new.wildcard and getattr(new.wildcard, request.method) is not None:
-                    wildcard = functools.partial(getattr(new.wildcard, request.method), *iargs, **ikwargs)
+                    wildcard = getattr(new.wildcard, request.method), tuple(iargs), ikwargs
             else:
                 break
 
@@ -250,13 +249,14 @@ class TreePathMap(PathMap):
             except AttributeError:
                 raise AttributeError('Unrecognized Request method ' + repr(request.method))
             if not handler_func is None:
-                return functools.partial(handler_func, *iargs, **ikwargs)
+                return handler_func, iargs, ikwargs
 
 
         if wildcard is None:
             raise exceptions.MethodHandlerNotFound('Mo handler found for request method ' + request.method + ' for path ' + request.path)
         else:
-            return functools.partial(wildcard.func, *wildcard.args + (request.path, ), **wildcard.keywords)
+            handler, args, kwargs = wildcard
+            return handler, args + (request.path, ), kwargs
 
 
 class MultiTableSegment(Segment):

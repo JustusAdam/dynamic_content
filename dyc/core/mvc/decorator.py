@@ -49,15 +49,15 @@ class Autoconf(object):
 
 
 def _to_set(my_input, allowed_vals=str):
-    if isinstance(my_input, (list, tuple, set)):
+    if isinstance(my_input, (list, tuple, set, frozenset)):
         for i in my_input:
             if not isinstance(i, allowed_vals):
                 raise TypeError('Expected type ' + repr(allowed_vals) + ' got ' + repr(type(my_input)))
-        return set(my_input)
+        return frozenset(my_input)
     elif isinstance(my_input, allowed_vals):
-        return {my_input}
+        return frozenset({my_input})
     else:
-        raise TypeError('Expected type ' + repr((list, tuple, set)) + ' or ' + repr(allowed_vals) + ' got ' + repr(type(my_input)))
+        raise TypeError('Expected type ' + repr((list, tuple, set, frozenset)) + ' or ' + repr(allowed_vals) + ' got ' + repr(type(my_input)))
 
 
 class ControlFunction(object):
