@@ -27,18 +27,22 @@ class AntiCSRFMiddleware(middleware.Handler):
         if not handler.options.get('anti_csrf', True):
             return None
         if _form_token_name in request.query and _form_identifier_name in request.query:
-            try:
-                a = ARToken.get(
-                    form_id=request.query[_form_identifier_name][0],
-                    token=binascii.unhexlify(request.query[_form_token_name][0])
-                    )
-                if a:
-                    a.delete_instance()
-                    return None
-            except orm.DoesNotExist:
-                pass
+            if _validate(request.query[_form_identifier_name][0], request.query[_form_token_name][0]):
+                return None
         return response.Response(code=403)
 
+
+def _validate(fid, token):
+    try:
+        a = ARToken.get(
+            form_id=fid,
+            token=binascii.unhexlify(token)
+            )
+        if a:
+            a.delete_instance()
+            return True
+    except orm.DoesNotExist:
+        return False
 
 
 class ARToken(orm.BaseModel):

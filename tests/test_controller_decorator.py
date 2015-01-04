@@ -19,7 +19,7 @@ class TestDecorator(unittest.TestCase):
         def handle(model, arg, get):
             return model, arg, get
 
-        r = dchttp.Request('/hello/' + testpath, 'get', {})
+        r = dchttp.Request('/hello/' + testpath, 'get', {}, None)
         handler, args, kwargs = core.get_component('PathMap').resolve(r)
         result_model, result_arg, result_get = handler(model, *args, **kwargs)
         self.assertEqual(model, result_model)
