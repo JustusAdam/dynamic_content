@@ -1,6 +1,11 @@
 """
 Main file that runs the application.
 """
+s = """
+
+"""
+
+import this
 import os
 import pathlib
 import argparse
@@ -8,7 +13,12 @@ import sys
 
 __author__ = 'justusadam'
 
+
+print('\n\n\n')
+
+
 _basedir = pathlib.Path(__file__).parent.parent.resolve()
+
 
 # if framework is not in the path yet, add it and import it
 if not str(_basedir.parent) in sys.path:

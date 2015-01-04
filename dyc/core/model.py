@@ -26,8 +26,3 @@ class ContentTypes(orm.BaseModel):
     display_name = orm.CharField(null=True)
     theme = orm.ForeignKeyField(Theme)
     description = orm.TextField(null=True)
-
-
-class Alias(orm.BaseModel):
-    source_url = orm.CharField()
-    alias = orm.CharField(unique=True)

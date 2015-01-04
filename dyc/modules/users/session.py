@@ -2,7 +2,6 @@ import binascii
 from . import model, users
 import datetime
 import os
-import peewee
 from dyc.util import time
 
 
@@ -30,7 +29,7 @@ def start_session(uid_or_username:str, password):
     try:
         token = model.Session.get(user=user)
         token = token.token
-    except peewee.DoesNotExist:
+    except model.orm.DoesNotExist:
         token = new_token()
         model.Session.create(token=token, user=user, expires=new_exp_time())
 
@@ -47,7 +46,7 @@ def authenticate_user(username_or_uid, password):
     try:
         auth = model.UserAuth.get(uid=user)
         return users.check_ident(password, auth.salt, auth.password)
-    except peewee.DoesNotExist:
+    except model.orm.DoesNotExist:
         return False
 
 
@@ -56,5 +55,5 @@ def validate_session(token):
         token = binascii.unhexlify(token)
     try:
         return model.Session.get(token=token).user
-    except peewee.DoesNotExist:
+    except model.orm.DoesNotExist:
         return None

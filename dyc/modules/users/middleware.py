@@ -1,8 +1,8 @@
-import peewee
 from dyc.dchttp import response
 from dyc.core import middleware
 from . import session, users, client
 import http.cookies
+
 
 __author__ = 'justusadam'
 
@@ -16,13 +16,10 @@ class AuthorizationMiddleware(middleware.Handler):
         if 'Cookie' in request.headers:
             cookies = http.cookies.SimpleCookie(request.headers['Cookie'])
             if SESSION_TOKEN_IDENTIFIER in cookies:
-                try:
-                    db_result = session.validate_session(cookies[SESSION_TOKEN_IDENTIFIER].value)
-                    if db_result is not None:
-                        user = db_result
-                        request.client = client.Information(user)
-                        return None
-                except peewee.DoesNotExist:
-                    return response.Redirect('/login', code=303,  cookies={SESSION_TOKEN_IDENTIFIER:''})
+                db_result = session.validate_session(cookies[SESSION_TOKEN_IDENTIFIER].value)
+                if db_result is not None:
+                    request.client = client.Information(db_result)
+                    return None
+                return response.Redirect('/login', code=303,  cookies={SESSION_TOKEN_IDENTIFIER:''})
 
         request.client = client.Information(users.GUEST)

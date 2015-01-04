@@ -1,6 +1,5 @@
 import pathlib
 import inspect
-import peewee
 from dyc.backend import orm
 
 from . import model, Component
@@ -124,7 +123,7 @@ def register_single_module(moduleconf):
         if module.path != moduleconf['path']:
             module.path = moduleconf['path']
             module.save()
-    except peewee.DoesNotExist:
+    except orm.DoesNotExist:
         model.Module.create(machine_name=moduleconf['name'], path=moduleconf['path'])
 
 

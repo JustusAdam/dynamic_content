@@ -98,13 +98,15 @@ def initialize():
 
     # add some useful aliases
 
+    from dyc.modules import alias
+
     aliases = [
         ('/', '/iris/1'),
         ('/welcome', '/iris/1')
     ]
 
-    for alias, source in aliases:
-        core.add_alias(source, alias)
+    for a, source in aliases:
+        alias.add_alias(source, a)
 
 
 

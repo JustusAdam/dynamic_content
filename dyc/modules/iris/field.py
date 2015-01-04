@@ -1,5 +1,3 @@
-import peewee
-
 from dyc import core
 from dyc.errors.exceptions import DCException
 from dyc.modules import wysiwyg
@@ -76,7 +74,7 @@ class _Field(object):
         try:
             self.from_db(page_id)
             raise FieldExists
-        except peewee.DoesNotExist:
+        except model.orm.DoesNotExist:
             return node.Node(content=wysiwyg.WysiwygTextarea(classes={'field', 'field-' + self.name, 'edit'}))
 
     def get_field_title(self):

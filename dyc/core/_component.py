@@ -10,9 +10,11 @@ def method_proxy(func):
     name = func if isinstance(func, str) else func.__name__
     def call(obj, *args, **kwargs):
         if obj._wrapped is None:
-            raise exceptions.ComponentNotLoaded(obj._name)
-        else:
-            return getattr(obj._wrapped, name)(*args, **kwargs)
+            if obj._promise is None:
+                raise exceptions.ComponentNotLoaded(obj._name)
+            else:
+                obj._wrapped = obj._promise()
+        return getattr(obj._wrapped, name)(*args, **kwargs)
     return call if isinstance(func, str) else functools.wraps(func)(call)
 
 
@@ -24,16 +26,20 @@ class ComponentWrapper(object):
     This means that if a non-existent component is being requested there will be no error
     only using the component will throw the ComponentNotLoaded exception.
     """
-    _name = _wrapped = _allow_reload = None
+    _name = _wrapped = _allow_reload = _promise = None
 
     def __init__(self, name, allow_reload=False):
         self.__dict__['_name'] = name
         self.__dict__['_wrapped'] = None
+        self.__dict__['_promise'] = None
         self.__dict__['_allow_reload'] = allow_reload
 
     def __getattr__(self, item):
         if self.__getattribute__('_wrapped') is None:
-            raise exceptions.ComponentNotLoaded(item)
+            if self._promise:
+                self._wrapped = self._promise()
+            else:
+                raise exceptions.ComponentNotLoaded(item)
         return getattr(self._wrapped, item)
 
     def __setattr__(self, key, value):
@@ -42,11 +48,16 @@ class ComponentWrapper(object):
                 return super().__setattr__(key, value)
             elif self._allow_reload is False:
                 raise exceptions.ComponentLoaded(self._name)
+        elif key == '_promise':
+            if self._wrapped is None and self._promise is None:
+                return super().__setattr__(key, value)
+            elif self._allow_reload is False:
+                raise exceptions.ComponentLoaded(self._name)
         else:
             setattr(self._wrapped, key, value)
 
     def __delattr__(self, item):
-        if item is '_wrapped':
+        if item is '_wrapped' or item is '_promise':
             raise TypeError('Cannot delete wrapped object')
         else:
             delattr(self._wrapped, item)
@@ -116,7 +127,7 @@ del ComponentContainer
 
 def _decorator(name, *args, **kwargs):
     def inner(class_):
-        register(name, class_(*args, **kwargs))
+        get_component[name]._promise = functools.partial(class_, *args, **kwargs)
         return class_
 
     return inner
@@ -138,7 +149,7 @@ def inject(*components, **kwcomponents):
 
     All *components will be prepended to the *args the function is being called with.
 
-    All **kwcomponents will be added (and overwrite on key collision) to the **kwargs the function is being called with.
+    All **kwcomponents will be added to (and overwrite on key collision) the **kwargs the function is being called with.
 
     :param component:
     :param argname:

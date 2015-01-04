@@ -56,7 +56,7 @@ class Application(threading.Thread, lazy.Loadable):
     def run_http_server_loop(self):
 
         def http_callback(request):
-            for obj in middleware.request:
+            for obj in middleware:
                 res = obj.handle_request(request)
                 if res is not None:
                     return res
@@ -64,14 +64,14 @@ class Application(threading.Thread, lazy.Loadable):
             model = _model.Model()
             handler, args, kwargs = core.get_component('PathMap').find_handler(request)
 
-            for obj in middleware.view:
+            for obj in middleware:
                 res = obj.handle_view(request, handler, args, kwargs)
                 if res is not None:
                     return res
 
             view = model.view = handler(*(model, ) + args, **kwargs)
 
-            for obj in middleware.response:
+            for obj in middleware:
                 res = obj.handle_response(request, view, model)
                 if res is not None:
                     return res

@@ -1,6 +1,5 @@
 import binascii
 import os
-import peewee
 
 from dyc.backend import orm
 from dyc.core import middleware
@@ -36,7 +35,7 @@ class AntiCSRFMiddleware(middleware.Handler):
                 if a:
                     a.delete_instance()
                     return None
-            except peewee.DoesNotExist:
+            except orm.DoesNotExist:
                 pass
         return response.Response(code=403)
 
