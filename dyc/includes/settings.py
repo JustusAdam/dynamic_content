@@ -61,10 +61,6 @@ FILE_DIRECTORIES = {
     'public': 'custom/files/public'
     }
 MODULES_DIRECTORIES = ('custom/modules', 'modules')
-NECESSARY_MODULE_ATTRIBUTES = (
-    'name',
-    'role'
-    )
 COREMODULES_DIRECTORIES = ('core',)
 MODULE_CONFIG_NAME = 'config.json'
 ALLOW_HIDDEN_FILES = False
@@ -98,6 +94,8 @@ PATHMAP_TYPE = 'MultiTable'
 LOGFILE = 'app.log'
 MIDDLEWARE = (
     'dyc.modules.alias.Middleware',
+    'dyc.modules.file.PathHandler',
+    'dyc.modules.misc_middleware.trailing_slash.RemoveTrailingSlash'
     )
 ANTI_CSRF = True
 DEFAULT_HEADERS = {

@@ -1,4 +1,4 @@
-from .config import Config, DefaultConfig
+from .config import Config, DefaultConfig, model
 from . import _pathmapper, controller
 from .decorator import Autoconf, controller_function, controller_method, controller_class
 

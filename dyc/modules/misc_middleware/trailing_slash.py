@@ -7,4 +7,8 @@ __author__ = 'justusadam'
 class RemoveTrailingSlash(middleware.Handler):
     def handle_request(self, request):
         if request.path.endswith('/') and not request.path == '/':
-            return response.Redirect(request.path[:-1])
+            return response.Redirect(
+                location=request.path[:-1], 
+                code=response.HttpResponseCodes.MovedPermanently
+                )
+        return None
