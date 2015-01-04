@@ -83,3 +83,6 @@ dyc/modules/cms/config.json
 
 # custom files
 dyc/custom/
+
+# cloud9 configuration files
+.c9/
