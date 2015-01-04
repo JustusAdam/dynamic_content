@@ -3,6 +3,7 @@ import os
 import threading
 from dyc.backend import orm
 from dyc import core
+from dyc.core import middleware
 
 from dyc.core.mvc import model as _model
 from dyc.util import typesafe, lazy
@@ -11,9 +12,6 @@ from dyc.includes import settings, log
 from . import config as _config
 
 __author__ = 'justusadam'
-
-
-middleware = core.get_component('Middleware')
 
 
 class Application(threading.Thread, lazy.Loadable):
@@ -38,6 +36,7 @@ class Application(threading.Thread, lazy.Loadable):
         if settings.RUNLEVEL == settings.RunLevel.debug: log.write_info(message='loading components')
 
         self.load_modules()
+        middleware.cmw.load(settings.MIDDLEWARE)
 
     @lazy.ensure_loaded
     def run(self):
@@ -56,7 +55,7 @@ class Application(threading.Thread, lazy.Loadable):
     def run_http_server_loop(self):
 
         def http_callback(request):
-            for obj in middleware:
+            for obj in middleware.cmw:
                 res = obj.handle_request(request)
                 if res is not None:
                     return res
@@ -64,14 +63,14 @@ class Application(threading.Thread, lazy.Loadable):
             model = _model.Model()
             handler, args, kwargs = core.get_component('PathMap').find_handler(request)
 
-            for obj in middleware:
+            for obj in middleware.cmw:
                 res = obj.handle_view(request, handler, args, kwargs)
                 if res is not None:
                     return res
 
             view = model.view = handler(*(model, ) + args, **kwargs)
 
-            for obj in middleware:
+            for obj in middleware.cmw:
                 res = obj.handle_response(request, view, model)
                 if res is not None:
                     return res

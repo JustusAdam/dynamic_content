@@ -18,7 +18,6 @@ class Hello(object):
 class ComponentTest(unittest.TestCase):
     def test_register(self):
         self.assertIsInstance(core.get_component[component_name], ComponentWrapper)
-        self.assertEqual(core.get_component[component_name]._wrapped, None)
         self.assertEqual(core.get_component[component_name].attribute, None)
         self.assertIsInstance(core.get_component[component_name]._wrapped, Hello)
 

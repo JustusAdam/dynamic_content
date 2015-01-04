@@ -13,14 +13,15 @@ class Container(object):
         super().__init__()
         self.finalized = False
         self._wrapped = []
-        for item in settings.MIDDLEWARE:
+
+    def load(self, stuff):
+        for item in stuff:
             package, name = item.rsplit('.', 1)
             module = importlib.import_module(package)
             obj = getattr(module, name)()
             if not isinstance(obj, Handler):
                 raise TypeError
             self.register(obj)
-
 
     def finalize(self):
         self.finalized = True

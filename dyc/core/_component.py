@@ -10,10 +10,7 @@ def method_proxy(func):
     name = func if isinstance(func, str) else func.__name__
     def call(obj, *args, **kwargs):
         if obj._wrapped is None:
-            if obj._promise is None:
-                raise exceptions.ComponentNotLoaded(obj._name)
-            else:
-                obj._wrapped = obj._promise()
+            raise exceptions.ComponentNotLoaded(obj._name)
         return getattr(obj._wrapped, name)(*args, **kwargs)
     return call if isinstance(func, str) else functools.wraps(func)(call)
 
@@ -26,30 +23,21 @@ class ComponentWrapper(object):
     This means that if a non-existent component is being requested there will be no error
     only using the component will throw the ComponentNotLoaded exception.
     """
-    _name = _wrapped = _allow_reload = _promise = None
+    _name = _wrapped = _allow_reload = None
 
     def __init__(self, name, allow_reload=False):
         self.__dict__['_name'] = name
         self.__dict__['_wrapped'] = None
-        self.__dict__['_promise'] = None
         self.__dict__['_allow_reload'] = allow_reload
 
     def __getattr__(self, item):
         if self.__getattribute__('_wrapped') is None:
-            if self._promise:
-                self._wrapped = self._promise()
-            else:
-                raise exceptions.ComponentNotLoaded(item)
+            raise exceptions.ComponentNotLoaded(item)
         return getattr(self._wrapped, item)
 
     def __setattr__(self, key, value):
         if key == '_wrapped':
             if self._wrapped is None:
-                return super().__setattr__(key, value)
-            elif self._allow_reload is False:
-                raise exceptions.ComponentLoaded(self._name)
-        elif key == '_promise':
-            if self._wrapped is None and self._promise is None:
                 return super().__setattr__(key, value)
             elif self._allow_reload is False:
                 raise exceptions.ComponentLoaded(self._name)
@@ -127,7 +115,7 @@ del ComponentContainer
 
 def _decorator(name, *args, **kwargs):
     def inner(class_):
-        get_component[name]._promise = functools.partial(class_, *args, **kwargs)
+        register(name, class_(*args, **kwargs))
         return class_
 
     return inner
