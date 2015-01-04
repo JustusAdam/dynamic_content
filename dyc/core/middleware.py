@@ -4,6 +4,7 @@ from . import component, get_component
 
 
 __author__ = 'justusadam'
+__version__ = '0.1'
 
 
 @component('Middleware')

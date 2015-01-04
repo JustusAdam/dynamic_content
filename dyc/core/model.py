@@ -1,6 +1,7 @@
 from dyc.backend import orm
 
 __author__ = 'justusadam'
+__version__ = '0.1'
 
 
 class Theme(orm.BaseModel):

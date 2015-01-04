@@ -12,6 +12,7 @@ from dyc import dchttp
 
 from . import config as _config
 
+
 __author__ = 'justusadam'
 __version__ = '0.2'
 
@@ -47,7 +48,10 @@ class Application(threading.Thread, lazy.Loadable):
     def run(self):
         if settings.RUNLEVEL == settings.RunLevel.debug:
             log.write_info(message='starting server')
-        self.run_http_server_loop()
+        if settings.SERVER_TYPE == 'plain':
+            self.run_http_server_loop()
+        elif settings.SERVER_TYPE == 'wsgi':
+            self.run_wsgi_server_loop()
 
     def load_modules(self):
         if (hasattr(orm.database_proxy, 'database')
@@ -99,7 +103,7 @@ class Application(threading.Thread, lazy.Loadable):
         print(start_response)
 
 
-    def run_wisgy_server_loop(self):
+    def run_wsgi_server_loop(self):
         httpd = self.config.wsgi_server(
             (self.config.server_arguments.host,
             self.config.server_arguments.port),

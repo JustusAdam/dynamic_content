@@ -11,6 +11,8 @@ from dyc.includes import log
 
 
 __author__ = 'justusadam'
+__version__ = '0.3'
+
 
 basedir = str(pathlib.Path(__file__).parent.parent.resolve())
 

@@ -12,7 +12,9 @@ from dyc.includes import settings
 from dyc.modules import anti_csrf
 from dyc.modules.users import admin_actions as user_actions, users
 
+
 __author__ = 'justusadam'
+__version__ = '0.2'
 
 
 def try_database_connection():

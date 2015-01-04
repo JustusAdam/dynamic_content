@@ -79,7 +79,7 @@ DEFAULT_HEADERS = {
     'Content-Type': 'text/html; charset=utf-8',
     'Cache-Control': 'no-cache'
     }
-SERVER_TYPE = ''
+SERVER_TYPE = 'plain'
 
 
 # delete names that are not settings

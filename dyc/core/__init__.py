@@ -1,7 +1,9 @@
-__author__ = 'justusadam'
-
 from ._component import component, get_component, call_component, Component, inject
 from . import model, _registry, mvc, middleware
+
+
+__author__ = 'justusadam'
+__version__ = '0.1'
 
 
 Modules = get_component('modules')
