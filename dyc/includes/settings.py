@@ -4,36 +4,14 @@ non-changing, as in not changing within this version of the software, values req
 
 Might need to be expanded.
 """
-from collections import namedtuple
 from pathlib import Path
+from dyc.util import structures
 
+__version__ = '0.2'
 __author__ = 'justusadam'
 
-
-class EnumLevel(object):
-    def __init__(self, *levels):
-        if len(levels) == 1 and not isinstance(levels[0], str) and hasattr(levels[0], '__iter__'):
-            levels = tuple(levels[0])
-        self.levels = levels
-
-    def __getattr__(self, item):
-        return self.__getitem__(item)
-
-    def __getitem__(self, item):
-        if isinstance(item, int):
-            return self.levels[item]
-        elif item in self.levels:
-            return self.levels.index(item)
-        elif item.lower() in self.levels:
-            return self.levels.index(item)
-        raise KeyError
-
-    def __repr__(self):
-        return '\n'.join(repr(item) for item in zip(range(len(self.levels)), self.levels))
-
-
-LoggingLevel = EnumLevel(*('log_warnings', 'log_errors', 'throw_errors', 'throw_all'))
-RunLevel = EnumLevel(*('testing', 'debug', 'production'))
+LoggingLevel = structures.EnumLevel('logging', ('log_warnings', 'log_errors', 'throw_errors', 'throw_all'))
+RunLevel = structures.EnumLevel('logging', ('testing', 'debug', 'production'))
 PathMaps = {
     'multitable',
     'tree'
@@ -75,10 +53,9 @@ SALT_LENGTH = 16
 DEFAULT_THEME = 'default_theme'
 DEFAULT_ADMIN_THEME = 'admin_theme'
 LOGGING_LEVEL = LoggingLevel.throw_all
-SERVER = namedtuple('server', ('host', 'port'))(port=9012, host='localhost')
-DATABASE = (namedtuple('database',
-                       ('type', 'user', 'autocommit', 'password', 'name', 'host'))
-            ('mysql', 'python_cms', True, 'python_cms', 'python_cms', 'localhost'))
+SERVER = structures.ServerArguments(port=9012, host='localhost')
+DATABASE = structures.DatabaseArguments(
+            'mysql', 'python_cms', True, 'python_cms', 'python_cms', 'localhost')
 BASEDIR = str(Path(__file__).parent.resolve())
 RUNLEVEL = RunLevel.testing
 I18N_SUPPORT_ENABLED = False
@@ -102,7 +79,8 @@ DEFAULT_HEADERS = {
     'Content-Type': 'text/html; charset=utf-8',
     'Cache-Control': 'no-cache'
     }
+SERVER_TYPE = ''
 
 
 # delete names that are not settings
-del Path, namedtuple, EnumLevel
+del Path, structures

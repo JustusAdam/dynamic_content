@@ -1,7 +1,11 @@
 import pathlib
 import sys
+import collections
+from dyc.util import structures
 from dyc.dchttp import server
-from dyc.dchttp.request_handler import RequestHandler
+from dyc.dchttp import request_handler
+from dyc.dchttp import wsgi
+
 
 __author__ = 'justusadam'
 
@@ -14,7 +18,7 @@ if not str(_basedir.parent) in sys.path:
 
 
 class ApplicationConfig(object):
-    server_arguments = {}
+    server_arguments = None
     server_class = None
     http_request_handler = None
     basedir = _basedir
@@ -25,9 +29,11 @@ class ApplicationConfig(object):
 
 
 class DefaultConfig(ApplicationConfig):
-    server_arguments = {
-        "port": 8000,
-        "host": ""
-    }
+    server_arguments = structures.ServerArguments(
+        port=8000,
+        host=""
+    )
     server_class = server.ThreadedHTTPServer
-    http_request_handler = RequestHandler
+    http_request_handler = request_handler.RequestHandler
+    wsgi_server = wsgi.Server
+    wsgi_request_handler = wsgi.Handler

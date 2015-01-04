@@ -1,11 +1,13 @@
 from wsgiref.simple_server import WSGIServer, WSGIRequestHandler
+import socketserver
 
 __author__ = 'justusadam'
+__version__ = '0.1'
 
 
-class CDWSGIServer(WSGIServer):
+class Server(WSGIServer, socketserver.ThreadingMixIn):
     pass
 
 
-class CDWSGIHandler(WSGIRequestHandler):
+class Handler(WSGIRequestHandler):
     pass

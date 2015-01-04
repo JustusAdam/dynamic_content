@@ -32,23 +32,24 @@ del _basedir
 
 def main():
     from dyc.includes import settings
+    from dyc.util import structures
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--runlevel', '-r', type=str, choices=settings.RunLevel.levels)
+    parser.add_argument('--runlevel', '-r', type=str, choices=settings.RunLevel._fields)
     parser.add_argument('--logfile', type=str)
-    parser.add_argument('--loglevel', type=str, choices=settings.LoggingLevel.levels)
+    parser.add_argument('--loglevel', type=str, choices=settings.LoggingLevel._fields)
     parser.add_argument('--pathmap', type=str, choices=settings.PathMaps)
     parser.add_argument('--port', type=int)
     parser.add_argument('--host', type=str)
-    
+
     startargs = parser.parse_args()
 
     if startargs.runlevel:
-        settings.RUNLEVEL = settings.RunLevel[startargs.runlevel]
+        settings.RUNLEVEL = getattr(settings.RunLevel,startargs.runlevel)
     if startargs.logfile:
         settings.LOGFILE = startargs.logfile
     if startargs.loglevel:
-        settings.LOGGING_LEVEL = settings.LoggingLevel[startargs.loglevel]
+        settings.LOGGING_LEVEL = getattr(settings.LoggingLevel,startargs.loglevel)
     if startargs.port or startargs.host:
         settings.SERVER = type(settings.SERVER)(
             host=startargs.host if startargs.host else settings.SERVER.host,
@@ -57,11 +58,14 @@ def main():
 
     from dyc import application
 
-    application.Application(application.Config(server_arguments={
-            'host': settings.SERVER.host,
-            'port': settings.SERVER.port
-            }
-        )).start()
+    application.Application(
+        application.Config(
+            server_arguments=structures.ServerArguments(
+                host=settings.SERVER.host,
+                port=settings.SERVER.port
+                )
+            )
+        ).start()
 
 
 if __name__ == '__main__':
