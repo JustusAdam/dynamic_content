@@ -1,6 +1,11 @@
 from http import cookies as _cookies
+import collections
+
 
 __author__ = 'justusadam'
+
+
+HttpResponses = collections.namedtuple('HttpResponsesContainer', ('Continue', 'SwitchingProtocols'))
 
 
 class Response(object):

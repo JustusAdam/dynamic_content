@@ -19,7 +19,7 @@ _form_token_name = 'form_token'
 
 @middleware.register()
 class AntiCSRFMiddleware(middleware.Handler):
-    def handle_view(self, request, handler, args, kwargs):
+    def handle_controller(self, request, handler, args, kwargs):
         if request.method is not RequestMethods.post:
             return None
         if not settings.ANTI_CSRF:

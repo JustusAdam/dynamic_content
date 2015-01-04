@@ -65,7 +65,7 @@ class Application(threading.Thread, lazy.Loadable):
             handler, args, kwargs = core.get_component('PathMap').resolve(request)
 
             for obj in middleware.cmw:
-                res = obj.handle_view(request, handler, args, kwargs)
+                res = obj.handle_controller(request, handler, args, kwargs)
                 if res is not None:
                     return res
 
