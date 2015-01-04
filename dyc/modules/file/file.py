@@ -74,7 +74,7 @@ class PathHandler(middleware.Handler):
         # HACK until all handler methods use the requests properly, this method creates its own
         return handle(_request.Request(path, 'get', None, None))
         
-    def handle_request(request):
+    def handle_request(self, request):
         if request.path.split('/')[1] in settings.FILE_DIRECTORIES:
             return handle(request)
         return None
