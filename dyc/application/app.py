@@ -82,13 +82,13 @@ class Application(threading.Thread, lazy.Loadable):
 
         server_address = (self.config.server_arguments['host'], self.config.server_arguments['port'])
         httpd = self.config.server_class(server_address, request_handler)
-        console.cprint('\n\n Starting Server on host:' + str(self.config.server_arguments['host']) + 
-            ', port:' + str(self.config.server_arguments['port']))
+        console.cprint('\n\n Starting Server on host: {}, port:'.format(self.config.server_arguments['host'],
+            self.config.server_arguments['port']))
         httpd.serve_forever()
 
     def set_working_directory(self):
         if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(
-            'setting working directory (' + str(self.config.basedir) + ')')
+            'setting working directory ({})'.format(self.config.basedir))
         os.chdir(self.config.basedir)
 
     def process_request(self, request):

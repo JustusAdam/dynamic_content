@@ -20,6 +20,6 @@ class Response(object):
 class Redirect(Response):
     def __init__(self, location, code=302, headers={}, cookies=None):
         if not code in (302, 301, 303):
-            raise TypeError('Expected code 301 or 302, got ' + str(code))
+            raise TypeError('Expected code 301 or 302, got {}'.format(code))
         headers['Location'] = location
         super().__init__(code=code, cookies=cookies, headers=headers, body=None)

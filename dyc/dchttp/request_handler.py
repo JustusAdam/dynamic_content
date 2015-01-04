@@ -58,20 +58,20 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             try:
                 return function(*args, **kwargs)
             except PermissionError:
-                log.write_error(message='permission denied for operation ' + str(self.path))
+                log.write_error(message='permission denied for operation {}'.format(self.path))
                 self.send_error(401, *self.responses[401])
             except TypeError:
-                log.write_error(message='value error for operation ' + str(self.path))
+                log.write_error(message='value error for operation {}'.format(self.path))
                 self.send_error(400, *self.responses[400])
             except FileNotFoundError:
-                log.write_error(message='file could not be found for operation' + str(self.path))
+                log.write_error(message='file could not be found for operation {}'.format(self.path))
                 self.send_error(404, *self.responses[404])
             except HTTPError as err:
                 raise err
             except Exception as exception:
                 print(exception)
                 traceback.print_tb(sys.exc_info()[2])
-                log.write_error('Unexpected error ' + str(exception))
+                log.write_error('Unexpected error {}'.format(exception))
                 self.send_error(500, *self.responses[500])
 
         if _catch_errors:
@@ -83,11 +83,11 @@ class RequestHandler(server.BaseHTTPRequestHandler):
         console.cprint(error)
         if error.code >= 400:
             if error.reason:
-                log.write_warning(message='HTTPError, code: ' + str(error.code) + ', message: ' + error.reason)
+                log.write_warning(message='HTTPError, code: {}, message: '.format(error.code, error.reason))
                 self.send_error(error.code, self.responses[error.code][0], error.reason)
             else:
                 log.write_warning(
-                    message='HTTPError,  code: ' + str(error.code) + ', message: ' + self.responses[error.code][0])
+                    message='HTTPError,  code: {}, message: {}'.format(error.code, self.responses[error.code][0]))
                 self.send_error(error.code, *self.responses[error.code])
             return 0
         else:
@@ -112,7 +112,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             else:
                 self.send_header(headers[0], headers[1])
         else:
-            raise TypeError('Expected headers of type ' + repr(dict) + ' or ' + repr(tuple) + ' got ' + repr(type(headers)))
+            raise TypeError('Expected headers of type {} or {}, got {}'.format(dict, tuple, type(headers)))
 
     def send_document(self, response):
 
