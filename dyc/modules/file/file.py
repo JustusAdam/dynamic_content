@@ -12,6 +12,7 @@ from dyc.core import mvc
 from dyc.includes import settings
 from dyc.util import html
 from dyc.dchttp import response, request as _request
+from dyc.core import middleware
 
 
 __author__ = 'justusadam'
@@ -64,7 +65,7 @@ def handle(request):
 
 
 @mvc.controller_class
-class PathHandler:
+class PathHandler(middleware.Handler):
     @mvc.controller_method({'theme/**', 'public/**', '/**'}, method=dchttp.RequestMethods.GET)
     def handle(self, model, path):
         return self.parse_path(model, path)
