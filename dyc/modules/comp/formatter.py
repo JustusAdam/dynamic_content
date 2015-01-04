@@ -11,7 +11,7 @@ __author__ = 'justusadam'
 
 VAR_REGEX = re.compile("\{([\w_-]*?)\}")
 
-ARG_REGEX = re.compile(":(\w+?):(\w*)")
+ARG_REGEX = re.compile(":(\w+?):(.*)")
 
 _defaults = {
     'theme': 'default_theme',

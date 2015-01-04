@@ -96,7 +96,7 @@ def subcategory(modelmap, category_name,  name):
     tree = order_tree([parent], children)
 
     modelmap['title'] = parent.display_name if parent.display_name else parent.machine_name
-    modelmap['content'] = render_categories(*tree)
+    modelmap['content'] = render_categories(*tree, basepath='{}/{}'.format(ADMIN_PATH, category_name))
 
     return 'page'
 

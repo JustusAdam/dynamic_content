@@ -15,9 +15,9 @@ class UserInformationCommon(commons.Handler):
     def get_content(self, conf, render_args, client):
         return ContainerElement(
             TableElement(
-                ('Username: ', self.get_username(self.client.user)),
-                ('Access Group: ', self.client.access_group.machine_name),
-                ('Joined: ', self.get_date_joined(self.client.user))
+                ('Username: ', self.get_username(client.user)),
+                ('Access Group: ', client.access_group.machine_name),
+                ('Joined: ', self.get_date_joined(client.user))
             ), LOGOUT_BUTTON
         )
 

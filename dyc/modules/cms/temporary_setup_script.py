@@ -120,17 +120,25 @@ def initialize():
         core.add_theme(name=name,
                        enabled=enabled)
 
-    for machine_name, enabled, children in [
+    for machine_name, enabled, children in (
         ('start_menu', True,
-         [
+         (
              ('<root>', '', True, None, 1),
              ('welcome', '/iris/1', True, '<root>', 1),
              ('welcome', '/iris/1', True, '<root>', 1),
              ('testpage', '/iris/2', True, '<root>', 2),
              ('setup', '/setup', True, 'welcome', 1)
-         ]
+         )
+        ),
+        ('admin_menu', True,
+         (
+             ('<root>', '', True, None, 1),
+             ('Users', '/admin/users', True, '<root>', 1),
+             ('Permission Management', '/admin/users/permissions', True, 'Users', 1)
+         )
         )
-    ]:
+
+    ):
         menu = Menu.create(
             machine_name=machine_name,
             enabled=enabled)
@@ -145,13 +153,13 @@ def initialize():
                 weight=weight
             )
 
-    for name, content in [('copyright', '<p>\"dynamic_content\" CMS - © Justus Adam 2014</p>')]:
+    for name, content in (('copyright', '<p>\"dynamic_content\" CMS - © Justus Adam 2014</p>'), ):
         CommonData.create(
             machine_name=name,
             content=content
         )
 
-    for machine_name, type_, handler, access_type in [
+    for machine_name, type_, handler, access_type in (
         # commons from comp
         ('start_menu', 'menu', 'commons', 0),
         ('copyright', 'com_text', 'commons', 0),
@@ -160,13 +168,13 @@ def initialize():
         ('user_information', 'user_information', 'users', 1),  # user information common
         # from admin
         (admin_menu_common, 'menu', 'admin', 1)
-    ]:
+    ):
         add_commons_config(machine_name=machine_name,
                            commons_type=type_,
                            handler_module=handler,
                            access_type=access_type)
 
-    for name, region, weight, theme, show_title in [
+    for name, region, weight, theme, show_title in (
         # from comp
         ('start_menu', 'navigation', 1, 'default_theme', False),
         ('copyright', 'footer', 1, 'default_theme', False),
@@ -175,7 +183,7 @@ def initialize():
         ('user_information', START_REGION, 1, START_THEME, True),
         # from admin
         (admin_menu_common, 'sidebar_left', 4, 'default_theme', True)
-    ]:
+    ):
         assign_common(common_name=name,
                       region=region,
                       weight=weight,

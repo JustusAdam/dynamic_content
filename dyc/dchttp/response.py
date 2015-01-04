@@ -12,7 +12,7 @@ class Response(object):
             cookies = _cookies.SimpleCookie(cookies)
         if cookies is None:
             cookies = _cookies.SimpleCookie()
-        else:
+        elif cookies:
             self.headers['Set-Cookie'] = cookies.output(header='')[1:]
         self.cookies = cookies
 
