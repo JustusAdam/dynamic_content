@@ -38,7 +38,9 @@ def main():
     parser.add_argument('--logfile', type=str)
     parser.add_argument('--loglevel', type=str, choices=settings.LoggingLevel.levels)
     parser.add_argument('--pathmap', type=str, choices=settings.PathMaps)
-
+    parser.add_argument('--port', type=int)
+    parser.add_argument('--host', type=str)
+    
     startargs = parser.parse_args()
 
     if startargs.runlevel:
@@ -47,12 +49,20 @@ def main():
         settings.LOGFILE = startargs.logfile
     if startargs.loglevel:
         settings.LOGGING_LEVEL = settings.LoggingLevel[startargs.loglevel]
+    if startargs.port or startargs.host:
+        settings.SERVER = type(settings.SERVER)(
+            host=startargs.host if startargs.host else settings.SERVER.host,
+            port=startargs.port if startargs.port else settings.SERVER.port
+            )
 
     from dyc import application
     from dyc.util import config as _config
 
-    config = _config.read_config('modules/cms/config')
-    application.Application(application.Config(server_arguments=config['server_arguments'])).start()
+    application.Application(application.Config(server_arguments={
+            'host': settings.SERVER.host,
+            'port': settings.SERVER.port
+            }
+        )).start()
 
 
 if __name__ == '__main__':

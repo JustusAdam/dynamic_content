@@ -37,7 +37,7 @@ RunLevel = EnumLevel(*('testing', 'debug', 'production'))
 PathMaps = {
     'multitable',
     'tree'
-}
+    }
 
 
 # the order in this list dictates the order in which these modules will be activated
@@ -51,20 +51,20 @@ DEFAULT_MODULES = (
     'file',
     'iris',
     'i18n'
-)
+    )
 FILE_DIRECTORIES = {
     'theme': (
         'custom/themes',
         'themes'
-    ),
+        ),
     'private': 'custom/files/private',
     'public': 'custom/files/public'
-}
+    }
 MODULES_DIRECTORIES = ('custom/modules', 'modules')
 NECESSARY_MODULE_ATTRIBUTES = (
     'name',
     'role'
-)
+    )
 COREMODULES_DIRECTORIES = ('core',)
 MODULE_CONFIG_NAME = 'config.json'
 ALLOW_HIDDEN_FILES = False
@@ -91,19 +91,19 @@ SUPPORTED_LANGUAGES = {
     'en_gb': 'english (gb)',
     'de': 'german',
     'fr': 'french'
-}
+    }
 BASE_LANGUAGE = 'en_us'
 DEFAULT_LANGUAGE = 'en_us'
 PATHMAP_TYPE = 'MultiTable'
 LOGFILE = 'app.log'
 MIDDLEWARE = (
     'dyc.modules.alias.Middleware',
-)
+    )
 ANTI_CSRF = True
 DEFAULT_HEADERS = {
     'Content-Type': 'text/html; charset=utf-8',
     'Cache-Control': 'no-cache'
-}
+    }
 
 
 # delete names that are not settings

@@ -6,7 +6,7 @@ from dyc import core
 from dyc.core import middleware
 
 from dyc.core.mvc import model as _model
-from dyc.util import typesafe, lazy
+from dyc.util import typesafe, lazy, console
 from dyc.includes import settings, log
 
 from . import config as _config
@@ -81,6 +81,8 @@ class Application(threading.Thread, lazy.Loadable):
 
         server_address = (self.config.server_arguments['host'], self.config.server_arguments['port'])
         httpd = self.config.server_class(server_address, request_handler)
+        console.cprint('\n\n Starting Server on host:' + str(self.config.server_arguments['host']) + 
+            ', port:' + str(self.config.server_arguments['port']))
         httpd.serve_forever()
 
     def set_working_directory(self):
