@@ -22,7 +22,7 @@ _defaults = {
 
 
 @core.Component('TemplateFormatter')
-class TemplateFormatter:
+class TemplateFormatter(object):
 
     responses = {
         None: 'serve_document',
@@ -33,7 +33,7 @@ class TemplateFormatter:
     def theme_config(self, theme):
         return config.read_config('themes/' + theme + '/config.json')
 
-    def __call__(self, view_name, model, url):
+    def __call__(self, view_name, model, request):
 
         c = ARG_REGEX.match(view_name) if view_name else None
 
@@ -41,13 +41,10 @@ class TemplateFormatter:
 
         handler = getattr(self, self.responses[c])
 
-        code, document, headers = handler(model, url, *arg)
+        return handler(model, request, *arg)
 
-        r = response.Response(document, code, headers, model.cookies)
-        for attr in ['content_type', 'encoding']:
-            setattr(r, attr, getattr(model, attr) if hasattr(model, attr) else _defaults[attr])
-        return r
-
+    def redirect(self, model, request, location):
+        return response.Redirect(location=location, headers=model.headers, cookies=model.cookies)
 
     def serve_document(self, model, url, view_name):
         theme = model.theme if model.theme else _defaults['theme']
@@ -67,18 +64,11 @@ class TemplateFormatter:
             document = file.format(**{a: str(pairing[a]) for a in pairing})
             document = document.encode(encoding)
 
-        return 200, document, model.headers
+        return response.Response(document, 200, model.headers, model.cookies)
 
     @staticmethod
     def view_path(theme, view):
         return '/'.join(['themes', theme, 'template', view + '.html'])
-
-    def redirect(self, model, url, attr):
-        if not attr:
-            attr = '/'
-        headers = model.headers.copy()
-        headers.add(("Location", attr))
-        return 301, None, headers
 
     @staticmethod
     def theme_path_alias(theme):

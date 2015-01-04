@@ -1,19 +1,17 @@
-from http.cookies import SimpleCookie
-from dyc.util import typesafe
+from http import cookies as _cookies
 
 __author__ = 'justusadam'
 
 
 class Response(object):
-    @typesafe.typesafe
     def __init__(self, body=None, code=200, headers:dict={}, cookies=None):
         self.body = body
         self.code = code
         self.headers = headers
-        if isinstance(cookies, dict) and cookies:
-            cookies = SimpleCookie.load(SimpleCookie(), cookies)
+        if isinstance(cookies, dict) and cookies and not isinstance(cookies, _cookies.BaseCookie):
+            cookies = _cookies.SimpleCookie(cookies)
         if cookies is None:
-            cookies = SimpleCookie()
+            cookies = _cookies.SimpleCookie()
         else:
             self.headers['Set-Cookie'] = cookies.output(header='')[1:]
         self.cookies = cookies

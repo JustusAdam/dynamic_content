@@ -106,7 +106,7 @@ class PathMap(Segment):
         elif request.query:
             if isinstance(handler.query, str):
                 kwargs[handler.query] = request.query.get(handler.query, None)
-            elif isinstance(handler.query, (list, tuple, set)):
+            elif isinstance(handler.query, (list, tuple, set, frozenset)):
                 for name in handler.query:
                     kwargs[name] = request.query.get(name, None)
             elif isinstance(handler.query, dict):

@@ -62,7 +62,7 @@ class Application(threading.Thread, lazy.Loadable):
 
             model = _model.Model()
             model.client = request.client
-            handler, args, kwargs = core.get_component('PathMap').find_handler(request)
+            handler, args, kwargs = core.get_component('PathMap').resolve(request)
 
             for obj in middleware.cmw:
                 res = obj.handle_view(request, handler, args, kwargs)
