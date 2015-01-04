@@ -1,11 +1,8 @@
-from . import commons, menus, admin, base
-from .component import register
+from . import commons, menus, admin
+from .component import register, implements
+from .base import Handler
 
 __author__ = 'justusadam'
-
-name = 'commons_engine'
-
-role = 'block_manager'
 
 
 def common_handler(item_type):

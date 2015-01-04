@@ -94,24 +94,25 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             self.send_response(error.code)
             if response:
                 if response.headers:
-                    self.process_headers(*response.headers)
+                    self.process_headers(response.headers)
             if error.headers:
-                self.process_headers(*error.headers)
+                self.process_headers(error.headers)
         self.end_headers()
         return 0
 
-    def process_headers(self, *headers:tuple):
-        for header in headers:
-            if isinstance(header, dict):
-                for k, v in header.items():
-                    self.send_header(k, v)
-            elif isinstance(header, str):
-                self.send_header(*HEADER_SPLIT_REGEX.match(header).groups())
-            elif hasattr(header, '__iter__') and len(header) == 2:
-                self.send_header(*header)
+    def process_headers(self, headers:dict):
+        if isinstance(headers, (dict, collections.ChainMap)):
+            for k, v in headers.items():
+                self.send_header(k, v)
+        elif isinstance(headers, (tuple, list, set, frozenset)):
+            if isinstance(headers[0], (tuple, list)):
+                for header in headers:
+                    for k,v in header:
+                        self.send_header(k, v)
             else:
-                print(header)
-                raise TypeError
+                self.send_header(headers[0], headers[1])
+        else:
+            raise TypeError('Expected headers of type ' + repr(dict) + ' or ' + repr(tuple) + ' got ' + repr(type(headers)))
 
     def send_document(self, response):
 
@@ -123,7 +124,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
         else:
             headers = response.headers
 
-        self.process_headers(*headers)
+        self.process_headers(headers)
         self.end_headers()
         if response.body:
             stream = io.BytesIO()

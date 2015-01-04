@@ -1,10 +1,12 @@
 from http.cookies import SimpleCookie
+from dyc.util import typesafe
 
 __author__ = 'justusadam'
 
 
 class Response(object):
-    def __init__(self, body=None, code=200, headers={}, cookies=None):
+    @typesafe.typesafe
+    def __init__(self, body=None, code=200, headers:dict={}, cookies=None):
         self.body = body
         self.code = code
         self.headers = headers

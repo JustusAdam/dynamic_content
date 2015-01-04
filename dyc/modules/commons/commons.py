@@ -4,9 +4,9 @@ from . import component
 __author__ = 'justusadam'
 
 
-# @component.implements('text')
-class TextCommons(base.Commons):
-    com_type = 'text'
+@component.implements('com_text')
+class TextCommons(base.Handler):
+    type = 'text'
 
-    def get_content(self, name):
-        return model.CommonData.get(model.CommonData.machine_name == name).content
+    def get_content(self, conf, render_args, client):
+        return model.CommonData.get(model.CommonData.machine_name == conf.machine_name).content

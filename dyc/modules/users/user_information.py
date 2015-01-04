@@ -1,17 +1,18 @@
 from dyc.core import mvc
 from dyc import dchttp
 from dyc.util.html import TableElement, ContainerElement
-from dyc.modules.commons import base as _base
+from dyc.modules import commons
 from .login import LOGOUT_BUTTON
 from . import users
 
 __author__ = 'justusadam'
 
 
-class UserInformationCommon(_base.Commons):
+@commons.implements('user_information')
+class UserInformationCommon(commons.Handler):
     source_table = 'user_management'
 
-    def get_content(self, name):
+    def get_content(self, conf, render_args, client):
         return ContainerElement(
             TableElement(
                 ('Username: ', self.get_username(self.client.user)),

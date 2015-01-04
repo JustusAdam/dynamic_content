@@ -4,7 +4,7 @@ from dyc.core import mvc
 from dyc import dchttp
 from dyc.modules.comp import decorator as comp_dec
 from dyc.util import html
-from dyc.modules.commons import base
+from dyc.modules import commons
 from dyc.modules.users import decorator as user_dec
 from . import model
 
@@ -51,25 +51,18 @@ def order_tree(parents, children):
             for parent in parents]
 
 
-
-class OverviewCommon(base.Commons):
+@commons.implements('admin')
+class OverviewCommon(commons.Handler):
     source_table = 'admin'
 
-    def __init__(self, conf, render_args, show_title, client):
-        super().__init__(conf=conf,
-                         render_args=render_args,
-                         show_title=show_title,
-                         client=client)
-
-    def get_content(self, name):
+    def get_content(self, conf, render_args, client):
         subcategories = [a.render(ADMIN_PATH) for a in order_tree(model.Category.select(),
                   [Category(child.machine_name, child.display_name, child.category, None) for child in
                 model.Subcategory.select()])]
         return subcategories
 
-    @property
-    def title(self):
-        return html.ContainerElement(super().title, html_type='a', additional={'href': '/admin'})
+    def title(self, conf, show_title):
+        return html.ContainerElement(conf.machine_name, html_type='a', additional={'href': '/admin'})
 
 
 @mvc.controller_function('admin/{str}', method=dchttp.RequestMethods.GET, query=False)

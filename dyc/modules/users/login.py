@@ -5,7 +5,7 @@ from dyc.core import mvc
 from dyc import dchttp
 from dyc.util import html
 from dyc.modules import anti_csrf
-from dyc.modules.commons import base
+from dyc.modules import commons
 from . import session, users, decorator
 
 
@@ -41,10 +41,11 @@ LOGIN_COMMON = anti_csrf.SecureForm(
 )
 
 
-class LoginCommonHandler(base.Commons):
+@commons.implements('login')
+class LoginCommonHandler(commons.Handler):
     source_table = 'user_management'
 
-    def get_content(self, name):
+    def get_content(self, conf, render_args, client):
         return LOGIN_COMMON
 
 

@@ -7,7 +7,7 @@ __author__ = 'justusadam'
 
 
 class RegionHandler:
-    modules = core.Modules
+    commons_map = core.get_component('CommonsMap')
 
     def __init__(self, region_name, region_config, theme, client):
         self.client = client
@@ -28,10 +28,9 @@ class RegionHandler:
 
     def get_item(self, item:commonsmodel.CommonsConfig, render_args, show_title):
 
-        handler = self.modules[item.handler_module].common_handler(item.element_type)(item, render_args, show_title,
-                                                                                      self.client)
+        content = self.commons_map[item.element_type].compile(item, render_args, show_title, self.client)
 
-        return Common(item.machine_name, handler, item.element_type)
+        return Common(item.machine_name, content, item.element_type)
 
     def wrap(self, value):
         classes = ['region', 'region-' + self.name.replace('_', '-')]
@@ -49,13 +48,13 @@ class RegionHandler:
         scripts = []
         cont_acc = []
         if self.commons:
-            c = [item.handler.compile() for item in self.commons]
-            for comp_item in c:
-                if comp_item:
-                    stylesheets += comp_item.stylesheets
-                    meta += comp_item.metatags
-                    scripts += comp_item.metatags
-                    cont_acc.append(comp_item.content)
+            for item in self.commons:
+                content = item.content
+                if content:
+                    stylesheets += content.stylesheets
+                    meta += content.metatags
+                    scripts += content.metatags
+                    cont_acc.append(content.content)
             content = self.wrap(cont_acc)
         else:
             content = ''
@@ -64,7 +63,7 @@ class RegionHandler:
 
 
 class Common:
-    def __init__(self, name, handler, item_type):
+    def __init__(self, name, content, item_type):
         self.name = name
-        self.handler = handler
+        self.content = content
         self.item_type = item_type

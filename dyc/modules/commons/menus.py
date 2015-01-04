@@ -4,7 +4,7 @@ import itertools
 from dyc.util import html
 from dyc.modules import i18n
 from . import model
-from .base import Commons
+from . import base, component
 
 
 __author__ = 'justusadam'
@@ -97,14 +97,16 @@ class HTMLMenuItem(MenuItem):
             return self.render_self(depth), self.render_children(depth + 1, max_depth)
 
 
-class Handler(Commons):
-    source_table = 'menu_items'
+@component.implements('menu')
+class Handler(base.Handler):
+    type = 'menu'
 
-    def get_content(self, name):
-        if self.render_args is None:
+    def get_content(self, conf, render_args, client):
+        name = conf.machine_name
+        if render_args is None:
             ul_list = menu(name, item_class=HTMLMenuItem).render_children(0)
         else:
-            ul_list = menu(name, item_class=HTMLMenuItem).render_children(0, int(self.render_args))
+            ul_list = menu(name, item_class=HTMLMenuItem).render_children(0, int(render_args))
         ul_list.element_id = name
         return ul_list
 

@@ -60,7 +60,7 @@ class PathHandler:
                     return ':redirect:' + path[:-1]
                 model['content'] = filepath.open('rb').read()
                 model.decorator_attributes.add('no-encode')
-                model.content_type, model.encoding = mimetypes.guess_type(str(filepath.name))
+                model.headers['Content-Type'] =  '{}; charset={}'.format(*mimetypes.guess_type(str(filepath.name)))
                 return ':no-view:'
 
         raise FileNotFoundError

@@ -1,7 +1,6 @@
 import inspect
 import importlib
 from . import component, get_component
-from dyc.includes import settings
 
 
 __author__ = 'justusadam'

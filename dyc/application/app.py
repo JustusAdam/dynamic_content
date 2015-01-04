@@ -26,7 +26,7 @@ class Application(threading.Thread, lazy.Loadable):
 
     @typesafe.typesafe
     def __init__(self, config:_config.ApplicationConfig=_config.DefaultConfig()):
-        if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(message='app starting')
+        if settings.RUNLEVEL == settings.RunLevel.debug: log.write_info(message='app starting')
         super().__init__()
         lazy.Loadable.__init__(self)
         self.config = config
@@ -34,9 +34,9 @@ class Application(threading.Thread, lazy.Loadable):
 
     def load(self):
         if settings.RUNLEVEL == settings.RunLevel.debug: log.write_info(message='loading components')
-
-        self.load_modules()
         middleware.cmw.load(settings.MIDDLEWARE)
+        self.load_modules()
+        middleware.cmw.finalize()
 
     @lazy.ensure_loaded
     def run(self):
@@ -61,6 +61,7 @@ class Application(threading.Thread, lazy.Loadable):
                     return res
 
             model = _model.Model()
+            model.client = request.client
             handler, args, kwargs = core.get_component('PathMap').find_handler(request)
 
             for obj in middleware.cmw:

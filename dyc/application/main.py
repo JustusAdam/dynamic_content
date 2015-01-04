@@ -56,7 +56,6 @@ def main():
             )
 
     from dyc import application
-    from dyc.util import config as _config
 
     application.Application(application.Config(server_arguments={
             'host': settings.SERVER.host,

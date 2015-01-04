@@ -33,4 +33,9 @@ def implements(element_type, *args, **kwargs):
             register(element_type, func)
         else:
             raise TypeError('Expected class or callable, got ' + repr(type(func)))
-    return _register
+        return func
+    if not args and not kwargs and (inspect.isclass(element_type) or callable(element_type)):
+        element, element_type = element_type, element_type.type
+        return _register(element)
+    else:
+        return _register

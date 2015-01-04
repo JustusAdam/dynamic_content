@@ -10,7 +10,7 @@ class Model(dict):
         super().__init__(**kwargs)
         self.__final = False
         self.decorator_attributes = set()
-        self.headers = set()
+        self.headers = dict()
         self.cookies = cookies.SimpleCookie()
         self.config = config.Config()
         self.theme = settings.DEFAULT_THEME
