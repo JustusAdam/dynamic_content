@@ -25,13 +25,19 @@ class ComponentWrapper(object):
 
     This means that if a non-existent component is being requested there will be no error
     only using the component will throw the ComponentNotLoaded exception.
+
+    Please note that _name and _allow_reload can ONLY be set at instantiation.
     """
-    _name = _wrapped = _allow_reload = None
+
+    __slots__ = ('_name', '_wrapped', '_allow_reload')
 
     def __init__(self, name, allow_reload=False):
-        self.__dict__['_name'] = name
-        self.__dict__['_wrapped'] = None
-        self.__dict__['_allow_reload'] = allow_reload
+        super.__setattr__(self, '_name', name)
+        # self._name = name
+        super.__setattr__(self, '_wrapped', None)
+        # self._wrapped = None
+        super.__setattr__(self, '_allow_reload', allow_reload)
+        # self._allow_reload = allow_reload
 
     def __getattr__(self, item):
         if self.__getattribute__('_wrapped') is None:
@@ -40,10 +46,13 @@ class ComponentWrapper(object):
 
     def __setattr__(self, key, value):
         if key == '_wrapped':
-            if self._wrapped is None:
-                return super().__setattr__(key, value)
-            elif self._allow_reload is False:
-                raise exceptions.ComponentLoaded(self._name)
+            if self._allow_reload is False:
+                if self._wrapped is None:
+                    super().__setattr__(key, value)
+                else:
+                    raise exceptions.ComponentLoaded(self._name)
+            else:
+                super().__setattr__(key, value)
         else:
             setattr(self._wrapped, key, value)
 
