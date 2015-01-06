@@ -26,41 +26,37 @@ class Segment(dict):
 
     @staticmethod
     def add_to_container(container, handler_func):
+        def _compare_two(one, other):
+            if one.headers == other.headers:
+                raise exceptions.ControllerError(
+                'Handler mapping collision. Headers do not differ.')
+
         for a in handler_func.method:
-            if getattr(container, a) is None:
+            current = getattr(container, a)
+            if current is None:
                 setattr(container, a, handler_func)
+            elif isinstance(current, tuple):
+                for item in current:
+                    _compare_two(item, handler_func)
+                else:
+                    setattr(container, a,
+                        sorted((handler_func, ) + current, key=len))
             else:
-                raise exceptions.ControllerError('Overwriting set Handlers is not allowed')
+                _compare_two(current, handler_func)
+                setattr(container, a, sorted((handler_func, current), key=len))
 
 
-class TypeArg(object):
-    """A Path argument with a name."""
-    @typesafe.typesafe
-    def __init__(self, name:str, t):
-        self.name = name
-        self.type = t
-
+TypeArg = collections.namedtuple('TypeArg', ('name', 'type'))
+# A Path argument with a name.
 
 class HandlerContainer(object):
     """Value object for holding handlers to various request types with some convenience methods for value access"""
-    items = {
-        'get', 'post'
-    }
+
+    __slots__ = ('get', 'post')
 
     def __init__(self, get=None, post=None):
         self.get = get
         self.post = post
-
-    def __getattr__(self, item:str):
-        if isinstance(item, str) and item.lower() in self.items:
-            return super().__getattribute__(self, item.lower())
-        raise AttributeError('Attribute {} could not be found'.format(str(item)))
-
-    def __setattr__(self, key, value):
-        if isinstance(key, str) and key.lower() in self.items:
-            super().__setattr__(key.lower(), value)
-        else:
-            super().__setattr__(key, value)
 
 
 typemap = {
@@ -70,6 +66,22 @@ typemap = {
     'string': str,
     'float': float
 }
+
+
+def handler_from_container(container, method, headers):
+    handler = getattr(
+        (container.handler
+            if isinstance(container, Segment)
+            else container),
+        method)
+    if handler is not None:
+        if isinstance(handler, tuple):
+            pass
+            # TODO match headers
+        else:
+            return handler
+    else:
+        return None
 
 
 class PathMap(Segment):
@@ -243,17 +255,15 @@ class TreePathMap(PathMap):
 
 
         else:
-            handler = new.handler if isinstance(new, Segment) else new
-            try:
-                handler_func = getattr(handler, request.method)
-            except AttributeError:
-                raise AttributeError('Unrecognized Request method ' + request.method)
-            if not handler_func is None:
-                return handler_func, iargs, ikwargs
+            handler = handler_from_container(new, request.method, request.headers)
+            if not handler is None:
+                return handler, iargs, ikwargs
 
 
         if wildcard is None:
-            raise exceptions.MethodHandlerNotFound('Mo handler found for request method {} for path {}'.format(request.method, request.path))
+            raise exceptions.MethodHandlerNotFound(
+            'Mo handler found for request method {} for path {}'.format(
+            request.method, request.path))
         else:
             handler, args, kwargs = wildcard
             return handler, args + (request.path, ), kwargs
@@ -291,16 +301,16 @@ class MultiTableSegment(Segment):
                 a = a.handler
             return a
 
-    def segment_get_handler(self, path:str, method):
+    def segment_get_handler(self, path, method, headers):
         rest = collections.deque()
         p = '/' + path if not path.startswith('/') else path
 
-        def rethandler_func(func):
-            handler = func.handler if isinstance(func, MultiTableSegment) else func
-            if getattr(handler, method) is None:
+        def rethandler_func(container):
+            handler = handler_from_container(container, method, headers)
+            if handler is None:
                 raise exceptions.MethodHandlerNotFound(repr(handler))
             else:
-                return getattr(handler, method)
+                return handler
 
         exception = None
 
@@ -309,8 +319,9 @@ class MultiTableSegment(Segment):
                 match = self[p]
                 if rest:
                     try:
-                        return match.segment_get_handler('/'.join(rest), method)
-                    except (exceptions.PathResolving, exceptions.MethodHandlerNotFound) as e:
+                        return match.segment_get_handler('/'.join(rest), method, headers)
+                    except (exceptions.PathResolving,
+                        exceptions.MethodHandlerNotFound) as e:
                         if exception is None:
                             exception = e
                 else:
@@ -330,9 +341,10 @@ class MultiTableSegment(Segment):
                 match = self[t]
                 if rest:
                     try:
-                        func, args = match.segment_get_handler('/'.join(rest), method)
+                        func, args = match.segment_get_handler('/'.join(rest), method, headers)
                         return func, (p, ) + args
-                    except (exceptions.PathResolving, exceptions.MethodHandlerNotFound) as e:
+                    except (exceptions.PathResolving,
+                        exceptions.MethodHandlerNotFound) as e:
                         if exception is None:
                             exception = e
                 else:
@@ -344,8 +356,9 @@ class MultiTableSegment(Segment):
             if self.wildcard is not None:
                 return rethandler_func(self.wildcard), (None, )
             else:
-                raise exceptions.PathResolving('No matching path could be found for {}'.format(path)) \
-                    if exception is None else exception
+                raise (exceptions.PathResolving(
+                    'No matching path could be found for {}'.format(path))
+                    if exception is None else exception)
 
 
 class MultiTablePathMap(MultiTableSegment, PathMap):
@@ -353,8 +366,9 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
     @staticmethod
     def parse_path(path):
         """
-        Split path into list of segments, parsed according to the path mapping minilanguage
-         with the structure needed for incorporation into the MultiMap path mapper
+        Split path into list of segments, parsed according to the
+         path mapping minilanguage with the structure needed for
+         incorporation into the MultiMap path mapper
 
         :param path:
         :return:
@@ -407,14 +421,17 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
 
 
     def add_path(self, path:str, handler):
-        console.cprint('Registering on path /{}     Handler: {}'.format(path, handler))
+        console.cprint('Registering on path /{}     Handler: {}'.format(
+            path, handler))
         path_list = self.parse_path(path)
-        typeargs = tuple(filter(lambda a: isinstance(a, type) or isinstance(a, TypeArg) or a == '**', path_list))
+        typeargs = tuple(filter(lambda a: (isinstance(a, type)
+            or isinstance(a, TypeArg) or a == '**'), path_list))
         handler.typeargs = typeargs
         self.add_to_container(self.get_handler_container(path_list), handler)
 
     def find_handler(self, request):
-        handler, typeargs = self.segment_get_handler(request.path, request.method)
+        # TODO add headers to request and pass them on in this call
+        handler, typeargs = self.segment_get_handler(request.path, request.method, None)
 
         def process_args(typeargs, values):
             args = []
@@ -427,7 +444,8 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
                 elif isinstance(targ, type):
                     args.append(val)
                 else:
-                    raise TypeError('Expected Type {} or {} got {}'.format(type, TypeArg, type(targ)))
+                    raise TypeError('Expected Type {} or {} got {}'.format(type,
+                        TypeArg, type(targ)))
 
             return tuple(args), kwargs
 

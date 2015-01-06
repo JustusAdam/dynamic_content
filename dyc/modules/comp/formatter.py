@@ -1,6 +1,6 @@
-import pathlib
 import re
 import sys
+import collections
 
 from dyc.dchttp import response
 from dyc.util import html, decorators, config
@@ -31,7 +31,7 @@ class TemplateFormatter(object):
 
     @decorators.multicache
     def theme_config(self, theme):
-        return config.read_config('themes/' + theme + '/config.json')
+        return config.read_config('themes/{}/config.json'.format(theme))
 
     def __call__(self, view_name, model, request):
 
@@ -44,16 +44,25 @@ class TemplateFormatter(object):
         return handler(model, request, *arg)
 
     def redirect(self, model, request, location):
-        return response.Redirect(location=location, headers=model.headers, cookies=model.cookies)
+        return response.Redirect(
+            location=location,
+            headers=model.headers,
+            cookies=model.cookies
+            )
 
     def serve_document(self, model, url, view_name):
         theme = model.theme if model.theme else _defaults['theme']
-        encoding = model.encoding if hasattr(model, 'encoding') and model.encoding else _defaults['encoding']
+        encoding = (
+            model.encoding
+            if hasattr(model, 'encoding')
+            and model.encoding
+            else _defaults['encoding'])
 
         if 'no-encode' in model.decorator_attributes:
             document = model['content']
 
-        elif 'no_view' in model.decorator_attributes or view_name is None:
+        elif ('no_view' in model.decorator_attributes
+            or view_name is None):
             document = model['content'].encode(encoding)
         else:
             pairing = self.initial_pairing(model, theme, url)
@@ -61,21 +70,21 @@ class TemplateFormatter(object):
             for a in VAR_REGEX.finditer(file):
                 if a.group(1) not in pairing:
                     pairing.__setitem__(a.group(1), '')
-            document = file.format(**{a: str(pairing[a]) for a in pairing})
+            document = file.format(**pairing)
             document = document.encode(encoding)
 
         return response.Response(document, 200, model.headers, model.cookies)
 
     @staticmethod
     def view_path(theme, view):
-        return '/'.join(['themes', theme, 'template', view + '.html'])
+        return 'themes/{}/template/{}.html'.format(theme, view)
 
     @staticmethod
     def theme_path_alias(theme):
         return '/theme/' + theme
 
     def _get_my_folder(self):
-        return str(pathlib.Path(sys.modules[self.__class__.__module__].__file__).parent)
+        return sys.modules[self.__class__.__module__].__file__.rsplit('/', 1)[0]
 
     def _get_config_folder(self):
         return self._get_my_folder()
@@ -85,10 +94,10 @@ class TemplateFormatter(object):
         s = self._list_from_model(model, 'stylesheets')
         if 'stylesheets' in theme_config:
             s += list(html.Stylesheet(
-                self.theme_path_alias(theme) + '/' + theme_config['stylesheet_directory'] + '/' + a) for
+                '/'.join((self.theme_path_alias(theme), theme_config['stylesheet_directory'], a))) for
                       a
                       in theme_config['stylesheets'])
-        return ''.join([str(a) for a in s])
+        return ''.join(str(a) for a in s)
 
     @staticmethod
     def _list_from_model(model,  ident):
@@ -102,35 +111,44 @@ class TemplateFormatter(object):
         s = self._list_from_model(model, 'scripts')
         if 'scripts' in theme_config:
             s += list(
-                html.Script(self.theme_path_alias(theme) + '/' + theme_config['script_directory'] + '/' + a) for
+                html.Script('/'.join((self.theme_path_alias(theme), theme_config['script_directory'], a))) for
                 a
                 in theme_config['scripts'])
-        return ''.join([str(a) for a in s])
+        return ''.join(str(a) for a in s)
 
     def compile_meta(self, model, theme):
         theme_config = self.theme_config(theme)
-        if 'favicon' in theme_config:
-            favicon = theme_config['favicon']
-        else:
-            favicon = 'favicon.icon'
+        favicon = (theme_config['favicon']
+            if 'favicon' in theme_config
+            else 'favicon.icon')
         return str(
-            html.LinkElement('/theme/' + theme + '/' + favicon, rel='shortcut icon', element_type='image/png'))
+            html.LinkElement(
+                '/theme/' + theme + '/' + favicon,
+                rel='shortcut icon',
+                element_type='image/png'))
 
-    def initial_pairing(self, model, theme, url) -> dict:
-        a = model.copy()
-        a.update({
-            'scripts': self.compile_scripts(model, theme),
-            'stylesheets': self.compile_stylesheets(model, theme),
-            'meta': self.compile_meta(model, theme)
-        })
-        a.setdefault('breadcrumbs', self.render_breadcrumbs(url))
-        a.setdefault('pagetitle',
-                     html.A('/', 'dynamic_content - fast, python and extensible'))
-        a.setdefault('footer', str(
-            html.ContainerElement(
-                html.ContainerElement('\'dynamic_content\' CMS - &copy; Justus Adam 2014', html_type='p'),
-                element_id='powered_by', classes={'common', 'copyright'})))
-        return a
+    def initial_pairing(self, model, theme, url) -> collections.ChainMap:
+        return collections.ChainMap(
+            dict(
+                model,
+                scripts=self.compile_scripts(model, theme),
+                stylesheets=self.compile_stylesheets(model, theme),
+                meta=self.compile_meta(model, theme)
+            ),
+            dict(
+                breadcrumbs=self.render_breadcrumbs(url),
+                pagetitle=html.A('/',
+                    'dynamic_content - fast, python and extensible'),
+                footer=str(
+                html.ContainerElement(
+                    html.ContainerElement(
+                        '\'dynamic_content\' CMS - &copy; Justus Adam 2014',
+                        html_type='p'),
+                    element_id='powered_by',
+                    classes={'common', 'copyright'}))
+            )
+        )
+
 
 
     breadcrumb_separator = '>>'
@@ -145,11 +163,19 @@ class TemplateFormatter(object):
     def render_breadcrumbs(self, url):
         def acc():
             for (name, location) in self.breadcrumbs(url):
-                for i in [
-                    html.ContainerElement(self.breadcrumb_separator, html_type='span',
-                                          classes={'breadcrumb-separator'}),
-                    html.ContainerElement(name, html_type='a', classes={'breadcrumb'}, additional={'href': location})
-                ]:
+                for i in (
+                    html.ContainerElement(
+                        self.breadcrumb_separator,
+                        html_type='span',
+                        classes={'breadcrumb-separator'}
+                    ),
+                    html.ContainerElement(
+                        name,
+                        html_type='a',
+                        classes={'breadcrumb'},
+                        additional={'href': location}
+                    )
+                ):
                     yield i
 
-        return html.ContainerElement(*list(acc()), classes={'breadcrumbs'})
+        return html.ContainerElement(*tuple(acc()), classes={'breadcrumbs'})

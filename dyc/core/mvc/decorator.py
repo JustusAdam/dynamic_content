@@ -64,8 +64,7 @@ class Autoconf(object):
                 self.custom_conf,
                 self.get_controller_conf(controller),
                 DefaultConfig
-            ]
-                                                  if a])
+            ] if a])
 
         return wrap
 
@@ -86,7 +85,7 @@ def _to_set(my_input, allowed_vals=str):
 
 
 class ControlFunction(object):
-    def __init__(self, function, value, method, query, options={}):
+    def __init__(self, function, value, method, query, headers, options={}):
         if isinstance(function, ControlFunction):
             self.function = function.function
             self.wrapping = function.wrapping
@@ -97,6 +96,7 @@ class ControlFunction(object):
         self.value = _to_set(value)
         self.method = _to_set(method, str)
         self.query = query if isinstance(query, (dict, bool)) else _to_set(query)
+        self.headers = None if headers is None else _to_set(headers)
         self.instance = None
         self.typeargs = []
         self.options = options
@@ -117,9 +117,10 @@ class RestControlFunction(ControlFunction):
         return model
 
 
-def __controller_function(class_, value, *, method=dchttp.RequestMethods.GET, query=False, **options):
+def _controller_function(class_, value, *, method=dchttp.RequestMethods.GET,
+    headers=None, query=False, **options):
     def wrap(func):
-        wrapped = class_(func, value, method, query, options)
+        wrapped = class_(func, value, method, query, headers, options)
         for val in wrapped.value:
             controller_mapper.add_path(val, wrapped)
         return wrapped
@@ -127,14 +128,15 @@ def __controller_function(class_, value, *, method=dchttp.RequestMethods.GET, qu
 
 
 
-def __controller_method(class_, value, *, method=dchttp.RequestMethods.GET, query=False, **options):
+def _controller_method(class_, value, *, method=dchttp.RequestMethods.GET,
+    headers=None, query=False, **options):
     def wrap(func):
-        wrapped = class_(func, value, method, query, options)
+        wrapped = class_(func, value, method, query, headers, options)
         return wrapped
     return wrap
 
 
-controller_function = functools.partial(__controller_function, ControlFunction)
+controller_function = functools.partial(_controller_function, ControlFunction)
 
 
 def controller_class(class_):
@@ -150,11 +152,11 @@ def controller_class(class_):
     return class_
 
 
-controller_method = functools.partial(__controller_method, ControlFunction)
+controller_method = functools.partial(_controller_method, ControlFunction)
 
-rest_controller_function = functools.partial(__controller_function, RestControlFunction)
+rest_controller_function = functools.partial(_controller_function, RestControlFunction)
 
-rest_controller_method = functools.partial(__controller_method, RestControlFunction)
+rest_controller_method = functools.partial(_controller_method, RestControlFunction)
 
 
 @decorators.deprecated

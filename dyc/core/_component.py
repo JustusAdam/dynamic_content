@@ -3,7 +3,7 @@ from dyc.errors import exceptions
 
 
 __author__ = 'justusadam'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 _name_transform = lambda name: name.lower().replace('_', '').replace(' ', '')

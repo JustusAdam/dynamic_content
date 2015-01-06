@@ -2,12 +2,14 @@
 Framework for rendering HTML elements *incomplete*
 """
 
-import html
 import re
+import functools
 
 from . import transform
 
+
 __author__ = 'justusadam'
+__version__ = '0.2'
 
 
 class BaseElement:
@@ -26,8 +28,13 @@ class BaseElement:
             self._value_params = {}
         self._params = set()
 
-    def render_value_params(self):
-        return [str(k) + '="' + html.escape(v) + '"' for k, v in self._value_params.items() if v]
+    @property
+    def params(self):
+        return self._params
+
+    @property
+    def value_params(self):
+        return self._value_params
 
     def __add__(self, other):
         return str(self) + str(other)
@@ -39,6 +46,9 @@ class BaseElement:
         return '<' + self.render_head() + '>'
 
     def __str__(self):
+        return self.render()
+
+    def to_iter(self):
         return self.render()
 
 
@@ -106,6 +116,20 @@ class ContainerElement(BaseClassIdElement):
 
     def render(self):
         return '<' + self.render_head() + '>' + self.render_content() + '</' + self.html_type + '>'
+
+    def iter_content(self):
+        for a in self.content:
+            if hasattr(a, 'to_iter'):
+                for b in a.to_iter():
+                    yield b
+            else:
+                yield a
+
+    def to_iter(self):
+        yield '<' + self.render_head() + '>'
+        for a in self.iter_content():
+            yield a
+        yield '</' + self.html_type + '>'
 
 
 class AbstractList(ContainerElement):
@@ -438,3 +462,11 @@ def container_wrapper(used_class, **kwargs):
         return used_class(*args, **kwargs)
 
     return wrapped
+
+
+elements = {
+    'a': functools.partial(A, '/'),
+    'span': functools.partial(ContainerElement, html_type='span'),
+    'div': functools.partial(ContainerElement, html_type='div'),
+    'html': functools.partial(ContainerElement, html_type='html')
+}

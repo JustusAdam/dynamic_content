@@ -1,6 +1,8 @@
 import html as _html
 
+
 __author__ = 'justusadam'
+__version__ = '0.1'
 
 
 def to_html_head(*items):
@@ -22,8 +24,8 @@ def _list_to_html_head(list_):
 _head_render_map = {
     dict: _dict_to_html_head,
     list: _list_to_html_head,
-    int: lambda a: str(a),
-    float: lambda a: str(a),
+    int: str,
+    float: str,
     set: lambda a: ' '.join(a),
     str: lambda a: _html.escape(a)
 }
