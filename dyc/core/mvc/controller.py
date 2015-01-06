@@ -5,6 +5,8 @@ from .. import _component
 
 
 __author__ = 'Justus Adam'
+__version__ = '0.1'
+
 
 _register_controllers = True
 

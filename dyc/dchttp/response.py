@@ -3,20 +3,22 @@ import collections
 
 
 __author__ = 'Justus Adam'
+__version__ = '0.1'
+
 
 # HTTP Responecodes as defined in RFC 2616 neatly accessible via field names
 # For further information on use and meaning of these responses please refer to
 # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-HttpResponseCodes = (collections.namedtuple('ResponseCodeContainer', ('Continue', 
-'SwitchingProtocols', 'OK', 'Created', 'Accepted', 
-'NonAuthoritativeInformation','NoContent', 'ResetContent', 'PartialContent', 
-'MultipleChoices', 'MovedPermanently', 'Found', 'SeeOther', 'NotModified', 
-'UseProxy', 'TemporaryRedirect', 'BadRequest', 'Unauthorized', 
+HttpResponseCodes = (collections.namedtuple('ResponseCodeContainer', ('Continue',
+'SwitchingProtocols', 'OK', 'Created', 'Accepted',
+'NonAuthoritativeInformation','NoContent', 'ResetContent', 'PartialContent',
+'MultipleChoices', 'MovedPermanently', 'Found', 'SeeOther', 'NotModified',
+'UseProxy', 'TemporaryRedirect', 'BadRequest', 'Unauthorized',
 'PaymentRequired', 'Forbidden', 'NotFound', 'MethodNotAllowed', 'NotAcceptable',
-'ProxyAuthenticationRequired', 'RequestTimeout', 'Conflict', 'Gone', 
-'LengthRequired', 'PreconditionFailed', 'RequestEntityTooLarge', 
+'ProxyAuthenticationRequired', 'RequestTimeout', 'Conflict', 'Gone',
+'LengthRequired', 'PreconditionFailed', 'RequestEntityTooLarge',
 'RequestURITooLong', 'UnsupportedMediaType', 'RequestedRangeNotSatisfiable',
-'ExpectationFailed', 'InternalServerError', 'NotImplemented', 'BadGateway', 
+'ExpectationFailed', 'InternalServerError', 'NotImplemented', 'BadGateway',
 'ServiceUnavailable', 'GatewayTimeout', 'HTTPVersionNotSupported'))
 (
 Continue = 100,
@@ -41,22 +43,22 @@ PaymentRequired = 402,
 Forbidden = 403,
 NotFound = 404,
 MethodNotAllowed = 405,
-NotAcceptable = 406, 
-ProxyAuthenticationRequired = 407, 
-RequestTimeout = 408, 
-Conflict = 409, 
-Gone = 410, 
-LengthRequired = 411, 
+NotAcceptable = 406,
+ProxyAuthenticationRequired = 407,
+RequestTimeout = 408,
+Conflict = 409,
+Gone = 410,
+LengthRequired = 411,
 PreconditionFailed = 412,
-RequestEntityTooLarge = 413, 
-RequestURITooLong = 414, 
-UnsupportedMediaType = 415, 
-RequestedRangeNotSatisfiable = 416, 
+RequestEntityTooLarge = 413,
+RequestURITooLong = 414,
+UnsupportedMediaType = 415,
+RequestedRangeNotSatisfiable = 416,
 ExpectationFailed = 417,
-InternalServerError = 500, 
-NotImplemented = 501, 
-BadGateway = 502, 
-ServiceUnavailable = 503, 
+InternalServerError = 500,
+NotImplemented = 501,
+BadGateway = 502,
+ServiceUnavailable = 503,
 GatewayTimeout = 504, HTTPVersionNotSupported = 505
 ))
 
@@ -66,8 +68,8 @@ class Response(object):
         self.body = body
         self.code = code
         self.headers = headers
-        if (isinstance(cookies, dict) 
-            and cookies 
+        if (isinstance(cookies, dict)
+            and cookies
             and not isinstance(cookies, _cookies.BaseCookie)):
             cookies = _cookies.SimpleCookie(cookies)
         if cookies is None:
@@ -78,11 +80,11 @@ class Response(object):
 
 
 class Redirect(Response):
-    def __init__(self, location, code=HttpResponseCodes.Found, 
+    def __init__(self, location, code=HttpResponseCodes.Found,
                 headers={}, cookies=None):
         if not code in (
-            HttpResponseCodes.MovedPermanently, 
-            HttpResponseCodes.Found, 
+            HttpResponseCodes.MovedPermanently,
+            HttpResponseCodes.Found,
             HttpResponseCodes.SeeOther
             ):
             raise TypeError('Expected code 301 or 302, got {}'.format(code))

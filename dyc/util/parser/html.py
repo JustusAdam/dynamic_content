@@ -147,7 +147,7 @@ html_automaton = generic.automaton_from_dict(html_automaton_base)
 def parse(string):
     cellar_bottom = html.ContainerElement()
     stack = HtmlParserStack(element=[cellar_bottom], current=cellar_bottom)
-    stack = generic._parse(html_automaton, stack, string)
+    stack = generic.parse(html_automaton, stack, string)
     if stack.current is not cellar_bottom:
         raise SyntaxError()
     else:

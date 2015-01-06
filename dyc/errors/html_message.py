@@ -1,6 +1,7 @@
 from dyc.util.html import ContainerElement
 
 __author__ = 'Justus Adam'
+__version__ = '0.1'
 
 
 def error_message(code, message=''):

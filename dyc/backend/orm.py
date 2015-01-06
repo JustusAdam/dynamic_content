@@ -3,6 +3,7 @@ from dyc.includes import settings
 from dyc.util import console
 
 __author__ = 'Justus Adam'
+__version__ = '0.1'
 
 
 def proxy_db():

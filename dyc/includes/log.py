@@ -5,6 +5,7 @@ import functools
 from . import settings
 
 __author__ = 'Justus Adam'
+__version__ = '0.1'
 
 
 _path = pathlib.Path(settings.LOGFILE) if settings.LOGFILE.startswith('/') else pathlib.Path(__file__).parent / settings.LOGFILE

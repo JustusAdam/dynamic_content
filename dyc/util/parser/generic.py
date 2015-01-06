@@ -54,7 +54,7 @@ class Node(object):
                     return f.result
 
 
-def _parse(automaton, stack, string):
+def _parse_deterministic(automaton, stack, string):
 
     linecount = 0
     charcount = 0
@@ -62,14 +62,22 @@ def _parse(automaton, stack, string):
     node = automaton[0]
 
     for n in string:
-        res = node.match(n)
+        try:
+            res = node.match(n)
+        except KeyError as e:
+            raise SyntaxError('On line {} column {}, nested exception {}'.format(
+                linecount, charcount, e
+            ))
         if res == None:
             raise SyntaxError('On line {} column: {} \nExpected character'
                 'from {} or conforming to {}'.format(linecount,
                 charcount, node.inner.keys(), set(f.func for f in node.f)))
         if res.g is not None:
             res.g(n, stack)
-        node = automaton[res.i]
+        try:
+            node = automaton[res.i]
+        except KeyError:
+            raise SyntaxError('No state {} found in Automaton'.format(res.i))
 
         if n == '\n':
             linecount += 1
@@ -79,7 +87,19 @@ def _parse(automaton, stack, string):
 
     return stack
 
+
+def _parse_indeterministic(automaton, stack, string):
+    raise NotImplementedError
+
+
 def automaton_from_dict(d):
     return {
         k: (v if isinstance(v, Node) else Node(*v)) for k,v in d.items()
     }
+
+
+def parse(automaton, stack, string, automaton_type='deterministic'):
+    return {
+        'deterministic': _parse_deterministic,
+        'indeterministic': _parse_indeterministic
+    }[automaton_type](automaton, stack, string)

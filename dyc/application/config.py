@@ -9,6 +9,8 @@ from dyc.dchttp import wsgi
 
 __author__ = 'Justus Adam'
 
+__version__ = '0.1.1'
+
 _basedir = pathlib.Path(__file__).parent.parent.resolve()
 
 

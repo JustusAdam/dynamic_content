@@ -37,6 +37,7 @@ from dyc.util import typesafe
 
 
 __author__ = 'Justus Adam'
+__version__ = '0.2'
 
 
 controller_mapper = _component.get_component('PathMap')
