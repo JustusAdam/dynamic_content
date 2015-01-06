@@ -44,9 +44,10 @@ class HtmlParserStack(object):
             self.text_content, self.current))
 
 
-def html_q0(n, stack):
+def flush_text_content(n, stack):
     if stack.text_content:
-        stack.current.content.append(''.join(stack.text_content))
+        if not (len(stack.text_content) == 1 and stack.text_content[0] == ' '):
+            stack.current.content.append(''.join(stack.text_content))
         stack.text_content.clear()
 
 
@@ -88,7 +89,7 @@ html_forbidden = {'"'}
 
 html_automaton_base = {
     0: (
-        generic.Edge(1, chars='<', g=html_q0),
+        generic.Edge(1, chars='<', g=flush_text_content),
         generic.Edge(0, funcs=str.isalpha, g=lambda n, stack: stack.text_content.append(n)),
         generic.Edge(8, chars={' ', '\n'}, g=lambda n, stack: stack.text_content.append(' '))
     ),
@@ -126,7 +127,7 @@ html_automaton_base = {
     8: (
         generic.Edge(8, chars={'\n', ' '}),
         generic.Edge(0, funcs=str.isalpha, g=lambda n, stack: stack.text_content.append(n)),
-        generic.Edge(1, chars='<')
+        generic.Edge(1, chars='<', g=flush_text_content)
     ),
     9: (
         generic.Edge(0, chars='>', g=html_finish_element),
