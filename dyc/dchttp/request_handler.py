@@ -16,7 +16,7 @@ from dyc.dchttp import Request
 from dyc.includes import log, settings
 from dyc.util import console
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 _catch_errors = False

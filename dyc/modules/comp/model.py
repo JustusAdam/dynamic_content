@@ -1,7 +1,7 @@
 from dyc.backend import orm
 from dyc.core import model as coremodel
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 class Common(orm.BaseModel):

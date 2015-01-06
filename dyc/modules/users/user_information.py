@@ -5,7 +5,7 @@ from dyc.modules import commons
 from .login import LOGOUT_BUTTON
 from . import users
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 @commons.implements('user_information')

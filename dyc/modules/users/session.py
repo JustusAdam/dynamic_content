@@ -5,7 +5,7 @@ import os
 from dyc.util import time
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 # both in seconds

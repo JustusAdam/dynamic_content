@@ -10,7 +10,7 @@ from dyc.util import module as _module
 from dyc.includes import log
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 __version__ = '0.3'
 
 

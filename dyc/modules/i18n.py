@@ -1,7 +1,7 @@
 from dyc.backend import orm
 from dyc.includes import settings
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 def _get_table(lang):

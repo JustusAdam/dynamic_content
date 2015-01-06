@@ -3,7 +3,7 @@ from dyc.modules.commons import model as commonsmodel
 from . import page, model
 from dyc.util import html
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 class RegionHandler:

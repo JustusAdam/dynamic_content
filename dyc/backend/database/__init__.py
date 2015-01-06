@@ -18,7 +18,7 @@ import importlib
 from dyc.util.config import read_config
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 db_types = {
     'mysql': 'mysql'

@@ -4,7 +4,7 @@ from dyc.core import mvc
 from dyc.core.mvc.model import Model
 from dyc import dchttp
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 class TestDecorator(unittest.TestCase):

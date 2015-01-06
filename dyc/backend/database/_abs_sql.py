@@ -1,6 +1,6 @@
 from ._abs import AbstractDatabase
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 class SQLDatabase(AbstractDatabase):

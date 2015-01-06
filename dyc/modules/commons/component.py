@@ -2,7 +2,7 @@ import inspect
 from dyc import core
 from dyc.includes import log
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 @core.component('CommonsMap')

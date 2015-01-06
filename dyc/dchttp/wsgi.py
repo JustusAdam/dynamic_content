@@ -1,7 +1,7 @@
 from wsgiref.simple_server import WSGIServer, WSGIRequestHandler
 import socketserver
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 __version__ = '0.1'
 
 

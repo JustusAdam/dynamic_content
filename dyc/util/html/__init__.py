@@ -1,4 +1,4 @@
 from . import transform
 from ._elements import *
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'

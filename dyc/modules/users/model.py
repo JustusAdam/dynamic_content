@@ -1,7 +1,7 @@
 from dyc.backend import orm
 from dyc.util import time
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 USERS_TABLE_NAME = 'cms_users'
 USERS_AUTH_TABLE_NAME = 'cms_user_auth'

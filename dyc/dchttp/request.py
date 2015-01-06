@@ -1,7 +1,7 @@
 from urllib import parse
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 class Request(object):

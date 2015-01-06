@@ -1,6 +1,6 @@
 import peewee
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 import unittest
 from dyc.modules import anti_csrf

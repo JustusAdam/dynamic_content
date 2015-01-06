@@ -8,7 +8,7 @@ from dyc.modules import commons
 from dyc.modules.users import decorator as user_dec
 from . import model
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 ADMIN_PATH = '/admin'
 

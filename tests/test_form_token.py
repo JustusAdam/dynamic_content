@@ -1,7 +1,7 @@
 import binascii
 from dyc.modules import anti_csrf
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 import unittest
 

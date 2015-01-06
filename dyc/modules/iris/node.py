@@ -2,7 +2,7 @@ import pathlib
 from dyc.core.mvc import model as mvc_model
 from dyc.util import config, decorators
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 class Node(dict):

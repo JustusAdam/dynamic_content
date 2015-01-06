@@ -4,7 +4,7 @@ import functools
 
 from . import settings
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 _path = pathlib.Path(settings.LOGFILE) if settings.LOGFILE.startswith('/') else pathlib.Path(__file__).parent / settings.LOGFILE

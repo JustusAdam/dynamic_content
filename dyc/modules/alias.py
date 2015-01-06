@@ -2,7 +2,7 @@ from dyc.backend import orm
 from dyc.core import middleware
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 class Alias(orm.BaseModel):

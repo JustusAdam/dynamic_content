@@ -5,7 +5,7 @@ from dyc.core.mvc._pathmapper import MultiTablePathMap, TreePathMap
 from dyc.core.mvc.decorator import ControlFunction
 from dyc import dchttp
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 class TestMultiTableMapper(unittest.TestCase):

@@ -1,6 +1,6 @@
 import importlib
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 def import_by_path(path:str):

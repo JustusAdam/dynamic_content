@@ -1,6 +1,6 @@
 from dyc.includes import settings
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 def _active_cprint(*stuff, sep='', end='\n', file=None, flush=False):

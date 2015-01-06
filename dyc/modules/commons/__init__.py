@@ -2,7 +2,7 @@ from . import commons, menus, admin
 from .component import register, implements
 from .base import Handler
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 def common_handler(item_type):

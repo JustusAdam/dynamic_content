@@ -3,7 +3,7 @@ import os
 from dyc.includes import log, settings
 from . import model
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 _value_mapping = {
     'email': 'email_address'

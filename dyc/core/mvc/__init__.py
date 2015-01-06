@@ -4,7 +4,7 @@ from .decorator import Autoconf, controller_function, controller_method, control
 
 del _pathmapper
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 __all__ = [

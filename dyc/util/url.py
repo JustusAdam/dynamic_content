@@ -7,7 +7,7 @@ the future, incorporate more of the standard library.
 
 from urllib import parse
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 class Url:

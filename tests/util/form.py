@@ -1,4 +1,4 @@
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 from dyc.modules import anti_csrf
 

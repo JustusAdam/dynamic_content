@@ -4,7 +4,7 @@ import inspect
 from dyc.includes import log, settings
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 def deprecated(func):

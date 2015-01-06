@@ -1,6 +1,6 @@
 from . import field, model, content_handler
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 name = 'iris'
 

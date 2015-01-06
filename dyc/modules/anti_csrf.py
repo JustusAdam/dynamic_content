@@ -8,7 +8,7 @@ from dyc.dchttp import RequestMethods, response
 from dyc.includes import settings
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 TOKEN_SIZE = 16
 

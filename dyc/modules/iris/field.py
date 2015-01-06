@@ -5,7 +5,7 @@ from . import model, node
 from dyc.util import lazy, html
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 DEFAULT_FIELD_HANDLER_NAME = 'FieldHandler'
 

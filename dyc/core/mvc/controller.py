@@ -4,7 +4,7 @@ from dyc.util import decorators
 from .. import _component
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 _register_controllers = True
 

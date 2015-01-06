@@ -2,7 +2,7 @@ from . import pages, model
 from dyc.util import typesafe
 from dyc.core import model as coremodel
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 name = 'admin'
 

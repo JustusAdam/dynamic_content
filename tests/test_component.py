@@ -3,7 +3,7 @@ from dyc import core
 from dyc.core._component import ComponentWrapper
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 component_name = 'test_component'

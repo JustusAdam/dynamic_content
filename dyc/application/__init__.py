@@ -2,7 +2,7 @@ from .config import DefaultConfig as _default_config
 from .config import ApplicationConfig
 from .app import Application
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 def Config(**kwargs):

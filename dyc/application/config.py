@@ -7,7 +7,7 @@ from dyc.dchttp import request_handler
 from dyc.dchttp import wsgi
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 _basedir = pathlib.Path(__file__).parent.parent.resolve()
 

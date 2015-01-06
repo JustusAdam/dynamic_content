@@ -1,7 +1,7 @@
 from dyc.backend import orm
 from dyc.core import model as coremodel
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 access_types = ['default_granted', 'override']
 

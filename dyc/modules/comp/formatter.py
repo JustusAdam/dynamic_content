@@ -7,7 +7,7 @@ from dyc.util import html, decorators, config
 from dyc import core
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 VAR_REGEX = re.compile("\{([\w_-]*?)\}")
 

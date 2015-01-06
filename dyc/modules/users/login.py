@@ -9,7 +9,7 @@ from dyc.modules import commons
 from . import session, users, decorator
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 login_prefix = 'login'
 logout_prefix = 'logout'

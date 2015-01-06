@@ -2,7 +2,7 @@ import functools
 from dyc.errors import exceptions
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 __version__ = '0.2.1'
 
 

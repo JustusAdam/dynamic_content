@@ -13,7 +13,7 @@ from dyc.modules import anti_csrf
 from dyc.modules.users import admin_actions as user_actions, users
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 __version__ = '0.2'
 
 

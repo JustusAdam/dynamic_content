@@ -1,6 +1,6 @@
 import datetime
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 def utcnow():

@@ -2,7 +2,7 @@ from http import cookies as _cookies
 import collections
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 # HTTP Responecodes as defined in RFC 2616 neatly accessible via field names
 # For further information on use and meaning of these responses please refer to

@@ -1,7 +1,7 @@
 from dyc.core import middleware
 from dyc.dchttp import response
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 class RemoveTrailingSlash(middleware.Handler):

@@ -3,7 +3,7 @@ Tool for convenient standard (json) config reading and writing
 """
 import pathlib
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 def read_config(path, file_type='json'):

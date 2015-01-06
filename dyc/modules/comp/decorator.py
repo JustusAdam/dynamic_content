@@ -2,7 +2,7 @@ from dyc.core.mvc import model as _model
 from dyc.modules.comp import regions
 from dyc.util import config as _config, decorators
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 @decorators.apply_to_type(_model.Model, apply_before=False, return_from_decorator=False)

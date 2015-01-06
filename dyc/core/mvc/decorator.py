@@ -36,7 +36,7 @@ from dyc.util import decorators
 from dyc.util import typesafe
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 controller_mapper = _component.get_component('PathMap')

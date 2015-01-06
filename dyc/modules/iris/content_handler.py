@@ -11,7 +11,7 @@ from dyc.modules.users import decorator as user_dec
 from . import model as _model, node as _nodemodule, field
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 _access_modifier = 'access'
 _edit_modifier = 'edit'

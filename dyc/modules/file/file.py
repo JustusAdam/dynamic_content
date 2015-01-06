@@ -15,7 +15,7 @@ from dyc.dchttp import response, request as _request
 from dyc.core import middleware
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 _template_path = 'themes/default_theme/template/page.html'
 

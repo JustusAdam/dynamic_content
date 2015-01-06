@@ -3,6 +3,10 @@ from . import generic
 from .. import html
 
 
+__author__ = 'Justus Adam'
+__version__ = '0.1'
+
+
 class HtmlParserStack(object):
     __slots__ = (
         'element',
@@ -139,10 +143,10 @@ html_automaton_base = {
 html_automaton = generic.automaton_from_dict(html_automaton_base)
 
 
-def parse_html(string):
+def parse(string):
     cellar_bottom = html.ContainerElement()
     stack = HtmlParserStack(element=[cellar_bottom], current=cellar_bottom)
-    stack = _parse(html_automaton, stack, string)
+    stack = generic._parse(html_automaton, stack, string)
     if stack.current is not cellar_bottom:
         raise SyntaxError()
     else:

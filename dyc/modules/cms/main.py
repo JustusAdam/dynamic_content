@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import sys
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 _basedir = Path(__file__).parent.parent.parent.resolve()
 

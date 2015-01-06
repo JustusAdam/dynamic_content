@@ -1,6 +1,6 @@
 from dyc.util import html
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 identifier = 'wysiwyg'
 

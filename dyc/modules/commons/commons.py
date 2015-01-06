@@ -1,7 +1,7 @@
 from . import model, base
 from . import component
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 @component.implements('com_text')

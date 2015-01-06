@@ -1,7 +1,7 @@
 import sqlite3
 from ._abs_sql import SQLDatabase
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 class Database(SQLDatabase):

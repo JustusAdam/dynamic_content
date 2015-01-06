@@ -7,7 +7,7 @@ from dyc.util import decorators, typesafe, console
 from dyc.includes import settings
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 _typecheck = {

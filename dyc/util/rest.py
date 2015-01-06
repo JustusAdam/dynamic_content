@@ -1,4 +1,4 @@
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 import inspect
 import json

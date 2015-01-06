@@ -2,7 +2,7 @@ from peewee import *
 from dyc.includes import settings
 from dyc.util import console
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 def proxy_db():

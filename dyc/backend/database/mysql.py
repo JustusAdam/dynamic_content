@@ -8,7 +8,7 @@ It is recommended to escape all values but not table and column names using the 
 thus the escaping will be custom to the database type.
 """
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 from mysql.connector import connect
 

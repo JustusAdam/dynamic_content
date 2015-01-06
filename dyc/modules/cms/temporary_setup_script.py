@@ -6,7 +6,7 @@ been created yet.
 from dyc.util import console
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 def init_tables():

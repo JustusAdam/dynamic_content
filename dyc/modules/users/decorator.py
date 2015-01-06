@@ -2,7 +2,7 @@ from functools import wraps
 from dyc.core.mvc.model import Model
 from dyc.util.decorators import apply_to_type
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 def authorize(permission):

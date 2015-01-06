@@ -2,7 +2,7 @@ from . import formatter, model as compmodel
 from dyc.modules.commons import model as commonsmodel
 from dyc.core import model as coremodel
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 name = 'theme_engine'
 

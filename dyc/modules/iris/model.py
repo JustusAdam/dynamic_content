@@ -4,7 +4,7 @@ from dyc.core import model as coremodel
 from dyc.modules.users import model as usersmodel
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 class Page(orm.BaseModel):

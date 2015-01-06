@@ -7,7 +7,7 @@ from . import model
 from . import base, component
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 def menu_chooser(name='menu_chooser', **kwargs):

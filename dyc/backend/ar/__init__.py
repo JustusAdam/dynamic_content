@@ -1,3 +1,3 @@
 from .base import ARObject
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'

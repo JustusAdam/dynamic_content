@@ -1,6 +1,6 @@
 from dyc.util.typesafe import typesafe
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 import unittest
 

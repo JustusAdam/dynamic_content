@@ -1,3 +1,3 @@
 from ._decorator import *
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'

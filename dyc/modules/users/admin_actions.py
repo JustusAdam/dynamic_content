@@ -7,7 +7,7 @@ from dyc.modules import anti_csrf
 from . import model, users, decorator
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 _edit_user_form = {
     'password': {

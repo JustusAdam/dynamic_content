@@ -3,7 +3,7 @@ from dyc.util import html
 from . import _elements
 from ._elements import WysiwygTextarea
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 basic_script = html.Script(src='/public/tinymce/tinymce.min.js')
 

@@ -5,7 +5,7 @@ import http.cookies
 import time
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 SESSION_TOKEN_IDENTIFIER = 'SESS'

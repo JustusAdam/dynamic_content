@@ -1,4 +1,4 @@
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 import unittest
 from dyc.util import rest

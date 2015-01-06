@@ -2,7 +2,7 @@ from ._component import component, get_component, call_component, Component, inj
 from . import model, _registry, mvc, middleware
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 __version__ = '0.1'
 
 

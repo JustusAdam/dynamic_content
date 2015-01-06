@@ -5,7 +5,7 @@ from dyc.modules import i18n
 from dyc.modules import anti_csrf
 from . import model as _model, menus as _menus
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 @mvc_decorator.controller_class

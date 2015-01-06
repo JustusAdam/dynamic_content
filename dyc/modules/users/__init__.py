@@ -1,6 +1,6 @@
 from . import user_information as uinf, login, admin_actions as actions, middleware, users
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 START_REGION = 'sidebar_left'

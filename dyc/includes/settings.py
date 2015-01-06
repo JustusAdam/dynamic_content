@@ -8,7 +8,7 @@ from pathlib import Path
 from dyc.util import structures
 
 __version__ = '0.2'
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 LoggingLevel = structures.EnumLevel('logging', ('log_warnings', 'log_errors', 'throw_errors', 'throw_all'))
 RunLevel = structures.EnumLevel('logging', ('testing', 'debug', 'production'))

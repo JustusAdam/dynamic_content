@@ -1,6 +1,6 @@
 import functools
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 def ensure_loaded(loadable):

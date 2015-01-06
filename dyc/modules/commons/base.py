@@ -3,7 +3,7 @@ from dyc.modules.comp import page
 from . import model
 
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 ACCESS_DEFAULT_GRANTED = 0

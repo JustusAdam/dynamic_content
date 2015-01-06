@@ -2,7 +2,7 @@ import inspect
 from functools import wraps
 from dyc.includes import settings
 
-__author__ = 'justusadam'
+__author__ = 'Justus Adam'
 
 
 def typesafe(func):
