@@ -56,15 +56,26 @@ class Node(object):
 
 def _parse(automaton, stack, string):
 
+    linecount = 0
+    charcount = 0
+
     node = automaton[0]
 
     for n in string:
         res = node.match(n)
         if res == None:
-            raise SyntaxError('Expected character from {} or conforming to {}'.format(node.inner.keys(), set(f.func for f in node.f)))
+            raise SyntaxError('On line {} column: {} \nExpected character'
+                'from {} or conforming to {}'.format(linecount,
+                charcount, node.inner.keys(), set(f.func for f in node.f)))
         if res.g is not None:
             res.g(n, stack)
         node = automaton[res.i]
+
+        if n == '\n':
+            linecount += 1
+            charcount = 0
+        else:
+            charcount += 1
 
     return stack
 
