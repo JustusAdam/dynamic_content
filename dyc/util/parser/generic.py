@@ -7,10 +7,11 @@ __version__ = '0.1'
 
 class Edge(object):
 
-    __slots__ = ('g', 'i', 'chars', 'funcs')
+    __slots__ = ('g', 'head', 'tail', 'chars', 'funcs')
 
-    def __init__(self, i, g=None, chars=set(), funcs=set()):
-        self.i = i
+    def __init__(self, head, tail, g=None, chars=set(), funcs=set()):
+        self.head = head
+        self.tail = tail
         self.g = g
         self.chars = {chars} if isinstance(chars, str) else set(chars)
         self.funcs = {funcs} if callable(funcs) else set(funcs)
@@ -19,7 +20,7 @@ class Edge(object):
 EdgeFunc = collections.namedtuple('EdgeFunc', ('func', 'result'))
 
 
-class Node(object):
+class Vertice(object):
 
     __slots__ = ('inner', 'f')
 
@@ -75,9 +76,9 @@ def _parse_deterministic(automaton, stack, string):
         if res.g is not None:
             res.g(n, stack)
         try:
-            node = automaton[res.i]
+            node = automaton[res.head]
         except KeyError:
-            raise SyntaxError('No state {} found in Automaton'.format(res.i))
+            raise SyntaxError('No state {} found in Automaton'.format(res.head))
 
         if n == '\n':
             linecount += 1
@@ -92,9 +93,12 @@ def _parse_indeterministic(automaton, stack, string):
     raise NotImplementedError
 
 
-def automaton_from_dict(d):
+def automaton_from_list(l):
+    sorter = collections.defaultdict(list)
+    for item in l:
+        sorter[item.tail].append(item)
     return {
-        k: (v if isinstance(v, Node) else Node(*v)) for k,v in d.items()
+        k: Vertice(*v) for k, v in sorter.items()
     }
 
 
