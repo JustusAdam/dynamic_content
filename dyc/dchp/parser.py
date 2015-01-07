@@ -61,7 +61,7 @@ html_base = html.automaton_base
 def q30(n, stack):
     name = ''.join(stack.dchp_element_name)
     if name != 'dchp':
-        raise SyntaxError()
+        raise SyntaxError('Expected name "dchp", found "{}"'.format(name))
     stack.dchp_element_name.clear()
     stack.dchp_indent = 0
 
@@ -121,6 +121,7 @@ automaton_base = (
     generic.Edge(31, 31, funcs=str.isalpha,
         g=lambda n, stack: stack.dchp_element_name.append(n)),
     generic.Edge(41, 31, chars={' ', '\n'}, g=q30),
+    generic.Edge(48, 31, chars='?', g=q30),
 
     generic.Edge(41, 41, chars={' '}, g=increment_indent),
     generic.Edge(41, 41, chars={'\n'}, g=reset_indent),
