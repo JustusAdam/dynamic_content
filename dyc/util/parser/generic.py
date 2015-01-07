@@ -73,10 +73,9 @@ def _parse_deterministic(automaton, stack, string):
             raise SyntaxError('On line {} column: {} \nExpected character'
                 'from {} or conforming to {}'.format(linecount,
                 charcount, node.inner.keys(), set(f.func for f in node.f)))
-        if res.g is not None:
-            res.g(n, stack)
+        fres = res.g(n, stack) if res.g is not None else None
         try:
-            node = automaton[res.head]
+            node = automaton[res.head if fres is None else fres]
         except KeyError:
             raise SyntaxError('No state {} found in Automaton'.format(res.head))
 
