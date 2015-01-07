@@ -1,43 +1,46 @@
-<!DOCTYPE html>
-<html{pageclasses}>
+<html>
 <head lang="en">
-    <meta charset="UTF-8">
-    <title>{title}</title>
-    {stylesheets}{scripts}{meta}
+  <meta charset="UTF-8">
+  <title><?dchp echo(title) ?></title>
+  <?dchp
+  echo(stylesheets)
+  echo(scripts)
+  echo(meta)
+  ?>
 </head>
 <body>
 <div id="wrapper-main" class="wrapper">
     <header>
         <div id="header-wrapper" class="page-wrapper content-width vertically-centered">
             <div class="wrapper">
-                {header}
-                <div id="pagetitle">{pagetitle}</div>
+                <?dchp echo(header)?>
+                <div id="pagetitle"><?dchp echo(pagetitle)?></div>
             </div>
         </div>
         <nav>
-            <div class="page-wrapper vertically-centered content-width" id="nav-wrapper">{navigation}</div>
+            <div class="page-wrapper vertically-centered content-width" id="nav-wrapper"><?dchp echo(navigation)?></div>
         </nav>
     </header>
     <div id="wrapper-middle" class="wrapper page-wrapper">
         <div class="vertically-centered wrapper content-width">
-            {sidebar_left}
+            <?dchp echo(sidebar_left)?>
             <div id="main">
-                {breadcrumbs}
+                <?dchp echo(breadcrumbs)?>
                 <div class="wrapper content">
                     <div>
-                        <h1>{title}</h1>
-                        {editorial}
-                        {content}
+                        <h1><?dchp echo(title)?></h1>
+                        <?dchp echo(editorial)?>
+                        <?dchp echo(content)?>
                     </div>
                 </div>
             </div>
-            {sidebar_right}
+            <?dchp echo(sidebar_right)?>
         </div>
     </div>
     <footer>
         <div id="wrapper-footer" class="wrapper page-wrapper vertically-centered content-width">
             <div id="footer-content" class="wrapper content">
-                {footer}
+                <?dchp echo(footer)?>
             </div>
         </div>
     </footer>

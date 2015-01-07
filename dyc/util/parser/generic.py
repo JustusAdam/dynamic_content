@@ -65,6 +65,8 @@ def _parse_deterministic(automaton, stack, string):
     for n in string:
         try:
             res = node.match(n)
+            if res is None:
+                raise SyntaxError('No Node found matching stack = {} and n = {}'.format(stack, n))
             fres = res.g(n, stack) if res.g is not None else None
         except (KeyError, SyntaxError) as e:
             raise SyntaxError('On line {} column {}, nested exception {}'.format(

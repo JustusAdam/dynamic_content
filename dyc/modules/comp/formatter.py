@@ -5,6 +5,7 @@ import collections
 from dyc.dchttp import response
 from dyc.util import html, decorators, config
 from dyc import core
+from dyc import dchp
 
 
 __author__ = 'Justus Adam'
@@ -17,7 +18,14 @@ _defaults = {
     'theme': 'default_theme',
     'view': 'page',
     'content_type': 'text/html',
-    'encoding': sys.getfilesystemencoding()
+    'encoding': sys.getfilesystemencoding(),
+}
+
+_template_defaults = {
+    'header': '',
+    'sidebar_left': '',
+    'sidebar_right': '',
+    'editorial': '',
 }
 
 
@@ -50,7 +58,7 @@ class TemplateFormatter(object):
             cookies=model.cookies
             )
 
-    def serve_document(self, model, url, view_name):
+    def serve_document(self, model, request, view_name):
         theme = model.theme if model.theme else _defaults['theme']
         encoding = (
             model.encoding
@@ -65,12 +73,14 @@ class TemplateFormatter(object):
             or view_name is None):
             document = model['content'].encode(encoding)
         else:
-            pairing = self.initial_pairing(model, theme, url)
+            pairing = self.initial_pairing(model, theme, request)
+            pairing['request'] = request
             file = open(self.view_path(theme, view_name)).read()
-            for a in VAR_REGEX.finditer(file):
-                if a.group(1) not in pairing:
-                    pairing.__setitem__(a.group(1), '')
-            document = file.format(**pairing)
+            # for a in VAR_REGEX.finditer(file):
+            #     if a.group(1) not in pairing:
+            #         pairing.__setitem__(a.group(1), '')
+            # document = file.format(**pairing)
+            document = str(dchp.evaluator.evaluate_html(file, dict(pairing)))
             document = document.encode(encoding)
 
         return response.Response(document, 200, model.headers, model.cookies)
@@ -146,7 +156,8 @@ class TemplateFormatter(object):
                         html_type='p'),
                     element_id='powered_by',
                     classes={'common', 'copyright'}))
-            )
+            ),
+            _template_defaults
         )
 
 

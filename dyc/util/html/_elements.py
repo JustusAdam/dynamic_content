@@ -443,7 +443,7 @@ class SubmitButton(Input):
 
 
 class FormElement(ContainerElement):
-    def __init__(self, *content, action='{this}', classes:set=None, element_id:str=None, method='post', charset='UTF-8',
+    def __init__(self, *content, action='<?dchp echo(request.url) ?>', classes:set=None, element_id:str=None, method='post', charset='UTF-8',
                  submit=SubmitButton(), target:str=None, additional:dict=None):
         super().__init__(*content, html_type='form', classes=classes, element_id=element_id, additional=additional)
         self._value_params['method'] = method
@@ -464,9 +464,21 @@ def container_wrapper(used_class, **kwargs):
     return wrapped
 
 
-elements = {
-    'a': functools.partial(A, '/'),
-    'span': functools.partial(ContainerElement, html_type='span'),
-    'div': functools.partial(ContainerElement, html_type='div'),
-    'html': functools.partial(ContainerElement, html_type='html')
-}
+class Elements(dict):
+    def __getitem__(self, item):
+        if item in self:
+            return super().__getitem__(item)
+        else:
+            return functools.partial(ContainerElement, html_type=item)
+
+
+elements = Elements(
+    a=functools.partial(A, '/'),
+    span=functools.partial(ContainerElement, html_type='span'),
+    div=functools.partial(ContainerElement, html_type='div'),
+    html=functools.partial(ContainerElement, html_type='html'),
+    head=functools.partial(ContainerElement, html_type='head'),
+    body=functools.partial(ContainerElement, html_type='body'),
+    form=FormElement,
+    label=Label
+)

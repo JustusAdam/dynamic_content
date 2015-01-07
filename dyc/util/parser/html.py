@@ -44,6 +44,9 @@ class ParserStack(object):
             self.text_content, self.current))
 
 
+non_closing = {'meta', 'input'}
+
+
 def flush_text_content(n, stack):
     if stack.text_content:
         if not (len(stack.text_content) == 1 and stack.text_content[0] == ' '):
@@ -52,8 +55,13 @@ def flush_text_content(n, stack):
 
 
 def html_q2(n, stack):
-    stack.element.append(stack.current)
-    stack.current = _html.elements[''.join(stack.element_name)]()
+    name = ''.join(stack.element_name)
+    element = _html.elements[name]()
+    if name in non_closing:
+        stack.current.content.append(element)
+    else:
+        stack.element.append(stack.current)
+        stack.current = element
     stack.element_name.clear()
 
 
@@ -89,32 +97,43 @@ forbidden = {'"'}
 
 automaton_base = (
     generic.Edge(1, 0, chars='<', g=flush_text_content),
-    generic.Edge(0, 0, funcs=str.isalpha, g=lambda n, stack: stack.text_content.append(n)),
+    generic.Edge(0, 0, funcs=str.isalnum, g=lambda n, stack: stack.text_content.append(n)),
     generic.Edge(8, 0, chars={' ', '\n'}, g=lambda n, stack: stack.text_content.append(' ')),
-    generic.Edge(2, 1, funcs=str.isalpha, g=lambda n, stack: stack.element_name.append(n)),
+
+    generic.Edge(2, 1, funcs=str.isalnum, g=lambda n, stack: stack.element_name.append(n)),
     generic.Edge(10, 1, chars='/'),
-    generic.Edge(2, 2, funcs=str.isalpha, g=lambda n, stack: stack.element_name.append(n)),
+
+    generic.Edge(2, 2, funcs=str.isalnum, g=lambda n, stack: stack.element_name.append(n)),
     generic.Edge(0, 2, chars='>', g=html_q2),
     generic.Edge(3, 2, chars=' ', g=html_q2),
+
     generic.Edge(0, 3, chars='>'),
-    generic.Edge(4, 3, funcs=str.isalpha, g=lambda n, stack: stack.argname.append(n)),
+    generic.Edge(4, 3, funcs=str.isalnum, g=lambda n, stack: stack.argname.append(n)),
     generic.Edge(9, 3, chars='/'),
+
     generic.Edge(3, 4, chars=' ', g=html_q4),
-    generic.Edge(4, 4, funcs=str.isalpha, g=lambda n, stack: stack.argname.append(n)),
+    generic.Edge(4, 4, funcs=str.isalnum, g=lambda n, stack: stack.argname.append(n)),
     generic.Edge(5, 4, chars='='),
+
     generic.Edge(6, 5, chars='"'),
+
     generic.Edge(6, 6, funcs=lambda n: n not in forbidden,
         g=lambda n, stack: stack.kwarg_value.append(n)),
     generic.Edge(7, 6, chars='"', g=html_q6),
+
     generic.Edge(0, 7, chars='>'),
     generic.Edge(3, 7, chars=' '),
+
     generic.Edge(8, 8, chars={'\n', ' '}),
-    generic.Edge(0, 8, funcs=str.isalpha, g=lambda n, stack: stack.text_content.append(n)),
+    generic.Edge(0, 8, funcs=str.isalnum, g=lambda n, stack: stack.text_content.append(n)),
     generic.Edge(1, 8, chars='<', g=flush_text_content),
+
     generic.Edge(0, 9, chars='>', g=html_finish_element),
-    generic.Edge(11, 10, funcs=str.isalpha, g=lambda n, stack: stack.element_name.append(n)),
+
+    generic.Edge(11, 10, funcs=str.isalnum, g=lambda n, stack: stack.element_name.append(n)),
+
     generic.Edge(0, 11, chars='>', g=html_q11),
-    generic.Edge(11, 11, funcs=str.isalpha, g=lambda n, stack: stack.element_name.append(n))
+    generic.Edge(11, 11, funcs=str.isalnum, g=lambda n, stack: stack.element_name.append(n))
 )
 
 automaton = generic.automaton_from_list(automaton_base)

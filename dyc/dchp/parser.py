@@ -115,10 +115,10 @@ def q47(n, stack):
 automaton_base = (
     generic.Edge(30, 1, chars='?'),
 
-    generic.Edge(31, 30, funcs=str.isalpha,
+    generic.Edge(31, 30, funcs=str.isalnum,
         g=lambda n, stack: stack.dchp_element_name.append(n)),
 
-    generic.Edge(31, 31, funcs=str.isalpha,
+    generic.Edge(31, 31, funcs=str.isalnum,
         g=lambda n, stack: stack.dchp_element_name.append(n)),
     generic.Edge(41, 31, chars={' ', '\n'}, g=q30),
     generic.Edge(48, 31, chars='?', g=q30),
@@ -132,19 +132,20 @@ automaton_base = (
     generic.Edge(44, 41, chars='?'),
 
     generic.Edge(42, 42, funcs=lambda a: True, g=append_char),
-    generic.Edge(43, 42, chars=' ', g=append_char),
+    # generic.Edge(43, 42, chars=' ', g=append_char),
     generic.Edge(47, 42, chars='\n', g=reset_active_indent),
     generic.Edge(45, 42, chars='\'', g=append_char),
     generic.Edge(46, 42, chars='"', g=append_char),
+    generic.Edge(44, 42, chars='?'),
 
-    generic.Edge(42, 43, funcs=lambda a: True, g=append_char),
-    generic.Edge(45, 43, chars='\'', g=append_char),
-    generic.Edge(46, 43, chars='"', g=append_char),
-    generic.Edge(44, 43, chars='?'),
-    generic.Edge(47, 43, chars='\n', g=reset_active_indent),
+    # generic.Edge(42, 43, funcs=lambda a: True, g=append_char),
+    # generic.Edge(45, 43, chars='\'', g=append_char),
+    # generic.Edge(46, 43, chars='"', g=append_char),
+    # generic.Edge(44, 43, chars='?'),
+    # generic.Edge(47, 43, chars='\n', g=reset_active_indent),
 
     generic.Edge(0, 44, chars='>', g=finalize),
-    generic.Edge(42, 44, funcs=lambda a: True),
+    generic.Edge(42, 44, funcs=lambda a: True, g=q44),
     generic.Edge(45, 44, chars='\'', g=q44),
     generic.Edge(46, 44, chars='"', g=q44),
     generic.Edge(47, 44, chars='\n', g=reset_active_indent),
