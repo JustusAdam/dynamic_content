@@ -20,7 +20,7 @@ def custom_exec(string):
 
 if __name__ == '__main__':
     string = 'print(\'hello\')\nout.write(\'you\')'
-    c = compile(prepend_string + string, mode='exec', filename='<string>')
+    c = compile(prepend_string + string, mode='exec', filename='<pyhp>')
     g = dict()
     r = exec(c, g)
     print(g['out'].getvalue())

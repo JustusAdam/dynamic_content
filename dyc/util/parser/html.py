@@ -1,13 +1,13 @@
 import functools
 from . import generic
-from .. import html
+from .. import html as _html
 
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-class HtmlParserStack(object):
+class ParserStack(object):
     __slots__ = (
         'element',
         'element_name',
@@ -53,7 +53,7 @@ def flush_text_content(n, stack):
 
 def html_q2(n, stack):
     stack.element.append(stack.current)
-    stack.current = html.elements[''.join(stack.element_name)]()
+    stack.current = _html.elements[''.join(stack.element_name)]()
     stack.element_name.clear()
 
 
@@ -84,10 +84,10 @@ def html_finish_element(n, stack):
     stack.current = parent
 
 
-html_forbidden = {'"'}
+forbidden = {'"'}
 
 
-html_automaton_base = (
+automaton_base = (
     generic.Edge(1, 0, chars='<', g=flush_text_content),
     generic.Edge(0, 0, funcs=str.isalpha, g=lambda n, stack: stack.text_content.append(n)),
     generic.Edge(8, 0, chars={' ', '\n'}, g=lambda n, stack: stack.text_content.append(' ')),
@@ -103,7 +103,7 @@ html_automaton_base = (
     generic.Edge(4, 4, funcs=str.isalpha, g=lambda n, stack: stack.argname.append(n)),
     generic.Edge(5, 4, chars='='),
     generic.Edge(6, 5, chars='"'),
-    generic.Edge(6, 6, funcs=lambda n: n not in html_forbidden,
+    generic.Edge(6, 6, funcs=lambda n: n not in forbidden,
         g=lambda n, stack: stack.kwarg_value.append(n)),
     generic.Edge(7, 6, chars='"', g=html_q6),
     generic.Edge(0, 7, chars='>'),
@@ -117,13 +117,13 @@ html_automaton_base = (
     generic.Edge(11, 11, funcs=str.isalpha, g=lambda n, stack: stack.element_name.append(n))
 )
 
-html_automaton = generic.automaton_from_list(html_automaton_base)
+automaton = generic.automaton_from_list(automaton_base)
 
 
 def parse(string):
-    cellar_bottom = html.ContainerElement()
-    stack = HtmlParserStack(element=[cellar_bottom], current=cellar_bottom)
-    stack = generic.parse(html_automaton, stack, string)
+    cellar_bottom = _html.ContainerElement()
+    stack = ParserStack(element=[cellar_bottom], current=cellar_bottom)
+    stack = generic.parse(automaton, stack, string)
     if stack.current is not cellar_bottom:
         raise SyntaxError()
     else:

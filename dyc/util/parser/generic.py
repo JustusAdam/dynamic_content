@@ -34,7 +34,7 @@ class Vertice(object):
         for arg in edge.chars:
             if isinstance(arg, str):
                 if arg in self.inner:
-                    raise SyntaxError('This edge already exists')
+                    raise SyntaxError('Edge to {} already exists'.format(arg))
                 self.inner[arg] = edge
             else:
                 raise TypeError('Expected type {} or {}, got {}'.format(
