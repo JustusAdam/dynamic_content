@@ -1,9 +1,9 @@
 import unittest
-from dyc import pyhp
+from dyc import dchp
 
 
-class TestPyHP(unittest.TestCase):
+class TestDcHP(unittest.TestCase):
     def test_parsing(self):
-        with open(__file__.rsplit('/', 1)[0] + '/pyhpsimple.html') as file:
+        with open(__file__.rsplit('/', 1)[0] + '/dchpsimple.html') as file:
             root = pyhp.parser.parse(file.read())[0]
             print(root.content[-1])

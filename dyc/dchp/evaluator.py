@@ -22,7 +22,7 @@ del __io\n
 
 
 def custom_compile(string):
-    return compile(prepend_string + string, mode='exec', filename='<pyhp>')
+    return compile(prepend_string + string, mode='exec', filename='<dchp>')
 
 
 def custom_exec(string, context):
@@ -32,7 +32,7 @@ def custom_exec(string, context):
 
 def find_code(*dom_elements):
     for element in dom_elements:
-        if isinstance(element, parser.PyHPElement):
+        if isinstance(element, parser.DcHPElement):
             yield element
         elif isinstance(element, _html.ContainerElement):
             yield from find_code(*element.content)
