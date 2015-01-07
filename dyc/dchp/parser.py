@@ -49,10 +49,11 @@ class DcHPElement(_html.BaseElement):
         self.executed = None
 
     def __str__(self):
-        if self.executed:
-            return self.executed
-        else:
+        if self.executed is None:
             return super().__str__()
+        else:
+            return str(self.executed)
+
 
 
 html_base = html.automaton_base

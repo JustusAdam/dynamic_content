@@ -57,12 +57,15 @@ def flush_text_content(n, stack):
 def html_q2(n, stack):
     name = ''.join(stack.element_name)
     element = _html.elements[name]()
-    if name in non_closing:
-        stack.current.content.append(element)
-    else:
-        stack.element.append(stack.current)
-        stack.current = element
+
+    stack.element.append(stack.current)
+    stack.current = element
     stack.element_name.clear()
+
+
+def html_q2_1(n, stack):
+    html_q2(n, stack)
+    finish_if_non_closing(n, stack)
 
 
 def html_q4(n, stack):
@@ -92,6 +95,11 @@ def html_finish_element(n, stack):
     stack.current = parent
 
 
+def finish_if_non_closing(n, stack):
+    if stack.current.html_type in non_closing:
+        html_finish_element(n, stack)
+
+
 forbidden = {'"'}
 
 
@@ -104,10 +112,10 @@ automaton_base = (
     generic.Edge(10, 1, chars='/'),
 
     generic.Edge(2, 2, funcs=str.isalnum, g=lambda n, stack: stack.element_name.append(n)),
-    generic.Edge(0, 2, chars='>', g=html_q2),
+    generic.Edge(0, 2, chars='>', g=html_q2_1),
     generic.Edge(3, 2, chars=' ', g=html_q2),
 
-    generic.Edge(0, 3, chars='>'),
+    generic.Edge(0, 3, chars='>', g=finish_if_non_closing),
     generic.Edge(4, 3, funcs=str.isalnum, g=lambda n, stack: stack.argname.append(n)),
     generic.Edge(9, 3, chars='/'),
 
@@ -121,7 +129,7 @@ automaton_base = (
         g=lambda n, stack: stack.kwarg_value.append(n)),
     generic.Edge(7, 6, chars='"', g=html_q6),
 
-    generic.Edge(0, 7, chars='>'),
+    generic.Edge(0, 7, chars='>', g=finish_if_non_closing),
     generic.Edge(3, 7, chars=' '),
 
     generic.Edge(8, 8, chars={'\n', ' '}),
