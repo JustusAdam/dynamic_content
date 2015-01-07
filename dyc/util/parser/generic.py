@@ -57,7 +57,7 @@ class Vertice(object):
 
 def _parse_deterministic(automaton, stack, string):
 
-    linecount = 0
+    linecount = 1
     charcount = 0
 
     node = automaton[0]
@@ -65,7 +65,8 @@ def _parse_deterministic(automaton, stack, string):
     for n in string:
         try:
             res = node.match(n)
-        except KeyError as e:
+            fres = res.g(n, stack) if res.g is not None else None
+        except (KeyError, SyntaxError) as e:
             raise SyntaxError('On line {} column {}, nested exception {}'.format(
                 linecount, charcount, e
             ))
@@ -73,7 +74,6 @@ def _parse_deterministic(automaton, stack, string):
             raise SyntaxError('On line {} column: {} \nExpected character'
                 'from {} or conforming to {}'.format(linecount,
                 charcount, node.inner.keys(), set(f.func for f in node.f)))
-        fres = res.g(n, stack) if res.g is not None else None
         try:
             node = automaton[res.head if fres is None else fres]
         except KeyError:

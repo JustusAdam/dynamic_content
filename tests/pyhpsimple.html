@@ -2,6 +2,13 @@
 <?pyhp
 for number in [4,3,2,1]:
   print(number, '\n')
+
+class NewObject(object):
+  def __init__(self, content):
+    self.content = content
+  def __str__(self):
+    return '{} is some cool stuff'.format(self.content)
+
   ?>
 <div>somecontent</div>
 <span>some more content</span><?pyhp print('mama') ?>
@@ -11,8 +18,15 @@ for number in [4,3,2,1]:
   a=5
   python = True
   print('it works')
+  print('\n')
 ?>
+
 <?pyhp
   dom.content[1].classes = ['someclass']
-  ?>
+
+  f = NewObject('pyhp')
+
+  print(str(f))
+
+?>
 </html>

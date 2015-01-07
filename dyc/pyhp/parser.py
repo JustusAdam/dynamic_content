@@ -63,6 +63,7 @@ def q30(n, stack):
     if name != 'pyhp':
         raise SyntaxError()
     stack.pyhp_element_name.clear()
+    stack.pyhp_indent = 0
 
 
 def append_char(n, stack):
@@ -88,22 +89,24 @@ def reset_indent(n, stack):
 
 
 def reduce_indent(n, stack):
-    if stack.pyhp_active_indent <= 1:
+    if stack.pyhp_indent == 0:
+        stack.pyhp_content.append(n)
         return 42
-    elif n != ' ':
+    if n != ' ':
         raise SyntaxError('Expected Indent of {}, found {}'.format(
             stack.pyhp_indent, stack.pyhp_indent - stack.pyhp_active_indent))
+    if stack.pyhp_active_indent == 1:
+        return 42
     stack.pyhp_active_indent -= 1
 
 
-
 def reset_active_indent(n, stack):
-    stack.pyhp_active_indent = stack.pyhp_indent
     stack.pyhp_content.append(n)
+    stack.pyhp_active_indent = stack.pyhp_indent
 
 
 def q47(n, stack):
-    if stack.pyhp_active_indent == 1:
+    if stack.pyhp_active_indent <= 1:
         return 44
     else:
         return 48
