@@ -55,8 +55,8 @@ def flush_text_content(n, stack):
 
 
 def html_q2(n, stack):
-    name = ''.join(stack.element_name)
-    element = _e.by_name(name)
+    name = ''.join(stack.element_name).lower()
+    element = _e.by_tag(name)
 
     stack.element.append(stack.current)
     stack.current = element
@@ -69,20 +69,20 @@ def html_q2_1(n, stack):
 
 
 def html_q4(n, stack):
-    current.params.add(''.join(stack.argname))
+    current.params.add(''.join(stack.argname).lower())
     stack.argname.clear()
 
 
 def html_q6(n, stack):
-    stack.current.value_params[''.join(stack.argname)] = ''.join(stack.kwarg_value)
+    stack.current.value_params[''.join(stack.argname).lower()] = ''.join(stack.kwarg_value)
     stack.argname.clear()
     stack.kwarg_value.clear()
 
 
 def html_q11(n, stack):
-    name = ''.join(stack.element_name)
+    name = ''.join(stack.element_name).lower()
     stack.element_name.clear()
-    if stack.current.name != name:
+    if stack.current.tag != name:
         raise SyntaxError(
             'Mismatched closing tag. Expected {}, found {}'.format(
                 stack.current.name, name))

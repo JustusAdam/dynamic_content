@@ -31,11 +31,11 @@ class Base(object):
         '_children',
         '_value_params',
         '_params',
-        'name'
+        'tag'
     )
 
-    def __init__(self, name, *children, **params):
-        self.name = name
+    def __init__(self, tag, *children, **params):
+        self.tag = tag
         self._children = list(children)
         self._params = set()
         self._value_params = dict()
@@ -85,14 +85,14 @@ class Base(object):
             else:
                 raise TypeError
         inner_head = ' '.join(
-            (self.name, ) + tuple(self._params)
+            (self.tag, ) + tuple(self._params)
             + tuple(k + '="' + unwrap_list(v) + '"' for k,v in self._value_params.items() if v is not None)
             )
         if self._children:
             return ''.join(('<', inner_head, '>',
                 ''.join(a if isinstance(a, str) else a.render() for a in self._children),
-                '</', self.name,'>'))
-        elif self.name in non_closing:
+                '</', self.tag,'>'))
+        elif self.tag in non_closing:
             return '<' + inner_head + '>'
         else:
             return '<' + inner_head + ' />'
@@ -149,4 +149,4 @@ class _Hack(dict):
             return functools.partial(Base, item)
 
 
-by_name = lambda name: Base(name)
+by_tag = lambda tag: Base(tag)

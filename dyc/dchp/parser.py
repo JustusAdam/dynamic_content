@@ -46,6 +46,14 @@ class ParserStack(html.ParserStack):
 
 
 class DcHPElement(elements.Base):
+
+    __slots__ = (
+        '_children',
+        '_value_params',
+        '_params',
+        'tag',
+        'code'
+    )
     def __init__(self, code):
         super().__init__('dchp')
         self.code = code
@@ -53,10 +61,10 @@ class DcHPElement(elements.Base):
 
     def render(self):
         if self.executed is None:
-            return super().render()
+            return '<?' + self.tag + ' ?>'
         else:
             return str(self.executed)
-            
+
 
 html_base = html.automaton_base
 
@@ -64,7 +72,7 @@ html_base = html.automaton_base
 def q30(n, stack):
     name = ''.join(stack.dchp_element_name)
     if name != 'dchp':
-        raise SyntaxError('Expected name "dchp", found "{}"'.format(name))
+        raise SyntaxError('Expected tag "dchp", found "{}"'.format(name))
     stack.dchp_element_name.clear()
     stack.dchp_indent = 0
 
@@ -171,7 +179,7 @@ automaton = generic.automaton_from_list(html.automaton_base + automaton_base)
 
 
 def parse(string):
-    cellar_bottom = elements.by_name('cellar')
+    cellar_bottom = elements.by_tag('cellar')
     stack = ParserStack(element=[cellar_bottom], current=cellar_bottom)
     stack = generic.parse(automaton, stack, string)
     if stack.current is not cellar_bottom:

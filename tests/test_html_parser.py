@@ -14,25 +14,25 @@ class TestParsing(unittest.TestCase):
             root = parser.html.parse(file.read())[0]
             print(root)
             self.assertIsInstance(root, _e.Base)
-            self.assertEqual(root.name, 'html')
+            self.assertEqual(root.tag, 'html')
 
             self.assertIsInstance(root.children()[0], _e.Base)
-            self.assertEqual(root.children()[0].name, 'div')
+            self.assertEqual(root.children()[0].tag, 'div')
             self.assertEqual(root.children()[0].text(), 'somecontent')
 
             self.assertIsInstance(root.children()[1], _e.Base)
-            self.assertEqual(root.children()[1].name, 'span')
+            self.assertEqual(root.children()[1].tag, 'span')
             self.assertEqual(root.children()[1].text(), 'some more content')
 
             self.assertIsInstance(root.children()[2], _e.Base)
-            self.assertEqual(root.children()[2].name, 'div')
+            self.assertEqual(root.children()[2].tag, 'div')
 
             self.assertIsInstance(root.children()[2].children()[0], _e.Base)
-            self.assertEqual(root.children()[2].children()[0].name, 'div')
+            self.assertEqual(root.children()[2].children()[0].tag, 'div')
             self.assertEqual(root.children()[2].children()[0].text(), 'hello')
 
             self.assertIsInstance(root.children()[3], _e.Base)
-            self.assertEqual(root.children()[3].name, 'a')
+            self.assertEqual(root.children()[3].tag, 'a')
             self.assertEqual(root.children()[3].href, 'http://github.com')
             self.assertEqual(root.children()[3].text(), 'Github')
 
