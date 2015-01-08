@@ -464,6 +464,8 @@ def container_wrapper(used_class, **kwargs):
     return wrapped
 
 
+# HACK 'defaultdict' esque hack to provide all elements to the parser
+# SECURITY ISSUE! Template will not be checked for html correctness
 class Elements(dict):
     def __getitem__(self, item):
         if item in self:
@@ -472,6 +474,7 @@ class Elements(dict):
             return functools.partial(ContainerElement, html_type=item)
 
 
+# TODO add all elements
 elements = Elements(
     a=functools.partial(A, '/'),
     span=functools.partial(ContainerElement, html_type='span'),

@@ -2,6 +2,10 @@ from dyc.util.parser import html, generic
 from dyc.util import html as _html
 
 
+__author__ = 'Justus Adam'
+__version__ = '0.1'
+
+
 class ParserStack(html.ParserStack):
     __slots__ = (
         'element',

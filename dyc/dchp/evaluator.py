@@ -4,6 +4,10 @@ from . import parser
 from dyc.util import html as _html
 
 
+__author__ = 'Justus Adam'
+__version__ = '0.1'
+
+
 prepend_string = """
 
 import io as __io\n

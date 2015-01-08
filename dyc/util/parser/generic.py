@@ -20,7 +20,7 @@ class Edge(object):
 EdgeFunc = collections.namedtuple('EdgeFunc', ('func', 'result'))
 
 
-class Vertice(object):
+class Vertex(object):
 
     __slots__ = ('inner', 'f')
 
@@ -99,7 +99,7 @@ def automaton_from_list(l):
     for item in l:
         sorter[item.tail].append(item)
     return {
-        k: Vertice(*v) for k, v in sorter.items()
+        k: Vertex(*v) for k, v in sorter.items()
     }
 
 
