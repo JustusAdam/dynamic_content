@@ -1,7 +1,7 @@
 import io
 import functools
 from . import parser
-from dyc.util import html as _html
+from dyc.util.parser import elements
 
 
 __author__ = 'Justus Adam'
@@ -38,8 +38,8 @@ def find_code(*dom_elements):
     for element in dom_elements:
         if isinstance(element, parser.DcHPElement):
             yield element
-        elif isinstance(element, _html.ContainerElement):
-            yield from find_code(*element.content)
+        elif isinstance(element, elements.Base):
+            yield from find_code(*element.content())
 
 
 def evaluate_dom(dom_root, context):

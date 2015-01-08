@@ -1,5 +1,4 @@
-from dyc.util.parser import html, generic
-from dyc.util import html as _html
+from dyc.util.parser import html, generic, elements
 
 
 __author__ = 'Justus Adam'
@@ -46,19 +45,18 @@ class ParserStack(html.ParserStack):
         self.dchp_active_indent = dchp_active_indent
 
 
-class DcHPElement(_html.BaseElement):
+class DcHPElement(elements.Base):
     def __init__(self, code):
         super().__init__('dchp')
         self.code = code
         self.executed = None
 
-    def __str__(self):
+    def render(self):
         if self.executed is None:
-            return super().__str__()
+            return super().render()
         else:
             return str(self.executed)
-
-
+            
 
 html_base = html.automaton_base
 
@@ -81,7 +79,7 @@ def q44(n, stack):
 
 
 def finalize(n, stack):
-    stack.current.content.append(DcHPElement(''.join(stack.dchp_content)))
+    stack.current.append(DcHPElement(''.join(stack.dchp_content)))
     stack.dchp_content.clear()
 
 
@@ -173,10 +171,10 @@ automaton = generic.automaton_from_list(html.automaton_base + automaton_base)
 
 
 def parse(string):
-    cellar_bottom = _html.ContainerElement()
+    cellar_bottom = elements.by_name('cellar')
     stack = ParserStack(element=[cellar_bottom], current=cellar_bottom)
     stack = generic.parse(automaton, stack, string)
     if stack.current is not cellar_bottom:
         raise SyntaxError()
     else:
-        return cellar_bottom.content
+        return cellar_bottom.content()

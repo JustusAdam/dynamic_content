@@ -29,6 +29,14 @@ class Base(object):
             else:
                 self._value_params[k] = v
 
+    @property
+    def value_params(self):
+        return self._value_params
+
+    @property
+    def params(self):
+        return self._params
+
     def __getattr__(self, k):
         if k in self._value_params:
             return self._value_params[k]
@@ -86,6 +94,36 @@ class Base(object):
     def insert(self, index, element):
         self._children.insert(index, element)
 
+    def content(self):
+        return self._children
+
+    def add_class(self, *classes):
+        self._value_params.setdefault('class', set())
+        for c in classes:
+            self._value_params['class'].add(c)
+
+    def _satisfies(self, *selectors, **vselectors):
+        for selector in selectors:
+            if not selector in self._params:
+                return False
+        for k, v in vselectors.items():
+            if self._value_params[k] != v:
+                return False
+        return True
+
+
+    def _find(self, *selectors, **vselectors):
+        try:
+            if self._satisfies(*selectors, **vselectors):
+                yield self
+        except KeyError:
+            None
+        for child in self.children():
+            yield from child._find(*selectors, **vselectors)
+
+    def find(self, *selectors, **vselectors):
+        return tuple(self._find(*selector, **vselectors))
+
 
 class _Hack(dict):
     def __getitem__(self, item):
@@ -95,4 +133,4 @@ class _Hack(dict):
             return functools.partial(Base, item)
 
 
-by_name = _Hack()
+by_name = lambda name: Base(name)

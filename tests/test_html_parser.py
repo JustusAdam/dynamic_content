@@ -1,7 +1,7 @@
 import unittest
 import sys
 from dyc.util import parser
-from dyc.util import html
+from dyc.util.parser import elements as _e
 
 
 __author__ = 'Justus Adam'
@@ -13,22 +13,28 @@ class TestParsing(unittest.TestCase):
         with open(__file__.rsplit('/', 1)[0] + '/simple.html') as file:
             root = parser.html.parse(file.read())[0]
             print(root)
-            self.assertIsInstance(root, html.ContainerElement)
-            self.assertEqual(root.html_type, 'html')
-            self.assertIsInstance(root.content[0], html.ContainerElement)
-            self.assertEqual(root.content[0].html_type, 'div')
-            self.assertEqual(root.content[0].content[0], 'somecontent')
-            self.assertIsInstance(root.content[1], html.ContainerElement)
-            self.assertEqual(root.content[1].html_type, 'span')
-            self.assertEqual(root.content[1].content[0], 'some more content')
-            self.assertIsInstance(root.content[2], html.ContainerElement)
-            self.assertEqual(root.content[2].html_type, 'div')
-            self.assertIsInstance(root.content[2].content[0], html.ContainerElement)
-            self.assertEqual(root.content[2].content[0].html_type, 'div')
-            self.assertEqual(root.content[2].content[0].content[0], 'hello')
-            self.assertIsInstance(root.content[3], html.A)
-            self.assertEqual(root.content[3].value_params['href'], 'http://github.com')
-            self.assertEqual(root.content[3].content[0], 'Github')
+            self.assertIsInstance(root, _e.Base)
+            self.assertEqual(root.name, 'html')
+
+            self.assertIsInstance(root.children()[0], _e.Base)
+            self.assertEqual(root.children()[0].name, 'div')
+            self.assertEqual(root.children()[0].text(), 'somecontent')
+
+            self.assertIsInstance(root.children()[1], _e.Base)
+            self.assertEqual(root.children()[1].name, 'span')
+            self.assertEqual(root.children()[1].text(), 'some more content')
+
+            self.assertIsInstance(root.children()[2], _e.Base)
+            self.assertEqual(root.children()[2].name, 'div')
+
+            self.assertIsInstance(root.children()[2].children()[0], _e.Base)
+            self.assertEqual(root.children()[2].children()[0].name, 'div')
+            self.assertEqual(root.children()[2].children()[0].text(), 'hello')
+
+            self.assertIsInstance(root.children()[3], _e.Base)
+            self.assertEqual(root.children()[3].name, 'a')
+            self.assertEqual(root.children()[3].href, 'http://github.com')
+            self.assertEqual(root.children()[3].text(), 'Github')
 
 
 if __name__ == '__main__':

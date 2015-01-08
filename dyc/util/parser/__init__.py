@@ -1,4 +1,5 @@
-from . import generic, html
+from . import generic
+from . import html
 
 
 __author__ = 'Justus Adam'

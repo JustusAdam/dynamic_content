@@ -6,6 +6,15 @@
   echo(stylesheets)
   echo(scripts)
   echo(meta)
+
+  # add pageclasses
+
+  if 'pageclasses' in globals():
+    if isinstance(pageclasses, str):
+      dom.add_class(pageclasses)
+    else:
+      dom.add_class(*pageclasses)
+
   ?>
 </head>
 <body>

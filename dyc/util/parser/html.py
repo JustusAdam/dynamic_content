@@ -1,6 +1,6 @@
 import functools
 from . import generic
-from .. import html as _html
+from . import elements as _e
 
 
 __author__ = 'Justus Adam'
@@ -50,13 +50,13 @@ non_closing = {'meta', 'input'}
 def flush_text_content(n, stack):
     if stack.text_content:
         if not (len(stack.text_content) == 1 and stack.text_content[0] == ' '):
-            stack.current.content.append(''.join(stack.text_content))
+            stack.current.append(''.join(stack.text_content))
         stack.text_content.clear()
 
 
 def html_q2(n, stack):
     name = ''.join(stack.element_name)
-    element = _html.elements[name]()
+    element = _e.by_name(name)
 
     stack.element.append(stack.current)
     stack.current = element
@@ -82,21 +82,21 @@ def html_q6(n, stack):
 def html_q11(n, stack):
     name = ''.join(stack.element_name)
     stack.element_name.clear()
-    if stack.current.html_type != name:
+    if stack.current.name != name:
         raise SyntaxError(
             'Mismatched closing tag. Expected {}, found {}'.format(
-                stack.current.html_type, name))
+                stack.current.name, name))
     html_finish_element(n, stack)
 
 
 def html_finish_element(n, stack):
     parent = stack.element.pop()
-    parent.content.append(stack.current)
+    parent.append(stack.current)
     stack.current = parent
 
 
 def finish_if_non_closing(n, stack):
-    if stack.current.html_type in non_closing:
+    if stack.current.name in non_closing:
         html_finish_element(n, stack)
 
 
@@ -148,10 +148,10 @@ automaton = generic.automaton_from_list(automaton_base)
 
 
 def parse(string):
-    cellar_bottom = _html.ContainerElement()
+    cellar_bottom = _e.Base('cellar')
     stack = ParserStack(element=[cellar_bottom], current=cellar_bottom)
     stack = generic.parse(automaton, stack, string)
     if stack.current is not cellar_bottom:
         raise SyntaxError()
     else:
-        return cellar_bottom.content
+        return cellar_bottom.content()
