@@ -6,7 +6,23 @@ __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
+# elements not closing
+# <meta ... >
 non_closing = {'meta', 'input'}
+
+# elements definately closing
+# <div ...> ... </div>
+closing = {'div', 'html', 'span'}
+
+# elements optionally closing
+# <style ... > ... </style>
+# or
+# <style ... />
+optional_closing
+
+# elements always closing in short form
+# <input ... />
+short_closing = {'input'}
 
 
 class Base(object):
