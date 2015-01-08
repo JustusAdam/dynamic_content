@@ -42,7 +42,7 @@ def main():
     parser.add_argument('--loglevel', type=str, choices=settings.LoggingLevel._fields)
     parser.add_argument('--pathmap', type=str, choices=settings.PathMaps)
     parser.add_argument('--port', type=int)
-    parser.add_argument('--host', type=str)
+    parser.add_argument('--host')
     parser.add_argument('--server', type=str, choices=('wsgi', 'plain'))
 
     startargs = parser.parse_args()
