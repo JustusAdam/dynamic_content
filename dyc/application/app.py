@@ -1,6 +1,8 @@
 import functools
 import os
 import threading
+from http import server
+
 from dyc.backend import orm
 from dyc import core
 from dyc.core import middleware
@@ -98,10 +100,43 @@ class Application(threading.Thread, lazy.Loadable):
 
         return response
 
-    def wsgi_callback(self, environ, start_response):
-        print(environ)
-        print(start_response)
+    @staticmethod
+    def wsgi_make_request(environ):
+        search_headers = {
+            'CONTENT_TYPE',
+            'HTTP_CACHE_CONTROL',
+            'HTTP_ACCEPT_ENCODING',
+            'HTTP_COOKIE',
+            'REMOTE_ADDR',
+            'HTTP_CONNECTION',
+            'HTTP_USER_AGENT',
+            'HTTP_ACCEPT_LANGUAGE'
+            }
+        method = environ['REQUEST_METHOD'].lower()
+        if method == 'post':
+            query = environ['wsgi.input'].read(int(environ['CONTENT_LENGTH'])).decode()
+        elif method == 'get':
+            query = environ['QUERY_STRING']
+        return dchttp.Request.from_path_and_post(
+            path=environ['PATH_INFO'],
+            headers={
+                k: environ[k] for k in search_headers if k in environ
+            },
+            method=method,
+            query_string=query
+        )
 
+    def wsgi_callback(self, environ, start_response):
+        request = self.wsgi_make_request(environ)
+
+        response = self.http_callback(request)
+
+        start_response(
+            '{} {}'.format(response.code,
+                server.BaseHTTPRequestHandler.responses[response.code][0]),
+            [tuple(a) for a in response.headers.items()]
+        )
+        return [response.body if response.body else ''.encode('utf-8')]
 
     def run_wsgi_server_loop(self):
         httpd = self.config.wsgi_server(

@@ -44,9 +44,6 @@ class ParserStack(object):
             self.text_content, self.current))
 
 
-non_closing = {'meta', 'input'}
-
-
 def flush_text_content(n, stack):
     if stack.text_content:
         if not (len(stack.text_content) == 1 and stack.text_content[0] == ' '):
@@ -85,7 +82,7 @@ def html_q11(n, stack):
     if stack.current.tag != name:
         raise SyntaxError(
             'Mismatched closing tag. Expected {}, found {}'.format(
-                stack.current.name, name))
+                stack.current.tag, name))
     html_finish_element(n, stack)
 
 
@@ -96,7 +93,7 @@ def html_finish_element(n, stack):
 
 
 def finish_if_non_closing(n, stack):
-    if stack.current.name in non_closing:
+    if stack.current.tag in _e.non_closing:
         html_finish_element(n, stack)
 
 
