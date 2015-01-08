@@ -2,7 +2,9 @@ from http import cookies
 from . import config
 from dyc.includes import settings
 
+
 __author__ = 'Justus Adam'
+__version__ = '0.1'
 
 
 class Model(dict):

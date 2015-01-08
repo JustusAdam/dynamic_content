@@ -18,9 +18,9 @@ HttpResponseCodes = (collections.namedtuple('ResponseCodeContainer', ('Continue'
 'ProxyAuthenticationRequired', 'RequestTimeout', 'Conflict', 'Gone',
 'LengthRequired', 'PreconditionFailed', 'RequestEntityTooLarge',
 'RequestURITooLong', 'UnsupportedMediaType', 'RequestedRangeNotSatisfiable',
-'ExpectationFailed', 'InternalServerError', 'NotImplemented', 'BadGateway',
-'ServiceUnavailable', 'GatewayTimeout', 'HTTPVersionNotSupported'))
-(
+'ExpectationFailed', 'ImATeapot', 'InternalServerError', 'NotImplemented',
+'BadGateway', 'ServiceUnavailable', 'GatewayTimeout', 'HTTPVersionNotSupported')
+)(
 Continue = 100,
 SwitchingProtocols = 101,
 OK = 200,
@@ -55,6 +55,7 @@ RequestURITooLong = 414,
 UnsupportedMediaType = 415,
 RequestedRangeNotSatisfiable = 416,
 ExpectationFailed = 417,
+ImATeapot=418,
 InternalServerError = 500,
 NotImplemented = 501,
 BadGateway = 502,
