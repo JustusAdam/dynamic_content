@@ -26,6 +26,7 @@ _template_defaults = {
     'sidebar_left': '',
     'sidebar_right': '',
     'editorial': '',
+    'navigation': ''
 }
 
 

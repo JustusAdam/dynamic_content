@@ -53,6 +53,7 @@ class LoginCommonHandler(commons.Handler):
 def login(model, failed=False):
     message = html.ContainerElement('Your Login failed, please try again.', classes={'alert'}) if failed else ''
     model['content'] = html.ContainerElement(message, LOGIN_FORM)
+    model['title'] = 'Login'
     return 'page'
 
 
