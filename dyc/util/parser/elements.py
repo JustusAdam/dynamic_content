@@ -18,7 +18,7 @@ closing = {'div', 'html', 'span'}
 # <style ... > ... </style>
 # or
 # <style ... />
-optional_closing
+optional_closing = {'style'}
 
 # elements always closing in short form
 # <input ... />
