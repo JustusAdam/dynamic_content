@@ -2,6 +2,7 @@ from dyc.util import time, decorators
 from dyc.backend import orm
 from dyc.core import model as coremodel
 from dyc.modules.users import model as usersmodel
+from dyc.modules.commons import model as commonsmodel
 
 
 __author__ = 'Justus Adam'
@@ -13,6 +14,7 @@ class Page(orm.BaseModel):
     creator = orm.ForeignKeyField(usersmodel.User)
     published = orm.BooleanField(default=False)
     date_created = orm.DateField(default=time.utcnow())
+    menu_item = orm.ForeignKeyField(commonsmodel.MenuItem, null=True)
 
 
 @decorators.multicache

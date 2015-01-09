@@ -1,4 +1,5 @@
-from ._component import component, get_component, call_component, Component, inject
+from ._component import (component, get_component, call_component,
+                        Component, inject, inject_method)
 from . import model, _registry, mvc, middleware
 
 

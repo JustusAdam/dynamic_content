@@ -42,8 +42,8 @@ def close_session(uid_or_username):
 
 
 def authenticate_user(username_or_uid, password):
-    user = users.get_single_user(username_or_uid)
     try:
+        user = users.get_single_user(username_or_uid)
         auth = model.UserAuth.get(uid=user)
         return users.check_ident(password, auth.salt, auth.password)
     except model.orm.DoesNotExist:

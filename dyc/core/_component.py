@@ -165,3 +165,27 @@ def inject(*components, **kwcomponents):
         return wrap
 
     return inner
+
+
+def inject_method(*components, **kwcomponents):
+    """
+    Injects components into the function.
+
+    All *components will be prepended to the *args the function is being called with.
+
+    All **kwcomponents will be added to (and overwrite on key collision) the **kwargs the function is being called with.
+
+    :param component:
+    :param argname:
+    :return:
+    """
+
+    def inner(func):
+        @functools.wraps(func)
+        def wrap(self, *args, **kwargs):
+            for a, b in kwcomponents.items():
+                kwargs[a] = get_component(b)
+            return func(*(self, ) + tuple(get_component(a) for a in components) + args, **kwargs)
+        return wrap
+
+    return inner

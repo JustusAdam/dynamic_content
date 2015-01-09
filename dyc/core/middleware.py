@@ -1,6 +1,6 @@
 import inspect
 import importlib
-from . import component, get_component
+from . import component, get_component, inject
 
 
 __author__ = 'Justus Adam'
@@ -53,7 +53,8 @@ class Handler(object):
 cmw = get_component('Middleware')
 
 
-def register(options=(), args=(), kwargs={}):
+@inject('Middleware')
+def register(cmw, options=(), args=(), kwargs={}):
     def _inner(cls):
         if inspect.isclass(cls) and issubclass(cls, Handler):
             cmw.register(cls(*args, **kwargs))

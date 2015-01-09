@@ -1,7 +1,7 @@
 from dyc import core
 from dyc.errors.exceptions import DCException
 from dyc.modules import wysiwyg
-from . import model, node
+from . import model
 from dyc.util import lazy, html
 
 
@@ -19,11 +19,13 @@ class Fields(lazy.Loadable):
     @staticmethod
     def _get_handler(string:str):
         module, *function = string.split('.', 1)
-        return getattr(core.get_component('Modules')[module], function if function else DEFAULT_FIELD_HANDLER_NAME)
+        return getattr(core.get_component('Modules')[module],
+            function if function else DEFAULT_FIELD_HANDLER_NAME)
 
     def load(self):
         self._inner = {
-            a.machine_name: self._get_handler(a.handler) for a in model.FieldType.select()
+            a.machine_name: (self._get_handler(a.handler)
+                for a in model.FieldType.select())
         }
 
     @lazy.ensure_loaded
@@ -56,26 +58,32 @@ class _Field(object):
 
     def access(self, page_id):
         db_obj = self.from_db(page_id)
-        return node.Node(content=html.ContainerElement(db_obj.content, classes={'field', 'field-' + self.name}),
-                         title=self.get_field_title())
+        return dict(content=html.ContainerElement(db_obj.content,
+            classes={'field', 'field-' + self.name}),
+            title=self.get_field_title()
+            )
 
     def edit(self, page_id):
         try:
             db_obj = self.from_db(page_id)
-            return node.Node(
-                content=wysiwyg.WysiwygTextarea(db_obj.content, classes={'field', 'field-' + self.name, 'edit'}))
+            return dict(
+                name=self.name,
+                content=wysiwyg.WysiwygTextarea(db_obj.content,
+                    classes={'field', 'field-' + self.name, 'edit'}))
         except:
             raise
 
     def from_db(self, page_id):
-        return model.field(self.name).get(page_id=page_id, page_type=self.page_type)
+        return model.field(self.name).get(page_id=page_id,
+            page_type=self.page_type)
 
     def add(self, page_id):
         try:
             self.from_db(page_id)
             raise FieldExists
         except model.orm.DoesNotExist:
-            return node.Node(content=wysiwyg.WysiwygTextarea(classes={'field', 'field-' + self.name, 'edit'}))
+            return dict(name=self.name, content=wysiwyg.WysiwygTextarea(
+                classes={'field', 'field-' + self.name, 'edit'}))
 
     def get_field_title(self):
         return self.name

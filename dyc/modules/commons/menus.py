@@ -11,10 +11,10 @@ __author__ = 'Justus Adam'
 
 
 def menu_chooser(name='menu_chooser', **kwargs):
-    menus = [[('none', 'None')]] + [[(single_menu.element_name + '-' + a[0], a[1]) for a in
-                                     single_menu(name=single_menu.element_name, item_class=MenuChooseItem).render()] for
+    menus = [[('none', 'None')]] + [[(single_menu.machine_name + '-' + a[0], a[1]) for a in
+                                     menu(name=single_menu.machine_name, item_class=MenuChooseItem).render()] for
                                     single_menu in
-                                    model.CommonsConfig.select().where(model.CommonsConfig.element_type == 'menu')]
+                                    model.Menu.select()]
     return html.Select(*list(itertools.chain(*menus)), name=name, **kwargs)
 
 

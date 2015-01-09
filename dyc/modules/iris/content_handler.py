@@ -77,7 +77,7 @@ class FieldBasedPageContent(object):
 
         pre_compile_hook() if pre_compile_hook else None
 
-        node = _nodemodule.Node(
+        node = dict(
             editorial=self.editorial(page, model.client),
             content=content_compiler_hook(page) if content_compiler_hook else ''.join(
                 str(a) for a in self.field_contents(page)),
@@ -93,16 +93,15 @@ class FieldBasedPageContent(object):
             yield f(single_field.access(page))
 
     def field_edit(self, page):
-        f = lambda a: (html.Label(a.name, label_for=a.name), a['content'])
         for single_field in self.fields:
-            for s in f(single_field.edit(page)):
-                yield s
+            a = single_field.edit(page)
+            yield (html.Label(a['name'], label_for=a['name']), a['content'])
 
     def access(self, model, page):
         return self.compile(model, page, 'access')
 
     def edit(self, model, page):
-        return self.compile(model, page, 'edit', content_compiler_hook=functools.partial(self.edit_form, self))
+        return self.compile(model, page, 'edit', content_compiler_hook=self.edit_form)
 
     def process_edit(self, model, page, post):
         if not model.client.check_permission(self.get_permission(page, 'add')):
@@ -116,8 +115,8 @@ class FieldBasedPageContent(object):
 
     def edit_form(self, page):
         content = [self.title_options(page)]
-        content += ''.join(self.field_edit(page))
-        table = html.TableElement(*content, classes={'edit', page.content_type, 'edit-form'})
+        content += list(self.field_edit(page))
+        table = html.TableElement(*content, classes={'edit', page.content_type.machine_name, 'edit-form'})
         return html.FormElement(table, self.admin_options(page), action='/iris/' + str(page.oid) + '/edit')
 
     def editorial(self, page, client):
@@ -170,27 +169,34 @@ class FieldBasedPageContent(object):
 @mvc.controller_function({'iris/{int}', 'iris/{int}/access'}, method=dchttp.RequestMethods.GET, query=False)
 @comp_dec.Regions
 @_nodemodule.node_process
-def handle_compile(model, page_id):
+@core.inject('IrisCompilers')
+def handle_compile(compiler_map, model, page_id):
     page = _model.Page.get(oid=page_id)
-    modifiers = {
-
-    }
-    return getattr(core.get_component('IrisCompilers')[page.content_type],
-                   'access')(model, page)
+    return compiler_map[page.content_type].access(model, page)
 
 
 @mvc.controller_function('iris/{int}/edit', method=dchttp.RequestMethods.POST, query=True)
-def handle_edit(model, page_id, post):
+@core.inject('IrisCompilers')
+def handle_edit(compiler_map, model, page_id, post):
     page = _model.Page.get(oid=page_id)
-    return core.get_component('IrisCompilers')[page.content_type.machine_name].process_edit(model, page_id, post)
+    return compiler_map[page.content_type.machine_name].process_edit(model, page_id, post)
+
+
+@mvc.controller_function('iris/{int}/edit', method=dchttp.RequestMethods.GET, query=False)
+@comp_dec.Regions
+@_nodemodule.node_process
+@core.inject('IrisCompilers')
+def handle_edit_page(compiler_map, model, page_id):
+    page = _model.Page.get(oid=page_id)
+    return compiler_map[page.content_type.machine_name].edit(model, page)
 
 
 @mvc.controller_function('iris', method=dchttp.RequestMethods.GET, query=True)
 @user_dec.authorize(' '.join(['access', 'iris', 'overview']))
 @comp_dec.Regions
 @_nodemodule.node_process
-def overview(page_model, get):
-    compiler_map = core.get_component('IrisCompilers')
+@core.inject('IrisCompilers')
+def overview(compiler_map, page_model, get):
     my_range = [
         int(get['from'][0]) if 'from' in get else 0,
         int(get['to'][0]) if 'to' in get else _step

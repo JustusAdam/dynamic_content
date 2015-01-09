@@ -1,12 +1,11 @@
 import pathlib
 from dyc.core.mvc import model as mvc_model
 from dyc.util import config, decorators
+from dyc import dchp
+
 
 __author__ = 'Justus Adam'
-
-
-class Node(dict):
-    pass
+__version__ = '0.2'
 
 
 @decorators.multicache
@@ -26,12 +25,12 @@ def node_process(func):
 
         # get node(s)
         res = func()
-        if isinstance(res, Node):
+        if isinstance(res, dict):
             # assign title, if it exists
             if 'title' in res:
                 model['title'] = res['title']
-            temlpate = _get_template('single_node_template')
-            content = template.format(**res)
+            template = _get_template('single_node_template')
+            content = dchp.evaluator.evaluate_html(template, res)
         elif hasattr(res, '__iter__'):
             # try to find if object carries a title
             if hasattr(res, 'title'):
@@ -42,13 +41,12 @@ def node_process(func):
                 model['title'] = 'Overview'
 
             template = _get_template('multi_node_template')
-            content = ''.join([template.format(**a) for a in res])
+            content = ''.join(
+                dchp.evaluator.evaluate_html(template, a) for a in res
+                )
         else:
             raise AttributeError
         model['content'] = content
         return 'page'
-
-    def _template(_type):
-
 
     return wrap

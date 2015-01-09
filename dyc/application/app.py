@@ -5,7 +5,6 @@ from http import server
 
 from dyc.backend import orm
 from dyc import core
-from dyc.core import middleware
 
 from dyc.core.mvc import model as _model
 from dyc.util import typesafe, lazy, console
@@ -39,12 +38,16 @@ class Application(threading.Thread, lazy.Loadable):
         self.config = config
         self.decorator = core.get_component('TemplateFormatter')
 
-    def load(self):
+    @core.inject_method(cmw='Middleware')
+    def load(self, cmw):
         if settings.RUNLEVEL == settings.RunLevel.debug:
             log.write_info(message='loading components')
-        middleware.cmw.load(settings.MIDDLEWARE)
+        console.cprint('Loading Components ... ')
+        console.cprint('Loading Middleware ...')
+        cmw.load(settings.MIDDLEWARE)
+        console.cprint('Loaging Modules ...')
         self.load_modules()
-        middleware.cmw.finalize()
+        cmw.finalize()
 
     @lazy.ensure_loaded
     def run(self):
@@ -66,39 +69,7 @@ class Application(threading.Thread, lazy.Loadable):
             core.Modules.load()
 
     def http_callback(self, request):
-        for obj in middleware.cmw:
-            res = obj.handle_request(request)
-            if res is not None:
-                return res
-
-        model = _model.Model()
-        model.client = request.client
-        handler, args, kwargs = core.get_component('PathMap').resolve(request)
-
-        for obj in middleware.cmw:
-            res = obj.handle_controller(request, handler, args, kwargs)
-            if res is not None:
-                return res
-
-        view = model.view = handler(*(model, ) + args, **kwargs)
-
-        # Allow view to directly return a response, mainly to handle errors
-        if not isinstance(view, dchttp.response.Response):
-            for obj in middleware.cmw:
-                res = obj.handle_view(request, view, model)
-                if res is not None:
-                    return res
-
-            response = self.decorator(view, model, request)
-        else:
-            response = view
-
-        for obj in middleware.cmw:
-            res = obj.handle_response(request, response)
-            if res is not None:
-                return res
-
-        return response
+        return self.process_request(request)
 
     @staticmethod
     def wsgi_make_request(environ):
@@ -129,7 +100,7 @@ class Application(threading.Thread, lazy.Loadable):
     def wsgi_callback(self, environ, start_response):
         request = self.wsgi_make_request(environ)
 
-        response = self.http_callback(request)
+        response = self.process_request(request)
 
         start_response(
             '{} {}'.format(response.code,
@@ -168,5 +139,38 @@ class Application(threading.Thread, lazy.Loadable):
             'setting working directory ({})'.format(self.config.basedir))
         os.chdir(self.config.basedir)
 
-    def process_request(self, request):
-        pass
+    @core.inject_method(cmw='Middleware', pathmap='PathMap')
+    def process_request(self, request, cmw, pathmap):
+        for obj in cmw:
+            res = obj.handle_request(request)
+            if res is not None:
+                return res
+
+        model = _model.Model()
+        model.client = request.client
+        handler, args, kwargs = pathmap.resolve(request)
+
+        for obj in cmw:
+            res = obj.handle_controller(request, handler, args, kwargs)
+            if res is not None:
+                return res
+
+        view = model.view = handler(*(model, ) + args, **kwargs)
+
+        # Allow view to directly return a response, mainly to handle errors
+        if not isinstance(view, dchttp.response.Response):
+            for obj in cmw:
+                res = obj.handle_view(request, view, model)
+                if res is not None:
+                    return res
+
+            response = self.decorator(view, model, request)
+        else:
+            response = view
+
+        for obj in cmw:
+            res = obj.handle_response(request, response)
+            if res is not None:
+                return res
+
+        return response

@@ -109,7 +109,7 @@ class PathMap(Segment):
         """registers given handler at given path"""
         raise NotImplementedError
 
-    @decorators.catch(exception=(exceptions.ControllerError, PermissionError), return_value='error', log_error=True, print_error=True)
+    # @decorators.catch(exception=(exceptions.ControllerError, PermissionError), return_value='error', log_error=True, print_error=True)
     def resolve(self, request):
         """Resolve and handle a request to given url"""
         handler, args, kwargs = self.find_handler(request)
@@ -319,12 +319,16 @@ class MultiTableSegment(Segment):
             if p in self:
                 match = self[p]
                 if rest:
-                    try:
-                        return match.segment_get_handler('/'.join(rest), method, headers)
-                    except (exceptions.PathResolving,
-                        exceptions.MethodHandlerNotFound) as e:
-                        if exception is None:
-                            exception = e
+                    if isinstance(match, Segment):
+                        try:
+                            return match.segment_get_handler('/'.join(rest), method, headers)
+                        except (exceptions.PathResolving,
+                            exceptions.MethodHandlerNotFound) as e:
+                            if exception is None:
+                                exception = e
+                    elif exception is None:
+                        exception = exceptions.PathResolving(
+                            'No matching handler could be found for {}'.format(path))
                 else:
                     try:
                         return rethandler_func(match), ()
@@ -358,7 +362,7 @@ class MultiTableSegment(Segment):
                 return rethandler_func(self.wildcard), (None, )
             else:
                 raise (exceptions.PathResolving(
-                    'No matching path could be found for {}'.format(path))
+                    'No matching handler could be found for {}'.format(path))
                     if exception is None else exception)
 
 
