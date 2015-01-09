@@ -35,7 +35,8 @@ class UserInformationCommon(commons.Handler):
 @mvc.controller_function('users/{int}', method=dchttp.RequestMethods.GET, query=False)
 def user_information(model, uid):
     if not (
-            model.client.check_permission('view own user')
+            ( model.client.check_permission('view other user info') or
+            model.client.check_permission('view own user'))
             if int(uid) == model.client.user
             else model.client.check_permission('view other user info')
     ):

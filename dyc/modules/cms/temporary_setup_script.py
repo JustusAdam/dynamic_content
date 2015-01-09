@@ -81,7 +81,7 @@ def initialize():
             ADMIN_GRP, 'admin',
             ['edit user accounts', 'access users overview', 'edit content type article', 'add content type article',
              'access common ' + admin_menu_common, 'access admin pages', 'view other user info', 'view permissions',
-             'edit permissions']
+             'edit permissions', 'access iris overview']
         ]
     ]
 

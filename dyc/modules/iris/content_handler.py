@@ -197,6 +197,6 @@ def overview(page_model, get):
     ]
     for a in _model.Page.select().limit(
             ','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]])).order_by('date_created desc'):
-        node = compiler_map[a.content_type.machine_name].access(page_model, a.oid)
+        node = compiler_map[a.content_type.machine_name].access(page_model, a)
         node['title'] = html.A('/iris/' + str(a.oid), node['title'])
         yield node
