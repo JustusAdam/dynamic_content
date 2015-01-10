@@ -45,15 +45,15 @@ def user_information(model, uid):
     model['title'] = 'User Information'
 
     user = users.get_single_user(int(uid))
-    grp = model.AccessGroup.get(aid=user.access_group)
+    grp = user.access_group
     model['content'] = ContainerElement(
         TableElement(
-            ['UID', str(user.uid)],
+            ['UID', str(user.oid)],
             ['Username', user.username],
             ['Email-Address', user.email_address],
             ['Full name', ' '.join([user.user_first_name, user.user_middle_name, user.user_last_name])],
             ['Account created', user.date_created],
-            ['Access Group', str(grp.aid) + ' (' + grp.machine_name + ')']
+            ['Access Group', str(grp.oid) + ' (' + grp.machine_name + ')']
         )
     )
     return 'page'
@@ -72,12 +72,12 @@ def users_overview(model, get_query):
 
     def all_users():
         for user in users.get_info(selection):
-            yield [ContainerElement(str(user.uid), html_type='a', additional={'href': '/users/' + str(user.uid)}),
-                   ContainerElement(user.username, html_type='a', additional={'href': '/users/' + str(user.uid)}),
+            yield [ContainerElement(str(user.oid), html_type='a', additional={'href': '/users/' + str(user.oid)}),
+                   ContainerElement(user.username, html_type='a', additional={'href': '/users/' + str(user.oid)}),
                    ' '.join([user.user_first_name, user.user_middle_name, user.user_last_name]),
                    user.date_created,
                    ContainerElement('edit', html_type='a',
-                                    additional={'href': '/users/' + str(user.uid) + '/edit'})]
+                                    additional={'href': '/users/' + str(user.oid) + '/edit'})]
 
     user_list = list(all_users())
 
