@@ -8,6 +8,11 @@ __author__ = 'Justus Adam'
 __version__ = '0.2'
 
 
+class InvisibleList(list):
+    def __str__(self):
+        return ''.join(str(a) for a in self)
+
+
 @decorators.multicache
 def _get_template(_type):
     r = config.read_config(pathlib.Path(__file__).parent / 'config')[_type]
@@ -41,7 +46,7 @@ def node_process(func):
                 model['title'] = 'Overview'
 
             template = _get_template('multi_node_template')
-            content = ''.join(
+            content = InvisibleList(
                 dchp.evaluator.evaluate_html(template, a) for a in res
                 )
         else:

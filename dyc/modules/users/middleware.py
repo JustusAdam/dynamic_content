@@ -22,6 +22,7 @@ class AuthorizationMiddleware(middleware.Handler):
             cookies = http.cookies.SimpleCookie(request.headers['HTTP_COOKIE'])
         else:
             request.client = client.Information(users.GUEST)
+            return
         if SESSION_TOKEN_IDENTIFIER in cookies and cookies[SESSION_TOKEN_IDENTIFIER] != SESSION_INVALIDATED:
             db_result = session.validate_session(cookies[SESSION_TOKEN_IDENTIFIER].value)
             if db_result is not None:
