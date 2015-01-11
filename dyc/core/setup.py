@@ -9,7 +9,7 @@ from dyc import dchttp
 from dyc.util import html
 from dyc.core.mvc import decorator as mvc_dec
 from dyc.includes import settings
-from dyc.modules import anti_csrf
+from dyc.middleware import csrf
 from dyc.modules.users import admin_actions as user_actions, users
 
 
@@ -153,7 +153,7 @@ def setup_controller(model, pid):
         model['title'] = model['title'].format(**setup_result)
         del db
     elif pid == 5:
-        user_form = anti_csrf.SecureForm(
+        user_form = csrf.SecureForm(
             action='/setup/5'
         )
         model['content'] = model['content'].format(user_form=user_form)

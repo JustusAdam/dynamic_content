@@ -1,4 +1,4 @@
-from dyc.core import middleware
+from dyc import middleware
 from dyc.dchttp import response
 
 

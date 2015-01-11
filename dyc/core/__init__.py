@@ -1,6 +1,6 @@
 from ._component import (component, get_component, call_component,
                         Component, inject, inject_method)
-from . import model, _registry, mvc, middleware
+from . import model, _registry, mvc
 
 
 __author__ = 'Justus Adam'

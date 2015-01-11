@@ -47,6 +47,11 @@ def init_tables():
             console.cprint(error)
             log.write_error(function='init_tables', message=str(error))
 
+    from dyc.middleware import alias, csrf
+    alias.Alias.create_table()
+    csrf.ARToken.create_table()
+
+
 
 def initialize():
     from dyc.core import model as coremodel
@@ -92,13 +97,15 @@ def initialize():
             users.assign_permission(access_group, permission)
 
     if settings.RUNLEVEL in [settings.RunLevel.testing, settings.RunLevel.debug]:
-        users.add_user(username='admin', password='213', email='test@localhost', first_name='bod', last_name='barker')
-        users.assign_access_group('admin', ADMIN_GRP)
+        users.add_user(username='justus', password='???', email='justus.jonas@verizon.com', first_name='Justus', last_name='Jonas')
+        users.assign_access_group('justus', ADMIN_GRP)
+        users.add_user(username='peter', password='???', email='peter.shaw@verizon.com', first_name='Peter', last_name='Shaw')
+        users.add_user(username='bob', password='???', email='bob.andrews@verizon.com', first_name='Bob', last_name='Andrews')
 
 
     # add some useful aliases
 
-    from dyc.modules import alias
+    from dyc.middleware import alias
 
     aliases = [
         ('/', '/iris/1'),

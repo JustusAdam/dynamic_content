@@ -12,7 +12,7 @@ from dyc.core import mvc
 from dyc.includes import settings
 from dyc.util import html
 from dyc.dchttp import response, request as _request
-from dyc.core import middleware
+from dyc import middleware
 
 
 __author__ = 'Justus Adam'
@@ -73,7 +73,7 @@ class PathHandler(middleware.Handler):
     def parse_path(self, model, path):
         # HACK until all handler methods use the requests properly, this method creates its own
         return handle(_request.Request(path, 'get', None, None))
-        
+
     def handle_request(self, request):
         if request.path.split('/')[1] in settings.FILE_DIRECTORIES:
             return handle(request)

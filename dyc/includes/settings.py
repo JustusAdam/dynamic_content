@@ -22,8 +22,6 @@ PathMaps = {
 
 # the order in this list dictates the order in which these modules will be activated
 DEFAULT_MODULES = (
-    'alias',
-    'anti_csrf',
     'admin',
     'users',
     'commons',
@@ -71,9 +69,9 @@ DEFAULT_LANGUAGE = 'en_us'
 PATHMAP_TYPE = 'MultiTable'
 LOGFILE = 'app.log'
 MIDDLEWARE = (
-    'dyc.modules.alias.Middleware',
+    'dyc.middleware.alias.Middleware',
     'dyc.modules.file.PathHandler',
-    'dyc.modules.misc_middleware.trailing_slash.RemoveTrailingSlash'
+    'dyc.middleware.trailing_slash.RemoveTrailingSlash'
     )
 ANTI_CSRF = True
 DEFAULT_HEADERS = {

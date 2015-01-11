@@ -1,5 +1,5 @@
 from dyc.dchttp import response
-from dyc.core import middleware
+from dyc import middleware
 from . import session, users, client
 import http.cookies
 import time

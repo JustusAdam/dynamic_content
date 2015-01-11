@@ -1,13 +1,13 @@
 import inspect
 import importlib
-from . import component, get_component, inject
+from dyc import core
 
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-@component('Middleware')
+@core.component('Middleware')
 class Container(object):
     def __init__(self):
         super().__init__()
@@ -50,10 +50,10 @@ class Handler(object):
         pass
 
 
-cmw = get_component('Middleware')
+cmw = core.get_component('Middleware')
 
 
-@inject('Middleware')
+@core.inject('Middleware')
 def register(cmw, options=(), args=(), kwargs={}):
     def _inner(cls):
         if inspect.isclass(cls) and issubclass(cls, Handler):

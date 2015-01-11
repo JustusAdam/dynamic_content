@@ -1,5 +1,5 @@
 from dyc.backend import orm
-from dyc.core import middleware
+from dyc import middleware
 
 
 __author__ = 'Justus Adam'

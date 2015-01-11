@@ -2,7 +2,7 @@ import binascii
 import os
 
 from dyc.backend import orm
-from dyc.core import middleware
+from . import register, Handler
 from dyc.util import html
 from dyc.dchttp import RequestMethods, response
 from dyc.includes import settings
@@ -17,8 +17,8 @@ _form_identifier_name = 'form_id'
 _form_token_name = 'form_token'
 
 
-@middleware.register()
-class AntiCSRFMiddleware(middleware.Handler):
+@register()
+class AntiCSRFMiddleware(Handler):
     def handle_controller(self, request, handler, args, kwargs):
         if request.method is not RequestMethods.post:
             return None

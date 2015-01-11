@@ -11,6 +11,7 @@ from dyc.core.mvc import model as _model
 from dyc.util import typesafe, lazy, console
 from dyc.includes import settings, log
 from dyc import dchttp
+from dyc import middleware
 from dyc.errors import exceptions
 
 from . import config as _config
