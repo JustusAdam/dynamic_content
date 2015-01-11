@@ -9,6 +9,8 @@ from dyc import dchp
 
 
 __author__ = 'Justus Adam'
+__version__ = '0.2'
+
 
 VAR_REGEX = re.compile("\{([\w_-]*?)\}")
 
@@ -104,10 +106,15 @@ class TemplateFormatter(object):
         theme_config = self.theme_config(theme)
         s = self._list_from_model(model, 'stylesheets')
         if 'stylesheets' in theme_config:
-            s += list(html.Stylesheet(
-                '/'.join((self.theme_path_alias(theme), theme_config['stylesheet_directory'], a))) for
-                      a
-                      in theme_config['stylesheets'])
+            s += list(
+                html.Stylesheet(
+                    '/'.join(
+                        (self.theme_path_alias(theme),
+                        theme_config['stylesheet_directory'], a)
+                        )
+                    )
+                for a in theme_config['stylesheets']
+                )
         return ''.join(str(a) for a in s)
 
     @staticmethod
@@ -122,9 +129,14 @@ class TemplateFormatter(object):
         s = self._list_from_model(model, 'scripts')
         if 'scripts' in theme_config:
             s += list(
-                html.Script('/'.join((self.theme_path_alias(theme), theme_config['script_directory'], a))) for
-                a
-                in theme_config['scripts'])
+                html.Script(
+                    '/'.join(
+                        (self.theme_path_alias(theme),
+                        theme_config['script_directory'], a)
+                        )
+                    )
+                for a in theme_config['scripts']
+                )
         return ''.join(str(a) for a in s)
 
     def compile_meta(self, model, theme):
@@ -151,13 +163,15 @@ class TemplateFormatter(object):
                 pagetitle=html.A('/',
                     'dynamic_content - fast, python and extensible'),
                 footer=str(
-                html.ContainerElement(
                     html.ContainerElement(
-                        '\'dynamic_content\' CMS - &copy; Justus Adam 2014',
-                        html_type='p'),
-                    element_id='powered_by',
-                    classes={'common', 'copyright'}))
-            ),
+                        html.ContainerElement(
+                            '\'dynamic_content\' CMS - &copy; Justus Adam 2014',
+                            html_type='p'),
+                        element_id='powered_by',
+                        classes={'common', 'copyright'}
+                        )
+                    )
+                ),
             _template_defaults
         )
 

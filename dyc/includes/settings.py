@@ -81,6 +81,7 @@ DEFAULT_HEADERS = {
     'Cache-Control': 'no-cache'
     }
 SERVER_TYPE = 'plain'
+PROPAGATE_ERRORS = True
 
 
 # delete names that are not settings

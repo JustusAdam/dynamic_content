@@ -219,11 +219,11 @@ def initialize():
     page = iris_model.Page.create(content_type=_ct1, page_title="Welcome to \"dynamic_content\"", creator=1,
                                   published=True)
     bodyfield.create(page_id=page.oid, page_type='iris',
-                     content='<div><h3>Welcome to your \"dynamic_content\" installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you\'ll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div><image src=\"http://imgs.xkcd.com/comics/server_attention_span.png\" width=\"550px\" style=\"padding:20px 0px\">')
+                     content='<div><h3>Welcome to your \"dynamic_content\" installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you\'ll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div>')
 
     page = iris_model.Page.create(content_type=_ct1, page_title='Wuhuuu', creator=1, published=True)
     bodyfield.create(page_id=page.oid,
-                     content='<p>More content is good</p><iframe src="http://www.xkcd.com" height="840px" width="600px" seamless></iframe>',
+                     content='<p>More content is good</p>',
                      page_type='iris')
 
     # add admin pages

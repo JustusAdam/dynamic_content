@@ -26,18 +26,26 @@ class RegionHandler:
         self.config = region_config
 
     def get_all_commons(self, name, theme):
-        region_info = model.Common.select().where(model.Common.region == name,
-                                                  model.Common.theme == core.model.Theme.get(machine_name=theme))
+        region_info = model.Common.select().where(
+                        model.Common.region == name,
+                        model.Common.theme == core.model.Theme.get(
+                            machine_name=theme
+                            )
+                        )
         if region_info:
             return [
-                self.get_item(model.CommonsConfig.get(model.CommonsConfig.machine_name == a.machine_name),
-                              a.render_args, a.show_title) for a in region_info]
+                self.get_item(model.CommonsConfig.get(
+                    model.CommonsConfig.machine_name == a.machine_name),
+                    a.render_args, a.show_title)
+                for a in region_info
+                ]
         else:
             return []
 
     def get_item(self, item:model.CommonsConfig, render_args, show_title):
 
-        content = self.commons_map[item.element_type].compile(item, render_args, show_title, self.client)
+        content = self.commons_map[item.element_type].compile(
+                    item, render_args, show_title, self.client)
 
         return Common(item.machine_name, content, item.element_type)
 
@@ -48,8 +56,13 @@ class RegionHandler:
                 classes.append(self.config['classes'])
             else:
                 classes += self.config['classes']
-        return html.ContainerElement(html.ContainerElement(*value, classes={'region-wrapper', 'wrapper'}),
-                                     classes=set(classes))
+        return html.ContainerElement(
+            html.ContainerElement(
+                *value,
+                classes={'region-wrapper', 'wrapper'}
+                ),
+            classes=set(classes)
+            )
 
     def compile(self):
         stylesheets = []
@@ -68,10 +81,19 @@ class RegionHandler:
         else:
             content = ''
 
-        return page.Component(content, stylesheets=stylesheets, metatags=meta, scripts=scripts)
+        return page.Component(
+            content,
+            stylesheets=stylesheets,
+            metatags=meta,
+            scripts=scripts
+            )
 
 
-@decorators.apply_to_type(_model.Model, apply_before=False, return_from_decorator=False)
+@decorators.apply_to_type(
+    _model.Model,
+    apply_before=False, 
+    return_from_decorator=False
+    )
 def Regions(model):
     def theme_config(theme):
         return _config.read_config('themes/' + theme + '/config.json')
@@ -81,7 +103,14 @@ def Regions(model):
         config = theme_config(theme)['regions']
         r = []
         for region in config:
-            r.append(RegionHandler(region, config[region], theme, client))
+            r.append(
+                RegionHandler(
+                    region,
+                    config[region],
+                    theme,
+                    client
+                    )
+                )
         return r
 
     # check region flag
@@ -89,7 +118,10 @@ def Regions(model):
     region_flag = 'has_regions'
     region_flag_value = True
 
-    if not hasattr(model, region_flag) or getattr(model, region_flag) != region_flag_value:
+    if (not hasattr(model, region_flag)
+        or getattr(model, region_flag)
+        != region_flag_value
+        ):
 
         if not 'no-commons' in model.decorator_attributes:
             for region in _regions(model.client, model.theme):

@@ -1,6 +1,7 @@
 import functools
 import os
 import threading
+import traceback
 from http import server
 
 from dyc.backend import orm
@@ -10,6 +11,7 @@ from dyc.core.mvc import model as _model
 from dyc.util import typesafe, lazy, console
 from dyc.includes import settings, log
 from dyc import dchttp
+from dyc.errors import exceptions
 
 from . import config as _config
 
@@ -156,14 +158,34 @@ class Application(threading.Thread, lazy.Loadable):
 
         model = _model.Model()
         model.client = request.client
-        handler, args, kwargs = pathmap.resolve(request)
 
-        for obj in cmw:
-            res = obj.handle_controller(request, handler, args, kwargs)
-            if res is not None:
-                return res
+        try:
+            handler, args, kwargs = pathmap.resolve(request)
 
-        view = model.view = handler(*(model, ) + args, **kwargs)
+            for obj in cmw:
+                res = obj.handle_controller(request, handler, args, kwargs)
+                if res is not None:
+                    return res
+
+            view = model.view = handler(*(model, ) + args, **kwargs)
+
+        except (exceptions.PathResolving, exceptions.MethodHandlerNotFound) as e:
+            view = 'error'
+            model['title'] = '404 - Page not found'
+            model['content'] = """
+ <h3>Pathmapper encountered an error</h3>
+ <p>Nested Exception:</p>
+ <code> {} </code>
+
+<p>Stacktrace:</p>
+<code> {} </code>
+""".format(e, traceback.format_exc()) if (
+    settings.RUNLEVEL in (settings.RunLevel.testing, settings.RunLevel.debug)
+    ) else (
+"""
+<p>The Page you requested could not be found, or does not support the request
+method you tried.<p>
+""")
 
         # Allow view to directly return a response, mainly to handle errors
         if not isinstance(view, dchttp.response.Response):
