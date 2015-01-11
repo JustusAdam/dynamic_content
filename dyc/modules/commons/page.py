@@ -1,8 +1,5 @@
-"""
-Defines structures used to hold data that is being transmitted between modules and handlers.
-"""
-
 __author__ = 'Justus Adam'
+__version__ = '0.1'
 
 
 class Component:
@@ -54,10 +51,3 @@ class Component:
 
     def __str__(self):
         return str(self.content)
-
-
-class Page(Component):
-    def __init__(self, url, content='', title='', stylesheets=set(), metatags=set(), scripts=set(), show_title=True):
-        super().__init__(content, title, stylesheets, metatags, scripts)
-        self._url = url
-        self.show_title = show_title

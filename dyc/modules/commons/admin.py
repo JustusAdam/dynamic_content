@@ -1,9 +1,8 @@
 from dyc.core.mvc import decorator as mvc_decorator
-from dyc.modules.comp import decorator as comp_decorator
 from dyc.util import html
 from dyc.modules import i18n
 from dyc.modules import anti_csrf
-from . import model as _model, menus as _menus
+from . import model as _model, menus as _menus, decorator
 
 __author__ = 'Justus Adam'
 
@@ -11,7 +10,7 @@ __author__ = 'Justus Adam'
 @mvc_decorator.controller_class
 class MenuAdminController:
     @mvc_decorator.controller_method('menus')
-    @comp_decorator.Regions
+    @decorator.Regions
     def handle_menus(self, model, url):
         if len(url.path) == 1:
             return self.overview(model, url)

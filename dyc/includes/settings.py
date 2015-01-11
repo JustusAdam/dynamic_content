@@ -25,7 +25,6 @@ DEFAULT_MODULES = (
     'alias',
     'anti_csrf',
     'admin',
-    'comp',
     'users',
     'commons',
     'file',

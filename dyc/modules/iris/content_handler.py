@@ -3,9 +3,9 @@ import functools
 from dyc import core
 from dyc.core import mvc
 from dyc import dchttp
-from dyc.modules.comp import decorator as comp_dec
 from dyc.util import lazy, html
 from dyc.core import model as coremodel
+from dyc.modules import commons
 from dyc.modules.commons import menus as _menus
 from dyc.modules.users import decorator as user_dec
 from . import model as _model, node as _nodemodule, field
@@ -167,7 +167,7 @@ class FieldBasedPageContent(object):
 
 
 @mvc.controller_function({'iris/{int}', 'iris/{int}/access'}, method=dchttp.RequestMethods.GET, query=False)
-@comp_dec.Regions
+@commons.Regions
 @_nodemodule.node_process
 @core.inject('IrisCompilers')
 def handle_compile(compiler_map, model, page_id):
@@ -183,7 +183,7 @@ def handle_edit(compiler_map, model, page_id, post):
 
 
 @mvc.controller_function('iris/{int}/edit', method=dchttp.RequestMethods.GET, query=False)
-@comp_dec.Regions
+@commons.Regions
 @_nodemodule.node_process
 @core.inject('IrisCompilers')
 def handle_edit_page(compiler_map, model, page_id):
@@ -193,7 +193,7 @@ def handle_edit_page(compiler_map, model, page_id):
 
 @mvc.controller_function('iris', method=dchttp.RequestMethods.GET, query=True)
 @user_dec.authorize(' '.join(['access', 'iris', 'overview']))
-@comp_dec.Regions
+@commons.Regions
 @_nodemodule.node_process
 @core.inject('IrisCompilers')
 def overview(compiler_map, page_model, get):

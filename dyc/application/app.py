@@ -85,7 +85,7 @@ class Application(threading.Thread, lazy.Loadable):
             }
         method = environ['REQUEST_METHOD'].lower()
         if method == 'post':
-            query = environ['wsgi.input'].read(int(environ['CONTENT_LENGTH'])).decode()
+            query = environ['wsgi.input'].read(int(environ['CONTENT_LENGTH'])).decode() + environ['QUERY_STRING']
         elif method == 'get':
             query = environ['QUERY_STRING']
         return dchttp.Request.from_path_and_post(
@@ -98,9 +98,12 @@ class Application(threading.Thread, lazy.Loadable):
         )
 
     def wsgi_callback(self, environ, start_response):
+        print(environ['QUERY_STRING'])
         request = self.wsgi_make_request(environ)
 
         response = self.process_request(request)
+
+        print(response.headers)
 
         start_response(
             '{} {}'.format(response.code,
@@ -116,6 +119,11 @@ class Application(threading.Thread, lazy.Loadable):
             self.config.wsgi_request_handler
         )
         httpd.set_app(self.wsgi_callback)
+        console.cprint(
+            'Starting WSGI Server on    Port: {}     and Host: {}'.format(
+                self.config.server_arguments.port,
+                self.config.server_arguments.host
+        ))
         httpd.serve_forever()
 
     def run_http_server_loop(self):

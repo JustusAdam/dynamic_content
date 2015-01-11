@@ -4,7 +4,7 @@ import collections
 
 from dyc.dchttp import response
 from dyc.util import html, decorators, config
-from dyc import core
+from .. import Component
 from dyc import dchp
 
 
@@ -30,7 +30,7 @@ _template_defaults = {
 }
 
 
-@core.Component('TemplateFormatter')
+@Component('TemplateFormatter')
 class TemplateFormatter(object):
 
     responses = {

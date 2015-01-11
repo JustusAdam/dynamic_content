@@ -1,6 +1,5 @@
 from dyc.util import html
-from dyc.modules.comp import page
-from . import model
+from . import model, page
 
 
 __author__ = 'Justus Adam'

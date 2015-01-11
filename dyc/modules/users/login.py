@@ -49,8 +49,10 @@ class LoginCommonHandler(commons.Handler):
         return LOGIN_COMMON
 
 
-@mvc.controller_function({'login'}, method=dchttp.RequestMethods.GET, query=False)
-def login(model, failed=False):
+@mvc.controller_function({'login'}, method=dchttp.RequestMethods.GET, query=True)
+@decorator.authorize('access login page')
+def login(model, query, failed=False):
+    print(query)
     message = html.ContainerElement('Your Login failed, please try again.', classes={'alert'}) if failed else ''
     model['content'] = html.ContainerElement(message, LOGIN_FORM)
     model['title'] = 'Login'

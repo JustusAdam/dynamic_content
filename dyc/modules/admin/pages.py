@@ -2,7 +2,6 @@ import collections
 
 from dyc.core import mvc
 from dyc import dchttp
-from dyc.modules.comp import decorator as comp_dec
 from dyc.util import html
 from dyc.modules import commons
 from dyc.modules.users import decorator as user_dec
@@ -15,7 +14,7 @@ ADMIN_PATH = '/admin'
 
 @mvc.controller_function('admin', method=dchttp.RequestMethods.GET, query=False)
 @user_dec.authorize('access admin pages')
-@comp_dec.Regions
+@commons.Regions
 def overview(modelmap):
 
     modelmap.pageclasses = {'admin-menu', 'overview', 'admin-page'}
@@ -66,7 +65,7 @@ class OverviewCommon(commons.Handler):
 
 
 @mvc.controller_function('admin/{str}', method=dchttp.RequestMethods.GET, query=False)
-@comp_dec.Regions
+@commons.Regions
 def category(modelmap, name):
     modelmap.pageclasses = {'admin-menu', 'category'}
     modelmap.theme = 'admin_theme'
@@ -84,7 +83,7 @@ def category(modelmap, name):
 
 
 @mvc.controller_function('admin/{str}/{str}', method=dchttp.RequestMethods.GET, query=False)
-@comp_dec.Regions
+@commons.Regions
 def subcategory(modelmap, category_name,  name):
     modelmap.pageclasses = {'admin-menu', 'subcategory'}
     modelmap.theme = 'admin_theme'

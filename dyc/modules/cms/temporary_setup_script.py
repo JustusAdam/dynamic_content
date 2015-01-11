@@ -52,7 +52,7 @@ def initialize():
     from dyc.core import model as coremodel
 
     from dyc.modules.commons.model import MenuItem, CommonData, Menu
-    from dyc.modules.comp import add_commons_config, assign_common
+    from dyc.modules.commons import add_commons_config, assign_common
     from dyc.modules.iris import model as iris_model
 
     from dyc.modules import admin

@@ -1,9 +1,18 @@
+from dyc.core.mvc import model as _model
+from dyc.util import config as _config, decorators
 from dyc import core
-from dyc.modules.commons import model as commonsmodel
-from . import page, model
+from . import model, page
 from dyc.util import html
 
 __author__ = 'Justus Adam'
+__version__ = '0.2'
+
+
+class Common:
+    def __init__(self, name, content, item_type):
+        self.name = name
+        self.content = content
+        self.item_type = item_type
 
 
 class RegionHandler:
@@ -21,12 +30,12 @@ class RegionHandler:
                                                   model.Common.theme == core.model.Theme.get(machine_name=theme))
         if region_info:
             return [
-                self.get_item(commonsmodel.CommonsConfig.get(commonsmodel.CommonsConfig.machine_name == a.machine_name),
+                self.get_item(model.CommonsConfig.get(model.CommonsConfig.machine_name == a.machine_name),
                               a.render_args, a.show_title) for a in region_info]
         else:
             return []
 
-    def get_item(self, item:commonsmodel.CommonsConfig, render_args, show_title):
+    def get_item(self, item:model.CommonsConfig, render_args, show_title):
 
         content = self.commons_map[item.element_type].compile(item, render_args, show_title, self.client)
 
@@ -62,8 +71,28 @@ class RegionHandler:
         return page.Component(content, stylesheets=stylesheets, metatags=meta, scripts=scripts)
 
 
-class Common:
-    def __init__(self, name, content, item_type):
-        self.name = name
-        self.content = content
-        self.item_type = item_type
+@decorators.apply_to_type(_model.Model, apply_before=False, return_from_decorator=False)
+def Regions(model):
+    def theme_config(theme):
+        return _config.read_config('themes/' + theme + '/config.json')
+
+    def _regions(client, theme):
+
+        config = theme_config(theme)['regions']
+        r = []
+        for region in config:
+            r.append(regions.RegionHandler(region, config[region], theme, client))
+        return r
+
+    # check region flag
+
+    region_flag = 'has_regions'
+    region_flag_value = True
+
+    if not hasattr(model, region_flag) or getattr(model, region_flag) != region_flag_value:
+
+        if not 'no-commons' in model.decorator_attributes:
+            for region in _regions(model.client, model.theme):
+                model[region.name] = str(region.compile())
+
+        setattr(model, region_flag, region_flag_value)
