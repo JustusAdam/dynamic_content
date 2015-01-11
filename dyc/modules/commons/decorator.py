@@ -81,7 +81,7 @@ def Regions(model):
         config = theme_config(theme)['regions']
         r = []
         for region in config:
-            r.append(regions.RegionHandler(region, config[region], theme, client))
+            r.append(RegionHandler(region, config[region], theme, client))
         return r
 
     # check region flag
