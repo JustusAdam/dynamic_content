@@ -1,0 +1,57 @@
+
+$content-width: 960px;
+
+
+body, table {
+  font-size: 13px;
+  color: #333;
+  font-family: 'Open Sans', Helvetica, Arial, Verdana, sans-serif;
+  font-weight: 300;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+.wrapper {
+  overflow: hidden;
+}
+
+.column {
+
+}
+
+.column-1 {
+  width: $content-width / 12;
+}
+
+.column-2 {
+  width: $content-width / 6;
+}
+
+.column-3 {
+  width: $content-width / 4;
+}
+
+.column-4 {
+  width: $content-width / 3;
+}
+
+.column-6 {
+  width: $content-width / 2;
+}
+
+.column-8 {
+  width: $content-width * 2 / 3;
+}
+
+.column-9 {
+  width: $content-width * 3 /4;
+}
+
+.column-12 {
+  width: $content-width;
+}
+

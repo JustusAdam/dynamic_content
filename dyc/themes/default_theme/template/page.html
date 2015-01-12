@@ -18,20 +18,20 @@
   ?>
 </head>
 <body>
-<div id="wrapper-main" class="wrapper">
+<div id="wrapper-main" class="">
     <header>
-        <div id="header-wrapper" class="page-wrapper content-width vertically-centered">
+        <div id="header-wrapper" class="page-wrapper column-12 vertically-centered">
             <div class="wrapper">
                 <?dchp echo(header)?>
                 <div id="pagetitle"><?dchp echo(pagetitle)?></div>
             </div>
         </div>
         <nav>
-            <div class="page-wrapper vertically-centered content-width" id="nav-wrapper"><?dchp echo(regions['navigation'])?></div>
+            <div class="page-wrapper vertically-centered column-12" id="nav-wrapper"><?dchp echo(regions['navigation'])?></div>
         </nav>
     </header>
     <div id="wrapper-middle" class="wrapper page-wrapper">
-        <div class="vertically-centered wrapper content-width">
+        <div class="vertically-centered wrapper column-12">
             <?dchp echo(regions['sidebar_left'])?>
             <div id="main">
                 <?dchp echo(breadcrumbs)?>
@@ -47,7 +47,7 @@
         </div>
     </div>
     <footer>
-        <div id="wrapper-footer" class="wrapper page-wrapper vertically-centered content-width">
+        <div id="wrapper-footer" class="wrapper page-wrapper vertically-centered column-12">
             <div id="footer-content" class="wrapper content">
                 <?dchp echo(regions['footer'])?>
             </div>

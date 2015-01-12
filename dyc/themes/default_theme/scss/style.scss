@@ -4,21 +4,10 @@
  */
 @import "../../scss_base/scss/positioning";
 @import "../../scss_base/scss/transition";
-
-$content-width: 960px;
+@import "base";
 
 body, html {
   height: 100%;
-}
-
-body {
-  font-family: 'Open Sans', Helvetica, Arial, Verdana, sans-serif;
-  margin: 0;
-  padding: 0;
-  font-size: 13px;
-  color: #333;
-  font-weight: 300;
-  min-height: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -43,10 +32,6 @@ li {
   border-style: solid;
   border-width: 0 1px;
   padding: 0;
-}
-
-.wrapper {
-  overflow: hidden;
 }
 
 h1 {
@@ -81,8 +66,8 @@ a.button:hover, button:hover, input[type="submit"]:hover {
 //  background: linear-gradient(#eee, #b6b6b6) repeat scroll 0 0 rgba(0, 0, 0, 0);
 }
 #main {
+  @extend .column-9;
   float: left;
-  width: 700px;
 }
 
 .wrapper.content {
@@ -251,7 +236,7 @@ ul.menu {
 }
 
 .sidebar {
-  width: 260px;
+  @extend .column-3;
   float: left;
 }
 
