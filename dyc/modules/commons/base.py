@@ -18,8 +18,8 @@ class Handler(object):
     """Base handler for Commons"""
     type = 'type'
 
-    def title(self, conf, show_title):
-        return html.ContainerElement(conf.machine_name, html_type='h3') if show_title else ''
+    def title(self, conf):
+        return conf.machine_name
 
     def get_content(self, conf, render_args, client):
         raise NotImplementedError
@@ -28,7 +28,7 @@ class Handler(object):
         if not check_permission(conf.access_type, client, conf.machine_name):
             return None
 
-        title = self.title(conf, show_title)
+        title = html.ContainerElement(self.title(conf), html_type='h3') if show_title else ''
         obj = page.Component(
             html.ContainerElement(
                 title,

@@ -60,9 +60,6 @@ class OverviewCommon(commons.Handler):
                 model.Subcategory.select()])]
         return subcategories
 
-    def title(self, conf, show_title):
-        return html.ContainerElement(conf.machine_name, html_type='a', additional={'href': '/admin'})
-
 
 @mvc.controller_function('admin/{str}', method=dchttp.RequestMethods.GET, query=False)
 @commons.Regions
@@ -100,7 +97,7 @@ def subcategory(modelmap, category_name,  name):
     return 'page'
 
 
-@mvc.controller_function('adin/{str}/{str}/{str}', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function('admin/{str}/{str}/{str}', method=dchttp.RequestMethods.GET, query=False)
 def page(modelmap, category_name, subcategory_name, page_name):
     pass
 

@@ -1,6 +1,6 @@
 from dyc.core import mvc
 from dyc import dchttp
-from dyc.util.html import TableElement, ContainerElement
+from dyc.util import html
 from dyc.modules import commons
 from .login import LOGOUT_BUTTON
 from . import users
@@ -13,17 +13,25 @@ class UserInformationCommon(commons.Handler):
     source_table = 'user_management'
 
     def get_content(self, conf, render_args, client):
-        return ContainerElement(
-            TableElement(
-                ('Username: ', self.get_username(client.user)),
-                ('Access Group: ', client.access_group.machine_name),
-                ('Joined: ', self.get_date_joined(client.user))
+        return html.ContainerElement(
+            html.ContainerElement(
+                'Hello {}.'.format(' '.join([a for a in [
+                    client.user.first_name,
+                    client.user.middle_name,
+                    client.user.last_name
+                ] if a ])),
+                html_type='p'),
+            html.TableElement(
+                ('Your Username: ', self.get_username(client.user)),
+                ('Your Access Group: ', client.access_group.machine_name),
+                ('You Joined: ', self.get_date_joined(client.user))
             ), LOGOUT_BUTTON
         )
 
+    def title(self, conf):
+        return 'User Information'
+
     def get_username(self, user):
-        if user == users.GUEST:
-            return 'Anonymous'
         return users.get_user(user).username
 
     def get_date_joined(self, user):
@@ -46,8 +54,8 @@ def user_information(model, uid):
 
     user = users.get_single_user(int(uid))
     grp = user.access_group
-    model['content'] = ContainerElement(
-        TableElement(
+    model['content'] = html.ContainerElement(
+        html.TableElement(
             ['UID', str(user.oid)],
             ['Username', user.username],
             ['Email-Address', user.email_address],
@@ -72,11 +80,11 @@ def users_overview(model, get_query):
 
     def all_users():
         for user in users.get_info(selection):
-            yield [ContainerElement(str(user.oid), html_type='a', additional={'href': '/users/' + str(user.oid)}),
-                   ContainerElement(user.username, html_type='a', additional={'href': '/users/' + str(user.oid)}),
+            yield [html.ContainerElement(str(user.oid), html_type='a', additional={'href': '/users/' + str(user.oid)}),
+                   html.ContainerElement(user.username, html_type='a', additional={'href': '/users/' + str(user.oid)}),
                    ' '.join([user.user_first_name, user.user_middle_name, user.user_last_name]),
                    user.date_created,
-                   ContainerElement('edit', html_type='a',
+                   html.ContainerElement('edit', html_type='a',
                                     additional={'href': '/users/' + str(user.oid) + '/edit'})]
 
     user_list = list(all_users())
@@ -84,10 +92,10 @@ def users_overview(model, get_query):
     head = [['UID', 'Username', 'Name (if provided)', 'Date created', 'Actions']]
 
     model['title'] = 'User Overview'
-    model['content'] = TableElement(*head + user_list, classes={'user-overview'}) if user_list else \
-        ContainerElement(ContainerElement('It seems you do not have any users yet.',
+    model['content'] = html.TableElement(*head + user_list, classes={'user-overview'}) if user_list else \
+        html.ContainerElement(html.ContainerElement('It seems you do not have any users yet.',
                                           additional={'style': 'padding:10px;text-align:center;'}),
-                         ContainerElement('Would you like to ', ContainerElement('create one', html_type='a',
+                         html.ContainerElement('Would you like to ', html.ContainerElement('create one', html_type='a',
                                                                                  additional={
                                                                                      'href': '/users/new',
                                                                                      'style': 'color:rgb(255, 199, 37);text-decoration:none;'}),
