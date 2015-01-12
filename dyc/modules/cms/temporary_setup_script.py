@@ -132,7 +132,6 @@ def initialize():
          (
              ('<root>', '', True, None, 1),
              ('welcome', '/iris/1', True, '<root>', 1),
-             ('welcome', '/iris/1', True, '<root>', 1),
              ('testpage', '/iris/2', True, '<root>', 2),
              ('setup', '/setup', True, 'welcome', 1)
          )

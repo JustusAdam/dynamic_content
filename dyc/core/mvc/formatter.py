@@ -161,7 +161,7 @@ class TemplateFormatter(object):
             dict(
                 breadcrumbs=self.render_breadcrumbs(url),
                 pagetitle=html.A('/',
-                    'dynamic_content - fast, python and extensible'),
+                    'dynamic_content - fast, lightweight and extensible'),
                 footer=str(
                     html.ContainerElement(
                         html.ContainerElement(

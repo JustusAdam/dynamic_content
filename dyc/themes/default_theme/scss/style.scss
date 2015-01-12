@@ -58,18 +58,16 @@ h1 {
   padding: 20px;
 }
 
-a.button {
-  background: linear-gradient(#eee, #aaa) repeat scroll 0 0 rgba(0, 0, 0, 0);
-  border: 1px solid #aaa;
-  border-radius: 15px;
-  padding: 6px 17px;
+a.button, button, input[type="submit"] {
+  background: linear-gradient(#eee, #d2d2d2) repeat scroll 0 0 rgba(0, 0, 0, 0);
+  border: 1px solid #c4c4c4;
+  border-radius: 6px;
+  padding: 2px 10px;
   text-decoration: none;
   color: #666;
   float: left;
+  font-size: 12px;
 
-  :hover {
-    background: linear-gradient(#ccc, #999) repeat scroll 0 0 rgba(0, 0, 0, 0);
-  }
   :visited {
     color: #666;
   }
@@ -78,6 +76,10 @@ a.button {
   }
 }
 
+a.button:hover, button:hover, input[type="submit"]:hover {
+  box-shadow: 0 0 3px #CCCCCC inset;
+//  background: linear-gradient(#eee, #b6b6b6) repeat scroll 0 0 rgba(0, 0, 0, 0);
+}
 #main {
   float: left;
   width: 700px;

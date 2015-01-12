@@ -103,12 +103,9 @@ class Application(threading.Thread, lazy.Loadable):
         )
 
     def wsgi_callback(self, environ, start_response):
-        print(environ['QUERY_STRING'])
         request = self.wsgi_make_request(environ)
 
         response = self.process_request(request)
-
-        print(response.headers)
 
         start_response(
             '{} {}'.format(response.code,
