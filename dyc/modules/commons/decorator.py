@@ -91,7 +91,7 @@ class RegionHandler:
 
 @decorators.apply_to_type(
     _model.Model,
-    apply_before=False, 
+    apply_before=False,
     return_from_decorator=False
     )
 def Regions(model):
@@ -99,32 +99,15 @@ def Regions(model):
         return _config.read_config('themes/' + theme + '/config.json')
 
     def _regions(client, theme):
-
         config = theme_config(theme)['regions']
-        r = []
-        for region in config:
-            r.append(
-                RegionHandler(
-                    region,
-                    config[region],
-                    theme,
-                    client
-                    )
-                )
-        return r
+        return {region : RegionHandler(
+                region,
+                config[region],
+                theme,
+                client
+                ).compile()
+            for region in config
+            }
 
-    # check region flag
-
-    region_flag = 'has_regions'
-    region_flag_value = True
-
-    if (not hasattr(model, region_flag)
-        or getattr(model, region_flag)
-        != region_flag_value
-        ):
-
-        if not 'no-commons' in model.decorator_attributes:
-            for region in _regions(model.client, model.theme):
-                model[region.name] = str(region.compile())
-
-        setattr(model, region_flag, region_flag_value)
+    if not 'regions' in model:
+        model['regions'] = _regions(model.client, model.theme)

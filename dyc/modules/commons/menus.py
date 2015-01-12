@@ -104,10 +104,12 @@ class Handler(base.Handler):
     def get_content(self, conf, render_args, client):
         name = conf.machine_name
         if render_args is None:
-            ul_list = menu(name, item_class=HTMLMenuItem).render_children(0)
+            ul_list = menu(name, item_class=HTMLMenuItem)
+            ul_list = ul_list.render_children(0)
         else:
             ul_list = menu(name, item_class=HTMLMenuItem).render_children(0, int(render_args))
-        ul_list.element_id = name
+        if ul_list:
+            ul_list.element_id = name
         return ul_list
 
 
@@ -136,7 +138,6 @@ def order_items(name, source_table, language, items, root_class=MenuItem):
     :return: Root for menu tree
     """
     mapping = collections.defaultdict(list)
-    root = root_class(i18n.translate(name, language), '/', 0, 0, root_ident)
 
     def order():
         """
@@ -148,11 +149,10 @@ def order_items(name, source_table, language, items, root_class=MenuItem):
             key = item.parent_item if item.parent_item else root_ident
             mapping[key].append(item)
 
-        items.append(root)
 
         for item in items:
             item.children = sorted(mapping[item.item_id], key=lambda s: s.weight) if item.item_id in mapping else None
-        return root
+        return mapping[-1][0]
 
     return order()
 

@@ -27,12 +27,12 @@
             </div>
         </div>
         <nav>
-            <div class="page-wrapper vertically-centered content-width" id="nav-wrapper"><?dchp echo(navigation)?></div>
+            <div class="page-wrapper vertically-centered content-width" id="nav-wrapper"><?dchp echo(regions['navigation'])?></div>
         </nav>
     </header>
     <div id="wrapper-middle" class="wrapper page-wrapper">
         <div class="vertically-centered wrapper content-width">
-            <?dchp echo(sidebar_left)?>
+            <?dchp echo(regions['sidebar_left'])?>
             <div id="main">
                 <?dchp echo(breadcrumbs)?>
                 <div class="wrapper content">
@@ -43,13 +43,13 @@
                     </div>
                 </div>
             </div>
-            <?dchp echo(sidebar_right)?>
+            <?dchp echo(regions['sidebar_right'])?>
         </div>
     </div>
     <footer>
         <div id="wrapper-footer" class="wrapper page-wrapper vertically-centered content-width">
             <div id="footer-content" class="wrapper content">
-                <?dchp echo(footer)?>
+                <?dchp echo(regions['footer'])?>
             </div>
         </div>
     </footer>

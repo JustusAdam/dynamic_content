@@ -91,11 +91,13 @@ class Application(threading.Thread, lazy.Loadable):
             query = environ['wsgi.input'].read(int(environ['CONTENT_LENGTH'])).decode() + environ['QUERY_STRING']
         elif method == 'get':
             query = environ['QUERY_STRING']
+        else:
+            query = None
         return dchttp.Request.from_path_and_post(
             path=environ['PATH_INFO'],
             headers={
                 k: environ[k] for k in search_headers if k in environ
-            },
+                },
             method=method,
             query_string=query
         )
@@ -126,14 +128,15 @@ class Application(threading.Thread, lazy.Loadable):
             'Starting WSGI Server on    Port: {}     and Host: {}'.format(
                 self.config.server_arguments.port,
                 self.config.server_arguments.host
-        ))
+                ))
         httpd.serve_forever()
 
     def run_http_server_loop(self):
 
         request_handler = functools.partial(
                             self.config.http_request_handler,
-                            self.http_callback)
+                            self.http_callback
+                            )
 
         server_address = (
             self.config.server_arguments.host,
