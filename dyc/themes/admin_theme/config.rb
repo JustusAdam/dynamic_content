@@ -21,7 +21,7 @@ encoding = "utf-8"
 # Location of the theme's resources.
 # Compass will overwrite the CSS files in the css_dir when set to watch.
 css_dir = "css"
-sass_dir = "sass"
+sass_dir = "scss"
 images_dir = "images"
 
 
