@@ -127,7 +127,7 @@ class PathMap(Segment):
                     kwargs[proxy] = request.query.get(name, None)
         else:
             if not handler.query is False:
-                raise exceptions.ControllerError
+                raise exceptions.ControllerError('Expected Query')
 
         return handler, args, kwargs
 

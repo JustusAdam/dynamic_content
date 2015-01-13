@@ -27,7 +27,8 @@ DEFAULT_MODULES = (
     'commons',
     'file',
     'iris',
-    'i18n'
+    'i18n',
+    'fileupload'
     )
 FILE_DIRECTORIES = {
     'theme': (
