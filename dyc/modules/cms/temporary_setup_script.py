@@ -77,11 +77,11 @@ def initialize():
     permissions = [
         [
             users.GUEST_GRP, 'unauthorized guests',
-            ['access login page', 'access content type article', 'access common login']
+            ['access login page', 'access content type article', 'access common login', 'access iris overview']
         ], [
             users.AUTH, 'any authorized user',
             ['access logout', 'access unpublished content type article', 'access content type article',
-             'access common ' + 'user_information', 'view own user info']
+             'access common ' + 'user_information', 'view own user info', 'access iris overview']
         ], [
             ADMIN_GRP, 'admin',
             ['edit user accounts', 'access users overview', 'edit content type article', 'add content type article',

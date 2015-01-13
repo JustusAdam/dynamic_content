@@ -1,6 +1,7 @@
 from functools import wraps
 from dyc.core.mvc.model import Model
 from dyc.util.decorators import apply_to_type
+from dyc.errors import exceptions
 
 __author__ = 'Justus Adam'
 
@@ -9,7 +10,7 @@ def authorize(permission):
     @apply_to_type(Model, apply_before=True)
     def inner(model):
         if not model.client.check_permission(permission):
-            raise PermissionError
+            raise exceptions.LackingPermission(model.client, permission)
 
     return inner
 

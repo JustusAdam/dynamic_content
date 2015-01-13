@@ -3,10 +3,6 @@ __version__ = '0.1'
 
 
 class DCException(Exception):
-    pass
-
-
-class ControllerError(DCException):
     def __init__(self, message):
         self.message = message
 
@@ -14,6 +10,10 @@ class ControllerError(DCException):
         return self.message
 
     __str__ = __repr__
+
+
+class ControllerError(DCException):
+    pass
 
 
 class UnexpectedControllerArgumentError(ControllerError):
@@ -44,3 +44,14 @@ class ComponentNotLoaded(ControllerError):
 class ComponentLoaded(ControllerError):
     def __init__(self, name):
         super().__init__('Component ' + name + ' is already loaded.')
+
+
+class LackingPermission(DCException):
+    def __init__(self, client, permission, action=''):
+        super().__init__(
+            'User "{}" does not have permission "{}"'
+            ' required for this action {}'.format(client, permission, action)
+        )
+        self.client = client
+        self.permission = permission
+        self.action = action
