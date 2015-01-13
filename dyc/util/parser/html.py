@@ -66,8 +66,13 @@ def html_q2_1(n, stack):
 
 
 def html_q4(n, stack):
-    current.params.add(''.join(stack.argname).lower())
+    stack.current.params.add(''.join(stack.argname).lower())
     stack.argname.clear()
+
+
+def html_q4_1(n, stack):
+    html_q4(n, stack)
+    finish_if_non_closing(n, stack)
 
 
 def html_q6(n, stack):
@@ -97,28 +102,41 @@ def finish_if_non_closing(n, stack):
         html_finish_element(n, stack)
 
 
+html_allowed = {'?', '!', '&', '%', '$'}
+
+
+append_char = lambda n, stack: stack.text_content.append(n)
+append_specific_char = lambda a: lambda n, stack: append_char(a, stack)
+append_element_name = lambda n, stack: stack.element_name.append(n)
+append_argname = lambda n, stack: stack.argname.append(n)
+
+html_conform = lambda n: n.isalnum() or n in html_allowed
+
+
 forbidden = {'"'}
 
 
 automaton_base = (
     generic.Edge(1, 0, chars='<', g=flush_text_content),
-    generic.Edge(0, 0, funcs=str.isalnum, g=lambda n, stack: stack.text_content.append(n)),
-    generic.Edge(8, 0, chars={' ', '\n'}, g=lambda n, stack: stack.text_content.append(' ')),
+    generic.Edge(0, 0, funcs=html_conform, g=append_char),
+    generic.Edge(8, 0, chars={' ', '\n'}, g=append_specific_char(' ')),
 
-    generic.Edge(2, 1, funcs=str.isalnum, g=lambda n, stack: stack.element_name.append(n)),
+    generic.Edge(2, 1, funcs=str.isalnum, g=append_element_name),
     generic.Edge(10, 1, chars='/'),
+    generic.Edge(12, 1, chars='!'),
 
-    generic.Edge(2, 2, funcs=str.isalnum, g=lambda n, stack: stack.element_name.append(n)),
+    generic.Edge(2, 2, funcs=str.isalnum, g=append_element_name),
     generic.Edge(0, 2, chars='>', g=html_q2_1),
     generic.Edge(3, 2, chars=' ', g=html_q2),
 
     generic.Edge(0, 3, chars='>', g=finish_if_non_closing),
-    generic.Edge(4, 3, funcs=str.isalnum, g=lambda n, stack: stack.argname.append(n)),
+    generic.Edge(4, 3, funcs=str.isalnum, g=append_argname),
     generic.Edge(9, 3, chars='/'),
 
     generic.Edge(3, 4, chars=' ', g=html_q4),
-    generic.Edge(4, 4, funcs=str.isalnum, g=lambda n, stack: stack.argname.append(n)),
+    generic.Edge(4, 4, funcs=str.isalnum, g=append_argname),
     generic.Edge(5, 4, chars='='),
+    generic.Edge(0, 4, chars='>', g=html_q4_1),
 
     generic.Edge(6, 5, chars='"'),
 
@@ -130,15 +148,29 @@ automaton_base = (
     generic.Edge(3, 7, chars=' '),
 
     generic.Edge(8, 8, chars={'\n', ' '}),
-    generic.Edge(0, 8, funcs=str.isalnum, g=lambda n, stack: stack.text_content.append(n)),
+    generic.Edge(0, 8, funcs=html_conform, g=append_char),
     generic.Edge(1, 8, chars='<', g=flush_text_content),
 
     generic.Edge(0, 9, chars='>', g=html_finish_element),
 
-    generic.Edge(11, 10, funcs=str.isalnum, g=lambda n, stack: stack.element_name.append(n)),
+    generic.Edge(11, 10, funcs=str.isalnum, g=append_element_name),
 
     generic.Edge(0, 11, chars='>', g=html_q11),
-    generic.Edge(11, 11, funcs=str.isalnum, g=lambda n, stack: stack.element_name.append(n))
+    generic.Edge(11, 11, funcs=str.isalnum, g=append_element_name),
+
+    generic.Edge(13, 12, chars='-'),
+    generic.Edge(1, 12, funcs=str.isalpha, g=append_element_name),
+
+    generic.Edge(14, 13, chars='-', g=append_specific_char('<!--')),
+
+    generic.Edge(14, 14, funcs=lambda a: True, g=append_char),
+    generic.Edge(15, 14, chars='-'),
+
+    generic.Edge(16, 15, chars='-'),
+    generic.Edge(14, 15, funcs=lambda a: True, g=lambda n, stack: stack.text_content.append('-' + n)),
+
+    generic.Edge(0, 16, chars='>', g=append_specific_char('-->')),
+    generic.Edge(14, 16, funcs=lambda a: True, g=lambda n, stack: stack.text_content.append('--' + n))
 )
 
 automaton = generic.automaton_from_list(automaton_base)
@@ -146,9 +178,17 @@ automaton = generic.automaton_from_list(automaton_base)
 
 def parse(string):
     cellar_bottom = _e.Base('cellar')
-    stack = ParserStack(element=[cellar_bottom], current=cellar_bottom)
+    stack = ParserStack(current=cellar_bottom)
     stack = generic.parse(automaton, stack, string)
     if stack.current is not cellar_bottom:
         raise SyntaxError()
     else:
-        return cellar_bottom.content()
+        c = list(cellar_bottom.content())
+        if c[0].tag == 'doctype':
+            c[0].tag = c[0].tag.upper()
+            if not c[1].tag == 'html':
+                raise TypeError
+            c[1].doctype = c[0]
+            return c[1:]
+        else:
+            return c

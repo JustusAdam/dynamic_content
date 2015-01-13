@@ -8,7 +8,7 @@ __version__ = '0.1'
 
 # elements not closing
 # <meta ... >
-non_closing = {'meta', 'input'}
+non_closing = {'meta', 'input', 'doctype'}
 
 # elements definately closing
 # <div ...> ... </div>
@@ -23,6 +23,15 @@ optional_closing = {'style'}
 # elements always closing in short form
 # <input ... />
 short_closing = {'input'}
+
+
+def unwrap_list(l):
+    if isinstance(l, str):
+        return l
+    elif hasattr(l, '__iter__'):
+        return ', '.join(l)
+    else:
+        raise TypeError
 
 
 class Base(object):
@@ -76,16 +85,13 @@ class Base(object):
     def text(self):
         return ''.join(self.text_fields())
 
+    def render_tag(self):
+        return self.tag
+
     def render(self):
-        def unwrap_list(l):
-            if isinstance(l, str):
-                return l
-            elif hasattr(l, '__iter__'):
-                return ', '.join(l)
-            else:
-                raise TypeError
+
         inner_head = ' '.join(
-            (self.tag, ) + tuple(self._params)
+            (self.render_tag(), ) + tuple(self._params)
             + tuple(k + '="' + unwrap_list(v) + '"' for k,v in self._value_params.items() if v is not None)
             )
         if self._children:
@@ -138,15 +144,46 @@ class Base(object):
             yield from child._find(*selectors, **vselectors)
 
     def find(self, *selectors, **vselectors):
-        return tuple(self._find(*selector, **vselectors))
+        return tuple(self._find(*selectors, **vselectors))
+
+
+class Doctype(Base):
+    def render_tag(self):
+        return '!' + self.tag.upper()
+
+
+class HTML(Base):
+    __slots__ = (
+        '_children',
+        '_value_params',
+        '_params',
+        'tag',
+        'doctype'
+    )
+
+    def __init__(self, *children, **params):
+        super().__init__('html', *children, **params)
+        self.doctype = None
+
+    def render(self):
+        if self.doctype:
+            return self.doctype.render() + super().render()
+        else:
+            return '<!DOCTYPE html>' + super().render()
 
 
 class _Hack(dict):
     def __getitem__(self, item):
         if item in self:
-            return super().__getitem(item)
+            return super().__getitem__(item)
         else:
             return functools.partial(Base, item)
 
 
-by_tag = lambda tag: Base(tag)
+_by_tag = {
+    'html': HTML(),
+    'doctype': Doctype('doctype')
+}
+
+
+by_tag = lambda tag: _by_tag.get(tag, Base(tag))

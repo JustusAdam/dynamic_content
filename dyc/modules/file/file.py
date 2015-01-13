@@ -19,11 +19,12 @@ __author__ = 'Justus Adam'
 
 _template_path = 'themes/default_theme/template/page.html'
 
-_default_view = 'page'
+_default_view = 'indexdir'
 
 
 def handle(request):
     path_split = request.path.split('/')
+    print(request.path)
     path_split = path_split[1:] if path_split[0] == '' else path_split
     trailing_slash, path_split = (True, path_split[:-1]) if path_split[-1] == '' else (False, path_split)
     if len(path_split) < 1:
@@ -86,7 +87,7 @@ def directory(request, real_dir):
     model = mvc.model.Model(
         content=html.List(
             *[html.ContainerElement(
-                str(a.name), html_type='a', additional={'href': str(request.path) + parse.quote_plus(str(a.name), )},
+                str(a.name), html_type='a', additional={'href': str(request.path) + parse.quote(str(a.name), )},
                 classes={'file-link'}
             ) for a in filter(lambda a: not str(a.name).startswith('.'), real_dir.iterdir())
             ], classes={'directory-index'}, item_classes={'directory-content'}

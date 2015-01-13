@@ -52,7 +52,8 @@ class DcHPElement(elements.Base):
         '_value_params',
         '_params',
         'tag',
-        'code'
+        'code',
+        'executed'
     )
     def __init__(self, code):
         super().__init__('dchp')
@@ -180,9 +181,17 @@ automaton = generic.automaton_from_list(html.automaton_base + automaton_base)
 
 def parse(string):
     cellar_bottom = elements.by_tag('cellar')
-    stack = ParserStack(element=[cellar_bottom], current=cellar_bottom)
+    stack = ParserStack(current=cellar_bottom)
     stack = generic.parse(automaton, stack, string)
     if stack.current is not cellar_bottom:
         raise SyntaxError()
     else:
-        return cellar_bottom.content()
+        c = list(cellar_bottom.content())
+        if c[0].tag == 'doctype':
+            c[0].tag = c[0].tag.upper()
+            if not c[1].tag == 'html':
+                raise TypeError
+            c[1].doctype = c[0]
+            return c[1:]
+        else:
+            return c
