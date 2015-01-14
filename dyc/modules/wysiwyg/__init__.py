@@ -1,22 +1,14 @@
 from dyc.core.mvc import model as _model
-from dyc.util import html
-from . import _elements
-from ._elements import WysiwygTextarea
+from dyc.util import html, decorators
+from ._elements import WysiwygTextarea, identifier
 
 __author__ = 'Justus Adam'
 
 basic_script = html.Script(src='/public/tinymce/tinymce.min.js')
 
 apply_script = html.Script(
-    'tinymce.init({selector: "textarea#' + _elements.identifier + '"});'
+    'tinymce.init({selector: "textarea.' + identifier + '"});'
 )
-
-
-def init(model:_model.Model):
-    from . import _elements
-
-    model.decorator_attributes.add('include module wysiwyg')
-    return _elements
 
 
 def decorator_hook(model:_model.Model):
@@ -24,3 +16,10 @@ def decorator_hook(model:_model.Model):
         model['scripts'] += [basic_script, apply_script]
     else:
         model['scripts'] = [basic_script, apply_script]
+
+
+def use(name='tinymce'):
+    @decorators.apply_to_type(_model.Model, apply_before=False)
+    def _inner(model):
+        decorator_hook(model)
+    return _inner

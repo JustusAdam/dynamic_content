@@ -5,7 +5,7 @@ from dyc.core import mvc
 from dyc import dchttp
 from dyc.util import lazy, html
 from dyc.core import model as coremodel
-from dyc.modules import commons
+from dyc.modules import commons, wysiwyg
 from dyc.modules.commons import menus as _menus
 from dyc.modules.users import decorator as user_dec
 from . import model as _model, node as _nodemodule, field
@@ -100,6 +100,7 @@ class FieldBasedPageContent(object):
     def access(self, model, page):
         return self.compile(model, page, 'access')
 
+    @wysiwyg.use()
     def edit(self, model, page):
         return self.compile(model, page, 'edit', content_compiler_hook=self.edit_form)
 
