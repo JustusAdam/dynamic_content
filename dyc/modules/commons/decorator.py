@@ -89,12 +89,7 @@ class RegionHandler:
             )
 
 
-@decorators.apply_to_type(
-    _model.Model,
-    apply_before=False,
-    return_from_decorator=False
-    )
-def Regions(model):
+def add_regions(model):
     def theme_config(theme):
         return _config.read_config('themes/' + theme + '/config.json')
 
@@ -111,3 +106,14 @@ def Regions(model):
 
     if not 'regions' in model:
         model['regions'] = _regions(model.client, model.theme)
+
+    return model
+
+
+@decorators.apply_to_type(
+    _model.Model,
+    apply_before=False,
+    return_from_decorator=False
+    )
+def Regions(model):
+    add_regions(model)

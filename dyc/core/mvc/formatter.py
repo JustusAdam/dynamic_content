@@ -79,10 +79,6 @@ class TemplateFormatter(object):
             pairing = self.initial_pairing(model, theme, request)
             pairing['request'] = request
             file = open(self.view_path(theme, view_name)).read()
-            # for a in VAR_REGEX.finditer(file):
-            #     if a.group(1) not in pairing:
-            #         pairing.__setitem__(a.group(1), '')
-            # document = file.format(**pairing)
             document = str(dchp.evaluator.evaluate_html(file, dict(pairing)))
             document = document.encode(encoding)
 
