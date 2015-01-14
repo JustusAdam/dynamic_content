@@ -68,6 +68,9 @@ dyc/modules/cms/config.json
 .idea/
 *.iml
 
+# aptana/eclipse project configs
+.project
+
 # misc resources
 *.css
 *.css.*
