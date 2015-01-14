@@ -188,7 +188,6 @@ def parse(string):
     else:
         c = list(cellar_bottom.content())
         if c[0].tag == 'doctype':
-            c[0].tag = c[0].tag.upper()
             if not c[1].tag == 'html':
                 raise TypeError
             c[1].doctype = c[0]

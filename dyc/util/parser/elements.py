@@ -161,8 +161,8 @@ class HTML(Base):
         'doctype'
     )
 
-    def __init__(self, *children, **params):
-        super().__init__('html', *children, **params)
+    def __init__(self, tag, *children, **params):
+        super().__init__(tag, *children, **params)
         self.doctype = None
 
     def render(self):

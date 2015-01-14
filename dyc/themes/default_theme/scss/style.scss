@@ -1,10 +1,10 @@
 /**
- *  Test CSS Stylesheet for my cms
- *  copyright 2014 Justus Adam
+ *  Test CSS Stylesheet for dynamic_content
+ *  copyright 2014, 2015 Justus Adam
  */
 @import "../../scss_base/scss/positioning";
 @import "../../scss_base/scss/transition";
-@import "base";
+@import "12-grid-layout";
 
 body, html {
   height: 100%;
@@ -63,6 +63,7 @@ a.button, button, input[type="submit"] {
 
 a.button:hover, button:hover, input[type="submit"]:hover {
   box-shadow: 0 0 3px #CCCCCC inset;
+  cursor: pointer;
 //  background: linear-gradient(#eee, #b6b6b6) repeat scroll 0 0 rgba(0, 0, 0, 0);
 }
 #main {
