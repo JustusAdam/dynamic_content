@@ -1,4 +1,3 @@
-import functools
 from . import generic
 from . import elements as _e
 

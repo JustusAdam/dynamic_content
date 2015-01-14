@@ -181,9 +181,9 @@ class _Hack(dict):
 
 
 _by_tag = {
-    'html': HTML(),
-    'doctype': Doctype('doctype')
+    'html': HTML,
+    'doctype': Doctype
 }
 
 
-by_tag = lambda tag: _by_tag.get(tag, Base(tag))
+by_tag = lambda tag: _by_tag.get(tag, Base)(tag)
