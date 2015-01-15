@@ -18,6 +18,11 @@ li {
   padding-bottom: 3px;
 }
 
+label {
+  font-weight: bolder;
+  display: block;
+}
+
 #wrapper-main {
   background-color: #383633;
   min-height: 100%;
@@ -448,4 +453,8 @@ ul.editorial-list {
 
 .content-width {
   width: $content-width;
+}
+
+.edit label {
+  margin: 10px 5px;
 }

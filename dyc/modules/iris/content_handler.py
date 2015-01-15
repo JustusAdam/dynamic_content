@@ -95,7 +95,14 @@ class FieldBasedPageContent(object):
     def field_edit(self, page):
         for single_field in self.fields:
             a = single_field.edit(page)
-            yield (html.Label(a['name'], label_for=a['name']), a['content'])
+            yield html.Label(a['name'], label_for=a['name'])
+            yield a['content']
+
+    def field_add(self):
+        for single_field in self.fields:
+            a = single_field.add()
+            yield html.Label(a['name'], label_for=a['name'])
+            yield a['content']
 
     def access(self, model, page):
         return self.compile(model, page, 'access')
@@ -107,18 +114,30 @@ class FieldBasedPageContent(object):
     def process_edit(self, model, page, post):
         if not model.client.check_permission(self.get_permission(page, 'add')):
             return None
-        print(post)
-        success = True
+        try:
+            for one_field in self.fields:
+                if one_field.config.field_type.machine_name not in post:
+                    raise ValueError
+            for one_field in self.fields:
+                one_field.process_edit(page.oid, post[one_field.config.field_type.machine_name])
+            success = True
+        except Exception as e:
+            print(e)
+            success = False
+
         return ':redirect:/iris/' + str(page.oid) + ('' if success else '/add')
 
-    def add(self):
+    @wysiwyg.use()
+    def add(self, model):
         pass
 
+    def add_form(self, page):
+        content = self.title_options() + tuple(self.field_add())
+        return html.FormElement(*content + (self.admin_options(), ), action='/iris/add', classes={'edit', self.content_type, 'edit-form'})
+
     def edit_form(self, page):
-        content = [self.title_options(page)]
-        content += list(self.field_edit(page))
-        table = html.TableElement(*content, classes={'edit', page.content_type.machine_name, 'edit-form'})
-        return html.FormElement(table, self.admin_options(page), action='/iris/' + str(page.oid) + '/edit')
+        content = self.title_options(page) + tuple(self.field_edit(page))
+        return html.FormElement(*content + (self.admin_options(page), ), action='/iris/' + str(page.oid) + '/edit', classes={'edit', self.content_type, 'edit-form'})
 
     def editorial(self, page, client):
         l = self.editorial_list(page, client)
@@ -145,8 +164,8 @@ class FieldBasedPageContent(object):
                 yield (name, '/'.join(['', self.page_type, str(page.oid), modifier]))
 
     @staticmethod
-    def admin_options(page):
-        if page.menu_item:
+    def admin_options(page=None):
+        if page is not None and page.menu_item:
             parent = '-1' if page.menu_item.parent_item is None else page.menu_item.parent_item
             selected = '-'.join([page.menu_item.menu, str(parent)])
             m_c = _menus.menu_chooser('parent-menu', selected=selected)
@@ -162,48 +181,62 @@ class FieldBasedPageContent(object):
         return html.TableElement(publishing_options, menu_options, classes={'admin-options'})
 
     @staticmethod
-    def title_options(page):
-        return [html.Label('Title', label_for='edit-title'),
-                html.TextInput(element_id='edit-title', name='title', value=page.page_title, required=True, size=100)]
+    def title_options(page=None):
+        input_element = functools.partial(
+            html.TextInput,
+            element_id='edit-title',
+            name='title',
+            required=True,
+            size=90
+            )
+        return (html.Label('Title', label_for='edit-title'),
+                input_element() if page is None else input_element(value=page.page_title))
 
 
-@mvc.controller_function({'iris/{int}', 'iris/{int}/access'}, method=dchttp.RequestMethods.GET, query=False)
-@commons.Regions
-@_nodemodule.node_process
+@mvc.controller_class
 @core.inject('IrisCompilers')
-def handle_compile(compiler_map, model, page_id):
-    page = _model.Page.get(oid=page_id)
-    return compiler_map[page.content_type].access(model, page)
+class IrisController(object):
+
+    def __init__(self, compiler_map):
+        self.compiler_map = compiler_map
+
+    @mvc.controller_method({'/iris/{int}', 'iris/{int}/access'}, method=dchttp.RequestMethods.GET, query=False)
+    @commons.Regions
+    @_nodemodule.node_process
+    def handle_compile(self, model, page_id):
+        page = _model.Page.get(oid=page_id)
+        return self.compiler_map[page.content_type].access(model, page)
 
 
-@mvc.controller_function('iris/{int}/edit', method=dchttp.RequestMethods.POST, query=True)
-@core.inject('IrisCompilers')
-def handle_edit(compiler_map, model, page_id, post):
-    page = _model.Page.get(oid=page_id)
-    return compiler_map[page.content_type.machine_name].process_edit(model, page_id, post)
+    @mvc.controller_method('/iris/{int}/edit', method=dchttp.RequestMethods.POST, query=True)
+    def handle_edit(self, model, page_id, post):
+        page = _model.Page.get(oid=page_id)
+        return self.compiler_map[page.content_type.machine_name].process_edit(model, page, post)
 
 
-@mvc.controller_function('iris/{int}/edit', method=dchttp.RequestMethods.GET, query=False)
-@commons.Regions
-@_nodemodule.node_process
-@core.inject('IrisCompilers')
-def handle_edit_page(compiler_map, model, page_id):
-    page = _model.Page.get(oid=page_id)
-    return compiler_map[page.content_type.machine_name].edit(model, page)
+    @mvc.controller_method('/iris/{int}/edit', method=dchttp.RequestMethods.GET, query=False)
+    @commons.Regions
+    @_nodemodule.node_process
+    def handle_edit_page(self, model, page_id):
+        page = _model.Page.get(oid=page_id)
+        return self.compiler_map[page.content_type.machine_name].edit(model, page)
 
 
-@mvc.controller_function('iris', method=dchttp.RequestMethods.GET, query=True)
-@user_dec.authorize(' '.join(['access', 'iris', 'overview']))
-@commons.Regions
-@_nodemodule.node_process
-@core.inject('IrisCompilers')
-def overview(compiler_map, page_model, get):
-    my_range = [
-        int(get['from'][0]) if 'from' in get else 0,
-        int(get['to'][0]) if 'to' in get else _step
-    ]
-    for a in _model.Page.select().limit(
-            ','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]])).order_by('date_created desc'):
-        node = compiler_map[a.content_type.machine_name].access(page_model, a)
-        node['title'] = html.A('/iris/' + str(a.oid), node['title'])
-        yield node
+    @mvc.controller_method('/iris', method=dchttp.RequestMethods.GET, query=True)
+    @user_dec.authorize(' '.join(['access', 'iris', 'overview']))
+    @commons.Regions
+    @_nodemodule.node_process
+    def overview(self, page_model, get):
+        my_range = [
+            int(get['from'][0]) if 'from' in get else 0,
+            int(get['to'][0]) if 'to' in get else _step
+        ]
+        for a in _model.Page.select().limit(
+                ','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]])).order_by('date_created desc'):
+            node = self.compiler_map[a.content_type.machine_name].access(page_model, a)
+            node['title'] = html.A('/iris/' + str(a.oid), node['title'])
+            yield node
+
+    @mvc.controller_method('/iris/add/{str}', method=dchttp.RequestMethods.GET, query=False)
+    def add(self, model, content_type):
+        return self.compiler_map[content_type].add()

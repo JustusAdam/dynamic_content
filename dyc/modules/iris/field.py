@@ -24,8 +24,8 @@ class Fields(lazy.Loadable):
 
     def load(self):
         self._inner = {
-            a.machine_name: (self._get_handler(a.handler)
-                for a in model.FieldType.select())
+            a.machine_name: self._get_handler(a.handler)
+                for a in model.FieldType.select()
         }
 
     @lazy.ensure_loaded
@@ -70,6 +70,14 @@ class _Field(object):
                 name=self.name,
                 content=wysiwyg.WysiwygTextarea(db_obj.content,
                     classes={'field', 'field-' + self.name, 'edit'}))
+        except:
+            raise
+
+    def process_edit(self, page_id, content):
+        try:
+            db_obj = self.from_db(page_id)
+            db_obj.content = content
+            db_obj.save()
         except:
             raise
 
