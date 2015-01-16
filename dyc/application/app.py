@@ -156,6 +156,7 @@ class Application(threading.Thread, lazy.Loadable):
 
         model = _model.Model()
         model.client = request.client
+        model.request = request
 
         try:
             handler, args, kwargs = pathmap.resolve(request)
