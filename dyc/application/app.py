@@ -6,14 +6,11 @@ from http import server
 
 from dyc.backend import orm
 from dyc import core
-
 from dyc.core.mvc import model as _model
 from dyc.util import typesafe, lazy, console
 from dyc.includes import settings, log
 from dyc import dchttp
-from dyc import middleware
 from dyc.errors import exceptions
-
 from . import config as _config
 
 
@@ -64,10 +61,10 @@ class Application(threading.Thread, lazy.Loadable):
     def load_modules(self):
         if (hasattr(orm.database_proxy, 'database')
             and orm.database_proxy.database == ':memory:'):
-            import dyc.modules.cms.temporary_setup_script
+            import dyc.tss
 
-            dyc.modules.cms.temporary_setup_script.init_tables()
-            dyc.modules.cms.temporary_setup_script.initialize()
+            dyc.tss.init_tables()
+            dyc.tss.initialize()
         else:
             core.Modules.load()
 

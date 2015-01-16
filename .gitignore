@@ -61,8 +61,6 @@ target/
 *.scssc
 #scss cache
 
-# the individual config made from example.config.json
-dyc/modules/cms/config.json
 
 # intellij project configs
 .idea/

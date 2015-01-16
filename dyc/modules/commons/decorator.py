@@ -1,4 +1,5 @@
 from dyc.core.mvc import model as _model
+from dyc.modules.theming import Theme
 from dyc.util import config as _config, decorators
 from dyc import core
 from . import model, page
@@ -15,10 +16,10 @@ class Common:
         self.item_type = item_type
 
 
+@core.inject('CommonsMap')
 class RegionHandler:
-    commons_map = core.get_component('CommonsMap')
-
-    def __init__(self, region_name, region_config, theme, client):
+    def __init__(self, commons_map, region_name, region_config, theme, client):
+        self.commons_map = commons_map
         self.client = client
         self.name = region_name
         self.theme = theme
@@ -28,7 +29,7 @@ class RegionHandler:
     def get_all_commons(self, name, theme):
         region_info = model.Common.select().where(
                         model.Common.region == name,
-                        model.Common.theme == core.model.Theme.get(
+                        model.Common.theme == Theme.get(
                             machine_name=theme
                             )
                         )

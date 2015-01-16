@@ -3,6 +3,7 @@ This is a temporary script that will execute some queries on the database to fil
 to get some basic site setup done. It will be done in this script to avoid trying to insert into tables that have not
 been created yet.
 """
+from dyc.modules.cms.model import ContentTypes, ContentHandler
 from dyc.util import console
 
 
@@ -58,7 +59,7 @@ def initialize():
 
     from dyc.modules.commons.model import MenuItem, CommonData, Menu
     from dyc.modules.commons import add_commons_config, assign_common
-    from dyc.modules.iris import model as iris_model
+    from dyc.modules.cms import model as iris_model
 
     from dyc.modules import admin
     from dyc.modules.users import users
@@ -77,16 +78,16 @@ def initialize():
     permissions = [
         [
             users.GUEST_GRP, 'unauthorized guests',
-            ['access login page', 'access content type article', 'access common login', 'access iris overview']
+            ['access login page', 'access content type article', 'access common login', 'access node overview']
         ], [
             users.AUTH, 'any authorized user',
             ['access logout', 'access unpublished content type article', 'access content type article',
-             'access common ' + 'user_information', 'view own user info', 'access iris overview']
+             'access common ' + 'user_information', 'view own user info', 'access node overview']
         ], [
             ADMIN_GRP, 'admin',
             ['edit user accounts', 'access users overview', 'edit content type article', 'add content type article',
              'access common ' + admin_menu_common, 'access admin pages', 'view other user info', 'view permissions',
-             'edit permissions', 'access iris overview']
+             'edit permissions', 'access node overview']
         ]
     ]
 
@@ -108,8 +109,8 @@ def initialize():
     from dyc.middleware import alias
 
     aliases = [
-        ('/', '/iris/1'),
-        ('/welcome', '/iris/1')
+        ('/', '/node/1'),
+        ('/welcome', '/node/1')
     ]
 
     for a, source in aliases:
@@ -131,8 +132,8 @@ def initialize():
         ('start_menu', True,
          (
              ('<root>', '', True, None, 1),
-             ('welcome', '/iris/1', True, '<root>', 1),
-             ('testpage', '/iris/2', True, '<root>', 2),
+             ('welcome', '/node/1', True, '<root>', 1),
+             ('testpage', '/node/2', True, '<root>', 2),
              ('setup', '/setup', True, 'welcome', 1)
          )
         ),
@@ -196,21 +197,21 @@ def initialize():
                       theme=theme,
                       show_title=show_title)
 
-    name = 'iris'
+    name = 'node'
 
     _module = core.get_module(name)
 
-    path_prefix = 'iris'
+    path_prefix = 'node'
 
-    coremodel.ContentHandler.create(machine_name='iris',
+    ContentHandler.create(machine_name='node',
                                     module=_module,
                                     path_prefix=path_prefix)
-    _ct1 = coremodel.ContentTypes.create(machine_name='article',
+    _ct1 = ContentTypes.create(machine_name='article',
                                          displey_name='Simple Article',
                                          content_handler=_module,
                                          theme=core.get_theme('active'))
 
-    bodytype = iris_model.FieldType.create(machine_name='body', handler='iris.text_field_handler')
+    bodytype = iris_model.FieldType.create(machine_name='body', handler='node.text_field_handler')
 
     iris_model.FieldConfig.create(
         field_type=bodytype,
@@ -224,13 +225,13 @@ def initialize():
 
     page = iris_model.Page.create(content_type=_ct1, page_title="Welcome to \"dynamic_content\"", creator=1,
                                   published=True)
-    bodyfield.create(page_id=page.oid, page_type='iris',
+    bodyfield.create(page_id=page.oid, page_type='node',
                      content='<div><h3>Welcome to your \"dynamic_content\" installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you\'ll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div>')
 
     page = iris_model.Page.create(content_type=_ct1, page_title='Wuhuuu', creator=1, published=True)
     bodyfield.create(page_id=page.oid,
                      content='<p>More content is good</p>',
-                     page_type='iris')
+                     page_type='node')
 
     # add admin pages
 

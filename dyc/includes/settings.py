@@ -26,7 +26,7 @@ DEFAULT_MODULES = (
     'users',
     'commons',
     'file',
-    'iris',
+    'node',
     'i18n',
     'fileupload'
     )

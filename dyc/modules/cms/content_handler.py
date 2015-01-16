@@ -3,12 +3,13 @@ import functools
 from dyc import core
 from dyc.core import mvc
 from dyc import dchttp
+from dyc.modules.cms.model import ContentTypes
 from dyc.util import lazy, html
-from dyc.core import model as coremodel
 from dyc.modules import commons, wysiwyg
 from dyc.modules.commons import menus as _menus
 from dyc.modules.users import decorator as user_dec
-from . import model as _model, node as _nodemodule, field
+from dyc.modules.node import node as _nodemodule
+from dyc.modules.cms import model as _model, field
 
 
 __author__ = 'Justus Adam'
@@ -39,7 +40,7 @@ def not_under(a, val=0):
         return a
 
 
-@core.Component('IrisCompilers')
+@core.Component('CMSCompilers')
 class Compilers(lazy.Loadable):
     def __init__(self):
         self._dict = None
@@ -47,18 +48,18 @@ class Compilers(lazy.Loadable):
 
     @lazy.ensure_loaded
     def __getitem__(self, item):
-        if isinstance(item, coremodel.ContentTypes):
+        if isinstance(item, ContentTypes):
             item = item.machine_name
         return self._dict[item]
 
     def load(self):
-        self._dict = {ct.machine_name: FieldBasedPageContent(ct) for ct in coremodel.ContentTypes.select()}
+        self._dict = {ct.machine_name: FieldBasedPageContent(ct) for ct in ContentTypes.select()}
 
 
 class FieldBasedPageContent(object):
-    _editorial_list_base = edits = [('edit', _edit_modifier)]
+    _editorial_list_base = edits = (('edit', _edit_modifier), )
     _view_name = 'page'
-    page_type = 'iris'
+    page_type = 'node'
 
     def __init__(self, content_type):
         self.dbobj = content_type
@@ -70,20 +71,26 @@ class FieldBasedPageContent(object):
         return self.join_permission(modifier) if page.published else \
             self.join_permission('access unpublished')
 
-    def compile(self, model, page, modifier, pre_compile_hook=None, post_compile_hook=None, content_compiler_hook=None):
+    def compile(self, model, page, modifier):
+
+        def _():
+            raise TypeError(modifier)
+
+        mapped = {
+            _access_modifier : self.field_contents,
+            _edit_modifier : self.edit_form,
+            _add_modifier : self.add_form
+            }
 
         if not model.client.check_permission(self.get_permission(page, modifier)):
             return None
 
-        pre_compile_hook() if pre_compile_hook else None
-
         node = dict(
             editorial=self.editorial(page, model.client),
-            content=content_compiler_hook(page) if content_compiler_hook else ''.join(
-                str(a) for a in self.field_contents(page)),
-            title=page.page_title)
+            content=mapped.get(modifier, _)(page),
+            title=page.page_title
+            )
 
-        post_compile_hook() if post_compile_hook else None
 
         return node
 
@@ -105,11 +112,11 @@ class FieldBasedPageContent(object):
             yield a['content']
 
     def access(self, model, page):
-        return self.compile(model, page, 'access')
+        return self.compile(model, page, _access_modifier)
 
     @wysiwyg.use()
     def edit(self, model, page):
-        return self.compile(model, page, 'edit', content_compiler_hook=self.edit_form)
+        return self.compile(model, page, _edit_modifier)
 
     def process_edit(self, model, page, post):
         if not model.client.check_permission(self.get_permission(page, 'add')):
@@ -125,7 +132,7 @@ class FieldBasedPageContent(object):
             print(e)
             success = False
 
-        return ':redirect:/iris/' + str(page.oid) + ('' if success else '/add')
+        return ':redirect:/node/' + str(page.oid) + ('' if success else '/add')
 
     @wysiwyg.use()
     def add(self, model):
@@ -133,11 +140,11 @@ class FieldBasedPageContent(object):
 
     def add_form(self, page):
         content = self.title_options() + tuple(self.field_add())
-        return html.FormElement(*content + (self.admin_options(), ), action='/iris/add', classes={'edit', self.content_type, 'edit-form'})
+        return html.FormElement(*content + (self.admin_options(), ), action='/node/add', classes={'edit', self.content_type, 'edit-form'})
 
     def edit_form(self, page):
         content = self.title_options(page) + tuple(self.field_edit(page))
-        return html.FormElement(*content + (self.admin_options(page), ), action='/iris/' + str(page.oid) + '/edit', classes={'edit', self.content_type, 'edit-form'})
+        return html.FormElement(*content + (self.admin_options(page), ), action='/node/' + str(page.oid) + '/edit', classes={'edit', self.content_type, 'edit-form'})
 
     def editorial(self, page, client):
         l = self.editorial_list(page, client)
@@ -194,13 +201,13 @@ class FieldBasedPageContent(object):
 
 
 @mvc.controller_class
-@core.inject('IrisCompilers')
-class IrisController(object):
+@core.inject('CMSCompilers')
+class CMSController(object):
 
     def __init__(self, compiler_map):
         self.compiler_map = compiler_map
 
-    @mvc.controller_method({'/iris/{int}', 'iris/{int}/access'}, method=dchttp.RequestMethods.GET, query=False)
+    @mvc.controller_method({'/node/{int}', 'node/{int}/access'}, method=dchttp.RequestMethods.GET, query=False)
     @commons.Regions
     @_nodemodule.node_process
     def handle_compile(self, model, page_id):
@@ -208,13 +215,13 @@ class IrisController(object):
         return self.compiler_map[page.content_type].access(model, page)
 
 
-    @mvc.controller_method('/iris/{int}/edit', method=dchttp.RequestMethods.POST, query=True)
+    @mvc.controller_method('/node/{int}/edit', method=dchttp.RequestMethods.POST, query=True)
     def handle_edit(self, model, page_id, post):
         page = _model.Page.get(oid=page_id)
         return self.compiler_map[page.content_type.machine_name].process_edit(model, page, post)
 
 
-    @mvc.controller_method('/iris/{int}/edit', method=dchttp.RequestMethods.GET, query=False)
+    @mvc.controller_method('/node/{int}/edit', method=dchttp.RequestMethods.GET, query=False)
     @commons.Regions
     @_nodemodule.node_process
     def handle_edit_page(self, model, page_id):
@@ -222,8 +229,8 @@ class IrisController(object):
         return self.compiler_map[page.content_type.machine_name].edit(model, page)
 
 
-    @mvc.controller_method('/iris', method=dchttp.RequestMethods.GET, query=True)
-    @user_dec.authorize(' '.join(['access', 'iris', 'overview']))
+    @mvc.controller_method('/node', method=dchttp.RequestMethods.GET, query=True)
+    @user_dec.authorize(' '.join(['access', 'node', 'overview']))
     @commons.Regions
     @_nodemodule.node_process
     def overview(self, page_model, get):
@@ -234,9 +241,9 @@ class IrisController(object):
         for a in _model.Page.select().limit(
                 ','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]])).order_by('date_created desc'):
             node = self.compiler_map[a.content_type.machine_name].access(page_model, a)
-            node['title'] = html.A('/iris/' + str(a.oid), node['title'])
+            node['title'] = html.A('/node/' + str(a.oid), node['title'])
             yield node
 
-    @mvc.controller_method('/iris/add/{str}', method=dchttp.RequestMethods.GET, query=False)
+    @mvc.controller_method('/node/add/{str}', method=dchttp.RequestMethods.GET, query=False)
     def add(self, model, content_type):
         return self.compiler_map[content_type].add()

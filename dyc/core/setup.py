@@ -5,7 +5,7 @@ Currently uses the framework to dynamically create elements, once the basic site
 and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
 """
 from dyc.backend.database import Database
-from dyc import dchttp
+from dyc import dchttp, tss
 from dyc.util import html
 from dyc.core.mvc import decorator as mvc_dec
 from dyc.includes import settings
@@ -174,9 +174,9 @@ def create_initial_user(model, post):
 
 
 def setup():
-    from dyc.modules.cms import temporary_setup_script
-    temporary_setup_script.init_tables()
-    temporary_setup_script.initialize()
+    from dyc import tss
+    tss.init_tables()
+    tss.initialize()
 
 
 def setup_wrapper():

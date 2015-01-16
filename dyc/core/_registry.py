@@ -3,9 +3,9 @@ import inspect
 from dyc.backend import orm
 
 from . import model, Component
+from dyc.modules.cms.model import ContentHandler
 from dyc.util import config, lazy
 from dyc.includes import settings
-from dyc.core import model as coremodel
 from dyc.util import module as _module
 from dyc.includes import log
 
@@ -65,7 +65,7 @@ def register_content_handler(module_conf):
     else:
         path_prefix = module_conf['name']
     try:
-        coremodel.ContentHandler(module_conf['name'], module_conf['name'], path_prefix).save()
+        ContentHandler(module_conf['name'], module_conf['name'], path_prefix).save()
     except IOError as error:
         print('Failed to register page handler ' + module_conf['name'])
         print(error)
@@ -130,11 +130,6 @@ def register_single_module(moduleconf):
 
 
 def check_info(info):
-    keys = info.keys()
-    necessary_attributes = settings.NECESSARY_MODULE_ATTRIBUTES
-    for attr in necessary_attributes:
-        if attr not in keys:
-            return False
     return True
 
 
