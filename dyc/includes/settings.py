@@ -18,6 +18,7 @@ PathMaps = {
     'multitable',
     'tree'
     }
+ServerTypes = structures.EnumLevel('ServerTypes', ('wsgi', 'plain'))
 
 
 # the order in this list dictates the order in which these modules will be activated
@@ -26,9 +27,11 @@ DEFAULT_MODULES = (
     'users',
     'commons',
     'file',
-    'node',
     'i18n',
-    'fileupload'
+    'fileupload',
+    'theming',
+    'node',
+    'cms'
     )
 FILE_DIRECTORIES = {
     'theme': (
@@ -79,7 +82,7 @@ DEFAULT_HEADERS = {
     'Content-Type': 'text/html; charset=utf-8',
     'Cache-Control': 'no-cache'
     }
-SERVER_TYPE = 'plain'
+SERVER_TYPE = ServerTypes.wsgi
 PROPAGATE_ERRORS = True
 
 

@@ -9,6 +9,20 @@ from dyc.modules.commons import model as commonsmodel
 __author__ = 'Justus Adam'
 
 
+class ContentHandler(orm.BaseModel):
+    module = orm.ForeignKeyField(Module)
+    machine_name = orm.CharField(unique=True)
+    path_prefix = orm.CharField(unique=True)
+
+
+class ContentTypes(orm.BaseModel):
+    machine_name = orm.CharField(unique=True)
+    content_handler = orm.ForeignKeyField(ContentHandler)
+    display_name = orm.CharField(null=True)
+    theme = orm.ForeignKeyField(Theme)
+    description = orm.TextField(null=True)
+
+
 class Page(orm.BaseModel):
     content_type = orm.ForeignKeyField(ContentTypes)
     page_title = orm.CharField()
@@ -43,15 +57,3 @@ class FieldConfig(orm.BaseModel):
     description = orm.TextField(null=True)
 
 
-class ContentTypes(orm.BaseModel):
-    machine_name = orm.CharField(unique=True)
-    content_handler = orm.ForeignKeyField(ContentHandler)
-    display_name = orm.CharField(null=True)
-    theme = orm.ForeignKeyField(Theme)
-    description = orm.TextField(null=True)
-
-
-class ContentHandler(orm.BaseModel):
-    module = orm.ForeignKeyField(Module)
-    machine_name = orm.CharField(unique=True)
-    path_prefix = orm.CharField(unique=True)

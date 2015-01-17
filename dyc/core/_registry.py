@@ -3,7 +3,6 @@ import inspect
 from dyc.backend import orm
 
 from . import model, Component
-from dyc.modules.cms.model import ContentHandler
 from dyc.util import config, lazy
 from dyc.includes import settings
 from dyc.util import module as _module
@@ -56,19 +55,6 @@ def init_tables(m):
             except Exception as e:
                 print(e)
                 log.write_error(function='create_table', message=str(e))
-
-
-def register_content_handler(module_conf):
-    print('registering content handler ' + module_conf['name'])
-    if 'path_prefix' in module_conf:
-        path_prefix = module_conf['path_prefix']
-    else:
-        path_prefix = module_conf['name']
-    try:
-        ContentHandler(module_conf['name'], module_conf['name'], path_prefix).save()
-    except IOError as error:
-        print('Failed to register page handler ' + module_conf['name'])
-        print(error)
 
 
 def get_module_id(module_name):

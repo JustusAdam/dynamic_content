@@ -1,7 +1,6 @@
 from ._component import (component, get_component, call_component,
                         Component, inject, inject_method)
 from . import model, _registry, mvc
-from dyc.modules.cms.model import ContentTypes, ContentHandler
 from dyc.modules.theming import Theme
 
 
@@ -12,12 +11,8 @@ __version__ = '0.1'
 Modules = get_component('modules')
 
 
-def add_content_handler(handler_name, handler, prefix):
-    return ContentHandler(module=handler, machine_name=handler_name, path_prefix=prefix).save()
-
-
-def add_theme(name, enabled=False):
-    return Theme.create(machine_name=name, enabled=enabled)
+def add_theme(name, path, enabled=False):
+    return Theme.create(machine_name=name, path=path, enabled=enabled)
 
 
 def get_module(name):
@@ -25,11 +20,6 @@ def get_module(name):
 
 
 def get_theme(name):
+    if name in ('active', 'default_theme'):
+        name = 'default_theme'
     return Theme.get(machine_name=name)
-
-
-def get_content_type(name):
-    return ContentTypes.get(machine_name=name)
-
-
-get_ct = get_content_type

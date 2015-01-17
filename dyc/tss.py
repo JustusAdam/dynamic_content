@@ -120,13 +120,15 @@ def initialize():
 
     # add themes
 
-    for name, enabled in [
-        ('active', True),
-        ('default_theme', True),
-        ('admin_theme', True)
+    for name, path, enabled in [
+        ('default_theme', 'dyc/themes/default_theme', True),
+        ('admin_theme', 'dyc/themes/admin_theme', True)
     ]:
-        core.add_theme(name=name,
-                       enabled=enabled)
+        core.add_theme(
+            name=name,
+            path=path,
+            enabled=enabled
+            )
 
     for machine_name, enabled, children in (
         ('start_menu', True,

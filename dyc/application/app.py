@@ -12,6 +12,7 @@ from dyc.includes import settings, log
 from dyc import dchttp
 from dyc.errors import exceptions
 from . import config as _config
+from dyc import middleware
 
 
 __author__ = 'Justus Adam'
@@ -53,9 +54,9 @@ class Application(threading.Thread, lazy.Loadable):
     def run(self):
         if settings.RUNLEVEL == settings.RunLevel.debug:
             log.write_info(message='starting server')
-        if settings.SERVER_TYPE == 'plain':
+        if settings.SERVER_TYPE == settings.ServerTypes.plain:
             self.run_http_server_loop()
-        elif settings.SERVER_TYPE == 'wsgi':
+        elif settings.SERVER_TYPE == settings.ServerTypes.wsgi:
             self.run_wsgi_server_loop()
 
     def load_modules(self):
