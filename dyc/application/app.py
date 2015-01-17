@@ -15,8 +15,22 @@ from . import config as _config
 from dyc import middleware
 
 
+
+dc_ascii_art = """
+       __                            _                           __             __
+  ____/ /_  ______  ____ _____ ___  (_)____    _________  ____  / /____  ____  / /_
+ / __  / / / / __ \/ __ `/ __ `__ \/ / ___/   / ___/ __ \/ __ \/ __/ _ \/ __ \/ __/
+/ /_/ / /_/ / / / / /_/ / / / / / / / /__    / /__/ /_/ / / / / /_/  __/ / / / /_
+\__,_/\__, /_/ /_/\__,_/_/ /_/ /_/_/\___/____\___/\____/_/ /_/\__/\___/_/ /_/\__/
+     /____/                            /_____/
+
+"""
+
+## dynamic_content ascii art base generated with http://patorjk.com/software/taag/
+
+
 __author__ = 'Justus Adam'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 class Application(threading.Thread, lazy.Loadable):
@@ -41,6 +55,7 @@ class Application(threading.Thread, lazy.Loadable):
 
     @core.inject_method(cmw='Middleware')
     def load(self, cmw):
+        print(dc_ascii_art)
         if settings.RUNLEVEL == settings.RunLevel.debug:
             log.write_info(message='loading components')
         console.cprint('Loading Components ... ')
