@@ -1,7 +1,13 @@
 [![Build Status](https://travis-ci.org/JustusAdam/dynamic_content.svg?branch=master)](https://travis-ci.org/JustusAdam/dynamic_content)
 
-# dynamic_content
-
+<pre style="background-color:white;color:#9ABB6F">
+       __                            _                           __             __
+  ____/ /_  ______  ____ _____ ___  (_)____    _________  ____  / /____  ____  / /_  
+ / __  / / / / __ \/ __ `/ __ `__ \/ / ___/   / ___/ __ \/ __ \/ __/ _ \/ __ \/ __/  
+/ /_/ / /_/ / / / / /_/ / / / / / / / /__    / /__/ /_/ / / / / /_/  __/ / / / /_  
+\__,_/\__, /_/ /_/\__,_/_/ /_/ /_/_/\___/____\___/\____/_/ /_/\__/\___/_/ /_/\__/  
+     /____/                            /_____/
+</pre>
 
 Content Management System for web application.
 
