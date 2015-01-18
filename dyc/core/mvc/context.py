@@ -7,7 +7,7 @@ __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-class Model(dict):
+class Context(dict):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.__final = False

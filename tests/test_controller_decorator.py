@@ -1,7 +1,7 @@
 import unittest
 from dyc import core
 from dyc.core import mvc
-from dyc.core.mvc.model import Model
+from dyc.core.mvc.context import Context
 from dyc import dchttp
 
 __author__ = 'Justus Adam'
@@ -13,7 +13,7 @@ class TestDecorator(unittest.TestCase):
 
         prefix1 = 'hello/{str}'
         testpath = 'somepath35'
-        model = Model()
+        model = Context()
 
         @mvc.controller_function(prefix1, method=dchttp.RequestMethods.GET, query=True)
         def handle(model, arg, get):

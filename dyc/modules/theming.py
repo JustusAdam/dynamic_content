@@ -2,7 +2,7 @@ import json
 from dyc.backend import orm
 from dyc.includes import settings
 from dyc.util import html, decorators
-from dyc.core.mvc import model
+from dyc.core.mvc import context
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
@@ -22,21 +22,21 @@ def load_theme_conf(theme):
 
 def attach_theme_conf(model, default_theme=settings.DEFAULT_THEME):
     if not hasattr(model, 'theme_config') or model.theme_config == None:
-        theme = model.theme if hasattr(model, 'theme') and model.theme else default_theme
+        theme = model.theme = model.theme if hasattr(model, 'theme') and model.theme else default_theme
         model.theme_config = load_theme_conf(theme)
         model.template_directory = model.theme_config['path'] + '/' + model.theme_config.get('template_directory', 'templates')
 
 
 def compile_stuff(model):
-    theme_path = model.theme_config['path']
+    theme_path = '/theme/' + model.theme + '/'
 
-    stylesheet_directory = theme_path + '/' + model.theme_config['stylesheet_directory']
+    stylesheet_directory = theme_path + model.theme_config['stylesheet_directory']
     model['stylesheets'] = ''.join(
         str(html.Stylesheet(stylesheet_directory + '/' + stylesheet))
         for stylesheet in model.theme_config.get('stylesheets', ())
         )
 
-    scripts_directory = theme_path + '/' + model.theme_config['stylesheet_directory']
+    scripts_directory = theme_path + model.theme_config['stylesheet_directory']
     model['scripts'] = ''.join(
         str(html.Script(src=scripts_directory + '/' + script))
         for script in model.theme_config.get('scripts', ())
@@ -53,7 +53,7 @@ def theme_model(model_map):
 
 
 def theme(default_theme=settings.DEFAULT_THEME):
-    @decorators.apply_to_type(model.Model, apply_before=False)
+    @decorators.apply_to_type(context.Context, apply_before=False)
     def _inner(model_map):
         theme_model(model_map)
 
@@ -70,7 +70,7 @@ breadcrumb_separator = '>>'
 
 
 def get_breadcrumbs(url):
-    path = url.path.split('/')
+    path = url.split('/')
     yield 'home', '/'
     for i in range(1, len(path)):
         yield path[i], '/'.join(path[:i+1])
@@ -101,7 +101,7 @@ def attach_breadcrumbs(model_map):
         model_map['breadcrumbs'] = render_breadcrumbs(model_map.request.path)
 
 
-@decorators.apply_to_type(model.Model)
+@decorators.apply_to_type(context.Context)
 def breadcrumbs(model_map):
     attach_breadcrumbs(model_map)
 

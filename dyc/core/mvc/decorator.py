@@ -31,7 +31,7 @@ from . import Config, DefaultConfig
 from . import controller
 from .. import _component
 from dyc import dchttp
-from .model import Model
+from .context import Context
 from dyc.util import decorators
 from dyc.util import typesafe
 
@@ -58,7 +58,7 @@ class Autoconf(object):
 
     def __call__(self, func):
         @functools.wraps(func)
-        @decorators.apply_to_type(Model, controller.Controller)
+        @decorators.apply_to_type(Context, controller.Controller)
         def wrap(model, controller):
             model.config = collections.ChainMap(*[a for a in [
                 model.config,

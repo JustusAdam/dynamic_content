@@ -1,4 +1,4 @@
-from dyc.core.mvc import model as _model
+from dyc.core.mvc import context as _model
 from dyc.modules import theming
 from dyc.modules.theming import Theme
 from dyc.util import config as _config, decorators
@@ -111,7 +111,7 @@ def add_regions(model):
 
 
 @decorators.apply_to_type(
-    _model.Model,
+    _model.Context,
     apply_before=False,
     return_from_decorator=False
     )

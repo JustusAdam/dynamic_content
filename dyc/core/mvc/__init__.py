@@ -1,5 +1,5 @@
 from .config import Config, DefaultConfig
-from . import _pathmapper, controller, model, formatter
+from . import _pathmapper, controller, context, formatter
 from .decorator import (Autoconf, controller_function,
     controller_method, controller_class)
 

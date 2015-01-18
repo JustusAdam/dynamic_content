@@ -1,5 +1,5 @@
 import pathlib
-from dyc.core.mvc import model as mvc_model
+from dyc.core.mvc import context as mvc_model
 from dyc.util import config, decorators
 from dyc import dchp
 
@@ -57,7 +57,7 @@ def compile_nodes(res, model):
 
 
 
-@decorators.apply_to_type(mvc_model.Model, apply_in_decorator=True)
+@decorators.apply_to_type(mvc_model.Context, apply_in_decorator=True)
 def node_process(func):
     def wrap(model):
 

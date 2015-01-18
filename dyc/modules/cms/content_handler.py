@@ -95,6 +95,9 @@ class FieldBasedPageContent(object):
         return node
 
     def field_contents(self, page):
+        return ''.join(str(a) for a in self.field_display(page))
+
+    def field_display(self, page):
         f = lambda a: a['content']
         for single_field in self.fields:
             yield f(single_field.access(page))
@@ -200,14 +203,14 @@ class FieldBasedPageContent(object):
                 input_element() if page is None else input_element(value=page.page_title))
 
 
-@decorators.apply_to_type(mvc.model.Model, apply_in_decorator=True)
+@decorators.apply_to_type(mvc.context.Context, apply_in_decorator=True)
 def full_node(func):
-    def _inner(model_map):
+    def _inner(context):
         res = func()
-        theming.theme_model(model_map)
-        commons.add_regions(model_map)
-        theming.attach_breadcrumbs(model_map)
-        return _nodemodule.compile_nodes(res, model_map)
+        theming.theme_model(context)
+        commons.add_regions(context)
+        theming.attach_breadcrumbs(context)
+        return _nodemodule.compile_nodes(res, context)
 
     return _inner
 

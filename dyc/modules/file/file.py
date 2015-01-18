@@ -84,7 +84,7 @@ class PathHandler(middleware.Handler):
 def directory(request, real_dir):
     if not isinstance(real_dir, pathlib.Path):
         real_dir = pathlib.Path(real_dir)
-    model = mvc.model.Model(
+    model = mvc.context.Context(
         content=html.List(
             *[html.ContainerElement(
                 str(a.name), html_type='a', additional={'href': str(request.path) + parse.quote(str(a.name), )},

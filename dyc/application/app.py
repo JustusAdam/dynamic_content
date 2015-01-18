@@ -6,7 +6,7 @@ from http import server
 
 from dyc.backend import orm
 from dyc import core
-from dyc.core.mvc import model as _model
+from dyc.core.mvc import context as _model
 from dyc.util import typesafe, lazy, console
 from dyc.includes import settings, log
 from dyc import dchttp
@@ -169,7 +169,7 @@ class Application(threading.Thread, lazy.Loadable):
             if res is not None:
                 return res
 
-        model = _model.Model()
+        model = _model.Context()
         model.client = request.client
         model.request = request
 

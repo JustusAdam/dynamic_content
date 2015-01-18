@@ -1,4 +1,4 @@
-from dyc.core.mvc import model as _model
+from dyc.core.mvc import context as _context
 from dyc.util import html, decorators
 from ._elements import WysiwygTextarea, identifier
 
@@ -11,7 +11,7 @@ apply_script = html.Script(
 )
 
 
-def decorator_hook(model:_model.Model):
+def decorator_hook(model:_context.Context):
     if 'scripts' in model:
         model['scripts'] += [basic_script, apply_script]
     else:
@@ -19,7 +19,7 @@ def decorator_hook(model:_model.Model):
 
 
 def use(name='tinymce'):
-    @decorators.apply_to_type(_model.Model, apply_before=False)
+    @decorators.apply_to_type(_context.Context, apply_before=False)
     def _inner(model):
         decorator_hook(model)
     return _inner
