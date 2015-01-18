@@ -16,14 +16,14 @@ def load_theme_conf(theme):
         theme = Theme.get(machine_name=theme)
     with open(theme.path + config_file_name) as file:
         conf = json.load(file.read())
-        conf['path'] = theme.path
-        return conf
+    conf['path'] = theme.path
+    return conf
 
 
 def attach_theme_conf(model, default_theme=settings.DEFAULT_THEME):
-    theme = model.theme if hasattr(model, 'theme') and model.theme else default_theme
-
-    model.theme_config = load_theme_conf(theme)
+    if not hasattr(model, 'theme_config') or model.theme_config == None:
+        theme = model.theme if hasattr(model, 'theme') and model.theme else default_theme
+        model.theme_config = load_theme_conf(theme)
 
 
 def compile_stuff(model):
@@ -47,24 +47,22 @@ def compile_stuff(model):
     model['meta'] = html.LinkElement(href=theme_path + favicon, rel='shortcut icon')
 
 
+def theme_model(model_map):
+    if not hasattr(model_map, 'theme_config') or not model_map.theme_config:
+        attach_theme_conf(model_map)
+        compile_stuff(model_map)
+
+
 def theme(default_theme=settings.DEFAULT_THEME):
-    @decorators.apply_to_type(model.Model, return_from_decorator=True)
-    def _theme_decorator(func):
-        def _inner(model_map):
-            if not hasattr(model_map, 'theme_config') or not model_map.theme_config:
-                attach_theme_conf(model_map)
-                res = func()
-                compile_stuff(model_map)
-                return res
-            else:
-                return func()
-        return _inner
+    @decorators.apply_to_type(model.Model, apply_before=False)
+    def _inner(model_map):
+        theme_model(model_map)
 
     if callable(default_theme):
         func, default_theme = default_theme, settings.DEFAULT_THEME
-        return _theme_decorator(func)
+        return _inner(func)
     elif isinstance(default_theme, str):
-        return _theme_decorator
+        return _inner
     else:
         raise TypeError('Expected {} or {}, got {}'.format(callable, str, type(default_theme)))
 

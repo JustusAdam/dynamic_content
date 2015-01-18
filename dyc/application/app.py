@@ -12,7 +12,6 @@ from dyc.includes import settings, log
 from dyc import dchttp
 from dyc.errors import exceptions
 from . import config as _config
-from dyc import middleware
 
 
 

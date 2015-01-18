@@ -1,4 +1,5 @@
 from dyc.core.mvc import model as _model
+from dyc.modules import theming
 from dyc.modules.theming import Theme
 from dyc.util import config as _config, decorators
 from dyc import core
@@ -91,11 +92,9 @@ class RegionHandler:
 
 
 def add_regions(model):
-    def theme_config(theme):
-        return _config.read_config('themes/' + theme + '/config.json')
 
     def _regions(client, theme):
-        config = theme_config(theme)['regions']
+        config = model.theme_config['regions']
         return {region : RegionHandler(
                 region,
                 config[region],
@@ -117,4 +116,5 @@ def add_regions(model):
     return_from_decorator=False
     )
 def Regions(model):
+    theming.theme_model(model)
     add_regions(model)

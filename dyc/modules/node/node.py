@@ -23,6 +23,33 @@ def _get_template(_type):
         return template.read()
 
 
+def compile_nodes(res, model):
+    if isinstance(res, dict):
+        # assign title, if it exists
+        if 'title' in res:
+            model['title'] = res['title']
+        template = _get_template('single_node_template')
+        content = dchp.evaluator.evaluate_html(template, res)
+    elif hasattr(res, '__iter__'):
+        # try to find if object carries a title
+        if hasattr(res, 'title'):
+            model['title'] = res.title
+        elif hasattr(res, '__getitem__') and 'title' in res:
+            model['title'] = res['title']
+        else:
+            model['title'] = 'Overview'
+
+        template = _get_template('multi_node_template')
+        content = InvisibleList(
+            dchp.evaluator.evaluate_html(template, a) for a in res
+            )
+    else:
+        raise AttributeError
+
+    model['content'] = content
+    return 'page'
+
+
 
 @decorators.apply_to_type(mvc_model.Model, apply_in_decorator=True)
 def node_process(func):
@@ -30,28 +57,6 @@ def node_process(func):
 
         # get node(s)
         res = func()
-        if isinstance(res, dict):
-            # assign title, if it exists
-            if 'title' in res:
-                model['title'] = res['title']
-            template = _get_template('single_node_template')
-            content = dchp.evaluator.evaluate_html(template, res)
-        elif hasattr(res, '__iter__'):
-            # try to find if object carries a title
-            if hasattr(res, 'title'):
-                model['title'] = res.title
-            elif hasattr(res, '__getitem__') and 'title' in res:
-                model['title'] = res['title']
-            else:
-                model['title'] = 'Overview'
-
-            template = _get_template('multi_node_template')
-            content = InvisibleList(
-                dchp.evaluator.evaluate_html(template, a) for a in res
-                )
-        else:
-            raise AttributeError
-        model['content'] = content
-        return 'page'
+        return compile_nodes(res, model)
 
     return wrap

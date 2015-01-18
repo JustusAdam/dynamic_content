@@ -1,7 +1,7 @@
 from . import commons, menus, admin, model
 from .component import register, implements
 from .base import Handler
-from .decorator import Regions
+from .decorator import Regions, add_regions
 from dyc.core import model as coremodel
 from dyc.modules.theming import Theme
 

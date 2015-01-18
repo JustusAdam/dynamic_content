@@ -4,8 +4,8 @@ from dyc import core
 from dyc.core import mvc
 from dyc import dchttp
 from dyc.modules.cms.model import ContentTypes
-from dyc.util import lazy, html
-from dyc.modules import commons, wysiwyg
+from dyc.util import lazy, html, decorators
+from dyc.modules import commons, wysiwyg, theming
 from dyc.modules.commons import menus as _menus
 from dyc.modules.users import decorator as user_dec
 from dyc.modules.node import node as _nodemodule
@@ -200,6 +200,17 @@ class FieldBasedPageContent(object):
                 input_element() if page is None else input_element(value=page.page_title))
 
 
+@decorators.apply_to_type(mvc.model.Model, return_from_decorator=True)
+def full_node(func):
+    def _inner(model_map):
+        res = func()
+        theming.theme_model(model_map)
+        commons.add_regions(model_map)
+        return _nodemodule.compile_nodes(res, model_map)
+
+    return _inner
+
+
 @mvc.controller_class
 @core.inject('CMSCompilers')
 class CMSController(object):
@@ -208,8 +219,7 @@ class CMSController(object):
         self.compiler_map = compiler_map
 
     @mvc.controller_method({'/node/{int}', 'node/{int}/access'}, method=dchttp.RequestMethods.GET, query=False)
-    @commons.Regions
-    @_nodemodule.node_process
+    @full_node
     def handle_compile(self, model, page_id):
         page = _model.Page.get(oid=page_id)
         return self.compiler_map[page.content_type].access(model, page)
@@ -222,8 +232,7 @@ class CMSController(object):
 
 
     @mvc.controller_method('/node/{int}/edit', method=dchttp.RequestMethods.GET, query=False)
-    @commons.Regions
-    @_nodemodule.node_process
+    @full_node
     def handle_edit_page(self, model, page_id):
         page = _model.Page.get(oid=page_id)
         return self.compiler_map[page.content_type.machine_name].edit(model, page)
@@ -231,8 +240,7 @@ class CMSController(object):
 
     @mvc.controller_method('/node', method=dchttp.RequestMethods.GET, query=True)
     @user_dec.authorize(' '.join(['access', 'node', 'overview']))
-    @commons.Regions
-    @_nodemodule.node_process
+    @full_node
     def overview(self, page_model, get):
         my_range = [
             int(get['from'][0]) if 'from' in get else 0,
