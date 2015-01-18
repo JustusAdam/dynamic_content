@@ -1,3 +1,5 @@
+import traceback
+
 __author__ = 'Justus Adam'
 __version__ = '0.1'
 
@@ -10,6 +12,15 @@ class DCException(Exception):
         return self.message
 
     __str__ = __repr__
+
+
+class Vardump(DCException):
+    def __init__(self, request, locals, globals):
+        super().__init__('Dumping Variables')
+        self.request = request
+        self.locals = locals() if callable(locals) else locals
+        self.globals = globals() if callable(globals) else globals
+        self.stacktrace = traceback.format_exc()
 
 
 class ControllerError(DCException):

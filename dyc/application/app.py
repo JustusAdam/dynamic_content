@@ -7,7 +7,7 @@ from http import server
 from dyc.backend import orm
 from dyc import core
 from dyc.core.mvc import context as _model
-from dyc.util import typesafe, lazy, console
+from dyc.util import typesafe, lazy, console, catch_vardump
 from dyc.includes import settings, log
 from dyc import dchttp
 from dyc.errors import exceptions
@@ -45,7 +45,7 @@ class Application(threading.Thread, lazy.Loadable):
 
     @typesafe.typesafe
     def __init__(self, config:_config.ApplicationConfig=_config.DefaultConfig()):
-        if settings.RUNLEVEL == settings.RunLevel.debug:
+        if settings.RUNLEVEL == settings.RunLevel.DEBUG:
             log.write_info(message='app starting')
         super().__init__()
         lazy.Loadable.__init__(self)
@@ -55,7 +55,7 @@ class Application(threading.Thread, lazy.Loadable):
     @core.inject_method(cmw='Middleware')
     def load(self, cmw):
         print(dc_ascii_art)
-        if settings.RUNLEVEL == settings.RunLevel.debug:
+        if settings.RUNLEVEL == settings.RunLevel.DEBUG:
             log.write_info(message='loading components')
         console.cprint('Loading Components ... ')
         console.cprint('Loading Middleware ...')
@@ -66,11 +66,11 @@ class Application(threading.Thread, lazy.Loadable):
 
     @lazy.ensure_loaded
     def run(self):
-        if settings.RUNLEVEL == settings.RunLevel.debug:
+        if settings.RUNLEVEL == settings.RunLevel.DEBUG:
             log.write_info(message='starting server')
-        if settings.SERVER_TYPE == settings.ServerTypes.plain:
+        if settings.SERVER_TYPE == settings.ServerTypes.PLAIN:
             self.run_http_server_loop()
-        elif settings.SERVER_TYPE == settings.ServerTypes.wsgi:
+        elif settings.SERVER_TYPE == settings.ServerTypes.WSGI:
             self.run_wsgi_server_loop()
 
     def load_modules(self):
@@ -158,10 +158,11 @@ class Application(threading.Thread, lazy.Loadable):
         httpd.serve_forever()
 
     def set_working_directory(self):
-        if settings.RUNLEVEL == settings.RunLevel.testing: log.write_info(
+        if settings.RUNLEVEL == settings.RunLevel.TESTING: log.write_info(
             'setting working directory ({})'.format(self.config.basedir))
         os.chdir(self.config.basedir)
 
+    @catch_vardump
     @core.inject_method(cmw='Middleware', pathmap='PathMap')
     def process_request(self, request, cmw, pathmap):
         for obj in cmw:
@@ -194,7 +195,7 @@ class Application(threading.Thread, lazy.Loadable):
 <p>Stacktrace:</p>
 <code> {} </code>
 """.format(e, traceback.format_exc()) if (
-    settings.RUNLEVEL in (settings.RunLevel.testing, settings.RunLevel.debug)
+    settings.RUNLEVEL in (settings.RunLevel.TESTING, settings.RunLevel.DEBUG)
     ) else (
 """
 <p>The Page you requested could not be found, or does not support the request

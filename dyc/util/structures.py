@@ -4,7 +4,7 @@ __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-def EnumLevel(name, levels, start=0):
+def Enumeration(name, levels, start=0):
     return collections.namedtuple(
         name, levels
     )(**{b:a for a,b in enumerate(levels, start=start)})

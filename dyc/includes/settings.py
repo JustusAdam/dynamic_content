@@ -1,6 +1,7 @@
 """
-The implementation of the singleton Bootstrap object which is to consist of the very fundamental,
-non-changing, as in not changing within this version of the software, values required to make dynamic_content functional.
+The fundamental settings consisting of non-changing,
+as in not changing within this version of the software,
+values required to make dynamic_content functional.
 
 Might need to be expanded.
 """
@@ -12,13 +13,11 @@ __version__ = '0.2'
 __author__ = 'Justus Adam'
 
 
-LoggingLevel = structures.EnumLevel('logging', ('log_warnings', 'log_errors', 'throw_errors', 'throw_all'))
-RunLevel = structures.EnumLevel('logging', ('testing', 'debug', 'production'))
-PathMaps = {
-    'multitable',
-    'tree'
-    }
-ServerTypes = structures.EnumLevel('ServerTypes', ('wsgi', 'plain'))
+LoggingLevel = structures.Enumeration('Logging', ('LOG_WARNINGS', 'LOG_ERRORS', 'THROW_ERRORS', 'THROW_ALL'))
+RunLevel = structures.Enumeration('RunLevel', ('TESTING', 'DEBUG', 'PRODUCTION'))
+PathMaps = structures.Enumeration('PathMaps', ('MULTI_TABLE', 'TREE'))
+ServerTypes = structures.Enumeration('ServerTypes', ('WSGI', 'PLAIN'))
+Distributions = structures.Enumeration('Distributions', ('FULL', 'STANDARD', 'FRAMEWORK'))
 
 
 # the order in this list dictates the order in which these modules will be activated
@@ -30,8 +29,7 @@ DEFAULT_MODULES = (
     'i18n',
     'fileupload',
     'theming',
-    'node',
-    'cms'
+    'node'
     )
 FILE_DIRECTORIES = {
     'theme': (
@@ -55,12 +53,12 @@ HASH_LENGTH = 64
 SALT_LENGTH = 16
 DEFAULT_THEME = 'default_theme'
 DEFAULT_ADMIN_THEME = 'admin_theme'
-LOGGING_LEVEL = LoggingLevel.throw_all
+LOGGING_LEVEL = LoggingLevel.THROW_ALL
 SERVER = structures.ServerArguments(port=9012, host='localhost')
 DATABASE = structures.DatabaseArguments(
             'mysql', 'python_cms', True, 'python_cms', 'python_cms', 'localhost')
 BASEDIR = str(Path(__file__).parent.resolve())
-RUNLEVEL = RunLevel.testing
+RUNLEVEL = RunLevel.TESTING
 I18N_SUPPORT_ENABLED = False
 SUPPORTED_LANGUAGES = {
     'en_us': 'english (us)',
@@ -70,7 +68,7 @@ SUPPORTED_LANGUAGES = {
     }
 BASE_LANGUAGE = 'en_us'
 DEFAULT_LANGUAGE = 'en_us'
-PATHMAP_TYPE = 'MultiTable'
+PATHMAP_TYPE = PathMaps.MULTI_TABLE
 LOGFILE = 'app.log'
 MIDDLEWARE = (
     'dyc.middleware.alias.Middleware',
@@ -82,8 +80,9 @@ DEFAULT_HEADERS = {
     'Content-Type': 'text/html; charset=utf-8',
     'Cache-Control': 'no-cache'
     }
-SERVER_TYPE = ServerTypes.wsgi
+SERVER_TYPE = ServerTypes.WSGI
 PROPAGATE_ERRORS = True
+DISTRIBUTION = Distributions.STANDARD
 
 
 # delete names that are not settings

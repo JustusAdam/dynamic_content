@@ -1,7 +1,6 @@
 import functools
 import os
 import inspect
-import traceback
 from dyc.includes import log, settings
 
 
@@ -11,9 +10,9 @@ __author__ = 'Justus Adam'
 def deprecated(func):
     @functools.wraps(func)
     def wrap(*args, **kwargs):
-        if settings.LOGGING_LEVEL == settings.LoggingLevel.throw_all:
+        if settings.LOGGING_LEVEL == settings.LoggingLevel.THROW_ALL:
             raise DeprecationWarning
-        if settings.LOGGING_LEVEL == settings.LoggingLevel.log_warnings:
+        if settings.LOGGING_LEVEL == settings.LoggingLevel.LOG_WARNINGS:
             log.write_warning(function=repr(func), message='using deprecated function')
         return func(*args, **kwargs)
 

@@ -77,7 +77,6 @@ def prepare():
 
 
 def main():
-    import this
     import argparse
     from dyc.includes import settings
     from dyc.util import structures
@@ -94,18 +93,18 @@ def main():
     startargs = parser.parse_args()
 
     if startargs.runlevel:
-        settings.RUNLEVEL = getattr(settings.RunLevel,startargs.runlevel)
+        settings.RUNLEVEL = getattr(settings.RunLevel, startargs.runlevel.upper())
     if startargs.logfile:
         settings.LOGFILE = startargs.logfile
     if startargs.loglevel:
-        settings.LOGGING_LEVEL = getattr(settings.LoggingLevel,startargs.loglevel)
+        settings.LOGGING_LEVEL = getattr(settings.LoggingLevel, startargs.loglevel.upper())
     if startargs.port or startargs.host:
         settings.SERVER = type(settings.SERVER)(
             host=startargs.host if startargs.host else settings.SERVER.host,
             port=startargs.port if startargs.port else settings.SERVER.port
             )
     if startargs.server:
-        settings.SERVER_TYPE = getattr(settings.ServerTypes, startargs.server)
+        settings.SERVER_TYPE = getattr(settings.ServerTypes, startargs.server.upper())
 
     from dyc import application
 

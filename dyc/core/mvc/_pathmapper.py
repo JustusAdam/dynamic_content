@@ -3,7 +3,7 @@ from dyc import dchttp
 
 from dyc.errors import exceptions
 from .. import _component
-from dyc.util import decorators, typesafe, console
+from dyc.util import console
 from dyc.includes import settings
 
 
@@ -319,7 +319,7 @@ class MultiTableSegment(Segment):
             if p in self:
                 match = self[p]
                 if rest:
-                    if isinstance(match, Segment):
+                    if isinstance(match, MultiTableSegment):
                         try:
                             return match.segment_get_handler('/'.join(rest), method, headers)
                         except (exceptions.PathResolving,
@@ -464,7 +464,7 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
 
 _component.Component('PathMap')(
     {
-        'multitable': MultiTablePathMap,
-        'tree': TreePathMap
-    }[settings.PATHMAP_TYPE.lower()]
+        settings.PathMaps.MULTI_TABLE: MultiTablePathMap,
+        settings.PathMaps.TREE: TreePathMap
+    }[settings.PATHMAP_TYPE]
 )

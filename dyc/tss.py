@@ -97,7 +97,7 @@ def initialize():
             users.new_permission(permission)
             users.assign_permission(access_group, permission)
 
-    if settings.RUNLEVEL in [settings.RunLevel.testing, settings.RunLevel.debug]:
+    if settings.RUNLEVEL in [settings.RunLevel.TESTING, settings.RunLevel.DEBUG]:
         users.add_user(username='justus', password='???', email='justus.jonas@verizon.com', first_name='Justus', last_name='Jonas')
         users.assign_access_group('justus', ADMIN_GRP)
         users.add_user(username='peter', password='???', email='peter.shaw@verizon.com', first_name='Peter', last_name='Shaw')

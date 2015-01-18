@@ -6,7 +6,7 @@ __author__ = 'Justus Adam'
 
 
 def typesafe(func):
-    if settings.RUNLEVEL == settings.RunLevel.production: return func
+    if settings.RUNLEVEL == settings.RunLevel.PRODUCTION: return func
     spec = inspect.getfullargspec(func)
     types = spec.annotations
     def_args = spec.args

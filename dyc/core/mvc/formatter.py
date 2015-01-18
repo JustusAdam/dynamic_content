@@ -80,7 +80,3 @@ class TemplateFormatter(object):
             if view.endswith('.html')
             else view + '.html')
             )
-
-
-
-
