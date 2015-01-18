@@ -1,6 +1,7 @@
 import functools
 import os
 import inspect
+import traceback
 from dyc.includes import log, settings
 
 
@@ -224,3 +225,31 @@ def catch(exception, return_value=None, print_error=True, log_error=True):
                 return return_value
         return _inner
     return wrap
+
+
+def vardump(func):
+    @functools.wraps(func)
+    def _inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            return 'error', dict(
+                content="""
+<h3>We encountered an error</h3>
+<p>Nested Exception:</p>
+<code> {} </code>
+
+<p>Stacktrace:</p>
+<code> {} </code>
+<p>Local Variables</p>
+<code> {} </code>
+<p>Global Variables</p>
+<code> {} </code>
+""".format(e, traceback.format_exc(), locals(), globals()) if (
+    settings.RUNLEVEL in (settings.RunLevel.testing, settings.RunLevel.debug)
+    ) else (
+"""
+<p>The Page you requested could not be found, or does not support the request
+method you tried.<p>
+"""))
+    return _inner
