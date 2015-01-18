@@ -11,6 +11,9 @@ __version__ = '0.1'
 config_file_name = 'config.json'
 
 
+pagetitle = 'dynamic_content - fast, lightweight and extensible'
+
+
 def load_theme_conf(theme):
     if not isinstance(theme, Theme):
         theme = Theme.get(machine_name=theme)
@@ -44,6 +47,8 @@ def compile_stuff(model):
 
     favicon = model.theme_config.get('favicon', 'favicon.icon')
     model['meta'] = html.LinkElement(href=theme_path + favicon, rel='shortcut icon')
+
+    model.setdefault('pagetitle', pagetitle)
 
 
 def theme_model(model_map):

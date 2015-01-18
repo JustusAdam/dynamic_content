@@ -1,15 +1,13 @@
 import re
 import sys
-import collections
 
 from dyc.dchttp import response
-from dyc.util import html, decorators, config
 from .. import Component
 from dyc import dchp
 
 
 __author__ = 'Justus Adam'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 VAR_REGEX = re.compile("\{([\w_-]*?)\}")
@@ -23,14 +21,6 @@ _defaults = {
     'encoding': sys.getfilesystemencoding(),
 }
 
-_template_defaults = {
-    'header': '',
-    'sidebar_left': '',
-    'sidebar_right': '',
-    'editorial': '',
-    'navigation': ''
-}
-
 
 @Component('TemplateFormatter')
 class TemplateFormatter(object):
@@ -39,10 +29,6 @@ class TemplateFormatter(object):
         None: 'serve_document',
         'redirect': 'redirect'
     }
-
-    @decorators.multicache
-    def theme_config(self, theme):
-        return config.read_config('themes/{}/config.json'.format(theme))
 
     def __call__(self, view_name, model, request):
 
@@ -62,7 +48,6 @@ class TemplateFormatter(object):
             )
 
     def serve_document(self, model, request, view_name):
-        theme = model.theme if model.theme else _defaults['theme']
         encoding = (
             model.encoding
             if hasattr(model, 'encoding')
@@ -95,12 +80,6 @@ class TemplateFormatter(object):
             if view.endswith('.html')
             else view + '.html')
             )
-
-    def _get_my_folder(self):
-        return sys.modules[self.__class__.__module__].__file__.rsplit('/', 1)[0]
-
-    def _get_config_folder(self):
-        return self._get_my_folder()
 
 
 

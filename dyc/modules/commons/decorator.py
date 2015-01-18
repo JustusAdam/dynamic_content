@@ -1,7 +1,7 @@
 from dyc.core.mvc import context as _model
 from dyc.modules import theming
 from dyc.modules.theming import Theme
-from dyc.util import config as _config, decorators
+from dyc.util import decorators
 from dyc import core
 from . import model, page
 from dyc.util import html

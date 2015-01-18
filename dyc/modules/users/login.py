@@ -5,7 +5,7 @@ from dyc.core import mvc
 from dyc import dchttp
 from dyc.util import html
 from dyc.middleware import csrf
-from dyc.modules import commons
+from dyc.modules import commons, theming
 from . import session, users, decorator
 
 
@@ -51,6 +51,7 @@ class LoginCommonHandler(commons.Handler):
 
 @mvc.controller_function({'login'}, method=dchttp.RequestMethods.GET, query=True)
 @decorator.authorize('access login page')
+@theming.breadcrumbs
 @commons.Regions
 def login(model, query, failed=False):
     print(query)
