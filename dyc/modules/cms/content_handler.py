@@ -200,12 +200,13 @@ class FieldBasedPageContent(object):
                 input_element() if page is None else input_element(value=page.page_title))
 
 
-@decorators.apply_to_type(mvc.model.Model, return_from_decorator=True)
+@decorators.apply_to_type(mvc.model.Model, apply_in_decorator=True)
 def full_node(func):
     def _inner(model_map):
         res = func()
         theming.theme_model(model_map)
         commons.add_regions(model_map)
+        theming.attach_breadcrumbs(model_map)
         return _nodemodule.compile_nodes(res, model_map)
 
     return _inner

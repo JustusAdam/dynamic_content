@@ -121,8 +121,8 @@ def initialize():
     # add themes
 
     for name, path, enabled in [
-        ('default_theme', 'dyc/themes/default_theme', True),
-        ('admin_theme', 'dyc/themes/admin_theme', True)
+        ('default_theme', 'themes/default_theme', True),
+        ('admin_theme', 'themes/admin_theme', True)
     ]:
         core.add_theme(
             name=name,

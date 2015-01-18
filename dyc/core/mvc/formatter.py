@@ -76,7 +76,7 @@ class TemplateFormatter(object):
             or view_name is None):
             document = model['content'].encode(encoding)
         else:
-            pairing = self.initial_pairing(model, theme, request)
+            pairing = dict(model)
             pairing['request'] = request
             file = open(self.view_path(view_name, model)).read()
             document = str(dchp.evaluator.evaluate_html(file, dict(pairing)))

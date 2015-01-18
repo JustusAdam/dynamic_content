@@ -13,17 +13,23 @@ class InvisibleList(list):
         return ''.join(str(a) for a in self)
 
 
-@decorators.multicache
-def _get_template(_type):
-    r = config.read_config(pathlib.Path(__file__).parent / 'config')[_type]
-    r = r if r.endswith('.html') else r + '.html'
-    path = str(pathlib.Path(__file__).parent / r)
-
-    with open(path) as template:
-        return template.read()
-
-
 def compile_nodes(res, model):
+
+    @decorators.multicache
+    def _get_template(_type):
+        if (hasattr(model, 'theme_config')
+            and model.theme_config is not None
+            and _type in model.theme_config):
+            r = model.theme_config[_type]
+        else:
+            r = config.read_config(pathlib.Path(__file__).parent / 'config')[_type]
+        r = r if r.endswith('.html') else r + '.html'
+        path = str(pathlib.Path(__file__).parent / r)
+
+        with open(path) as template:
+            return template.read()
+
+
     if isinstance(res, dict):
         # assign title, if it exists
         if 'title' in res:
