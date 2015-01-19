@@ -1,5 +1,4 @@
-from . import content_handler
-from . import field
+from . import content_handler, field, model
 
 __author__ = 'Justus Adam'
 

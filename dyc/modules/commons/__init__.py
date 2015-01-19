@@ -3,7 +3,8 @@ from .component import register, implements
 from .base import Handler
 from .decorator import Regions, add_regions
 from dyc.modules import Module
-from dyc.modules.theming import Theme
+from dyc import modules
+theming = modules.import_module('theming')
 
 
 __author__ = 'Justus Adam'
@@ -36,7 +37,7 @@ def assign_common(common_name, region, weight, theme, render_args=None, show_tit
         machine_name=common_name,
         region=region,
         weight=weight,
-        theme=Theme.get(machine_name=theme),
+        theme=theming.Theme.get(machine_name=theme),
         render_args=render_args,
         show_title=show_title
         )

@@ -5,12 +5,14 @@ Currently uses the framework to dynamically create elements, once the basic site
 and hardened this should be refactored to remove the framework elements and store the raw html in a separate file.
 """
 from dyc.backend.database import Database
-from dyc import dchttp, tss
+from dyc import dchttp
 from dyc.util import html
 from dyc.core.mvc import decorator as mvc_dec
 from dyc.includes import settings
 from dyc.middleware import csrf
-from dyc.modules.users import admin_actions as user_actions, users
+from dyc import modules
+user_actions = modules.import_module('.admin_actions', 'users')
+users = modules.import_module('.users', 'users')
 
 
 __author__ = 'Justus Adam'

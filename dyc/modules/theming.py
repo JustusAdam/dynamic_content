@@ -14,6 +14,12 @@ config_file_name = 'config.json'
 pagetitle = 'dynamic_content - fast, lightweight and extensible'
 
 
+def get_theme(name):
+    if name in ('active', 'default_theme'):
+        name = 'default_theme'
+    return Theme.get(machine_name=name)
+
+
 def load_theme_conf(theme):
     if not isinstance(theme, Theme):
         theme = Theme.get(machine_name=theme)
@@ -110,6 +116,13 @@ def attach_breadcrumbs(model_map):
 def breadcrumbs(model_map):
     attach_breadcrumbs(model_map)
 
+
+def add_theme(name, path, enabled):
+    return Theme.create(
+        machine_name=name,
+        path=path,
+        enabled=enabled
+    )
 
 
 class Theme(orm.BaseModel):
