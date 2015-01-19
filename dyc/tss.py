@@ -3,7 +3,7 @@ This is a temporary script that will execute some queries on the database to fil
 to get some basic site setup done. It will be done in this script to avoid trying to insert into tables that have not
 been created yet.
 """
-from dyc.modules.cms.model import ContentTypes, ContentHandler
+from dyc.modules.node.model import ContentTypes, ContentHandler
 from dyc.util import console
 
 
@@ -59,7 +59,7 @@ def initialize():
 
     from dyc.modules.commons.model import MenuItem, CommonData, Menu
     from dyc.modules.commons import add_commons_config, assign_common
-    from dyc.modules.cms import model as iris_model
+    from dyc.modules.node import model as node_model
 
     from dyc.modules import admin
     from dyc.modules.users import users
@@ -213,24 +213,24 @@ def initialize():
                                          content_handler=_module,
                                          theme=core.get_theme('active'))
 
-    bodytype = iris_model.FieldType.create(machine_name='body', handler='node.text_field_handler')
+    bodytype = node_model.FieldType.create(machine_name='body', handler='node.text_field_handler')
 
-    iris_model.FieldConfig.create(
+    node_model.FieldConfig.create(
         field_type=bodytype,
         content_type=_ct1,
         weight=1)
 
     # add some initial pages
 
-    bodyfield = iris_model.field('body')
+    bodyfield = node_model.field('body')
     bodyfield.create_table()
 
-    page = iris_model.Page.create(content_type=_ct1, page_title="Welcome to \"dynamic_content\"", creator=1,
+    page = node_model.Page.create(content_type=_ct1, page_title="Welcome to \"dynamic_content\"", creator=1,
                                   published=True)
     bodyfield.create(page_id=page.oid, page_type='node',
                      content='<div><h3>Welcome to your \"dynamic_content\" installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you\'ll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div>')
 
-    page = iris_model.Page.create(content_type=_ct1, page_title='Wuhuuu', creator=1, published=True)
+    page = node_model.Page.create(content_type=_ct1, page_title='Wuhuuu', creator=1, published=True)
     bodyfield.create(page_id=page.oid,
                      content='<p>More content is good</p>',
                      page_type='node')

@@ -1,4 +1,5 @@
-from dyc.modules.cms import field
+from . import content_handler
+from . import field
 
 __author__ = 'Justus Adam'
 

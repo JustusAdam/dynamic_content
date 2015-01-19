@@ -1,5 +1,7 @@
 import pathlib
-from dyc.core.mvc import context as mvc_model
+from dyc.core.mvc.context import apply_to_context
+from dyc.modules import theming
+from dyc.modules import commons
 from dyc.util import config, decorators
 from dyc import dchp
 
@@ -56,13 +58,9 @@ def compile_nodes(res, model):
     return 'page'
 
 
-
-@decorators.apply_to_type(mvc_model.Context, apply_in_decorator=True)
-def node_process(func):
-    def wrap(model):
-
-        # get node(s)
-        res = func()
-        return compile_nodes(res, model)
-
-    return wrap
+@apply_to_context(apply_before=False, with_return=True, return_from_decorator=True)
+def node(context, res):
+    theming.theme_model(context)
+    commons.add_regions(context)
+    theming.attach_breadcrumbs(context)
+    return compile_nodes(res, context)

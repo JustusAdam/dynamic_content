@@ -82,13 +82,13 @@ def main():
     from dyc.util import structures
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--runlevel', '-r', type=str, choices=settings.RunLevel._fields)
+    parser.add_argument('--runlevel', '-r', type=str, choices=tuple(a.lower() for a in settings.RunLevel._fields))
     parser.add_argument('--logfile', type=str)
-    parser.add_argument('--loglevel', type=str, choices=settings.LoggingLevel._fields)
-    parser.add_argument('--pathmap', type=str, choices=settings.PathMaps)
+    parser.add_argument('--loglevel', type=str, choices=tuple(a.lower() for a in settings.LoggingLevel._fields))
+    parser.add_argument('--pathmap', type=str, choices=tuple(a.lower() for a in settings.PathMaps._fields))
     parser.add_argument('--port', type=int)
     parser.add_argument('--host')
-    parser.add_argument('--server', type=str, choices=settings.ServerTypes._fields)
+    parser.add_argument('--server', type=str, choices=tuple(a.lower() for a in settings.ServerTypes._fields))
 
     startargs = parser.parse_args()
 

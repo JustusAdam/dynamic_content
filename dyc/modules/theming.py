@@ -1,8 +1,8 @@
 import json
 from dyc.backend import orm
+from dyc.core.mvc.context import apply_to_context
 from dyc.includes import settings
-from dyc.util import html, decorators
-from dyc.core.mvc import context
+from dyc.util import html
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
@@ -58,7 +58,7 @@ def theme_model(model_map):
 
 
 def theme(default_theme=settings.DEFAULT_THEME):
-    @decorators.apply_to_type(context.Context, apply_before=False)
+    @apply_to_context(apply_before=False)
     def _inner(model_map):
         theme_model(model_map)
 
@@ -106,7 +106,7 @@ def attach_breadcrumbs(model_map):
         model_map['breadcrumbs'] = render_breadcrumbs(model_map.request.path)
 
 
-@decorators.apply_to_type(context.Context)
+@apply_to_context(apply_before=False)
 def breadcrumbs(model_map):
     attach_breadcrumbs(model_map)
 

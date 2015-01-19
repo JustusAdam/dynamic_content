@@ -3,13 +3,13 @@ import functools
 from dyc import core
 from dyc.core import mvc
 from dyc import dchttp
-from dyc.modules.cms.model import ContentTypes
-from dyc.util import lazy, html, decorators
-from dyc.modules import commons, wysiwyg, theming
+
+from dyc.util import lazy, html
+from dyc.modules import wysiwyg
 from dyc.modules.commons import menus as _menus
 from dyc.modules.users import decorator as user_dec
-from dyc.modules.node import node as _nodemodule
-from dyc.modules.cms import model as _model, field
+from . import model as _model, field
+from .node import node
 
 
 __author__ = 'Justus Adam'
@@ -48,12 +48,12 @@ class Compilers(lazy.Loadable):
 
     @lazy.ensure_loaded
     def __getitem__(self, item):
-        if isinstance(item, ContentTypes):
+        if isinstance(item, _model.ContentTypes):
             item = item.machine_name
         return self._dict[item]
 
     def load(self):
-        self._dict = {ct.machine_name: FieldBasedPageContent(ct) for ct in ContentTypes.select()}
+        self._dict = {ct.machine_name: FieldBasedPageContent(ct) for ct in _model.ContentTypes.select()}
 
 
 class FieldBasedPageContent(object):
@@ -203,18 +203,6 @@ class FieldBasedPageContent(object):
                 input_element() if page is None else input_element(value=page.page_title))
 
 
-@decorators.apply_to_type(mvc.context.Context, apply_in_decorator=True)
-def full_node(func):
-    def _inner(context):
-        res = func()
-        theming.theme_model(context)
-        commons.add_regions(context)
-        theming.attach_breadcrumbs(context)
-        return _nodemodule.compile_nodes(res, context)
-
-    return _inner
-
-
 @mvc.controller_class
 @core.inject('CMSCompilers')
 class CMSController(object):
@@ -223,7 +211,7 @@ class CMSController(object):
         self.compiler_map = compiler_map
 
     @mvc.controller_method({'/node/{int}', 'node/{int}/access'}, method=dchttp.RequestMethods.GET, query=False)
-    @full_node
+    @node
     def handle_compile(self, model, page_id):
         page = _model.Page.get(oid=page_id)
         return self.compiler_map[page.content_type].access(model, page)
@@ -236,7 +224,7 @@ class CMSController(object):
 
 
     @mvc.controller_method('/node/{int}/edit', method=dchttp.RequestMethods.GET, query=False)
-    @full_node
+    @node
     def handle_edit_page(self, model, page_id):
         page = _model.Page.get(oid=page_id)
         return self.compiler_map[page.content_type.machine_name].edit(model, page)
@@ -244,7 +232,7 @@ class CMSController(object):
 
     @mvc.controller_method('/node', method=dchttp.RequestMethods.GET, query=True)
     @user_dec.authorize(' '.join(['access', 'node', 'overview']))
-    @full_node
+    @node
     def overview(self, page_model, get):
         my_range = [
             int(get['from'][0]) if 'from' in get else 0,
