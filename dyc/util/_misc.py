@@ -14,7 +14,7 @@ def catch_vardump(func):
         except exceptions.Vardump as v:
             return dchttp.response.Response(
                 open('errors/error.html').read().format(
-                    v.request, v.stacktrace, v.locals, v.globals
-                ), code=200
+                    v.request, v.locals, v.globals
+                ).encode('utf-8'), code=200
             )
     return _inner

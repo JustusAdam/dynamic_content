@@ -20,7 +20,6 @@ class Vardump(DCException):
         self.request = request
         self.locals = locals() if callable(locals) else locals
         self.globals = globals() if callable(globals) else globals
-        self.stacktrace = traceback.format_exc()
 
 
 class ControllerError(DCException):
