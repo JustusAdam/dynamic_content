@@ -19,3 +19,5 @@ print_info = functools.partial(cprint, now(), '[INFO]')
 print_warning = functools.partial(cprint, now(), '[WARNING]')
 
 print_error = functools.partial(print, now(), '[ERROR]')
+
+print_debug = functools.partial(cprint, now(), '[DEBUG]')

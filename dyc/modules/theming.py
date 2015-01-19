@@ -11,7 +11,7 @@ __version__ = '0.1'
 config_file_name = 'config.json'
 
 
-pagetitle = 'dynamic_content - fast, lightweight and extensible'
+pagetitle = '<a href="/">dynamic_content - fast, lightweight and extensible</a>'
 
 
 def get_theme(name):

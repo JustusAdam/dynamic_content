@@ -70,11 +70,13 @@ typemap = {
 
 
 def handler_from_container(container, method, headers):
-    handler = getattr(
-        (container.handler
+    handler_container = (container.handler
             if isinstance(container, Segment)
-            else container),
-        method)
+            else container)
+    if handler_container is None:
+        return None
+    handler = getattr(handler_container, method)
+
     if handler is not None:
         if isinstance(handler, tuple):
             pass

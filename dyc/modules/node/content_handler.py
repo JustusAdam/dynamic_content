@@ -1,3 +1,4 @@
+from datetime import datetime
 import functools
 
 from dyc import core
@@ -123,16 +124,16 @@ class FieldBasedPageContent(object):
     def edit(self, model, page):
         return self.compile(model, page, _edit_modifier)
 
-    def process_edit(self, model, page, post):
+    def process_edit(self, model, page, query):
         if not model.client.check_permission(self.get_permission(page, 'add')):
             return None
         try:
             for one_field in self.fields:
-                if one_field.config.field_type.machine_name not in post:
-                    raise ValueError
-            for one_field in self.fields:
-                one_field.process_edit(page.oid, post[one_field.config.field_type.machine_name])
+                one_field.process_edit(page.oid, query[one_field.name][0])
             success = True
+            page.page_title = query['title'][0]
+            page.published = _publishing_flag in query
+            page.save()
         except Exception as e:
             print(e)
             success = False
@@ -141,11 +142,20 @@ class FieldBasedPageContent(object):
 
     @wysiwyg.use()
     def add(self, model):
-        pass
+        if not model.client.check_permission(self.join_permission('add')):
+            return None
 
-    def add_form(self, page):
+        node = dict(
+            editorial='',
+            content=self.add_form(),
+            title='New {} Page'.format(self.content_type)
+            )
+
+        return node
+
+    def add_form(self):
         content = self.title_options() + tuple(self.field_add())
-        return html.FormElement(*content + (self.admin_options(), ), action='/node/add', classes={'edit', self.content_type, 'edit-form'})
+        return html.FormElement(*content + (self.admin_options(), ), action='/node/add/' + self.content_type, classes={'edit', self.content_type, 'edit-form'})
 
     def edit_form(self, page):
         content = self.title_options(page) + tuple(self.field_edit(page))
@@ -175,6 +185,24 @@ class FieldBasedPageContent(object):
             if client.check_permission(self.join_permission(modifier)):
                 yield (name, '/'.join(['', self.page_type, str(page.oid), modifier]))
 
+    def process_add(self, query, client):
+        page = _model.Page.create(
+            content_type=self.dbobj,
+            creator=client.user,
+            page_title=query['title'][0],
+            published=_publishing_flag in query,
+            date_created=datetime.now(),
+            menu_item=None if query['parent-menu'][0] == 'none' else query['parent-menu'][0]
+        )
+        for field in self.fields:
+            field.process_add(
+                page_type=self.page_type,
+                page_id=page.oid,
+                content=query[field.name][0]
+            )
+
+        return ':redirect:/node/' + str(page.oid)
+
     @staticmethod
     def admin_options(page=None):
         if page is not None and page.menu_item:
@@ -188,7 +216,7 @@ class FieldBasedPageContent(object):
         publishing_options = html.TableRow(
             html.Label('Published', label_for='toggle-published'),
             html.Checkbox(element_id='toggle-published', value=_publishing_flag, name=_publishing_flag,
-                          checked=page.published), classes={'toggle-published'})
+                          checked=False if page is None else page.published), classes={'toggle-published'})
 
         return html.TableElement(publishing_options, menu_options, classes={'admin-options'})
 
@@ -247,5 +275,10 @@ class CMSController(object):
             yield node
 
     @mvc.controller_method('/node/add/{str}', method=dchttp.RequestMethods.GET, query=False)
+    @node
     def add(self, model, content_type):
-        return self.compiler_map[content_type].add()
+        return self.compiler_map[content_type].add(model)
+
+    @mvc.controller_method('/node/add/{str}', method=dchttp.RequestMethods.POST, query=True)
+    def process_add(self, model, content_type, query):
+        return self.compiler_map[content_type].process_add(query, model.request.client)

@@ -1,7 +1,7 @@
 from dyc import core
 from dyc.errors.exceptions import DCException
 from dyc import modules
-wysiwyg = modules.import_modules('wysiwyg')
+wysiwyg = modules.import_module('wysiwyg')
 from . import model
 from dyc.util import lazy, html
 
@@ -70,7 +70,7 @@ class _Field(object):
             return dict(
                 name=self.name,
                 content=wysiwyg.WysiwygTextarea(db_obj.content,
-                    classes={'field', 'field-' + self.name, 'edit'}))
+                    classes={'field', 'field-' + self.name, 'edit'}, name=self.name))
         except:
             raise
 
@@ -86,13 +86,13 @@ class _Field(object):
         return model.field(self.name).get(page_id=page_id,
             page_type=self.page_type)
 
-    def add(self, page_id):
-        try:
-            self.from_db(page_id)
-            raise FieldExists
-        except model.orm.DoesNotExist:
-            return dict(name=self.name, content=wysiwyg.WysiwygTextarea(
-                classes={'field', 'field-' + self.name, 'edit'}))
+    def add(self):
+        return dict(name=self.name, content=wysiwyg.WysiwygTextarea(
+            classes={'field', 'field-' + self.name, 'edit'}, name=self.name))
+
+    def process_add(self, page_type, page_id, content):
+        model.field(self.name).create(content=content, page_id=page_id, page_type=page_type)
+
 
     def get_field_title(self):
         return self.name

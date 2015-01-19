@@ -1,5 +1,5 @@
 from dyc.core.mvc import context as _context
-from dyc.util import html, decorators
+from dyc.util import html
 from ._elements import WysiwygTextarea, identifier
 
 __author__ = 'Justus Adam'
@@ -19,7 +19,7 @@ def decorator_hook(model:_context.Context):
 
 
 def use(name='tinymce'):
-    @decorators.apply_to_type(_context.Context, apply_before=False)
+    @_context.apply_to_context(apply_before=False)
     def _inner(model):
         decorator_hook(model)
     return _inner
