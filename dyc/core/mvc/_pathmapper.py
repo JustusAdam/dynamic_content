@@ -159,8 +159,8 @@ class TreePathMap(PathMap):
             yield _inner(a)
 
     def add_path(self, path:str, handler):
-        console.cprint('Registering on path /{}     Handler: {}'.format(handler, handler))
         path = path[1:] if path.startswith('/') else path
+        console.cprint('Registering on path /{}     Handler: {}'.format(path, handler))
         path = self.parse_path(path)
 
         *path_segments, destination = path
@@ -426,6 +426,7 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
 
 
     def add_path(self, path:str, handler):
+        path = path[1:] if path.startswith('/') else path
         console.cprint('Registering on path /{}     Handler: {}'.format(
             path, handler))
         path_list = self.parse_path(path)

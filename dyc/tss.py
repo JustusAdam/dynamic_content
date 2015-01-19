@@ -25,7 +25,7 @@ def init_tables():
             if inspect.isclass(item) and issubclass(item, orm.Model):
                 try:
                     item.create_table()
-                    console.cprint('creating table ' + str(item._meta.db_table))
+                    # console.cprint('creating table ' + str(item._meta.db_table))
                 except Exception as e:
                     console.cprint(e)
                     log.write_error(function='create_table', message=str(e))

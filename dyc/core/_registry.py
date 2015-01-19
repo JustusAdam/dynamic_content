@@ -32,7 +32,7 @@ def get_module_conf(path:str, module):
 
 
 def activate_module(module_name):
-    print('Activating module: ' + module_name)
+    # console.cprint('Activating module: ' + module_name)
     if is_active(module_name):
         print('Module ' + module_name + ' is already active.')
         return True
@@ -117,7 +117,7 @@ def register_modules(r_modules):
 
 def register_single_module(moduleconf):
     assert isinstance(moduleconf, dict)
-    print('registering module ' + moduleconf['name'])
+    # console.cprint('registering module ' + moduleconf['name'])
     try:
         module = Module.get(machine_name=moduleconf['name'])
         if module.path != moduleconf['path']:
@@ -125,10 +125,6 @@ def register_single_module(moduleconf):
             module.save()
     except orm.DoesNotExist:
         Module.create(machine_name=moduleconf['name'], path=moduleconf['path'])
-
-
-def check_info(info):
-    return True
 
 
 def get_active_modules():
