@@ -174,7 +174,7 @@ class Application(threading.Thread, lazy.Loadable):
             res = obj.handle_request(request)
             if res is not None:
                 return res
-        raise exceptions.Vardump('', locals(), globals())
+
         model = _model.Context()
         model.client = request.client
         model.request = request
