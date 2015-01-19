@@ -2,7 +2,6 @@ import collections
 import itertools
 
 from dyc.util import html
-from dyc.modules import i18n
 from . import model
 from . import base, component
 

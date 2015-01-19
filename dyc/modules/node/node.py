@@ -1,7 +1,7 @@
 import pathlib
 from dyc.core.mvc.context import apply_to_context
-from dyc.modules import theming
-from dyc.modules import commons
+from dyc import modules
+theming, commons = modules.import_modules('theming', 'commons')
 from dyc.util import config, decorators
 from dyc import dchp
 

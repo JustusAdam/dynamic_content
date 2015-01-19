@@ -1,7 +1,8 @@
 from dyc.core import mvc
 from dyc import dchttp
 from dyc.util import html
-from dyc.modules import commons
+from dyc import modules
+commons = modules.import_module('commons')
 from .login import LOGOUT_BUTTON
 from . import users
 

@@ -1,9 +1,10 @@
 from dyc.modules import Module
-from dyc.modules.theming import Theme
+from dyc import modules
+theming = modules.import_module('theming')
 from dyc.util import time, decorators
 from dyc.backend import orm
-from dyc.modules.users import model as usersmodel
-from dyc.modules.commons import model as commonsmodel
+usersmodel = modules.import_module('.model', 'users')
+commonsmodel = modules.import_module('.model', 'commons')
 
 
 __author__ = 'Justus Adam'
@@ -19,7 +20,7 @@ class ContentTypes(orm.BaseModel):
     machine_name = orm.CharField(unique=True)
     content_handler = orm.ForeignKeyField(ContentHandler)
     display_name = orm.CharField(null=True)
-    theme = orm.ForeignKeyField(Theme)
+    theme = orm.ForeignKeyField(theming.Theme)
     description = orm.TextField(null=True)
 
 

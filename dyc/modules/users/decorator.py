@@ -1,4 +1,4 @@
-from functools import wraps
+import functools
 from dyc.core.mvc.context import Context
 from dyc.util.decorators import apply_to_type
 from dyc.errors import exceptions
@@ -17,7 +17,7 @@ def authorize(permission):
 
 def authorize_group(group):
     def wrap(func):
-        @wraps(func)
+        @functools.wraps(func)
         @apply_to_type(Context, apply_before=True)
         def inner(model):
             pass

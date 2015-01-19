@@ -2,8 +2,6 @@ import datetime
 import pathlib
 from dyc.core import mvc
 from dyc import dchttp
-from dyc.util import console
-
 
 
 @mvc.controller_function('/upload', method=dchttp.RequestMethods.post, query=['file', 'name'])

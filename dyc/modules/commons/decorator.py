@@ -1,6 +1,6 @@
 from dyc.core.mvc import context as _model
-from dyc.modules import theming
-from dyc.modules.theming import Theme
+from dyc import modules
+theming = modules.import_module('theming')
 from dyc.util import decorators
 from dyc import core
 from . import model, page
@@ -30,7 +30,7 @@ class RegionHandler:
     def get_all_commons(self, name, theme):
         region_info = model.Common.select().where(
                         model.Common.region == name,
-                        model.Common.theme == Theme.get(
+                        model.Common.theme == theming.Theme.get(
                             machine_name=theme
                             )
                         )

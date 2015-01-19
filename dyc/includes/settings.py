@@ -29,6 +29,7 @@ DEFAULT_MODULES = (
     'i18n',
     'fileupload',
     'theming',
+    'wysiwyg',
     'node'
     )
 FILE_DIRECTORIES = {

@@ -1,6 +1,7 @@
 from dyc.backend import orm
 from dyc.modules import Module
-from dyc.modules.theming import Theme
+from dyc import modules
+theming = modules.import_module('theming')
 
 __author__ = 'Justus Adam'
 
@@ -38,6 +39,6 @@ class Common(orm.BaseModel):
     machine_name = orm.CharField()
     region = orm.CharField()
     weight = orm.IntegerField(default=0)
-    theme = orm.ForeignKeyField(Theme)
+    theme = orm.ForeignKeyField(theming.Theme)
     show_title = orm.BooleanField()
     render_args = orm.CharField(null=True)

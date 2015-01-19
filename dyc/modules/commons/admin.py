@@ -1,6 +1,7 @@
 from dyc.core.mvc import decorator as mvc_decorator
 from dyc.util import html
-from dyc.modules import i18n
+from dyc import modules
+i18n = modules.import_modules('i18n')
 from dyc.middleware import csrf
 from . import model as _model, menus as _menus, decorator
 
