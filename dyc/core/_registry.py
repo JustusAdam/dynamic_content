@@ -2,7 +2,8 @@ import pathlib
 import inspect
 from dyc.backend import orm
 
-from . import model, Component
+from . import Component
+from dyc.modules import Module
 from dyc.util import config, lazy
 from dyc.includes import settings
 from dyc.util import module as _module
@@ -58,21 +59,21 @@ def init_tables(m):
 
 
 def get_module_id(module_name):
-    return model.Module.get(machine_name=module_name).id
+    return Module.get(machine_name=module_name).id
 
 
 def get_module_path(module):
-    return model.Module.get(machine_name=module).module_path
+    return Module.get(machine_name=module).module_path
 
 
 def _set_module_active(module_name):
-    a = model.Module.get(machine_name=module_name)
+    a = Module.get(machine_name=module_name)
     a.enabled = True
     a.save()
 
 
 def is_active(module_name):
-    result = model.Module.get(module_name=module_name)
+    result = Module.get(module_name=module_name)
     if result:
         return bool(result.enabled)
     else:
@@ -107,12 +108,12 @@ def register_single_module(moduleconf):
     assert isinstance(moduleconf, dict)
     print('registering module ' + moduleconf['name'])
     try:
-        module = model.Module.get(machine_name=moduleconf['name'])
+        module = Module.get(machine_name=moduleconf['name'])
         if module.path != moduleconf['path']:
             module.path = moduleconf['path']
             module.save()
     except orm.DoesNotExist:
-        model.Module.create(machine_name=moduleconf['name'], path=moduleconf['path'])
+        Module.create(machine_name=moduleconf['name'], path=moduleconf['path'])
 
 
 def check_info(info):
@@ -120,7 +121,7 @@ def check_info(info):
 
 
 def get_active_modules():
-    modules = model.Module.select().where(model.Module.enabled == True)
+    modules = Module.select().where(Module.enabled == True)
     modules = tuple(modules)
     return {item.machine_name: _module.import_by_path('dyc/' + item.path) for item in modules}
 
@@ -146,7 +147,7 @@ class Modules(dict, lazy.Loadable):
 
     @lazy.ensure_loaded
     def __getitem__(self, key):
-        if isinstance(key, model.Module):
+        if isinstance(key, Module):
             key = key.machine_name
         return super().__getitem__(key)
 

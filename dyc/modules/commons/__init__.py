@@ -2,7 +2,7 @@ from . import commons, menus, admin, model
 from .component import register, implements
 from .base import Handler
 from .decorator import Regions, add_regions
-from dyc.core import model as coremodel
+from dyc.modules import Module
 from dyc.modules.theming import Theme
 
 
@@ -20,7 +20,7 @@ def common_handler(item_type):
 
 def add_commons_config(machine_name, commons_type, handler_module, access_type=0):
     if isinstance(handler_module, str):
-        handler_module = coremodel.Module.get(machine_name=handler_module)
+        handler_module = Module.get(machine_name=handler_module)
     elif not isinstance(handler_module, (int, float)):
         raise ValueError
     model.CommonsConfig.create(

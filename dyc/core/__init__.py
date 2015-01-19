@@ -1,6 +1,7 @@
 from ._component import (component, get_component, call_component,
                         Component, inject, inject_method)
-from . import model, _registry, mvc
+from . import _registry, mvc
+from dyc.modules import Module
 from dyc.modules.theming import Theme
 
 
@@ -16,7 +17,7 @@ def add_theme(name, path, enabled=False):
 
 
 def get_module(name):
-    return model.Module.get(machine_name=name)
+    return Module.get(machine_name=name)
 
 
 def get_theme(name):

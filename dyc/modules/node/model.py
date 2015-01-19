@@ -1,4 +1,4 @@
-from dyc.core.model import Module
+from dyc.modules import Module
 from dyc.modules.theming import Theme
 from dyc.util import time, decorators
 from dyc.backend import orm

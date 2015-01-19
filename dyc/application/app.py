@@ -11,6 +11,7 @@ from dyc.util import typesafe, lazy, console, catch_vardump
 from dyc.includes import settings, log
 from dyc import dchttp
 from dyc.errors import exceptions
+from dyc import modules
 from . import config as _config
 
 
@@ -81,7 +82,9 @@ class Application(threading.Thread, lazy.Loadable):
             dyc.tss.init_tables()
             dyc.tss.initialize()
         else:
-            core.Modules.load()
+            core._registry.register_installed_modules()
+            for module in settings.DEFAULT_MODULES:
+                modules.import_module(module)
 
     def http_callback(self, request):
         return self.process_request(request)

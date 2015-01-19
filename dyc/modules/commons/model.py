@@ -1,5 +1,5 @@
 from dyc.backend import orm
-from dyc.core import model as coremodel
+from dyc.modules import Module
 from dyc.modules.theming import Theme
 
 __author__ = 'Justus Adam'
@@ -20,7 +20,7 @@ class CommonData(orm.BaseModel):
 class CommonsConfig(orm.BaseModel):
     machine_name = orm.CharField(unique=True)
     element_type = orm.CharField()
-    handler_module = orm.ForeignKeyField(coremodel.Module)
+    handler_module = orm.ForeignKeyField(Module)
     access_type = orm.IntegerField()
 
 

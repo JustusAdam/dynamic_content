@@ -3,8 +3,9 @@ import collections
 from dyc.core import mvc
 from dyc import dchttp
 from dyc.util import html
-from dyc.modules import commons
-from dyc.modules.users import decorator as user_dec
+from dyc import modules
+commons = modules.import_module('commons')
+user_dec = modules.import_module('.decorator', 'users')
 from . import model
 
 __author__ = 'Justus Adam'

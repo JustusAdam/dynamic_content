@@ -3,7 +3,7 @@ This is a temporary script that will execute some queries on the database to fil
 to get some basic site setup done. It will be done in this script to avoid trying to insert into tables that have not
 been created yet.
 """
-from dyc.modules.node.model import ContentTypes, ContentHandler
+from dyc.modules import Module
 from dyc.util import console
 
 
@@ -14,11 +14,11 @@ def init_tables():
     from dyc.includes import log
     from importlib import import_module
     from dyc.backend import orm
-    from dyc.core import Modules
     import inspect
     from dyc.includes import settings
 
-    from dyc.core import model, _registry
+    from dyc.core import _registry
+    from dyc import modules
 
     def _init_module(m):
         for item in dir(m):
@@ -31,15 +31,19 @@ def init_tables():
                     console.cprint(e)
                     log.write_error(function='create_table', message=str(e))
 
-    _init_module(model)
+    _init_module(modules)
 
     _registry.register_installed_modules()
+
+    c = {}
 
     for module in settings.DEFAULT_MODULES:
         _registry._set_module_active(module)
 
-    Modules.load()
-    for module in Modules.values():
+    for module in settings.DEFAULT_MODULES:
+        c[module] = modules.import_module(module)
+
+    for module in c.values():
         _init_module(module)
         try:
             m = import_module('.model', module.__name__)
@@ -55,8 +59,7 @@ def init_tables():
 
 
 def initialize():
-    from dyc.core import model as coremodel
-
+    from dyc.modules.node.model import ContentTypes, ContentHandler
     from dyc.modules.commons.model import MenuItem, CommonData, Menu
     from dyc.modules.commons import add_commons_config, assign_common
     from dyc.modules.node import model as node_model
@@ -251,7 +254,7 @@ def initialize():
             return n
 
 
-    modules = Handlers(lambda a: coremodel.Module.get(machine_name=a))
+    modules = Handlers(lambda a: Module.get(machine_name=a))
 
     for name, display_name in [
         ('user', 'Users')

@@ -1,13 +1,15 @@
 import functools
 
 from dyc import core
-from dyc.core import mvc
 from dyc import dchttp
-
+from dyc import modules
+from dyc.core import mvc
 from dyc.util import lazy, html
-from dyc.modules import wysiwyg
-from dyc.modules.commons import menus as _menus
-from dyc.modules.users import decorator as user_dec
+
+wysiwyg = modules.import_module('wysiwyg')
+_menus = modules.import_module('.menus', 'commons')
+user_dec = modules.import_module('.decorator', 'users')
+
 from . import model as _model, field
 from .node import node
 

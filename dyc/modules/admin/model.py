@@ -1,5 +1,5 @@
 from dyc.backend import orm
-from dyc.core import model as coremodel
+from dyc.modules import Module
 
 __author__ = 'Justus Adam'
 
@@ -24,5 +24,5 @@ class AdminPage(orm.BaseModel):
     display_name = orm.CharField()
     description = orm.TextField(null=True)
     weight = orm.IntegerField(default=0)
-    handler_module = orm.ForeignKeyField(coremodel.Module)
+    handler_module = orm.ForeignKeyField(Module)
     subcategory = orm.ForeignKeyField(Subcategory)
