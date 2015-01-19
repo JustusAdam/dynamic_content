@@ -75,7 +75,7 @@ def _set_module_active(module_name):
 def is_active(module_name):
     result = Module.get(module_name=module_name)
     if result:
-        return bool(result.enabled)
+        return result.enabled
     else:
         return False
 
@@ -86,8 +86,19 @@ def register_installed_modules():
 
 def discover_modules():
     for directory in settings.MODULES_DIRECTORIES + settings.COREMODULES_DIRECTORIES:
-        for file in filter(lambda s: (s.is_dir() or s.suffix == '.py') and not s.name.startswith('_'),
-                           pathlib.Path(directory).iterdir()):
+        path = pathlib.Path(directory)
+        if not path.exists():
+            u = input('The module directory {} does not exist yet, would you like me to create it? [Y|n]'.format(path))
+            if u.lower() in ('n', 'no'):
+                continue
+            if not path.parent.exists():
+                path.parent.mkdir()
+            path.mkdir()
+        for file in filter(
+                lambda s: ((s.is_dir()
+                            or s.suffix == '.py')
+                           and not s.name.startswith('_')),
+                path.iterdir()):
             yield {
                 'name': str(file.stem),
                 'path': str(file)
