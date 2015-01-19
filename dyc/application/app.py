@@ -58,10 +58,10 @@ class Application(threading.Thread, lazy.Loadable):
         print(dc_ascii_art)
         if settings.RUNLEVEL == settings.RunLevel.DEBUG:
             log.write_info(message='loading components')
-        console.cprint('Loading Components ... ')
-        console.cprint('Loading Middleware ...')
+        console.print_info('Loading Components ... ')
+        console.print_info('Loading Middleware ...')
         cmw.load(settings.MIDDLEWARE)
-        console.cprint('Loaging Modules ...')
+        console.print_info('Loading Modules ...')
         self.load_modules()
         cmw.finalize()
 
@@ -136,7 +136,8 @@ class Application(threading.Thread, lazy.Loadable):
             self.config.wsgi_request_handler
         )
         httpd.set_app(self.wsgi_callback)
-        console.cprint(
+        console.cprint('\n\n')
+        console.print_info(
             'Starting WSGI Server on    Port: {}     and Host: {}'.format(
                 self.config.server_arguments.port,
                 self.config.server_arguments.host
@@ -155,7 +156,8 @@ class Application(threading.Thread, lazy.Loadable):
             self.config.server_arguments.port
             )
         httpd = self.config.server_class(server_address, request_handler)
-        console.cprint('\n\n Starting Server on host: {}, port:'.format(
+        console.cprint('\n\n')
+        console.print_info('Starting Server on host: {}, port:'.format(
             self.config.server_arguments.host,
             self.config.server_arguments.port))
         httpd.serve_forever()

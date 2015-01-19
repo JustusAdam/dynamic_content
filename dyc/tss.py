@@ -27,7 +27,7 @@ def init_tables():
                     item.create_table()
                     # console.cprint('creating table ' + str(item._meta.db_table))
                 except Exception as e:
-                    console.cprint(e)
+                    console.print_error(e)
                     log.write_error(function='create_table', message=str(e))
 
     _init_module(modules)
@@ -48,7 +48,7 @@ def init_tables():
             m = import_module('.model', module.__name__)
             _init_module(m)
         except Exception as error:
-            console.cprint(error)
+            console.print_error(error)
             log.write_error(function='init_tables', message=str(error))
 
     from dyc.middleware import alias, csrf

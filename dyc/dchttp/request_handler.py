@@ -82,7 +82,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             return function
 
     def process_http_error(self, error, response=None):
-        console.cprint(error)
+        console.print_error(error)
         if error.code >= 400:
             if error.reason:
                 log.write_warning(message='HTTPError, code: {}, message: '.format(error.code, error.reason))

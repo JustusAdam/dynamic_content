@@ -89,7 +89,7 @@ class PathMap(Segment):
     """Abstract Baseclass for path mappers"""
     def __init__(self, **kwargs):
         super().__init__('/', **kwargs)
-        console.cprint('Utilizing PathMapType:   ' + self.__class__.__name__)
+        console.print_info('Utilizing PathMapType:   ' + self.__class__.__name__)
         self._controller_classes = []
 
     def __iadd__(self, other):
@@ -160,7 +160,7 @@ class TreePathMap(PathMap):
 
     def add_path(self, path:str, handler):
         path = path[1:] if path.startswith('/') else path
-        console.cprint('Registering on path /{}     Handler: {}'.format(path, handler))
+        console.print_info('Registering on path /{}     Handler: {}'.format(path, handler))
         path = self.parse_path(path)
 
         *path_segments, destination = path
@@ -427,8 +427,8 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
 
     def add_path(self, path:str, handler):
         path = path[1:] if path.startswith('/') else path
-        console.cprint('Registering on path /{}     Handler: {}'.format(
-            path, handler))
+        console.print_info('Registering on path /{}     Handler: {}'.format(
+            path, handler.function))
         path_list = self.parse_path(path)
         typeargs = tuple(filter(lambda a: (isinstance(a, type)
             or isinstance(a, TypeArg) or a == '**'), path_list))

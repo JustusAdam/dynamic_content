@@ -7,7 +7,7 @@ __version__ = '0.1'
 
 
 def proxy_db():
-    console.cprint('Current RunLevel:  ', settings.RUNLEVEL,  '  ->  ', settings.RunLevel[settings.RUNLEVEL])
+    console.print_info('Current RunLevel:  ', settings.RUNLEVEL,  '  ->  ', settings.RunLevel[settings.RUNLEVEL])
     if settings.RUNLEVEL in [settings.RunLevel.TESTING, settings.RunLevel.DEBUG]:
         db = SqliteDatabase(':memory:')
         db.connect()
