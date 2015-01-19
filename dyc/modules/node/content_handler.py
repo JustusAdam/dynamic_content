@@ -155,20 +155,31 @@ class FieldBasedPageContent(object):
 
     def add_form(self):
         content = self.title_options() + tuple(self.field_add())
-        return html.FormElement(*content + (self.admin_options(), ), action='/node/add/' + self.content_type, classes={'edit', self.content_type, 'edit-form'})
+        return html.FormElement(
+            *content + (self.admin_options(), ),
+            action='/node/add/' + self.content_type,
+            classes={'edit', self.content_type, 'edit-form'}
+            )
 
     def edit_form(self, page):
         content = self.title_options(page) + tuple(self.field_edit(page))
-        return html.FormElement(*content + (self.admin_options(page), ), action='/node/' + str(page.oid) + '/edit', classes={'edit', self.content_type, 'edit-form'})
+        return html.FormElement(
+            *content + (self.admin_options(page), ),
+            action='/node/' + str(page.oid) + '/edit',
+            classes={'edit', self.content_type, 'edit-form'}
+            )
 
     def editorial(self, page, client):
         l = self.editorial_list(page, client)
         if l:
             return html.List(
-                *[html.ContainerElement(name, html_type='a', classes={'editorial-link'}, additional={'href': link}) for
+                *[html.ContainerElement(name,
+                    html_type='a',
+                    classes={'editorial-link'},
+                    additional={'href': link}) for
                   name, link in l],
                 classes={'editorial-list'}
-            )
+                )
         else:
             return ''
 
@@ -212,7 +223,12 @@ class FieldBasedPageContent(object):
         else:
             m_c = _menus.menu_chooser('parent-menu')
         menu_options = html.TableRow(
-            html.Label('Menu Parent', label_for='parent-menu'), m_c, classes={'menu-parent'})
+            html.Label(
+                'Menu Parent',
+                label_for='parent-menu'),
+            m_c,
+            classes={'menu-parent'}
+            )
         publishing_options = html.TableRow(
             html.Label('Published', label_for='toggle-published'),
             html.Checkbox(element_id='toggle-published', value=_publishing_flag, name=_publishing_flag,
