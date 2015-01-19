@@ -8,6 +8,7 @@ from dyc.util import console
 
 
 __author__ = 'Justus Adam'
+__version__ = '0.2.1'
 
 
 def init_tables():

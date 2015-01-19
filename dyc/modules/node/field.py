@@ -7,6 +7,8 @@ from dyc.util import lazy, html
 
 
 __author__ = 'Justus Adam'
+__version__ = '0.2'
+
 
 DEFAULT_FIELD_HANDLER_NAME = 'FieldHandler'
 

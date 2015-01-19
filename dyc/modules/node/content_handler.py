@@ -16,6 +16,8 @@ from .node import node
 
 
 __author__ = 'Justus Adam'
+__version__ = '0.2.1'
+
 
 _access_modifier = 'access'
 _edit_modifier = 'edit'
