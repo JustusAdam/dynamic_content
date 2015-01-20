@@ -5,14 +5,14 @@ from dyc import core
 from dyc import dchttp
 from dyc import modules
 from dyc.core import mvc
-from dyc.util import lazy, html
+from dyc.util import lazy, html, clean
 
 wysiwyg = modules.import_module('wysiwyg')
 _menus = modules.import_module('.menus', 'commons')
 user_dec = modules.import_module('.decorator', 'users')
 
 from . import model as _model, field
-from .node import node
+from .node import make_node
 
 
 __author__ = 'Justus Adam'
@@ -133,7 +133,7 @@ class FieldBasedPageContent(object):
             for one_field in self.fields:
                 one_field.process_edit(page.oid, query[one_field.name][0])
             success = True
-            page.page_title = query['title'][0]
+            page.page_title = clean.remove_dangerous_tags(query['title'][0])
             page.published = _publishing_flag in query
             page.save()
         except Exception as e:
@@ -202,7 +202,7 @@ class FieldBasedPageContent(object):
         page = _model.Page.create(
             content_type=self.dbobj,
             creator=client.user,
-            page_title=query['title'][0],
+            page_title=clean.remove_dangerous_tags(query['title'][0]),
             published=_publishing_flag in query,
             date_created=datetime.now(),
             menu_item=None if query['parent-menu'][0] == 'none' else query['parent-menu'][0]
@@ -259,7 +259,7 @@ class CMSController(object):
         self.compiler_map = compiler_map
 
     @mvc.controller_method({'/node/{int}', 'node/{int}/access'}, method=dchttp.RequestMethods.GET, query=False)
-    @node
+    @make_node
     def handle_compile(self, model, page_id):
         page = _model.Page.get(oid=page_id)
         return self.compiler_map[page.content_type].access(model, page)
@@ -272,7 +272,7 @@ class CMSController(object):
 
 
     @mvc.controller_method('/node/{int}/edit', method=dchttp.RequestMethods.GET, query=False)
-    @node
+    @make_node
     def handle_edit_page(self, model, page_id):
         page = _model.Page.get(oid=page_id)
         return self.compiler_map[page.content_type.machine_name].edit(model, page)
@@ -280,7 +280,7 @@ class CMSController(object):
 
     @mvc.controller_method('/node', method=dchttp.RequestMethods.GET, query=True)
     @user_dec.authorize(' '.join(['access', 'node', 'overview']))
-    @node
+    @make_node
     def overview(self, page_model, get):
         my_range = [
             int(get['from'][0]) if 'from' in get else 0,
@@ -293,7 +293,7 @@ class CMSController(object):
             yield node
 
     @mvc.controller_method('/node/add/{str}', method=dchttp.RequestMethods.GET, query=False)
-    @node
+    @make_node
     def add(self, model, content_type):
         return self.compiler_map[content_type].add(model)
 

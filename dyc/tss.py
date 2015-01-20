@@ -135,13 +135,6 @@ def initialize():
              ('setup', '/setup', True, 'welcome', 1)
          )
         ),
-        ('admin_menu', True,
-         (
-             ('<root>', '', True, None, 1),
-             ('Users', '/admin/users', True, '<root>', 1),
-             ('Permission Management', '/admin/users/permissions', True, 'Users', 1)
-         )
-        )
 
     ):
         menu = commons.model.Menu.create(
@@ -172,7 +165,7 @@ def initialize():
         ('login', 'login', 'users', 1),  # login common
         ('user_information', 'user_information', 'users', 1),  # user information common
         # from admin
-        (admin_menu_common, 'menu', 'admin', 1)
+        (admin_menu_common, 'admin_menu', 'admin', 1)
     ):
         commons.add_commons_config(machine_name=machine_name,
                            commons_type=type_,

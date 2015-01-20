@@ -1,4 +1,5 @@
 from . import content_handler, field, model
+from .node import make_node
 
 __author__ = 'Justus Adam'
 

@@ -29,7 +29,6 @@ ul {
     padding: 10px 15px;
     margin: 1px;
     background-color: white;
-    color: white;
   }
   a:hover {
     @include header-link-animation;
@@ -187,7 +186,6 @@ a.breadcrumb:visited {
   clear: both;
   margin: 20px;
   display: block;
-  font-size: normal;
 }
 
 table.admin-table {

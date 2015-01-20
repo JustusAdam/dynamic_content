@@ -4,7 +4,7 @@ from dyc.core import mvc
 from dyc import dchttp
 from dyc.util import html
 from dyc import modules
-commons = modules.import_module('commons')
+node, commons = modules.import_modules('node', 'commons')
 user_dec = modules.import_module('.decorator', 'users')
 from . import model
 
@@ -15,17 +15,19 @@ ADMIN_PATH = '/admin'
 
 @mvc.controller_function('admin', method=dchttp.RequestMethods.GET, query=False)
 @user_dec.authorize('access admin pages')
-@commons.Regions
+@node.make_node
 def overview(modelmap):
 
     modelmap.pageclasses = {'admin-menu', 'overview', 'admin-page'}
-    modelmap['title'] = 'Website Administration'
     modelmap.theme = 'admin_theme'
 
     tree = order_tree(model.Category.select(), Category.from_db(model.Subcategory.select()))
 
-    modelmap['content'] = render_categories(*tree)
-    return 'page'
+    new_node = dict(
+        title='Website Administration',
+        content=render_categories(*tree)
+    )
+    return new_node
 
 
 def render_categories(*subcategories, basepath=ADMIN_PATH, classes=set()):
@@ -51,19 +53,19 @@ def order_tree(parents, children):
             for parent in parents]
 
 
-@commons.implements('admin')
+@commons.implements('admin_menu')
 class OverviewCommon(commons.Handler):
     source_table = 'admin'
 
     def get_content(self, conf, render_args, client):
-        subcategories = [a.render(ADMIN_PATH) for a in order_tree(model.Category.select(),
+        subcategories = [str(a.render(ADMIN_PATH)) for a in order_tree(model.Category.select(),
                   [Category(child.machine_name, child.display_name, child.category, None) for child in
                 model.Subcategory.select()])]
-        return subcategories
+        return ''.join(subcategories)
 
 
 @mvc.controller_function('admin/{str}', method=dchttp.RequestMethods.GET, query=False)
-@commons.Regions
+@node.make_node
 def category(modelmap, name):
     modelmap.pageclasses = {'admin-menu', 'category'}
     modelmap.theme = 'admin_theme'
@@ -74,14 +76,16 @@ def category(modelmap, name):
 
     tree = order_tree([parent], children)
 
-    modelmap['title'] = parent.display_name if parent.display_name else parent.machine_name
-    modelmap['content'] = render_categories(*tree)
+    new_node = dict(
+        title=parent.display_name if parent.display_name else parent.machine_name,
+        content=render_categories(*tree)
+        )
 
-    return 'page'
+    return new_node
 
 
 @mvc.controller_function('admin/{str}/{str}', method=dchttp.RequestMethods.GET, query=False)
-@commons.Regions
+@node.make_node
 def subcategory(modelmap, category_name,  name):
     modelmap.pageclasses = {'admin-menu', 'subcategory'}
     modelmap.theme = 'admin_theme'
@@ -92,10 +96,11 @@ def subcategory(modelmap, category_name,  name):
 
     tree = order_tree([parent], children)
 
-    modelmap['title'] = parent.display_name if parent.display_name else parent.machine_name
-    modelmap['content'] = render_categories(*tree, basepath='{}/{}'.format(ADMIN_PATH, category_name))
+    new_node = dict(title=parent.display_name if parent.display_name else parent.machine_name,
+        content=render_categories(*tree, basepath='{}/{}'.format(ADMIN_PATH, category_name))
+        )
 
-    return 'page'
+    return new_node
 
 
 @mvc.controller_function('admin/{str}/{str}/{str}', method=dchttp.RequestMethods.GET, query=False)

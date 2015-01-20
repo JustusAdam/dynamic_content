@@ -22,11 +22,14 @@ def compile_nodes(res, model):
         if (hasattr(model, 'theme_config')
             and model.theme_config is not None
             and _type in model.theme_config):
-            r = model.theme_config[_type]
+            r = model.theme_config['path'] + '/' + model.theme_config[_type]
         else:
-            r = config.read_config(pathlib.Path(__file__).parent / 'config')[_type]
+            basepath = pathlib.Path(__file__).parent
+            r = config.read_config(basepath / 'config')[_type]
+            r = str(basepath / r)
+
         r = r if r.endswith('.html') else r + '.html'
-        path = str(pathlib.Path(__file__).parent / r)
+        path = str(pathlib.Path(r))
 
         with open(path) as template:
             return template.read()
@@ -59,7 +62,7 @@ def compile_nodes(res, model):
 
 
 @apply_to_context(apply_before=False, with_return=True, return_from_decorator=True)
-def node(context, res):
+def make_node(context, res):
     theming.theme_model(context)
     commons.add_regions(context)
     theming.attach_breadcrumbs(context)
