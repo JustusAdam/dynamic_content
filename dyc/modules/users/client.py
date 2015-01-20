@@ -1,3 +1,4 @@
+from dyc.util import console
 from . import users
 
 
@@ -17,5 +18,5 @@ class Information(object):
     def check_permission(self, permission):
         result = users.check_permission(self.access_group, permission)
         if not result:
-            print('Failed to authorize for ', permission)
+            console.print_warning('Failed to authorize for ', permission)
         return result

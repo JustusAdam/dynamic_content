@@ -54,7 +54,7 @@ def init_tables(m):
                 item.create_table()
             except Exception as e:
                 print(e)
-                log.write_error(function='create_table', message=str(e))
+                log.write_error('create_table:', e)
 
 
 def get_module_id(module_name):

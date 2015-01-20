@@ -24,7 +24,7 @@ _default_view = 'indexdir'
 
 def handle(request):
     path_split = request.path.split('/')
-    print(request.path)
+    # print(request.path)
     path_split = path_split[1:] if path_split[0] == '' else path_split
     trailing_slash, path_split = (True, path_split[:-1]) if path_split[-1] == '' else (False, path_split)
     if len(path_split) < 1:

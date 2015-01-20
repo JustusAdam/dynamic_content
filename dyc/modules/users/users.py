@@ -88,12 +88,12 @@ def check_permission(aid, permission, strict=False):
 
 def assign_permission(aid, permission):
     if aid == CONTROL_GROUP:
-        log.write_error('users', 'permissions', 'assign_permission', 'cannot assign permissions to control group')
+        log.write_error('users, permissions, assign_permission: cannot assign permissions to control group')
     elif check_permission(aid=aid, permission=permission, strict=True):
-        log.write_warning('users', 'permissions', 'assign_permission',
+        log.write_warning('in users, permissions, assign_permission:',
                           'access group ' + str(aid) + ' already owns permission ' + permission)
     elif not check_permission(aid=CONTROL_GROUP, permission=permission):
-        log.write_warning('users', 'permissions', 'assign_permission',
+        log.write_warning('users, permissions, assign_permission:',
                           'permission ' + permission + ' does not exist yet')
         new_permission(permission)
         assign_permission(aid, permission)
@@ -103,7 +103,7 @@ def assign_permission(aid, permission):
 
 def revoke_permission(aid, permission):
     if aid == CONTROL_GROUP:
-        log.write_error('users', 'permissions', 'assign_permission', 'cannot revoke permissions from control group')
+        log.write_error('users, permissions, assign_permission: cannot revoke permissions from control group')
     else:
         model.AccessGroupPermission(oid=aid, permission=permission).delete_instance()
 

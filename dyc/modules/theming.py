@@ -73,11 +73,15 @@ def compile_stuff(context):
         context['scripts'] = InvisibleList(theme_scripts)
 
     favicon = context.theme_config.get('favicon', 'favicon.icon')
-    theme_meta = html.LinkElement(href=theme_path + favicon, rel='shortcut icon')
+    apple_icon = context.theme_config.get('apple-touch-icon', 'favicon.icon')
+    theme_meta = (
+        html.LinkElement(href=theme_path + favicon, rel='shortcut icon'),
+        html.LinkElement(href=theme_path + apple_icon, rel='apple-touch-icon-precomposed')
+    )
     if 'meta' in context:
         context['meta'] += [theme_meta]
     else:
-        context['meta'] = InvisibleList((theme_meta, ))
+        context['meta'] = InvisibleList(theme_meta)
 
     context.setdefault('pagetitle', pagetitle)
 

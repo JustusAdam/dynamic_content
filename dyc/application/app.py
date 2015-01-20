@@ -47,7 +47,7 @@ class Application(threading.Thread, lazy.Loadable):
     @typesafe.typesafe
     def __init__(self, config:_config.ApplicationConfig=_config.DefaultConfig()):
         if settings.RUNLEVEL == settings.RunLevel.DEBUG:
-            log.write_info(message='app starting')
+            log.write_info('app starting')
         super().__init__()
         lazy.Loadable.__init__(self)
         self.config = config
@@ -57,7 +57,7 @@ class Application(threading.Thread, lazy.Loadable):
     def load(self, cmw):
         print(dc_ascii_art)
         if settings.RUNLEVEL == settings.RunLevel.DEBUG:
-            log.write_info(message='loading components')
+            log.write_info('loading components')
         console.print_info('Loading Components ... ')
         console.print_info('Loading Middleware ...')
         cmw.load(settings.MIDDLEWARE)
@@ -68,7 +68,7 @@ class Application(threading.Thread, lazy.Loadable):
     @lazy.ensure_loaded
     def run(self):
         if settings.RUNLEVEL == settings.RunLevel.DEBUG:
-            log.write_info(message='starting server')
+            log.write_info('starting server')
         if settings.SERVER_TYPE == settings.ServerTypes.PLAIN:
             self.run_http_server_loop()
         elif settings.SERVER_TYPE == settings.ServerTypes.WSGI:

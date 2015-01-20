@@ -14,7 +14,7 @@ def deprecated(func):
         if settings.LOGGING_LEVEL == settings.LoggingLevel.THROW_ALL:
             raise DeprecationWarning
         if settings.LOGGING_LEVEL == settings.LoggingLevel.LOG_WARNINGS:
-            log.write_warning(function=repr(func), message='using deprecated function')
+            log.write_warning('in', func, ':', 'using deprecated function')
         return func(*args, **kwargs)
 
     return wrap
@@ -221,7 +221,7 @@ def catch(exception, return_value=None, print_error=True, log_error=True):
                 if print_error:
                     print(e)
                 if log_error:
-                    log.write_error(function=repr(func), message=repr(e))
+                    log.write_error('in', func, 'with exception:', e)
                 return return_value
         return _inner
     return wrap
