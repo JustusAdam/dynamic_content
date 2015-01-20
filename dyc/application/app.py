@@ -1,3 +1,6 @@
+from dyc.util import console
+console.print_name()
+
 import functools
 import os
 import threading
@@ -7,8 +10,8 @@ from http import server
 from dyc.backend import orm
 from dyc import core
 from dyc.core.mvc import context as _model
-from dyc.util import typesafe, lazy, console, catch_vardump
 from dyc.includes import settings, log
+from dyc.util import typesafe, lazy, catch_vardump
 from dyc import dchttp
 from dyc.errors import exceptions
 from dyc import modules
@@ -16,15 +19,7 @@ from . import config as _config
 
 
 
-dc_ascii_art = """
-       __                            _                           __             __
-  ____/ /_  ______  ____ _____ ___  (_)____    _________  ____  / /____  ____  / /_
- / __  / / / / __ \/ __ `/ __ `__ \/ / ___/   / ___/ __ \/ __ \/ __/ _ \/ __ \/ __/
-/ /_/ / /_/ / / / / /_/ / / / / / / / /__    / /__/ /_/ / / / / /_/  __/ / / / /_
-\__,_/\__, /_/ /_/\__,_/_/ /_/ /_/_/\___/____\___/\____/_/ /_/\__/\___/_/ /_/\__/
-     /____/                            /_____/
 
-"""
 
 ## dynamic_content ascii art base generated with http://patorjk.com/software/taag/
 
@@ -55,7 +50,6 @@ class Application(threading.Thread, lazy.Loadable):
 
     @core.inject_method(cmw='Middleware')
     def load(self, cmw):
-        print(dc_ascii_art)
         if settings.RUNLEVEL == settings.RunLevel.DEBUG:
             log.write_info('loading components')
         console.print_info('Loading Components ... ')

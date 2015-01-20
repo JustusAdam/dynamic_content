@@ -36,7 +36,7 @@ __version__ = '0.2.3'
 
 def prepare():
 
-    print(python_logo_ascii_art)
+    # print(python_logo_ascii_art)
 
     import os
     import pathlib
