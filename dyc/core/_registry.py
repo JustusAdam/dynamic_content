@@ -4,9 +4,8 @@ from dyc.backend import orm
 
 from . import Component
 from dyc.modules import Module
-from dyc.util import config, lazy
+from dyc.util import config, lazy, console, module as _module
 from dyc.includes import settings
-from dyc.util import module as _module
 from dyc.includes import log
 
 
@@ -34,12 +33,12 @@ def get_module_conf(path:str, module):
 def activate_module(module_name):
     # console.cprint('Activating module: ' + module_name)
     if is_active(module_name):
-        print('Module ' + module_name + ' is already active.')
+        console.print_error('Module ' + module_name + ' is already active.')
         return True
     path = get_module_path(module_name)
     m = _module.import_by_path('dyc/' + path)
     if path is None:
-        print('Module ' + module_name + ' could not be activated')
+        console.print_error('Module ' + module_name + ' could not be activated')
         return False
     module_conf = get_module_conf('dyc/' + path, m)
     module_conf['path'] = path

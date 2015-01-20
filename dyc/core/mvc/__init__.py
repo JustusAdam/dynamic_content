@@ -11,7 +11,7 @@ __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-__all__ = [
+__all__ = (
     'Autoconf',
     'controller_method',
     'controller_function',
@@ -19,4 +19,4 @@ __all__ = [
     'Config',
     'DefaultConfig',
     'controller_class'
-    ]
+    )

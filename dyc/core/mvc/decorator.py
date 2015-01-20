@@ -118,8 +118,11 @@ class RestControlFunction(ControlFunction):
         return model
 
 
-def _controller_function(class_, value, *, method=dchttp.RequestMethods.GET,
-    headers=None, query=False, **options):
+def _controller_function(class_, value, *,
+        method=dchttp.RequestMethods.GET,
+        headers=None,
+        query=False,
+        **options):
     def wrap(func):
         wrapped = class_(func, value, method, query, headers, options)
         for val in wrapped.value:
@@ -129,8 +132,11 @@ def _controller_function(class_, value, *, method=dchttp.RequestMethods.GET,
 
 
 
-def _controller_method(class_, value, *, method=dchttp.RequestMethods.GET,
-    headers=None, query=False, **options):
+def _controller_method(class_, value, *,
+        method=dchttp.RequestMethods.GET,
+        headers=None,
+        query=False,
+        **options):
     def wrap(func):
         wrapped = class_(func, value, method, query, headers, options)
         return wrapped

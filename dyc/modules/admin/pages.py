@@ -15,7 +15,7 @@ ADMIN_PATH = '/admin'
 
 @mvc.controller_function('admin', method=dchttp.RequestMethods.GET, query=False)
 @user_dec.authorize('access admin pages')
-@node.make_node
+@node.make_node()
 def overview(modelmap):
 
     modelmap.pageclasses = {'admin-menu', 'overview', 'admin-page'}
@@ -65,7 +65,7 @@ class OverviewCommon(commons.Handler):
 
 
 @mvc.controller_function('admin/{str}', method=dchttp.RequestMethods.GET, query=False)
-@node.make_node
+@node.make_node()
 def category(modelmap, name):
     modelmap.pageclasses = {'admin-menu', 'category'}
     modelmap.theme = 'admin_theme'
@@ -85,7 +85,7 @@ def category(modelmap, name):
 
 
 @mvc.controller_function('admin/{str}/{str}', method=dchttp.RequestMethods.GET, query=False)
-@node.make_node
+@node.make_node()
 def subcategory(modelmap, category_name,  name):
     modelmap.pageclasses = {'admin-menu', 'subcategory'}
     modelmap.theme = 'admin_theme'

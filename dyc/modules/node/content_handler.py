@@ -259,7 +259,7 @@ class CMSController(object):
         self.compiler_map = compiler_map
 
     @mvc.controller_method({'/node/{int}', 'node/{int}/access'}, method=dchttp.RequestMethods.GET, query=False)
-    @make_node
+    @make_node()
     def handle_compile(self, model, page_id):
         page = _model.Page.get(oid=page_id)
         return self.compiler_map[page.content_type].access(model, page)
@@ -272,7 +272,7 @@ class CMSController(object):
 
 
     @mvc.controller_method('/node/{int}/edit', method=dchttp.RequestMethods.GET, query=False)
-    @make_node
+    @make_node()
     def handle_edit_page(self, model, page_id):
         page = _model.Page.get(oid=page_id)
         return self.compiler_map[page.content_type.machine_name].edit(model, page)
@@ -280,7 +280,7 @@ class CMSController(object):
 
     @mvc.controller_method('/node', method=dchttp.RequestMethods.GET, query=True)
     @user_dec.authorize(' '.join(['access', 'node', 'overview']))
-    @make_node
+    @make_node()
     def overview(self, page_model, get):
         my_range = [
             int(get['from'][0]) if 'from' in get else 0,
@@ -293,7 +293,7 @@ class CMSController(object):
             yield node
 
     @mvc.controller_method('/node/add/{str}', method=dchttp.RequestMethods.GET, query=False)
-    @make_node
+    @make_node()
     def add(self, model, content_type):
         return self.compiler_map[content_type].add(model)
 

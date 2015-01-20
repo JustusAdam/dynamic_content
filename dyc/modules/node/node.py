@@ -1,9 +1,10 @@
 import pathlib
-from dyc.core.mvc.context import apply_to_context
 from dyc import modules
-theming, commons = modules.import_modules('theming', 'commons')
-from dyc.util import config, decorators
 from dyc import dchp
+from dyc.dchttp import response
+from dyc.util import config, decorators
+from dyc.core import mvc
+theming, commons = modules.import_modules('theming', 'commons')
 
 
 __author__ = 'Justus Adam'
@@ -54,6 +55,8 @@ def compile_nodes(res, model):
         content = InvisibleList(
             dchp.evaluator.evaluate_html(template, a) for a in res
             )
+    elif isinstance(res, response.Response):
+        return res
     else:
         raise AttributeError
 
@@ -61,9 +64,13 @@ def compile_nodes(res, model):
     return 'page'
 
 
-@apply_to_context(apply_before=False, with_return=True, return_from_decorator=True)
-def make_node(context, res):
-    theming.theme_model(context)
-    commons.add_regions(context)
-    theming.attach_breadcrumbs(context)
-    return compile_nodes(res, context)
+
+def make_node(*, theme='default_theme'):
+    @mvc.context.apply_to_context(apply_before=False, with_return=True, return_from_decorator=True)
+    def _inner(context, res):
+        context.theme = theme
+        theming.theme_model(context)
+        commons.add_regions(context)
+        theming.attach_breadcrumbs(context)
+        return compile_nodes(res, context)
+    return _inner
