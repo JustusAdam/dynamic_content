@@ -25,13 +25,13 @@ def now():
 
 cprint = print if settings.RUNLEVEL in (settings.RunLevel.DEBUG, settings.RunLevel.TESTING) else lambda *args, **kwargs: None
 
-print_info = functools.partial(cprint, csi + '30;2m', now(), '[INFO]   ')
+print_info = functools.partial(cprint, csi + '30;2m' + str(now()), '[INFO]   ')
 
-print_warning = functools.partial(cprint, csi + '33;22m', now(), '[WARNING]')
+print_warning = functools.partial(cprint, csi + '33;22m' + str(now()), '[WARNING]')
 
-print_error = functools.partial(print, csi + '31;1m', now(), '[ERROR]  ')
+print_error = functools.partial(print, csi + '31;1m' + str(now()), '[ERROR]  ')
 
-print_debug = functools.partial(cprint, '30;22m', now(), '[DEBUG]  ')
+print_debug = functools.partial(cprint, '30;22m' + str(now()), '[DEBUG]  ')
 
 
 dc_ascii_art = """
