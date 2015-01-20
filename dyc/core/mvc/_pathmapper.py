@@ -162,7 +162,8 @@ class TreePathMap(PathMap):
 
     def add_path(self, path:str, handler):
         path = path[1:] if path.startswith('/') else path
-        console.print_info('Registering on path /{}     Handler: {}'.format(path, handler))
+        console.print_info('Registering on path {csi}4m/{path}{csi}24m     Handler: {module}.{csi}1m{function}'.format(
+            path=path, module=handler.function.__module__, csi=console.csi, function=handler.function.__name__))
         path = self.parse_path(path)
 
         *path_segments, destination = path
