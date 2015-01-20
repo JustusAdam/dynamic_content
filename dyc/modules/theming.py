@@ -14,6 +14,20 @@ config_file_name = 'config.json'
 pagetitle = '<a href="/">dynamic_content - fast, lightweight and extensible</a>'
 
 
+class InvisibleList(list):
+    def __iadd__(self, other):
+        self.extend(other)
+        return self
+
+    def __add__(self, other):
+        a = InvisibleList(self)
+        a.extend(other)
+        return a
+
+    def __str__(self):
+        return ''.join(str(a) for a in self)
+
+
 def get_theme(name):
     if name in ('active', 'default_theme'):
         name = 'default_theme'
@@ -36,25 +50,36 @@ def attach_theme_conf(model, default_theme=settings.DEFAULT_THEME):
         model.template_directory = model.theme_config['path'] + '/' + model.theme_config.get('template_directory', 'templates')
 
 
-def compile_stuff(model):
-    theme_path = '/theme/' + model.theme + '/'
+def compile_stuff(context):
+    theme_path = '/theme/' + context.theme + '/'
 
-    stylesheet_directory = theme_path + model.theme_config['stylesheet_directory']
-    model['stylesheets'] = ''.join(
-        str(html.Stylesheet(stylesheet_directory + '/' + stylesheet))
-        for stylesheet in model.theme_config.get('stylesheets', ())
-        )
+    stylesheet_directory = theme_path + context.theme_config['stylesheet_directory']
+    theme_stylesheets = (html.Stylesheet(stylesheet_directory + '/' + stylesheet)
+        for stylesheet in context.theme_config.get('stylesheets', ()))
 
-    scripts_directory = theme_path + model.theme_config['stylesheet_directory']
-    model['scripts'] = ''.join(
+    if 'stylesheets' in context:
+        context['stylesheets'] += theme_stylesheets
+    else:
+        context['stylesheets'] = InvisibleList(theme_stylesheets)
+
+    scripts_directory = theme_path + context.theme_config['stylesheet_directory']
+    theme_scripts = (
         str(html.Script(src=scripts_directory + '/' + script))
-        for script in model.theme_config.get('scripts', ())
+        for script in context.theme_config.get('scripts', ())
         )
+    if 'scripts' in context:
+        context['scripts'] += theme_scripts
+    else:
+        context['scripts'] = InvisibleList(theme_scripts)
 
-    favicon = model.theme_config.get('favicon', 'favicon.icon')
-    model['meta'] = html.LinkElement(href=theme_path + favicon, rel='shortcut icon')
+    favicon = context.theme_config.get('favicon', 'favicon.icon')
+    theme_meta = html.LinkElement(href=theme_path + favicon, rel='shortcut icon')
+    if 'meta' in context:
+        context['meta'] += [theme_meta]
+    else:
+        context['meta'] = InvisibleList((theme_meta, ))
 
-    model.setdefault('pagetitle', pagetitle)
+    context.setdefault('pagetitle', pagetitle)
 
 
 def theme_model(model_map):

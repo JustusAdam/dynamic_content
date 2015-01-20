@@ -24,6 +24,9 @@ optional_closing = {'style'}
 # <input ... />
 short_closing = {'input'}
 
+#
+keep_formatting = {'code', 'pre'}
+
 
 def unwrap_list(l):
     if isinstance(l, str):

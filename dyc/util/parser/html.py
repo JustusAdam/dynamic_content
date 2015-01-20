@@ -115,6 +115,7 @@ html_conform = lambda n: n.isalnum() or n in html_allowed
 forbidden = {'"'}
 
 
+# TODO add support for 'code' and 'pre'
 automaton_base = (
     generic.Edge(1, 0, chars='<', g=flush_text_content),
     generic.Edge(0, 0, funcs=html_conform, g=append_char),

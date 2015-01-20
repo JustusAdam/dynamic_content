@@ -3,7 +3,7 @@ from dyc.errors.exceptions import DCException
 from dyc import modules
 wysiwyg = modules.import_module('wysiwyg')
 from . import model
-from dyc.util import lazy, html
+from dyc.util import lazy, html, clean
 
 
 __author__ = 'Justus Adam'
@@ -79,7 +79,7 @@ class _Field(object):
     def process_edit(self, page_id, content):
         try:
             db_obj = self.from_db(page_id)
-            db_obj.content = content
+            db_obj.content = clean.remove_dangerous_tags(content)
             db_obj.save()
         except:
             raise
@@ -93,7 +93,11 @@ class _Field(object):
             classes={'field', 'field-' + self.name, 'edit'}, name=self.name))
 
     def process_add(self, page_type, page_id, content):
-        model.field(self.name).create(content=content, page_id=page_id, page_type=page_type)
+        model.field(self.name).create(
+            content=clean.remove_dangerous_tags(content),
+            page_id=page_id,
+            page_type=page_type
+            )
 
 
     def get_field_title(self):
