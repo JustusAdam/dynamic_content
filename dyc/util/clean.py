@@ -21,10 +21,8 @@ def remove_dangerous_tags(text, severity_level=1):
 
 def clean_text(text, forbidden_tags):
     for tag in forbidden_tags:
-        regex = re.compile('<' + tag + '[^>]*?(>.*?(</' + tag + '>)|/>)', flags=re.S)
         regex2 = re.compile('<' + tag + '.*?>', flags=re.S)
         regex3 = re.compile('</' + tag + '.*?>', flags=re.S)
-        text = re.sub(regex, '', text)
         text = re.sub(regex2, '', text)
         text = re.sub(regex3, '', text)
     return text
