@@ -161,7 +161,12 @@ class Application(threading.Thread, lazy.Loadable):
             self.config.wsgi_request_handler
             )
         httpsd.set_app(self.wsgi_callback)
-        httpsd.socket = ssl.wrap_socket(httpsd.socket, keyfile=settings.SSL_KEYFILE, certfile=settings.SSL_CERTFILE, server_side=True)
+        httpsd.socket = ssl.wrap_socket(
+            httpsd.socket,
+            keyfile=settings.SSL_KEYFILE,
+            certfile=settings.SSL_CERTFILE,
+            server_side=True
+            )
         console.cprint('\n\n')
         console.print_info(
             'Starting HTTPS WSGI Server on    Port: {}     and Host:  {}'.format(
@@ -169,7 +174,22 @@ class Application(threading.Thread, lazy.Loadable):
         httpsd.serve_forever()
 
     def run_http_server_loop(self):
+        if (hasattr(orm.database_proxy, 'database')
+            and orm.database_proxy.database == ':memory:'):
+            if settings.HTTPS_ENABLED:
+                self.run_https_server()
+            elif settings.HTTP_ENABLED:
+                self.run_http_server()
+        else:
+            if settings.HTTP_ENABLED:
+                thttp = threading.Thread(target=self.run_http_server, name='DC-HTTP-Server')
+                thttp.start()
+            if settings.HTTPS_ENABLED:
+                thttps = threading.Thread(target=self.run_https_server, name='DC-HTTPS-Server')
+                thttps.start()
 
+
+    def run_http_server(self):
         request_handler = functools.partial(
                             self.config.http_request_handler,
                             self.http_callback
@@ -180,6 +200,29 @@ class Application(threading.Thread, lazy.Loadable):
             self.config.server_arguments.port
             )
         httpd = self.config.server_class(server_address, request_handler)
+        console.cprint('\n\n')
+        console.print_info('Starting Server on host: {}, port:'.format(
+            self.config.server_arguments.host,
+            self.config.server_arguments.port))
+        httpd.serve_forever()
+
+    def run_https_server(self):
+        request_handler = functools.partial(
+                            self.config.http_request_handler,
+                            self.http_callback
+                            )
+
+        server_address = (
+            self.config.server_arguments.host,
+            self.config.server_arguments.ssl_port
+            )
+        httpd = self.config.server_class(server_address, request_handler)
+        httpd.socket = ssl.wrap_socket(
+            httpd.socket,
+            keyfile=settings.SSL_KEYFILE,
+            certfile=settings.SSL_CERTFILE,
+            server_side=True
+            )
         console.cprint('\n\n')
         console.print_info('Starting Server on host: {}, port:'.format(
             self.config.server_arguments.host,
@@ -216,20 +259,19 @@ class Application(threading.Thread, lazy.Loadable):
         except (exceptions.PathResolving, exceptions.MethodHandlerNotFound) as e:
             view = 'error'
             model['title'] = '404 - Page not found'
-            model['content'] = """
- <h3>Pathmapper encountered an error</h3>
- <p>Nested Exception:</p>
- <code> {} </code>
-
-<p>Stacktrace:</p>
-<code> {} </code>
-""".format(e, traceback.format_exc()) if (
-    settings.RUNLEVEL in (settings.RunLevel.TESTING, settings.RunLevel.DEBUG)
-    ) else (
-"""
-<p>The Page you requested could not be found, or does not support the request
-method you tried.<p>
-""")
+            model['content'] = (
+                '<h3>Pathmapper encountered an error</h3>'
+                '<p>Nested Exception:</p>'
+                '<code> {} </code>'
+                '<p>Stacktrace:</p>'
+                '<code> {} </code>'
+                ).format(e, traceback.format_exc()) if (
+                    settings.RUNLEVEL in
+                    (settings.RunLevel.TESTING, settings.RunLevel.DEBUG)
+                ) else (
+                '<p>The Page you requested could not be found, or'
+                'does not support the request method you tried.<p>'
+                )
 
         # Allow view to directly return a response, mainly to handle errors
         if not isinstance(view, dchttp.response.Response):

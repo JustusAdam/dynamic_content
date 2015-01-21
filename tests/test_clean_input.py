@@ -47,5 +47,3 @@ class TestCleanInput(unittest.TestCase):
         self.assertNotIn('<body>', text2)
         self.assertNotIn('<html>', text2)
         self.assertNotIn('</html>', text2)
-        print(text)
-        print(text2)
