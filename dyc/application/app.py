@@ -11,19 +11,16 @@ from dyc.backend import orm
 from dyc import core
 from dyc.core.mvc import context as _model
 from dyc.includes import settings, log
+
+# enable https
 if settings.HTTPS_ENABLED:
     import ssl
+
 from dyc.util import typesafe, lazy, catch_vardump
 from dyc import dchttp
 from dyc.errors import exceptions
 from dyc import modules
 from . import config as _config
-
-
-
-
-
-## dynamic_content ascii art base generated with http://patorjk.com/software/taag/
 
 
 __author__ = 'Justus Adam'
@@ -86,7 +83,7 @@ class Application(threading.Thread, lazy.Loadable):
         return self.process_request(request)
 
     @staticmethod
-    def wsgi_make_request(environ):
+    def wsgi_make_request(ssl_enabled, environ):
         search_headers = {
             'CONTENT_TYPE',
             'HTTP_CACHE_CONTROL',
@@ -105,17 +102,18 @@ class Application(threading.Thread, lazy.Loadable):
         else:
             query = None
         return dchttp.Request.from_path_and_post(
+            host=environ['HTTP_HOST'],
             path=environ['PATH_INFO'],
             headers={
                 k: environ[k] for k in search_headers if k in environ
                 },
             method=method,
-            query_string=query
+            query_string=query,
+            ssl_enabled=ssl_enabled
         )
 
-    def wsgi_callback(self, environ, start_response):
-        request = self.wsgi_make_request(environ)
-
+    def wsgi_callback(self, ssl_enabled, environ, start_response):
+        request = self.wsgi_make_request(ssl_enabled, environ)
         response = self.process_request(request)
 
         start_response(
@@ -146,7 +144,7 @@ class Application(threading.Thread, lazy.Loadable):
             self.config.server_arguments.port),
             self.config.wsgi_request_handler
         )
-        httpd.set_app(self.wsgi_callback)
+        httpd.set_app(functools.partial(self.wsgi_callback, False))
         console.cprint('\n\n')
         console.print_info(
             'Starting HTTP WSGI Server on    Port: {}     and Host: {}'.format(
@@ -157,10 +155,13 @@ class Application(threading.Thread, lazy.Loadable):
 
     def run_wsgi_https_server(self):
         httpsd = self.config.wsgi_server(
-            (self.config.server_arguments.host, self.config.server_arguments.ssl_port),
+            (
+                self.config.server_arguments.host,
+                self.config.server_arguments.ssl_port
+                ),
             self.config.wsgi_request_handler
             )
-        httpsd.set_app(self.wsgi_callback)
+        httpsd.set_app(functools.partial(self.wsgi_callback, True))
         httpsd.socket = ssl.wrap_socket(
             httpsd.socket,
             keyfile=settings.SSL_KEYFILE,
@@ -192,7 +193,8 @@ class Application(threading.Thread, lazy.Loadable):
     def run_http_server(self):
         request_handler = functools.partial(
                             self.config.http_request_handler,
-                            self.http_callback
+                            self.http_callback,
+                            False
                             )
 
         server_address = (
@@ -209,7 +211,8 @@ class Application(threading.Thread, lazy.Loadable):
     def run_https_server(self):
         request_handler = functools.partial(
                             self.config.http_request_handler,
-                            self.http_callback
+                            self.http_callback,
+                            True
                             )
 
         server_address = (

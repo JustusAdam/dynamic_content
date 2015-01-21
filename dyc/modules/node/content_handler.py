@@ -9,6 +9,7 @@ from dyc.util import lazy, html, clean
 
 wysiwyg = modules.import_module('wysiwyg')
 _menus = modules.import_module('.menus', 'commons')
+commonsmodel = modules.import_module('.model', 'commons')
 user_dec = modules.import_module('.decorator', 'users')
 
 from . import model as _model, field
@@ -78,7 +79,7 @@ class FieldBasedPageContent(object):
 
     def compile(self, model, page, modifier):
 
-        def _():
+        def _(page):
             raise TypeError(modifier)
 
         mapped = {
@@ -135,12 +136,14 @@ class FieldBasedPageContent(object):
             success = True
             page.page_title = clean.remove_dangerous_tags(query['title'][0])
             page.published = _publishing_flag in query
+            page.menu_item = (None if query['parent-menu'][0] == 'none'
+                              else self.get_menu(*query['parent-menu'][0].rsplit('-', 1)))
             page.save()
         except Exception as e:
             print(e)
             success = False
 
-        return ':redirect:/node/' + str(page.oid) + ('' if success else '/add')
+        return ':redirect:/node/{}{}'.format(page.oid, '' if success else '/add')
 
     @wysiwyg.use()
     def add(self, model):
@@ -198,6 +201,14 @@ class FieldBasedPageContent(object):
             if client.check_permission(self.join_permission(modifier)):
                 yield (name, '/'.join(['', self.page_type, str(page.oid), modifier]))
 
+    def get_menu(self, menu_name, item_id):
+        item_id = int(item_id)
+        return commonsmodel.MenuItem.get(
+            menu=commonsmodel.Menu.get(machine_name=menu_name),
+            oid=item_id
+        )
+
+
     def process_add(self, query, client):
         page = _model.Page.create(
             content_type=self.dbobj,
@@ -205,7 +216,8 @@ class FieldBasedPageContent(object):
             page_title=clean.remove_dangerous_tags(query['title'][0]),
             published=_publishing_flag in query,
             date_created=datetime.now(),
-            menu_item=None if query['parent-menu'][0] == 'none' else query['parent-menu'][0]
+            menu_item=(None if query['parent-menu'][0] == 'none'
+                       else self.get_menu(*query['parent-menu'][0].rsplit('-', 1)))
         )
         for field in self.fields:
             field.process_add(
@@ -218,9 +230,9 @@ class FieldBasedPageContent(object):
 
     @staticmethod
     def admin_options(page=None):
-        if page is not None and page.menu_item:
-            parent = '-1' if page.menu_item.parent_item is None else page.menu_item.parent_item
-            selected = '-'.join([page.menu_item.menu, str(parent)])
+        if page is not None:
+            parent = '-1' if page.menu_item is None else page.menu_item
+            selected = '-'.join([page.menu_item.menu.machine_name, str(parent)])
             m_c = _menus.menu_chooser('parent-menu', selected=selected)
         else:
             m_c = _menus.menu_chooser('parent-menu')

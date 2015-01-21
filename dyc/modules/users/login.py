@@ -50,7 +50,7 @@ class LoginCommonHandler(commons.Handler):
         return LOGIN_COMMON
 
 
-@mvc.controller_function({'login'}, method=dchttp.RequestMethods.GET, query=True)
+@mvc.controller_function({'login'}, method=dchttp.RequestMethods.GET, query=True, require_ssl=True)
 @decorator.authorize('access login page')
 @theming.breadcrumbs
 @commons.Regions

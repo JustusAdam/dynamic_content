@@ -26,21 +26,21 @@ _catch_errors = False
 HEADER_SPLIT_REGEX = re.compile("(\S+?)\s*:\s*(\S+)")
 
 
-
 class RequestHandler(server.BaseHTTPRequestHandler):
-    def __init__(self, callback_function, request, client_address, server):
+    def __init__(self, callback_function, ssl_enabled, request, client_address, server):
         self.callback = callback_function
+        self.ssl_enabled = ssl_enabled
         super().__init__(request, client_address, server)
 
     def do_POST(self):
         post_query = self.rfile.read(int(self.headers['Content-Length'])).decode()
 
-        request = Request.from_path_and_post(self.path, 'post', self.headers, post_query)
-
+        request = Request.from_path_and_post(self.headers['Host'], self.path, 'post', self.headers, self.ssl_enabled, post_query)
+        request.ssl_enabled = self.ssl_enabled
         return self.do_any(request)
 
     def do_GET(self):
-        request = Request.from_path_and_post(self.path, 'get', self.headers)
+        request = Request.from_path_and_post(self.headers['Host'], self.path, 'get', self.headers, self.ssl_enabled)
         return self.do_any(request)
 
     def do_any(self, request):

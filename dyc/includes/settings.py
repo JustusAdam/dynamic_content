@@ -74,7 +74,8 @@ LOGFILE = 'app.log'
 MIDDLEWARE = (
     'dyc.middleware.alias.Middleware',
     'dyc.modules.file.PathHandler',
-    'dyc.middleware.trailing_slash.RemoveTrailingSlash'
+    'dyc.middleware.trailing_slash.RemoveTrailingSlash',
+    'dyc.middleware.ssl.ConditionalSSLRedirect'
     )
 ANTI_CSRF = True
 DEFAULT_HEADERS = {

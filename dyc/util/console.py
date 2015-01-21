@@ -38,6 +38,8 @@ print_error = functools.partial(_print, csi + '31;1m' + str(now()), '[ERROR]  ')
 print_debug = functools.partial(cprint, csi  + '30;22m' + str(now()), '[DEBUG]  ')
 
 
+## dynamic_content ascii art base generated with http://patorjk.com/software/taag/
+
 dc_ascii_art = """
        __                            _                           __             __
   ____/ /_  ______  ____ _____ ___  (_)____    _________  ____  / /____  ____  / /_
