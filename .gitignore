@@ -77,6 +77,11 @@ target/
 # temporary files
 *.~*
 
+# ssl files
+*.crt
+*.csr
+*.key
+
 # large media file only intended for testing
 *.png
 *.odg

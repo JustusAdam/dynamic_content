@@ -10,7 +10,7 @@ def Enumeration(name, levels, start=0):
     )(**{b:a for a,b in enumerate(levels, start=start)})
 
 
-ServerArguments = collections.namedtuple('ServerArguments', ('host', 'port'))
+ServerArguments = collections.namedtuple('ServerArguments', ('host', 'port', 'ssl_port'))
 DatabaseArguments = collections.namedtuple(
     'database',
     ('type', 'user', 'autocommit', 'password', 'name', 'host'))

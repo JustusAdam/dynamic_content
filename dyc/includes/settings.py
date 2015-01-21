@@ -55,8 +55,7 @@ SALT_LENGTH = 16
 DEFAULT_THEME = 'default_theme'
 DEFAULT_ADMIN_THEME = 'admin_theme'
 LOGGING_LEVEL = LoggingLevel.THROW_ALL
-SERVER = structures.ServerArguments(port=9012, host='localhost')
-SSL_SERVER = structures.ServerArguments(port=9443, host='localhost')
+SERVER = structures.ServerArguments(port=9012, host='localhost', ssl_port=9443)
 DATABASE = structures.DatabaseArguments(
             'mysql', 'python_cms', True, 'python_cms', 'python_cms', 'localhost')
 BASEDIR = str(Path(__file__).parent.resolve())
@@ -87,6 +86,8 @@ PROPAGATE_ERRORS = True
 DISTRIBUTION = Distributions.STANDARD
 HTTP_ENABLED = True
 HTTPS_ENABLED = True
+SSL_CERTFILE = '../dynamic-content.org.crt'
+SSL_KEYFILE = '../dynamic-content.org.key'
 
 
 # delete names that are not settings

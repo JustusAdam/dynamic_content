@@ -33,7 +33,8 @@ class ApplicationConfig(object):
 class DefaultConfig(ApplicationConfig):
     server_arguments = structures.ServerArguments(
         port=8000,
-        host=""
+        host="",
+        ssl_port=9443
     )
     server_class = server.ThreadedHTTPServer
     http_request_handler = request_handler.RequestHandler

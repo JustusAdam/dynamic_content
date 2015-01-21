@@ -126,31 +126,47 @@ class Application(threading.Thread, lazy.Loadable):
         return [response.body if response.body else ''.encode('utf-8')]
 
     def run_wsgi_server_loop(self):
-        if settings.HTTP_ENABLED:
-            httpd = self.config.wsgi_server(
-                (self.config.server_arguments.host,
-                self.config.server_arguments.port),
-                self.config.wsgi_request_handler
+        if (hasattr(orm.database_proxy, 'database')
+            and orm.database_proxy.database == ':memory:'):
+            if settings.HTTPS_ENABLED:
+                self.run_wsgi_https_server()
+            elif settings.HTTP_ENABLED:
+                self.run_wsgi_http_server()
+        else:
+            if settings.HTTP_ENABLED:
+                thttp = threading.Thread(target=self.run_wsgi_http_server, name='DC-HTTP-Server')
+                thttp.start()
+            if settings.HTTPS_ENABLED:
+                thttps = threading.Thread(target=self.run_wsgi_https_server, name='DC-HTTPS-Server')
+                thttps.start()
+
+    def run_wsgi_http_server(self):
+        httpd = self.config.wsgi_server(
+            (self.config.server_arguments.host,
+            self.config.server_arguments.port),
+            self.config.wsgi_request_handler
+        )
+        httpd.set_app(self.wsgi_callback)
+        console.cprint('\n\n')
+        console.print_info(
+            'Starting HTTP WSGI Server on    Port: {}     and Host: {}'.format(
+                self.config.server_arguments.port,
+                self.config.server_arguments.host
+                ))
+        httpd.serve_forever()
+
+    def run_wsgi_https_server(self):
+        httpsd = self.config.wsgi_server(
+            (self.config.server_arguments.host, self.config.server_arguments.ssl_port),
+            self.config.wsgi_request_handler
             )
-            httpd.set_app(self.wsgi_callback)
-            console.cprint('\n\n')
-            console.print_info(
-                'Starting HTTP WSGI Server on    Port: {}     and Host: {}'.format(
-                    self.config.server_arguments.port,
-                    self.config.server_arguments.host
-                    ))
-            httpd.serve_forever()
-        if settings.HTTPS_ENABLED:
-            httpsd = self.config.wsgi_server(
-                (settings.SSL_SERVER.host, settings.SSL_SERVER.port),
-                self.config.wsgi_request_handler
-                )
-            httpsd.set_app(self.wsgi_callback)
-            console.cprint('\n\n')
-            console.print_info(
-                'Starting HTTPS WSGI Server on    Port: {}     and Host:  {}'.format(
-                    settings.SSL_SERVER.host, settings.SSL_SERVER.port))
-            httpd.serve_forever()
+        httpsd.set_app(self.wsgi_callback)
+        httpsd.socket = ssl.wrap_socket(httpsd.socket, keyfile=settings.SSL_KEYFILE, certfile=settings.SSL_CERTFILE, server_side=True)
+        console.cprint('\n\n')
+        console.print_info(
+            'Starting HTTPS WSGI Server on    Port: {}     and Host:  {}'.format(
+                settings.SERVER.host, settings.SERVER.ssl_port))
+        httpsd.serve_forever()
 
     def run_http_server_loop(self):
 

@@ -88,10 +88,17 @@ def main():
     parser.add_argument('--pathmap', type=str, choices=tuple(map(str.lower, settings.PathMaps._fields)))
     parser.add_argument('--port', type=int)
     parser.add_argument('--ssl_port', type=int)
+    parser.add_argument('--https_enabled', type=bool, default=settings.HTTPS_ENABLED)
+    parser.add_argument('--http_enabled', default=settings.HTTP_ENABLED)
     parser.add_argument('--host')
     parser.add_argument('--server', type=str, choices=tuple(map(str.lower, settings.ServerTypes._fields)))
+    parser.add_argument('--ssl_certfile', type=str)
+    parser.add_argument('--ssl_keyfile', type=str)
 
     startargs = parser.parse_args()
+
+    settings.HTTPS_ENABLED = startargs.https_enabled
+    settings.HTTP_ENABLED = startargs.http_enabled
 
     if startargs.runlevel:
         settings.RUNLEVEL = getattr(settings.RunLevel, startargs.runlevel.upper())
@@ -99,27 +106,24 @@ def main():
         settings.LOGFILE = startargs.logfile
     if startargs.loglevel:
         settings.LOGGING_LEVEL = getattr(settings.LoggingLevel, startargs.loglevel.upper())
-    if startargs.port or startargs.host:
+    if startargs.port or startargs.host or startargs.ssl_port:
         settings.SERVER = type(settings.SERVER)(
             host=startargs.host if startargs.host else settings.SERVER.host,
-            port=startargs.port if startargs.port else settings.SERVER.port
-            )
-    if startargs.ssl_port:
-        settings.SSL_SERVER = type(settings.SSL_SERVER)(
-            host=settings.SERVER.host,
-            port=startargs.ssl_port if startargs.ssl_port else settings.SSL_SERVER.port
+            port=startargs.port if startargs.port else settings.SERVER.port,
+            ssl_port=startargs.ssl_port if startargs.ssl_port else settings.SERVER.ssl_port,
             )
     if startargs.server:
         settings.SERVER_TYPE = getattr(settings.ServerTypes, startargs.server.upper())
+    if startargs.ssl_certfile:
+        settings.SSL_CERTFILE = startargs.ssl_certfile
+    if startargs.ssl_keyfile:
+        settings.SSL_KEYFILE = startargs.ssl_keyfile
 
     from dyc import application
 
     application.Application(
         application.Config(
-            server_arguments=structures.ServerArguments(
-                host=settings.SERVER.host,
-                port=settings.SERVER.port
-                )
+            server_arguments=settings.SERVER
             )
         ).start()
 
