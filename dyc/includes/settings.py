@@ -56,6 +56,7 @@ DEFAULT_THEME = 'default_theme'
 DEFAULT_ADMIN_THEME = 'admin_theme'
 LOGGING_LEVEL = LoggingLevel.THROW_ALL
 SERVER = structures.ServerArguments(port=9012, host='localhost')
+SSL_SERVER = structures.ServerArguments(port=9443, host='localhost')
 DATABASE = structures.DatabaseArguments(
             'mysql', 'python_cms', True, 'python_cms', 'python_cms', 'localhost')
 BASEDIR = str(Path(__file__).parent.resolve())
@@ -84,6 +85,8 @@ DEFAULT_HEADERS = {
 SERVER_TYPE = ServerTypes.WSGI
 PROPAGATE_ERRORS = True
 DISTRIBUTION = Distributions.STANDARD
+HTTP_ENABLED = True
+HTTPS_ENABLED = True
 
 
 # delete names that are not settings
