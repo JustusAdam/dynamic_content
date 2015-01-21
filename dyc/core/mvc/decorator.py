@@ -31,7 +31,7 @@ from . import Config, DefaultConfig
 from . import controller
 from .. import _component
 from dyc import dchttp
-from .context import Context
+from .context import Context, apply_to_context
 from dyc.util import decorators
 from dyc.util import typesafe
 
@@ -164,6 +164,11 @@ controller_method = functools.partial(_controller_method, ControlFunction)
 rest_controller_function = functools.partial(_controller_function, RestControlFunction)
 
 rest_controller_method = functools.partial(_controller_method, RestControlFunction)
+
+
+@apply_to_context(return_from_decorator=True, with_return=True)
+def json_return(context, res):
+    pass
 
 
 @decorators.deprecated

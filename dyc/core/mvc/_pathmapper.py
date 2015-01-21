@@ -91,7 +91,7 @@ class PathMap(Segment):
     """Abstract Baseclass for path mappers"""
     def __init__(self, **kwargs):
         super().__init__('/', **kwargs)
-        console.print_info('Utilizing PathMapType:   ' + self.__class__.__name__)
+        # console.print_info('Utilizing PathMapType:   ' + self.__class__.__name__)
         self._controller_classes = []
 
     def __iadd__(self, other):
@@ -106,6 +106,11 @@ class PathMap(Segment):
             return self
         else:
             raise TypeError('Argument must be tuple or list of path and handler')
+
+    @staticmethod
+    def print_info(path, handler):
+        console.print_info('Registering on path {csi}4m/{path}{csi}24m     Handler: {module}.{csi}1m{function}'.format(
+            path=path, module=handler.function.__module__, csi=console.csi, function=handler.function.__name__))
 
     def add_path(self, path:str, handler):
         """registers given handler at given path"""
@@ -162,8 +167,7 @@ class TreePathMap(PathMap):
 
     def add_path(self, path:str, handler):
         path = path[1:] if path.startswith('/') else path
-        console.print_info('Registering on path {csi}4m/{path}{csi}24m     Handler: {module}.{csi}1m{function}'.format(
-            path=path, module=handler.function.__module__, csi=console.csi, function=handler.function.__name__))
+        self.print_info(path, handler)
         path = self.parse_path(path)
 
         *path_segments, destination = path
@@ -430,8 +434,7 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
 
     def add_path(self, path:str, handler):
         path = path[1:] if path.startswith('/') else path
-        console.print_info('Registering on path {csi}4m/{path}{csi}24m     Handler: {module}.{csi}1m{function}'.format(
-            path=path, module=handler.function.__module__, csi=console.csi, function=handler.function.__name__))
+        self.print_info(path, handler)
         path_list = self.parse_path(path)
         typeargs = tuple(filter(lambda a: (isinstance(a, type)
             or isinstance(a, TypeArg) or a == '**'), path_list))

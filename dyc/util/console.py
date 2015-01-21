@@ -4,7 +4,7 @@ import datetime
 
 
 __author__ = 'Justus Adam'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 csi = '\x1b['
@@ -33,7 +33,7 @@ print_info = functools.partial(cprint, csi + '30m' + str(now()), '[INFO]   ')
 
 print_warning = functools.partial(cprint, csi + '33;22m' + str(now()), '[WARNING]')
 
-print_error = functools.partial(print, csi + '31;1m' + str(now()), '[ERROR]  ')
+print_error = functools.partial(_print, csi + '31;1m' + str(now()), '[ERROR]  ')
 
 print_debug = functools.partial(cprint, csi  + '30;22m' + str(now()), '[DEBUG]  ')
 
@@ -48,4 +48,4 @@ dc_ascii_art = """
 
 """
 
-print_name = lambda : print(csi + '0m' + csi + '32;1m', dc_ascii_art, sep='')
+print_name = lambda : _print(csi + '0m' + csi + '32;1m', dc_ascii_art, sep='')
