@@ -27,7 +27,7 @@ from . import config as _config
 
 
 __author__ = 'Justus Adam'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 
 
 class Application(threading.Thread, lazy.Loadable):

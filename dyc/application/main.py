@@ -31,7 +31,7 @@ python_logo_ascii_art = """
 ## Python logo Ascii art by @xero -> https://gist.github.com/xero/3555086
 
 __author__ = 'Justus Adam'
-__version__ = '0.2.3'
+__version__ = '0.2.4'
 
 
 def bool_from_str(string, default=False):
