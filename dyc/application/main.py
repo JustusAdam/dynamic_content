@@ -34,6 +34,17 @@ __author__ = 'Justus Adam'
 __version__ = '0.2.3'
 
 
+def bool_from_str(string, default=False):
+    if not isinstance(string, str):
+        return default
+    if string.lower() == 'false':
+        return False
+    elif string.lower() == 'true':
+        return True
+    else:
+        return default
+
+
 def prepare():
 
     # print(python_logo_ascii_art)
@@ -81,6 +92,8 @@ def main():
     from dyc.includes import settings
     from dyc.util import structures
 
+    sbool = ('true', 'false')
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--runlevel', '-r', type=str, choices=tuple(map(str.lower, settings.RunLevel._fields)))
     parser.add_argument('--logfile', type=str)
@@ -88,8 +101,8 @@ def main():
     parser.add_argument('--pathmap', type=str, choices=tuple(map(str.lower, settings.PathMaps._fields)))
     parser.add_argument('--port', type=int)
     parser.add_argument('--ssl_port', type=int)
-    parser.add_argument('--https_enabled', type=bool, default=settings.HTTPS_ENABLED)
-    parser.add_argument('--http_enabled', default=settings.HTTP_ENABLED)
+    parser.add_argument('--https_enabled', type=str, choices=sbool)
+    parser.add_argument('--http_enabled', type=str, choices=sbool)
     parser.add_argument('--host')
     parser.add_argument('--server', type=str, choices=tuple(map(str.lower, settings.ServerTypes._fields)))
     parser.add_argument('--ssl_certfile', type=str)
@@ -97,8 +110,8 @@ def main():
 
     startargs = parser.parse_args()
 
-    settings.HTTPS_ENABLED = startargs.https_enabled
-    settings.HTTP_ENABLED = startargs.http_enabled
+    settings.HTTPS_ENABLED = bool_from_str(startargs.https_enabled, settings.HTTPS_ENABLED)
+    settings.HTTP_ENABLED = bool_from_str(startargs.http_enabled, settings.HTTP_ENABLED)
 
     if startargs.runlevel:
         settings.RUNLEVEL = getattr(settings.RunLevel, startargs.runlevel.upper())
