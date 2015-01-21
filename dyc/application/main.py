@@ -87,6 +87,7 @@ def main():
     parser.add_argument('--loglevel', type=str, choices=tuple(map(str.lower, settings.LoggingLevel._fields)))
     parser.add_argument('--pathmap', type=str, choices=tuple(map(str.lower, settings.PathMaps._fields)))
     parser.add_argument('--port', type=int)
+    parser.add_argument('--ssl_port', type=int)
     parser.add_argument('--host')
     parser.add_argument('--server', type=str, choices=tuple(map(str.lower, settings.ServerTypes._fields)))
 
@@ -102,6 +103,11 @@ def main():
         settings.SERVER = type(settings.SERVER)(
             host=startargs.host if startargs.host else settings.SERVER.host,
             port=startargs.port if startargs.port else settings.SERVER.port
+            )
+    if startargs.ssl_port:
+        settings.SSL_SERVER = type(settings.SSL_SERVER)(
+            host=settings.SERVER.host,
+            port=startargs.ssl_port if startargs.ssl_port else settings.SSL_SERVER.port
             )
     if startargs.server:
         settings.SERVER_TYPE = getattr(settings.ServerTypes, startargs.server.upper())

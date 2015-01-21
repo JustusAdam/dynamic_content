@@ -11,6 +11,8 @@ from dyc.backend import orm
 from dyc import core
 from dyc.core.mvc import context as _model
 from dyc.includes import settings, log
+if settings.HTTPS_ENABLED:
+    import ssl
 from dyc.util import typesafe, lazy, catch_vardump
 from dyc import dchttp
 from dyc.errors import exceptions
@@ -124,19 +126,31 @@ class Application(threading.Thread, lazy.Loadable):
         return [response.body if response.body else ''.encode('utf-8')]
 
     def run_wsgi_server_loop(self):
-        httpd = self.config.wsgi_server(
-            (self.config.server_arguments.host,
-            self.config.server_arguments.port),
-            self.config.wsgi_request_handler
-        )
-        httpd.set_app(self.wsgi_callback)
-        console.cprint('\n\n')
-        console.print_info(
-            'Starting WSGI Server on    Port: {}     and Host: {}'.format(
-                self.config.server_arguments.port,
-                self.config.server_arguments.host
-                ))
-        httpd.serve_forever()
+        if settings.HTTP_ENABLED:
+            httpd = self.config.wsgi_server(
+                (self.config.server_arguments.host,
+                self.config.server_arguments.port),
+                self.config.wsgi_request_handler
+            )
+            httpd.set_app(self.wsgi_callback)
+            console.cprint('\n\n')
+            console.print_info(
+                'Starting HTTP WSGI Server on    Port: {}     and Host: {}'.format(
+                    self.config.server_arguments.port,
+                    self.config.server_arguments.host
+                    ))
+            httpd.serve_forever()
+        if settings.HTTPS_ENABLED:
+            httpsd = self.config.wsgi_server(
+                (settings.SSL_SERVER.host, settings.SSL_SERVER.port),
+                self.config.wsgi_request_handler
+                )
+            httpsd.set_app(self.wsgi_callback)
+            console.cprint('\n\n')
+            console.print_info(
+                'Starting HTTPS WSGI Server on    Port: {}     and Host:  {}'.format(
+                    settings.SSL_SERVER.host, settings.SSL_SERVER.port))
+            httpd.serve_forever()
 
     def run_http_server_loop(self):
 
