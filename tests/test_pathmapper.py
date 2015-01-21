@@ -34,12 +34,14 @@ class TestMultiTableMapper(unittest.TestCase):
         )
 
         method = 'get'
+        host = 'localhost'
+        port = 8080
 
         for path, handler, teststring, result, typeargs in testpaths[0:4]:
             handler = ControlFunction(handler, path, method, False, None)
             handler.typeargs = typeargs
             self.mapper.add_path(path, handler)
-            request = dchttp.Request(teststring, method, None, None)
+            request = dchttp.Request(host, port, teststring, method, None, None, False)
             handler, args, kwargs = self.mapper.find_handler(request)
             self.assertEqual(handler(*args, **kwargs), result)
 
@@ -47,7 +49,7 @@ class TestMultiTableMapper(unittest.TestCase):
             handler = ControlFunction(handler, path, method, False, None)
             handler.typeargs = typeargs
             self.mapper.add_path(path, handler)
-            request = dchttp.Request(teststring, method, None, None)
+            request = dchttp.Request(host, port, teststring, method, None, None, False)
             handler, args, kwargs = self.mapper.resolve(request)
             self.assertTupleEqual(handler(*args, **kwargs), result)
 
@@ -83,18 +85,20 @@ class TestTreeMapper(unittest.TestCase):
         )
 
         method = 'get'
+        host = 'localhost'
+        port = 8080
 
         for path, handler, teststring, result in testpaths[0:4]:
             handler = ControlFunction(handler, path, method, False, None)
             self.mapper.add_path(path, handler)
-            request = dchttp.Request(teststring, method, None, None)
+            request = dchttp.Request(host, port, teststring, method, None, None, False)
             handler, args, kwargs = self.mapper.find_handler(request)
             self.assertEqual(handler(*args, **kwargs), result)
 
         for path, handler, teststring, result in testpaths[4:]:
             handler = ControlFunction(handler, path, method, False, None)
             self.mapper.add_path(path, handler)
-            request = dchttp.Request(teststring, method, None, None)
+            request = dchttp.Request(host, port, teststring, method, None, None, False)
             handler, args, kwargs = self.mapper.resolve(request)
             self.assertTupleEqual(handler(*args, **kwargs), result)
 
