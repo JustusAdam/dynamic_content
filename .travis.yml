@@ -3,7 +3,7 @@ python:
   - "3.4"
 install:
     - mkdir libs
-    - pip install --target libs --update -r requirements.txt
+    - pip install --target libs --upgrade -r requirements.txt
 script:
     - PYTHONPATH=./libs python -OO -m unittest discover -v -s tests
     - PYTHONPATH=./libs pypy -OO -m unittest discover -v -s tests
