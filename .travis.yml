@@ -4,8 +4,8 @@ python:
   - "pypy3"
 install:
     - mkdir libs
-    - pip install --upgrade -r requirements.txt
-script:
-    - python -OO -m unittest discover -v -s tests
-    - pypy3 -OO -m unittest discover -v -s tests
+    - pip install --target libs --upgrade -r requirements.txt
+env:
+    - PYTHONPATH=./libs
+script: nosetests
 sudo: false
