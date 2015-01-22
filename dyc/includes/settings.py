@@ -1,4 +1,4 @@
-"""
+__doc__ = """
 The fundamental settings consisting of non-changing,
 as in not changing within this version of the software,
 values required to make dynamic_content functional.

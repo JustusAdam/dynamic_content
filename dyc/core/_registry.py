@@ -1,5 +1,6 @@
 import pathlib
 import inspect
+import collections
 from dyc.backend import orm
 
 from . import Component
@@ -162,20 +163,19 @@ class Modules(dict, lazy.Loadable):
 
     @lazy.ensure_loaded
     def _get_handlers(self, func, single_value):
-        acc = {}
-
-        def add(key, value):
-            if single_value:
-                acc[key] = value
-            elif key in acc:
-                acc[key].append(value)
-            else:
-                acc[key] = [value]
+        if single_value:
+            acc = {}
+        else:
+            acc = collections.defaultdict(list)
 
         for a in self:
             for b in filter(lambda s: not s.startswith('_'), self[a].__dict__.keys()):
                 if func(b, getattr(self[a], b)):
-                    add(a, getattr(self[a], b))
+                    if single_value:
+                        acc[a] = getattr(self[a], b)
+                    else:
+                        acc[a].append(getattr(self[a], b))
+
         return acc
 
     @lazy.ensure_loaded

@@ -1,6 +1,3 @@
-from dyc.util import console
-console.print_name()
-
 import functools
 import os
 import threading
@@ -11,6 +8,7 @@ from dyc.backend import orm
 from dyc import core
 from dyc.core.mvc import context as _model
 from dyc.includes import settings, log
+from dyc.util import console
 
 # enable https
 if settings.HTTPS_ENABLED:
@@ -60,6 +58,7 @@ class Application(threading.Thread, lazy.Loadable):
 
     @lazy.ensure_loaded
     def run(self):
+        console.print_name()
         if settings.RUNLEVEL == settings.RunLevel.DEBUG:
             log.write_info('starting server')
         if settings.SERVER_TYPE == settings.ServerTypes.PLAIN:

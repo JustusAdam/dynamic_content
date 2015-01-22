@@ -27,6 +27,6 @@ def write_any(*stuff):
     write(datetime.datetime.now(), *stuff)
 
 
-write_error = functools.partial(write_any, '[ERROR]  ')
-write_info = functools.partial(write_any, '[INFO]   ')
+write_error   = functools.partial(write_any, '[ERROR]  ')
+write_info    = functools.partial(write_any, '[INFO]   ')
 write_warning = functools.partial(write_any, '[WARNING]')
