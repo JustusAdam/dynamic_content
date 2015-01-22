@@ -15,8 +15,10 @@ Important interactions are:
 
   known options are:
 
-   anti_csrf:  boolean indicating whether to use or not to use anti csrf
-   for requests to this path
+   anti_csrf (boolean, default=True):  when set to false no anti-csrf token checking is performed
+    on requests to the path handled by this controller
+   require_ssl (boolean, default=False): when set to true a middleware will redirect any http request
+    to this controller to the appropriate https url provided the server currently has https enabled
 
 
 It is recommended to not directly use ControllerFunction and RestControllerFunction.
