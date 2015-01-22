@@ -144,7 +144,8 @@ class Base(object):
         except KeyError:
             None
         for child in self.children():
-            yield from child._find(*selectors, **vselectors)
+            for a in child._find(*selectors, **vselectors):
+                yield a
 
     def find(self, *selectors, **vselectors):
         return tuple(self._find(*selectors, **vselectors))

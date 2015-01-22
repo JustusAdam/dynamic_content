@@ -1,5 +1,3 @@
-import io
-import functools
 from . import parser
 from dyc.util.parser import elements
 
@@ -18,8 +16,8 @@ _out = __io.StringIO()\n
 if not '_print' in globals():
     _print = print
 
-echo = print = lambda *value, sep=' ', end='', file=_out, flush=False: _print(
-    *value, sep=sep, end=end, file=file, flush=flush)\n
+echo = print = lambda *value, sep=' ', end='', file=_out: _print(
+    *value, sep=sep, end=end, file=file)\n
 
 del __io\n
 """
@@ -39,7 +37,8 @@ def find_code(*dom_elements):
         if isinstance(element, parser.DcHPElement):
             yield element
         elif isinstance(element, elements.Base):
-            yield from find_code(*element.content())
+            for a in find_code(*element.content()):
+                yield a
 
 
 def evaluate_dom(dom_root, context):
@@ -56,7 +55,7 @@ def evaluate_html(string, context):
 
 if __name__ == '__main__':
     string = 'print(\'hello\')\nout.write(\'you\')'
-
+    c = compile(str, '<string>', 'exec')
     g = dict()
     r = exec(c, g)
     print()

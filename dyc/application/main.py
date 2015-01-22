@@ -66,25 +66,28 @@ def prepare():
 
     del _basedir
 
-    import setproctitle
-    import subprocess
+    try:
+        import setproctitle
+        import subprocess
 
-    title = 'dynamic_content'
+        title = 'dynamic_content'
 
-    res = subprocess.check_output(('ps', '-ef'))
+        res = subprocess.check_output(('ps', '-ef'))
 
-    lines = tuple(filter(lambda a: ' ' + title + ' ' in a, res.decode().splitlines()))
+        lines = tuple(filter(lambda a: ' ' + title + ' ' in a, res.decode().splitlines()))
 
-    if len(lines) != 0:
-        print(lines)
-        a = input('\n\nAnother {} process has been detected.\nWould you like to kill it, in order to start a new one?\n[y|N]\n\n\n'.format(title))
-        if a.lower() in ('y', 'yes'):
-            subprocess.call(('pkill', 'dynamic_content'))
-        else:
-            sys.exit()
+        if len(lines) != 0:
+            print(lines)
+            a = input('\n\nAnother {} process has been detected.\nWould you like to kill it, in order to start a new one?\n[y|N]\n\n\n'.format(title))
+            if a.lower() in ('y', 'yes'):
+                subprocess.call(('pkill', 'dynamic_content'))
+            else:
+                sys.exit()
 
-    if not setproctitle.getproctitle() == title:
-        setproctitle.setproctitle(title)
+        if not setproctitle.getproctitle() == title:
+            setproctitle.setproctitle(title)
+    except ImportError:
+        pass
 
 
 def main():

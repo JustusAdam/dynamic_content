@@ -63,20 +63,29 @@ class TemplateFormatter(object):
         else:
             pairing = dict(model)
             pairing['request'] = request
-            file = open(self.view_path(view_name, model)).read()
-            document = str(dchp.evaluator.evaluate_html(file, dict(pairing)))
+            for path in self.view_path(view_name, model):
+                try:
+                    with open(path) as file:
+                        string = file.read()
+                        break
+                except IOError:
+                    continue
+            else:
+                raise IOError(view_name)
+
+            document = str(dchp.evaluator.evaluate_html(string, dict(pairing)))
             document = document.encode(encoding)
 
         return response.Response(document, 200, model.headers, model.cookies)
 
     @staticmethod
     def view_path(view, model):
-        return view if '/' in view else ((
-            model.template_directory
-            if hasattr(model, 'template_directory')
-            and model.template_directory
-            else 'custom/template') + '/' + (
-            view
-            if view.endswith('.html')
-            else view + '.html')
-            )
+        view = view if view.endswith('.html') else view + '.html'
+        if view.startswith('/'):
+            yield view[1:]
+        else:
+            if hasattr(model, 'template_directory'):
+                yield model.template_directory + '/' + view
+
+            yield 'custom/template/' + view
+            yield 'templates/' + view

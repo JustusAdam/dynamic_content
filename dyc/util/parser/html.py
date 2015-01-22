@@ -17,18 +17,18 @@ class ParserStack(object):
     )
 
     def __init__(self,
-        element = [],
-        element_name = [],
-        argname = [],
-        kwarg_value = [],
-        text_content = [],
+        element = None,
+        element_name = None,
+        argname = None,
+        kwarg_value = None,
+        text_content = None,
         current = None
         ):
-        self.element = element
-        self.element_name = element_name
-        self.argname = argname
-        self.kwarg_value = kwarg_value
-        self.text_content = text_content
+        self.element = element if not element is None else []
+        self.element_name = element_name if not element_name is None else []
+        self.argname = argname if not argname is None else []
+        self.kwarg_value = kwarg_value if not kwarg_value is None else []
+        self.text_content = text_content if not text_content is None else []
         self.current = current
 
     def __bool__(self):
@@ -47,7 +47,7 @@ def flush_text_content(n, stack):
     if stack.text_content:
         if not (len(stack.text_content) == 1 and stack.text_content[0] == ' '):
             stack.current.append(''.join(stack.text_content))
-        stack.text_content.clear()
+        stack.text_content = []
 
 
 def html_q2(n, stack):
@@ -56,7 +56,7 @@ def html_q2(n, stack):
 
     stack.element.append(stack.current)
     stack.current = element
-    stack.element_name.clear()
+    stack.element_name = []
 
 
 def html_q2_1(n, stack):
@@ -66,7 +66,7 @@ def html_q2_1(n, stack):
 
 def html_q4(n, stack):
     stack.current.params.add(''.join(stack.argname).lower())
-    stack.argname.clear()
+    stack.argname = []
 
 
 def html_q4_1(n, stack):
@@ -76,13 +76,13 @@ def html_q4_1(n, stack):
 
 def html_q6(n, stack):
     stack.current.value_params[''.join(stack.argname).lower()] = ''.join(stack.kwarg_value)
-    stack.argname.clear()
-    stack.kwarg_value.clear()
+    stack.argname = []
+    stack.kwarg_value = []
 
 
 def html_q11(n, stack):
     name = ''.join(stack.element_name).lower()
-    stack.element_name.clear()
+    stack.element_name = []
     if stack.current.tag != name:
         raise SyntaxError(
             'Mismatched closing tag. Expected {}, found {}'.format(

@@ -1,4 +1,4 @@
-import hashlib
+from dyc.util.py34 import hashlib
 import os
 from dyc.includes import log, settings
 from . import model

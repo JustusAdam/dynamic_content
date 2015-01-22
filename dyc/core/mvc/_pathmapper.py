@@ -406,30 +406,29 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
 
         segments = split_segments(path)
 
-        r = []
-        p = []
+        class Stack():
+            def __init__(self, p=None, r=None):
+                self.r = r if r is not None else []
+                self.p = p if p is not None else []
 
-        def flush_p():
-            if p:
-                if p[0] != '':
-                    p.insert(0,'')
-                r.append('/'.join(p))
-                p.clear()
+            def flush_p(self):
+                self.r.append('/'.join(self.p if self.p[0] == '' else ([''] + self.p)) if len(self.p) != 0 else '/')
+                self.p = []
+
+        stack = Stack()
 
         for s in segments:
             if isinstance(s, str):
                 if s == '**':
-                    flush_p()
-                    r.append(s)
+                    stack.flush_p()
                 else:
-                    p.append(s)
+                    stack.p.append(s)
             elif isinstance(s, type) or isinstance(s, TypeArg):
-                flush_p()
-                r.append(s)
+                stack.flush_p()
+                stack.r.append(s)
         else:
-            flush_p()
-
-        return r
+            stack.flush_p()
+        return stack.r
 
 
     def add_path(self, path:str, handler):

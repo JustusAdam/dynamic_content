@@ -20,14 +20,14 @@ class ParserStack(html.ParserStack):
     )
 
     def __init__(self,
-        element = [],
-        element_name = [],
-        argname = [],
-        kwarg_value = [],
-        text_content = [],
+        element = None,
+        element_name = None,
+        argname = None,
+        kwarg_value = None,
+        text_content = None,
         current = None,
-        dchp_content = [],
-        dchp_element_name = [],
+        dchp_content = None,
+        dchp_element_name = None,
         dchp_indent = 0,
         dchp_active_indent = 0
         ):
@@ -39,8 +39,8 @@ class ParserStack(html.ParserStack):
             text_content=text_content,
             current=current
         )
-        self.dchp_content = dchp_content
-        self.dchp_element_name = dchp_element_name
+        self.dchp_content = dchp_content if not dchp_content is None else []
+        self.dchp_element_name = dchp_element_name if not dchp_element_name is None else []
         self.dchp_indent = dchp_indent
         self.dchp_active_indent = dchp_active_indent
 
@@ -74,7 +74,7 @@ def q30(n, stack):
     name = ''.join(stack.dchp_element_name)
     if name != 'dchp':
         raise SyntaxError('Expected tag "dchp", found "{}"'.format(name))
-    stack.dchp_element_name.clear()
+    stack.dchp_element_name = []
     stack.dchp_indent = 0
 
 
@@ -89,7 +89,7 @@ def q44(n, stack):
 
 def finalize(n, stack):
     stack.current.append(DcHPElement(''.join(stack.dchp_content)))
-    stack.dchp_content.clear()
+    stack.dchp_content = []
 
 
 def increment_indent(n, stack):
