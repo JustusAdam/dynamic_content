@@ -88,7 +88,7 @@ def _to_set(my_input, allowed_vals=str):
 
 
 class ControlFunction(object):
-    def __init__(self, function, value, method, query, headers, options={}):
+    def __init__(self, function, value, method, query, headers, options=None):
         if isinstance(function, ControlFunction):
             self.function = function.function
             self.wrapping = function.wrapping
@@ -102,7 +102,7 @@ class ControlFunction(object):
         self.headers = None if headers is None else _to_set(headers)
         self.instance = None
         self.typeargs = []
-        self.options = options
+        self.options = options if options is not None else {}
 
     def __call__(self, *args, **kwargs):
         if self.instance:

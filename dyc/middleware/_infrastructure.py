@@ -54,7 +54,8 @@ cmw = core.get_component('Middleware')
 
 
 @core.inject('Middleware')
-def register(cmw, options=(), args=(), kwargs={}):
+def register(cmw, options=(), args=(), kwargs=None):
+    kwargs = kwargs if not kwargs is None else {}
     def _inner(cls):
         if inspect.isclass(cls) and issubclass(cls, Handler):
             cmw.register(cls(*args, **kwargs))

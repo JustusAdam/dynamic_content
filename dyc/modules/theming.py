@@ -44,7 +44,7 @@ def load_theme_conf(theme):
 
 
 def attach_theme_conf(model, default_theme=settings.DEFAULT_THEME):
-    if not hasattr(model, 'theme_config') or model.theme_config == None:
+    if not hasattr(model, 'theme_config') or model.theme_config is None:
         theme = model.theme = model.theme if hasattr(model, 'theme') and model.theme else default_theme
         model.theme_config = load_theme_conf(theme)
         model.template_directory = model.theme_config['path'] + '/' + model.theme_config.get('template_directory', 'templates')

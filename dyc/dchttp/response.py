@@ -66,10 +66,10 @@ HTTPVersionNotSupported = 505
 
 
 class Response(object):
-    def __init__(self, body=None, code=200, headers:dict={}, cookies=None):
+    def __init__(self, body=None, code=200, headers:dict=None, cookies=None):
         self.body = body
         self.code = code
-        self.headers = headers
+        self.headers = headers if not headers is None else {}
         if (isinstance(cookies, dict)
             and cookies
             and not isinstance(cookies, _cookies.BaseCookie)):
@@ -83,12 +83,13 @@ class Response(object):
 
 class Redirect(Response):
     def __init__(self, location, code=HttpResponseCodes.Found,
-                headers={}, cookies=None):
+                headers=None, cookies=None):
         if not code in (
             HttpResponseCodes.MovedPermanently,
             HttpResponseCodes.Found,
             HttpResponseCodes.SeeOther
             ):
             raise TypeError('Expected code 301 or 302, got {}'.format(code))
+        headers = headers if headers is not None else {}
         headers['Location'] = location
         super().__init__(code=code, cookies=cookies, headers=headers, body=None)

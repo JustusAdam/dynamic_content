@@ -43,8 +43,8 @@ class Vertex(object):
             if callable(f):
                 self.f.add(EdgeFunc(func=f, result=edge))
             else:
-                raise TypeError('Expected type {} or {}, got {}'.format(
-                    str, callable, type(arg)))
+                raise TypeError('Expected type {}, got {}'.format(
+                    callable, type(f)))
 
     def match(self, character):
         if character in self.inner:
@@ -72,7 +72,7 @@ def _parse_deterministic(automaton, stack, string):
             raise SyntaxError('On line {} column {}, nested exception {}'.format(
                 linecount, charcount, e
             ))
-        if res == None:
+        if res is None:
             raise SyntaxError('On line {} column: {} \nExpected character'
                 'from {} or conforming to {}'.format(linecount,
                 charcount, node.inner.keys(), set(f.func for f in node.f)))
