@@ -412,7 +412,7 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
                 self.p = p if p is not None else []
 
             def flush_p(self):
-                self.r.append('/'.join(self.p if self.p[0] == '' else ([''] + self.p)) if len(self.p) != 0 else '/')
+                self.r.append('/'.join(self.p if self.p[0] == '' else ([''] + self.p)) if len(self.p) != 0 else '')
                 self.p = []
 
         stack = Stack()
@@ -427,7 +427,8 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
                 stack.flush_p()
                 stack.r.append(s)
         else:
-            stack.flush_p()
+            if stack.p:
+                stack.flush_p()
         return stack.r
 
 

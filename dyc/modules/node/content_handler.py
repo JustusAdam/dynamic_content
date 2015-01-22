@@ -230,7 +230,7 @@ class FieldBasedPageContent(object):
 
     @staticmethod
     def admin_options(page=None):
-        if page is not None:
+        if page is not None and page.menu_item is not None:
             parent = '-1' if page.menu_item is None else page.menu_item
             selected = '-'.join([page.menu_item.menu.machine_name, str(parent)])
             m_c = _menus.menu_chooser('parent-menu', selected=selected)

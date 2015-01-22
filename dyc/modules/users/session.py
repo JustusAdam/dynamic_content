@@ -52,7 +52,7 @@ def authenticate_user(username_or_uid, password):
 
 def validate_session(token):
     if not isinstance(token, bytes):
-        token = binascii.unhexlify(token)
+        token = binascii.unhexlify(token.encode())
     try:
         return model.Session.get(token=token).user
     except model.orm.DoesNotExist:
