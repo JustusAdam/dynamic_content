@@ -3,5 +3,6 @@ python:
   - "3.4"
 install:
   pip install --allow-external mysql-connector-python -r requirements.txt
-script: python3 -m unittest discover -v -s tests
+script:
+    - pypy3 -m unittest discover -v -s tests
 sudo: false

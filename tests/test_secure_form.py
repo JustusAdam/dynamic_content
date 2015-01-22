@@ -14,7 +14,7 @@ class MyTestCase(unittest.TestCase):
     def test_token_storage(self):
         fid, token = csrf.new()
 
-        result = csrf.ARToken.get(form_id=fid, token=binascii.unhexlify(token))
+        result = csrf.ARToken.get(form_id=fid, token=binascii.unhexlify(token.encode()))
 
         self.assertEqual(token, binascii.hexlify(result.token).decode())
 
@@ -23,11 +23,11 @@ class MyTestCase(unittest.TestCase):
     def test_validate(self):
         fid, token = csrf.new()
 
-        self.assertEqual(type(csrf.ARToken.get(form_id=fid, token=binascii.unhexlify(token))), csrf.ARToken)
+        self.assertEqual(type(csrf.ARToken.get(form_id=fid, token=binascii.unhexlify(token.encode()))), csrf.ARToken)
 
         self.assertTrue(csrf._validate(fid=fid, token=token))
 
-        self.assertRaises(peewee.DoesNotExist, csrf.ARToken.get, form_id=fid, token=binascii.unhexlify(token))
+        self.assertRaises(peewee.DoesNotExist, csrf.ARToken.get, form_id=fid, token=binascii.unhexlify(token.encode()))
 
 
 if __name__ == '__main__':

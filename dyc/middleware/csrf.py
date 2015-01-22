@@ -36,7 +36,7 @@ def _validate(fid, token):
     try:
         a = ARToken.get(
             form_id=fid,
-            token=binascii.unhexlify(token)
+            token=binascii.unhexlify(token.encode() if not isinstance(token, bytes) else token )
             )
         if a:
             a.delete_instance()
