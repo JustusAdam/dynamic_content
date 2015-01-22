@@ -421,6 +421,7 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
             if isinstance(s, str):
                 if s == '**':
                     stack.flush_p()
+                    stack.p.append(s)
                 else:
                     stack.p.append(s)
             elif isinstance(s, type) or isinstance(s, TypeArg):

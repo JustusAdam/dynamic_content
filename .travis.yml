@@ -2,7 +2,9 @@ language: python
 python:
   - "3.4"
 install:
-  pip install --allow-external mysql-connector-python -r requirements.txt
+    - mkdir libs
+    - pip install --target libs --update -r requirements.txt
 script:
-    - pypy3 -m unittest discover -v -s tests
+    - PYTHONPATH=./libs python -OO -m unittest discover -v -s tests
+    - PYTHONPATH=./libs pypy -OO -m unittest discover -v -s tests
 sudo: false
