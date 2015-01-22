@@ -1,7 +1,6 @@
-from dyc.core.mvc import context as _model
 from dyc import modules
 theming = modules.import_module('theming')
-from dyc.util import decorators
+from dyc.util import decorators, structures
 from dyc import core
 from . import model, page
 from dyc.util import html
@@ -91,10 +90,10 @@ class RegionHandler:
             )
 
 
-def add_regions(model):
+def add_regions(dc_obj):
 
     def _regions(client, theme):
-        config = model.theme_config['regions']
+        config = dc_obj.config['theme_config']['regions']
         return {region : RegionHandler(
                 region,
                 config[region],
@@ -104,17 +103,17 @@ def add_regions(model):
             for region in config
             }
 
-    if not 'regions' in model:
-        model['regions'] = _regions(model.client, model.theme)
+    if not 'regions' in dc_obj.context:
+        dc_obj.context['regions'] = _regions(dc_obj.request.client, dc_obj.config['theme'])
 
-    return model
+    return dc_obj
 
 
 @decorators.apply_to_type(
-    _model.Context,
+    structures.DynamicContent,
     apply_before=False,
     return_from_decorator=False
     )
-def Regions(model):
-    theming.theme_model(model)
-    add_regions(model)
+def Regions(dc_obj):
+    theming.theme_dc_obj(dc_obj)
+    add_regions(dc_obj)

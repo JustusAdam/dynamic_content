@@ -14,5 +14,5 @@ def conditional_redirect(request):
     else:
         return response.Redirect(
             location='https://{}{}'.format(request.host, (':' + str(settings.SERVER.ssl_port)) if request.port else '', request.path),
-            code=301
+            code=response.HttpResponseCodes.MovedPermanently
             )

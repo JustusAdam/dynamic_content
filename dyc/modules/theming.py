@@ -43,59 +43,59 @@ def load_theme_conf(theme):
     return conf
 
 
-def attach_theme_conf(model, default_theme=settings.DEFAULT_THEME):
-    if not hasattr(model, 'theme_config') or model.theme_config is None:
-        theme = model.theme = model.theme if hasattr(model, 'theme') and model.theme else default_theme
-        model.theme_config = load_theme_conf(theme)
-        model.template_directory = model.theme_config['path'] + '/' + model.theme_config.get('template_directory', 'templates')
+def attach_theme_conf(dc_obj, default_theme=settings.DEFAULT_THEME):
+    if not 'theme_config' in dc_obj.config or dc_obj.config['theme_config'] is None:
+        theme = dc_obj.config['theme'] = dc_obj.config['theme'] if 'theme' in dc_obj.config and dc_obj.config['theme'] else default_theme
+        dc_obj.config['theme_config'] = load_theme_conf(theme)
+        dc_obj.config['template_directory'] = dc_obj.config['theme_config']['path'] + '/' + dc_obj.config['theme_config'].get('template_directory', 'templates')
 
 
-def compile_stuff(context):
-    theme_path = '/theme/' + context.theme + '/'
+def compile_stuff(dc_obj):
+    theme_path = '/theme/' + dc_obj.config['theme'] + '/'
 
-    stylesheet_directory = theme_path + context.theme_config['stylesheet_directory']
+    stylesheet_directory = theme_path + dc_obj.config['theme_config']['stylesheet_directory']
     theme_stylesheets = (html.Stylesheet(stylesheet_directory + '/' + stylesheet)
-        for stylesheet in context.theme_config.get('stylesheets', ()))
+        for stylesheet in dc_obj.config['theme_config'].get('stylesheets', ()))
 
-    if 'stylesheets' in context:
-        context['stylesheets'] += theme_stylesheets
+    if 'stylesheets' in dc_obj.context:
+        dc_obj.context['stylesheets'] += theme_stylesheets
     else:
-        context['stylesheets'] = InvisibleList(theme_stylesheets)
+        dc_obj.context['stylesheets'] = InvisibleList(theme_stylesheets)
 
-    scripts_directory = theme_path + context.theme_config['stylesheet_directory']
+    scripts_directory = theme_path + dc_obj.config['theme_config']['stylesheet_directory']
     theme_scripts = (
         str(html.Script(src=scripts_directory + '/' + script))
-        for script in context.theme_config.get('scripts', ())
+        for script in dc_obj.config['theme_config'].get('scripts', ())
         )
-    if 'scripts' in context:
-        context['scripts'] += theme_scripts
+    if 'scripts' in dc_obj.context:
+        dc_obj.context['scripts'] += theme_scripts
     else:
-        context['scripts'] = InvisibleList(theme_scripts)
+        dc_obj.context['scripts'] = InvisibleList(theme_scripts)
 
-    favicon = context.theme_config.get('favicon', 'favicon.icon')
-    apple_icon = context.theme_config.get('apple-touch-icon', 'favicon.icon')
+    favicon = dc_obj.config['theme_config'].get('favicon', 'favicon.icon')
+    apple_icon = dc_obj.config['theme_config'].get('apple-touch-icon', 'favicon.icon')
     theme_meta = (
         html.LinkElement(href=theme_path + favicon, rel='shortcut icon'),
         html.LinkElement(href=theme_path + apple_icon, rel='apple-touch-icon-precomposed')
     )
-    if 'meta' in context:
-        context['meta'] += [theme_meta]
+    if 'meta' in dc_obj.context:
+        dc_obj.context['meta'] += [theme_meta]
     else:
-        context['meta'] = InvisibleList(theme_meta)
+        dc_obj.context['meta'] = InvisibleList(theme_meta)
 
-    context.setdefault('pagetitle', pagetitle)
+    dc_obj.context.setdefault('pagetitle', pagetitle)
 
 
-def theme_model(model_map):
-    if not hasattr(model_map, 'theme_config') or not model_map.theme_config:
-        attach_theme_conf(model_map)
-        compile_stuff(model_map)
+def theme_dc_obj(dc_obj):
+    if not 'theme_config' in dc_obj.config or not dc_obj.config['theme_config']:
+        attach_theme_conf(dc_obj)
+        compile_stuff(dc_obj)
 
 
 def theme(default_theme=settings.DEFAULT_THEME):
     @mvc.context.apply_to_context(apply_before=False)
-    def _inner(model_map):
-        theme_model(model_map)
+    def _inner(dc_obj):
+        theme_dc_obj(dc_obj)
 
     if callable(default_theme):
         func, default_theme = default_theme, settings.DEFAULT_THEME
@@ -136,14 +136,14 @@ def render_breadcrumbs(url):
     return html.ContainerElement(*tuple(acc()), classes={'breadcrumbs'})
 
 
-def attach_breadcrumbs(model_map):
-    if not 'breadcrumbs' in model_map:
-        model_map['breadcrumbs'] = render_breadcrumbs(model_map.request.path)
+def attach_breadcrumbs(dc_obj):
+    if not 'breadcrumbs' in dc_obj:
+        dc_obj.context['breadcrumbs'] = render_breadcrumbs(dc_obj.request.path)
 
 
 @mvc.context.apply_to_context(apply_before=False)
-def breadcrumbs(model_map):
-    attach_breadcrumbs(model_map)
+def breadcrumbs(dc_obj):
+    attach_breadcrumbs(dc_obj)
 
 
 def add_theme(name, path, enabled):

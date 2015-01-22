@@ -42,20 +42,20 @@ class UserInformationCommon(commons.Handler):
 
 
 @mvc.controller_function('users/{int}', method=dchttp.RequestMethods.GET, query=False)
-def user_information(model, uid):
+def user_information(dc_obj, uid):
     if not (
-            ( model.client.check_permission('view other user info') or
-            model.client.check_permission('view own user'))
-            if int(uid) == model.client.user
-            else model.client.check_permission('view other user info')
+            (dc_obj.request.client.check_permission('view other user info') or
+            dc_obj.request.client.check_permission('view own user'))
+            if int(uid) == dc_obj.request.client.user
+            else dc_obj.request.client.check_permission('view other user info')
     ):
         return 'error'
 
-    model['title'] = 'User Information'
+    dc_obj.context['title'] = 'User Information'
 
     user = users.get_single_user(int(uid))
     grp = user.access_group
-    model['content'] = html.ContainerElement(
+    dc_obj.context['content'] = html.ContainerElement(
         html.TableElement(
             ['UID', str(user.oid)],
             ['Username', user.username],
@@ -69,10 +69,10 @@ def user_information(model, uid):
 
 
 @mvc.controller_function('users', method=dchttp.RequestMethods.GET, query=True)
-def users_overview(model, get_query):
-    if not model.client.check_permission('access users overview'):
+def users_overview(dc_obj, get_query):
+    if not dc_obj.client.check_permission('access users overview'):
         return 'error'
-    model.theme = 'admin_theme'
+    dc_obj.config['theme'] = 'admin_theme'
 
     if 'selection' in get_query:
         selection = get_query['selection'][0]
@@ -92,8 +92,8 @@ def users_overview(model, get_query):
 
     head = [['UID', 'Username', 'Name (if provided)', 'Date created', 'Actions']]
 
-    model['title'] = 'User Overview'
-    model['content'] = html.TableElement(*head + user_list, classes={'user-overview'}) if user_list else \
+    dc_obj.context['title'] = 'User Overview'
+    dc_obj.context['content'] = html.TableElement(*head + user_list, classes={'user-overview'}) if user_list else \
         html.ContainerElement(html.ContainerElement('It seems you do not have any users yet.',
                                           additional={'style': 'padding:10px;text-align:center;'}),
                          html.ContainerElement('Would you like to ', html.ContainerElement('create one', html_type='a',

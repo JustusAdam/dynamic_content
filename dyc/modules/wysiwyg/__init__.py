@@ -1,7 +1,7 @@
-from dyc.core.mvc import context as _context
 from dyc.modules.theming import InvisibleList
-from dyc.util import html
+from dyc.util import html, structures
 from ._elements import WysiwygTextarea, identifier
+from dyc.core.mvc import context
 
 __author__ = 'Justus Adam'
 
@@ -12,7 +12,7 @@ apply_script = html.Script(
 )
 
 
-def decorator_hook(model:_context.Context):
+def decorator_hook(model:structures.DynamicContent):
     if 'scripts' in model:
         model['scripts'] += [basic_script, apply_script]
     else:
@@ -20,7 +20,7 @@ def decorator_hook(model:_context.Context):
 
 
 def use(name='tinymce'):
-    @_context.apply_to_context(apply_before=False)
+    @context.apply_to_context(apply_before=False)
     def _inner(model):
         decorator_hook(model)
     return _inner

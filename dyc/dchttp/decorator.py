@@ -1,5 +1,5 @@
 import functools
-from dyc.core import mvc
+from dyc.util import structures
 from . import ssl
 
 
@@ -12,9 +12,9 @@ def require_ssl(function):
     """
     @functools.wraps(function)
     def _inner(context, *args, **kwargs):
-        if not isinstance(context, mvc.context.Context):
+        if not isinstance(context, structures.DynamicContent):
             for arg in args:
-                if isinstance(arg, mvc.context.Context):
+                if isinstance(arg, structures.DynamicContent):
                     context = arg
                     break
             else:

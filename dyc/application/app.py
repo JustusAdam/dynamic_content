@@ -8,13 +8,13 @@ from dyc.backend import orm
 from dyc import core
 from dyc.core.mvc import context as _model
 from dyc.includes import settings, log
-from dyc.util import console
+
 
 # enable https
 if settings.HTTPS_ENABLED:
     import ssl
 
-from dyc.util import typesafe, lazy, catch_vardump
+from dyc.util import console, typesafe, lazy, catch_vardump, structures
 from dyc import dchttp
 from dyc.errors import exceptions
 from dyc import modules
@@ -244,24 +244,28 @@ class Application(threading.Thread, lazy.Loadable):
             if res is not None:
                 return res
 
-        model = _model.Context()
-        model.client = request.client
-        model.request = request
+
+        dc_obj = structures.DynamicContent(
+            request=request,
+            context={},
+            config={}
+            )
+
 
         try:
             handler, args, kwargs = pathmap.resolve(request)
 
             for obj in cmw:
-                res = obj.handle_controller(request, handler, args, kwargs)
+                res = obj.handle_controller(dc_obj, handler, args, kwargs)
                 if res is not None:
                     return res
 
-            view = model.view = handler(*(model, ) + args, **kwargs)
+            view = handler(*(dc_obj, ) + args, **kwargs)
 
         except (exceptions.PathResolving, exceptions.MethodHandlerNotFound) as e:
             view = 'error'
-            model['title'] = '404 - Page not found'
-            model['content'] = (
+            dc_obj.context['title'] = '404 - Page not found'
+            dc_obj.context['content'] = (
                 '<h3>Pathmapper encountered an error</h3>'
                 '<p>Nested Exception:</p>'
                 '<code> {} </code>'
@@ -278,11 +282,11 @@ class Application(threading.Thread, lazy.Loadable):
         # Allow view to directly return a response, mainly to handle errors
         if not isinstance(view, dchttp.response.Response):
             for obj in cmw:
-                res = obj.handle_view(request, view, model)
+                res = obj.handle_view(view, dc_obj)
                 if res is not None:
                     return res
 
-            response = self.decorator(view, model, request)
+            response = self.decorator(view, dc_obj)
         else:
             response = view
 

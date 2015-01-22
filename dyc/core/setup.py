@@ -139,9 +139,9 @@ def setup_controller(model, pid):
         'sidebar_left': '<div class="sidebar" style="height: 1px;"></div>',
         'pagetitle': 'Setting up your CMS installation'
     }
-    model.update(setup_pages(pid))
+    model.context.update(setup_pages(pid))
 
-    model.update(generic)
+    model.context.update(generic)
     message = ''
     if pid == 2:
         db = Database
@@ -151,15 +151,15 @@ def setup_controller(model, pid):
         db = Database
         db.connect()
         setup_result = setup_wrapper()
-        model['content'] = model['content'].format(**setup_result)
-        model['title'] = model['title'].format(**setup_result)
+        model.context['content'] = model.context['content'].format(**setup_result)
+        model.context['title'] = model.context['title'].format(**setup_result)
         del db
     elif pid == 5:
         user_form = csrf.SecureForm(
             action='/setup/5'
         )
-        model['content'] = model['content'].format(user_form=user_form)
-    model['content'] = model['content'].format(this='/setup/' + str(pid),
+        model.context['content'] = model.context['content'].format(user_form=user_form)
+    model.context['content'] = model.context['content'].format(this='/setup/' + str(pid),
                                                            next_page=pid + 1,
                                                            message=message)
     return 'page'

@@ -40,10 +40,10 @@ class Handler(object):
     def handle_request(self, request):
         pass
 
-    def handle_controller(self, request, handler, args, kwargs):
+    def handle_controller(self, dc_obj, handler, args, kwargs):
         pass
 
-    def handle_view(self, request, view,  model):
+    def handle_view(self, view,  dc_obj):
         pass
 
     def handle_response(self, request, response_obj):

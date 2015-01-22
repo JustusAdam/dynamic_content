@@ -77,7 +77,7 @@ class FieldBasedPageContent(object):
         return self.join_permission(modifier) if page.published else \
             self.join_permission('access unpublished')
 
-    def compile(self, model, page, modifier):
+    def compile(self, dc_obj, page, modifier):
 
         def _(page):
             raise TypeError(modifier)
@@ -88,11 +88,11 @@ class FieldBasedPageContent(object):
             _add_modifier : self.add_form
             }
 
-        if not model.client.check_permission(self.get_permission(page, modifier)):
+        if not dc_obj.request.client.check_permission(self.get_permission(page, modifier)):
             return None
 
         node = dict(
-            editorial=self.editorial(page, model.client),
+            editorial=self.editorial(page, dc_obj.request.client),
             content=mapped.get(modifier, _)(page),
             title=page.page_title
             )
@@ -120,15 +120,15 @@ class FieldBasedPageContent(object):
             yield html.Label(a['name'], label_for=a['name'])
             yield a['content']
 
-    def access(self, model, page):
-        return self.compile(model, page, _access_modifier)
+    def access(self, dc_obj, page):
+        return self.compile(dc_obj, page, _access_modifier)
 
     @wysiwyg.use()
-    def edit(self, model, page):
-        return self.compile(model, page, _edit_modifier)
+    def edit(self, dc_obj, page):
+        return self.compile(dc_obj, page, _edit_modifier)
 
-    def process_edit(self, model, page, query):
-        if not model.client.check_permission(self.get_permission(page, 'add')):
+    def process_edit(self, dc_obj, page, query):
+        if not dc_obj.request.client.check_permission(self.get_permission(page, 'add')):
             return None
         try:
             for one_field in self.fields:
@@ -146,8 +146,8 @@ class FieldBasedPageContent(object):
         return ':redirect:/node/{}{}'.format(page.oid, '' if success else '/add')
 
     @wysiwyg.use()
-    def add(self, model):
-        if not model.client.check_permission(self.join_permission('add')):
+    def add(self, dc_obj):
+        if not dc_obj.request.client.check_permission(self.join_permission('add')):
             return None
 
         node = dict(
@@ -272,43 +272,43 @@ class CMSController(object):
 
     @mvc.controller_method({'/node/{int}', 'node/{int}/access'}, method=dchttp.RequestMethods.GET, query=False)
     @make_node()
-    def handle_compile(self, model, page_id):
+    def handle_compile(self, dc_obj, page_id):
         page = _model.Page.get(oid=page_id)
-        return self.compiler_map[page.content_type].access(model, page)
+        return self.compiler_map[page.content_type].access(dc_obj, page)
 
 
     @mvc.controller_method('/node/{int}/edit', method=dchttp.RequestMethods.POST, query=True)
-    def handle_edit(self, model, page_id, post):
+    def handle_edit(self, dc_obj, page_id, post):
         page = _model.Page.get(oid=page_id)
-        return self.compiler_map[page.content_type.machine_name].process_edit(model, page, post)
+        return self.compiler_map[page.content_type.machine_name].process_edit(dc_obj, page, post)
 
 
     @mvc.controller_method('/node/{int}/edit', method=dchttp.RequestMethods.GET, query=False)
     @make_node()
-    def handle_edit_page(self, model, page_id):
+    def handle_edit_page(self, dc_obj, page_id):
         page = _model.Page.get(oid=page_id)
-        return self.compiler_map[page.content_type.machine_name].edit(model, page)
+        return self.compiler_map[page.content_type.machine_name].edit(dc_obj, page)
 
 
     @mvc.controller_method('/node', method=dchttp.RequestMethods.GET, query=True)
     @user_dec.authorize(' '.join(['access', 'node', 'overview']))
     @make_node()
-    def overview(self, page_model, get):
+    def overview(self, dc_obj, get):
         my_range = [
             int(get['from'][0]) if 'from' in get else 0,
             int(get['to'][0]) if 'to' in get else _step
         ]
         for a in _model.Page.select().limit(
                 ','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]])).order_by('date_created desc'):
-            node = self.compiler_map[a.content_type.machine_name].access(page_model, a)
+            node = self.compiler_map[a.content_type.machine_name].access(dc_obj, a)
             node['title'] = html.A('/node/' + str(a.oid), node['title'])
             yield node
 
     @mvc.controller_method('/node/add/{str}', method=dchttp.RequestMethods.GET, query=False)
     @make_node()
-    def add(self, model, content_type):
-        return self.compiler_map[content_type].add(model)
+    def add(self, dc_obj, content_type):
+        return self.compiler_map[content_type].add(dc_obj)
 
     @mvc.controller_method('/node/add/{str}', method=dchttp.RequestMethods.POST, query=True)
-    def process_add(self, model, content_type, query):
-        return self.compiler_map[content_type].process_add(query, model.request.client)
+    def process_add(self, dc_obj, content_type, query):
+        return self.compiler_map[content_type].process_add(query, dc_obj.request.client)

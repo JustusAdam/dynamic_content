@@ -10,7 +10,7 @@ from dyc import dchttp
 from dyc import core
 from dyc.core import mvc
 from dyc.includes import settings
-from dyc.util import html
+from dyc.util import html, structures
 from dyc.dchttp import response, request as _request
 from dyc import middleware
 
@@ -68,12 +68,12 @@ def handle(request):
 @mvc.controller_class
 class PathHandler(middleware.Handler):
     @mvc.controller_method({'theme/**', 'public/**', '/**'}, method=dchttp.RequestMethods.GET)
-    def handle(self, model, path):
-        return self.parse_path(model, path)
+    def handle(self, dc_obj, path):
+        return self.parse_path(dc_obj, path)
 
-    def parse_path(self, model, path):
+    def parse_path(self, dc_obj, path):
         # HACK until all handler methods use the requests properly, this method creates its own
-        return handle(_request.Request(path, 'get', None, None))
+        return handle(dc_obj.request)
 
     def handle_request(self, request):
         if request.path.split('/')[1] in settings.FILE_DIRECTORIES:
@@ -84,14 +84,18 @@ class PathHandler(middleware.Handler):
 def directory(request, real_dir):
     if not isinstance(real_dir, pathlib.Path):
         real_dir = pathlib.Path(real_dir)
-    model = mvc.context.Context(
-        content=html.List(
-            *[html.ContainerElement(
-                str(a.name), html_type='a', additional={'href': str(request.path) + parse.quote(str(a.name), )},
-                classes={'file-link'}
-            ) for a in filter(lambda a: not str(a.name).startswith('.'), real_dir.iterdir())
-            ], classes={'directory-index'}, item_classes={'directory-content'}
-        ),
-        title=real_dir.name
-    )
-    return core.get_component('TemplateFormatter')(_default_view, model, request)
+    dc_obj = structures.DynamicContent(
+        request=request,
+        config={},
+        context=dict(
+            content=html.List(
+                *[html.ContainerElement(
+                    str(a.name), html_type='a', additional={'href': str(request.path) + parse.quote(str(a.name), )},
+                    classes={'file-link'}
+                ) for a in filter(lambda a: not str(a.name).startswith('.'), real_dir.iterdir())
+                ], classes={'directory-index'}, item_classes={'directory-content'}
+            ),
+            title=real_dir.name
+            )
+        )
+    return core.get_component('TemplateFormatter')(_default_view, model)

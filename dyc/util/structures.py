@@ -14,3 +14,6 @@ ServerArguments = collections.namedtuple('ServerArguments', ('host', 'port', 'ss
 DatabaseArguments = collections.namedtuple(
     'database',
     ('type', 'user', 'autocommit', 'password', 'name', 'host'))
+
+
+DynamicContent = collections.namedtuple('DynamicContent', ('config', 'context', 'request'))

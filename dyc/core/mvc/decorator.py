@@ -33,9 +33,8 @@ from . import Config, DefaultConfig
 from . import controller
 from .. import _component
 from dyc import dchttp
-from .context import Context, apply_to_context
-from dyc.util import decorators
-from dyc.util import typesafe
+from .context import apply_to_context
+from dyc.util import decorators, structures, typesafe
 
 
 __author__ = 'Justus Adam'
@@ -50,7 +49,7 @@ class Autoconf(object):
     Chains Custom config, model config and default conf and assigns it to the model.
 
     Priority is given as follows:
-     Model.config > custom config argument? > Controller.config? > DefaultConfig
+     dc_obj.config > custom config argument? > Controller.config? > DefaultConfig
      ? is optional, will be omitted if bool(?) == false
     """
 
@@ -60,7 +59,7 @@ class Autoconf(object):
 
     def __call__(self, func):
         @functools.wraps(func)
-        @decorators.apply_to_type(Context, controller.Controller)
+        @decorators.apply_to_type(structures.DynamicContent, controller.Controller)
         def wrap(model, controller):
             model.config = collections.ChainMap(*[a for a in [
                 model.config,

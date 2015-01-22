@@ -16,10 +16,10 @@ ADMIN_PATH = '/admin'
 @mvc.controller_function('admin', method=dchttp.RequestMethods.GET, query=False)
 @user_dec.authorize('access admin pages')
 @node.make_node()
-def overview(modelmap):
+def overview(dc_obj):
 
-    modelmap.pageclasses = {'admin-menu', 'overview', 'admin-page'}
-    modelmap.theme = 'admin_theme'
+    dc_obj.context['pageclasses'] = {'admin-menu', 'overview', 'admin-page'}
+    dc_obj.config['theme'] = 'admin_theme'
 
     tree = order_tree(model.Category.select(), Category.from_db(model.Subcategory.select()))
 
@@ -66,9 +66,9 @@ class OverviewCommon(commons.Handler):
 
 @mvc.controller_function('admin/{str}', method=dchttp.RequestMethods.GET, query=False)
 @node.make_node()
-def category(modelmap, name):
-    modelmap.pageclasses = {'admin-menu', 'category'}
-    modelmap.theme = 'admin_theme'
+def category(dc_obj, name):
+    dc_obj.context['pageclasses'] = {'admin-menu', 'category'}
+    dc_obj.config['theme'] = 'admin_theme'
 
     parent = model.Category.get(machine_name=name)
 
@@ -86,9 +86,9 @@ def category(modelmap, name):
 
 @mvc.controller_function('admin/{str}/{str}', method=dchttp.RequestMethods.GET, query=False)
 @node.make_node()
-def subcategory(modelmap, category_name,  name):
-    modelmap.pageclasses = {'admin-menu', 'subcategory'}
-    modelmap.theme = 'admin_theme'
+def subcategory(dc_obj, category_name,  name):
+    dc_obj.context['pageclasses'] = {'admin-menu', 'subcategory'}
+    dc_obj.config['theme'] = 'admin_theme'
 
     parent = model.Subcategory.get(machine_name=name, category=model.Category.get(machine_name=category_name))
 
@@ -104,7 +104,7 @@ def subcategory(modelmap, category_name,  name):
 
 
 @mvc.controller_function('admin/{str}/{str}/{str}', method=dchttp.RequestMethods.GET, query=False)
-def page(modelmap, category_name, subcategory_name, page_name):
+def page(dc_obj, category_name, subcategory_name, page_name):
     pass
 
 

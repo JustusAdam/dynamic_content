@@ -30,7 +30,8 @@ class TemplateFormatter(object):
         'redirect': 'redirect'
     }
 
-    def __call__(self, view_name, model, request):
+    def __call__(self, view_name, dc_obj):
+        request = dc_obj.request
 
         c = ARG_REGEX.match(view_name) if view_name else None
 
@@ -38,32 +39,34 @@ class TemplateFormatter(object):
 
         handler = getattr(self, self.responses[c])
 
-        return handler(model, request, *arg)
+        return handler(dc_obj, request, *arg)
 
-    def redirect(self, model, request, location):
+    def redirect(self, dc_obj, request, location):
         return response.Redirect(
             location=location,
-            headers=model.headers,
-            cookies=model.cookies
+            headers=dc_obj.config.get('headers', None),
+            cookies=dc_obj.config.get('cookies', None)
             )
 
-    def serve_document(self, model, request, view_name):
+    def serve_document(self, dc_obj, request, view_name):
         encoding = (
-            model.encoding
-            if hasattr(model, 'encoding')
-            and model.encoding
+            dc_obj.config['encoding']
+            if 'encoding' in dc_obj.config
+            and dc_obj.config['encoding']
             else _defaults['encoding'])
 
-        if 'no-encode' in model.decorator_attributes:
-            document = model['content']
+        dc_obj.config.setdefault('decorator_attributes', {})
 
-        elif ('no_view' in model.decorator_attributes
+        if 'no-encode' in dc_obj.config['decorator_attributes']:
+            document = dc_obj.context['content']
+
+        elif ('no_view' in dc_obj.config['decorator_attributes']
             or view_name is None):
-            document = model['content'].encode(encoding)
+            document = dc_obj.context['content'].encode(encoding)
         else:
-            pairing = dict(model)
+            pairing = dc_obj.context
             pairing['request'] = request
-            for path in self.view_path(view_name, model):
+            for path in self.view_path(view_name, dc_obj):
                 try:
                     with open(path) as file:
                         string = file.read()
@@ -73,19 +76,24 @@ class TemplateFormatter(object):
             else:
                 raise IOError(view_name)
 
-            document = str(dchp.evaluator.evaluate_html(string, dict(pairing)))
+            document = str(dchp.evaluator.evaluate_html(string, pairing))
             document = document.encode(encoding)
 
-        return response.Response(document, 200, model.headers, model.cookies)
+        return response.Response(
+            body=document,
+            code=200,
+            headers=dc_obj.config.get('headers', None),
+            cookies=dc_obj.config.get('cookies', None)
+            )
 
     @staticmethod
-    def view_path(view, model):
+    def view_path(view, dc_obj):
         view = view if view.endswith('.html') else view + '.html'
         if view.startswith('/'):
             yield view[1:]
         else:
-            if hasattr(model, 'template_directory'):
-                yield model.template_directory + '/' + view
+            if 'template_directory' in dc_obj.config:
+                yield dc_obj.config['template_directory'] + '/' + view
 
             yield 'custom/template/' + view
             yield 'templates/' + view

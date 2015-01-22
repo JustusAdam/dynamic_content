@@ -54,31 +54,31 @@ class LoginCommonHandler(commons.Handler):
 @decorator.authorize('access login page')
 @theming.breadcrumbs
 @commons.Regions
-def login(model, query, failed=False):
+def login(dc_obj, query, failed=False):
     print(query)
     message = html.ContainerElement('Your Login failed, please try again.', classes={'alert'}) if failed else ''
-    model['content'] = html.ContainerElement(message, LOGIN_FORM)
-    model['title'] = 'Login'
+    dc_obj.context['content'] = html.ContainerElement(message, LOGIN_FORM)
+    dc_obj.context['title'] = 'Login'
     return 'page'
 
 
 @mvc.controller_function('login', method=dchttp.RequestMethods.POST, query=['username', 'password'])
 @decorator.authorize('access login page')
-def login(model, username, password):
+def login(dc_obj, username, password):
     username = username[0]
     password = password[0]
     token = session.start_session(username, password)
     if token:
         cookie = cookies.SimpleCookie({'SESS': token})
-        model.cookies = cookie
+        dc_obj.config['cookies'] = cookie
         return ':redirect:/'
     else:
         return ':redirect:/login/failed'
 
 
 @mvc.controller_function('logout', method=dchttp.RequestMethods.GET, query=True)
-def logout(model, query):
-    user = model.client.user
+def logout(dc_obj, query):
+    user = dc_obj.request.client.user
     if user == users.GUEST:
         return ':redirect:/login'
     else:
@@ -89,6 +89,6 @@ def logout(model, query):
             dest = query['destination'][0]
         else:
             dest = '/'
-        model.cookies.load({'SESS': ''})
-        model.cookies['SESS']['expires'] = time.strftime(_cookie_time_format)
+        dc_obj.config['cookies'].load({'SESS': ''})
+        dc_obj.config['cookies']['SESS']['expires'] = time.strftime(_cookie_time_format)
         return ':redirect:' + dest

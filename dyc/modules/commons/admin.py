@@ -12,13 +12,13 @@ __author__ = 'Justus Adam'
 class MenuAdminController:
     @mvc_decorator.controller_method('menus')
     @decorator.Regions
-    def handle_menus(self, model, url):
+    def handle_menus(self, dc_obj, url):
         if len(url.path) == 1:
-            return self.overview(model, url)
+            return self.overview(dc_obj, url)
         elif len(url.path) == 2:
-            return self.a_menu(model, url)
+            return self.a_menu(dc_obj, url)
 
-    def overview(self, model, url):
+    def overview(self, dc_obj, url):
         menus = _model.Menu.select()
         l = [
             [
@@ -26,15 +26,15 @@ class MenuAdminController:
                 html.A(str(url.path) + '/' + item.machine_name, i18n.translate(item.display_name)),
                 html.Checkbox(checked=bool(item.enabled))
             ] for item in menus]
-        model['content'] = csrf.SecureForm(html.TableElement(*l, classes={'menu-overview'}))
-        model['title'] = 'Menus Overview'
-        model.theme = 'admin_theme'
+        dc_obj.context['content'] = csrf.SecureForm(html.TableElement(*l, classes={'menu-overview'}))
+        dc_obj.context['title'] = 'Menus Overview'
+        dc_obj.config['theme'] = 'admin_theme'
         return 'page'
 
-    def a_menu(self, model, url):
+    def a_menu(self, dc_obj, url):
         menu_name = url.path[1]
         menu = _menus.menu(menu_name).render()
-        model['content'] = html.List(*menu, additional={'style': 'list-style-type: none;'})
-        model['title'] = i18n.translate(menu_name)
-        model.theme = 'admin_theme'
+        dc_obj.context['content'] = html.List(*menu, additional={'style': 'list-style-type: none;'})
+        dc_obj.context['title'] = i18n.translate(menu_name)
+        dc_obj.config['theme'] = 'admin_theme'
         return 'page'

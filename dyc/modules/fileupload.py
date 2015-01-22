@@ -5,7 +5,7 @@ from dyc import dchttp
 
 
 @mvc.controller_function('/upload', method=dchttp.RequestMethods.post, query=['file', 'name'])
-def upload(model, file, name):
+def upload(dc_obj, file, name):
     file, name = file[0], name[0]
     name, ext = name.rsplit('.',1)
 
@@ -29,12 +29,12 @@ def upload(model, file, name):
 
 
 @mvc.controller_function('/upload', method=dchttp.RequestMethods.get)
-def upload_2(model):
-    model['failed'] = False
+def upload_2(dc_obj):
+    dc_obj['failed'] = False
     return 'fileupload'
 
 
 @mvc.controller_function('/upload/failed', method=dchttp.RequestMethods.get)
-def upload_failed(model):
-    model['failed'] = True
+def upload_failed(dc_obj):
+    dc_obj['failed'] = True
     return 'fileupload'
