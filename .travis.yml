@@ -1,7 +1,8 @@
 language: python
 python:
-  - "3.4"
-  - "pypy3"
+    - "3.2"
+    - "3.4"
+    - "pypy3"
 install:
     - mkdir libs
     - pip install --target libs --upgrade -r requirements.txt
