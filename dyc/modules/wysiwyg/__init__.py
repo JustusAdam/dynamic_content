@@ -12,11 +12,11 @@ apply_script = html.Script(
 )
 
 
-def decorator_hook(model:structures.DynamicContent):
-    if 'scripts' in model:
-        model['scripts'] += [basic_script, apply_script]
+def decorator_hook(dc_obj:structures.DynamicContent):
+    if 'scripts' in dc_obj.context:
+        dc_obj.context['scripts'] += [basic_script, apply_script]
     else:
-        model['scripts'] = InvisibleList((basic_script, apply_script))
+        dc_obj.context['scripts'] = InvisibleList((basic_script, apply_script))
 
 
 def use(name='tinymce'):

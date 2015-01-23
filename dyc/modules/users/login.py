@@ -89,6 +89,6 @@ def logout(dc_obj, query):
             dest = query['destination'][0]
         else:
             dest = '/'
-        dc_obj.config['cookies'].load({'SESS': ''})
+        dc_obj.config.setdefault('cookies', cookies.SimpleCookie()).load({'SESS': ''})
         dc_obj.config['cookies']['SESS']['expires'] = time.strftime(_cookie_time_format)
         return ':redirect:' + dest
