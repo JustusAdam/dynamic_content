@@ -62,9 +62,14 @@ def register(cmw, options=(), args=(), kwargs=None):
         elif isinstance(cls, Handler):
             cmw.register(cls)
         else:
-            raise TypeError('Expected a subclass or instance of ' + repr(Handler))
+            raise TypeError(
+                'Expected a subclass or instance of {}, got {}'.format(
+                    Handler, type(cls)
+                    )
+                )
         return cls
-    if not args and not kwargs and (callable(options) or inspect.isclass(options)):
+    if not args and not kwargs and (callable(options)
+                                    or inspect.isclass(options)):
         return _inner(options)
     else:
         return _inner

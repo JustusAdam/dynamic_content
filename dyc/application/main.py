@@ -74,11 +74,18 @@ def prepare():
 
         res = subprocess.check_output(('ps', '-ef'))
 
-        lines = tuple(filter(lambda a: ' ' + title + ' ' in a, res.decode().splitlines()))
+        lines = tuple(filter(
+                    lambda a: ' ' + title + ' ' in a,
+                    res.decode().splitlines()
+                    ))
 
         if len(lines) != 0:
             print(lines)
-            a = input('\n\nAnother {} process has been detected.\nWould you like to kill it, in order to start a new one?\n[y|N]\n\n\n'.format(title))
+            a = input(
+                '\n\nAnother {} process has been detected.\n'
+                'Would you like to kill it, in order to start a new one?\n'
+                '[y|N]\n\n\n'.format(title)
+                )
             if a.lower() in ('y', 'yes'):
                 subprocess.call(('pkill', 'dynamic_content'))
             else:
@@ -98,16 +105,40 @@ def main():
     sbool = ('true', 'false')
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--runlevel', '-r', type=str, choices=tuple(map(str.lower, settings.RunLevel._fields)))
+    parser.add_argument(
+        '--runlevel', '-r',
+        type=str,
+        choices=tuple(map(str.lower, settings.RunLevel._fields))
+        )
     parser.add_argument('--logfile', type=str)
-    parser.add_argument('--loglevel', type=str, choices=tuple(map(str.lower, settings.LoggingLevel._fields)))
-    parser.add_argument('--pathmap', type=str, choices=tuple(map(str.lower, settings.PathMaps._fields)))
+    parser.add_argument(
+        '--loglevel',
+        type=str,
+        choices=tuple(map(str.lower, settings.LoggingLevel._fields))
+        )
+    parser.add_argument(
+        '--pathmap',
+        type=str,
+        choices=tuple(map(str.lower, settings.PathMaps._fields))
+        )
     parser.add_argument('--port', type=int)
     parser.add_argument('--ssl_port', type=int)
-    parser.add_argument('--https_enabled', type=str, choices=sbool)
-    parser.add_argument('--http_enabled', type=str, choices=sbool)
+    parser.add_argument(
+        '--https_enabled',
+        type=str,
+        choices=sbool
+        )
+    parser.add_argument(
+        '--http_enabled',
+        type=str,
+        choices=sbool
+        )
     parser.add_argument('--host')
-    parser.add_argument('--server', type=str, choices=tuple(map(str.lower, settings.ServerTypes._fields)))
+    parser.add_argument(
+        '--server',
+        type=str,
+        choices=tuple(map(str.lower, settings.ServerTypes._fields))
+        )
     parser.add_argument('--ssl_certfile', type=str)
     parser.add_argument('--ssl_keyfile', type=str)
 

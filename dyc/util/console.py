@@ -27,7 +27,11 @@ def _print(*args, end=csi + '0m\n', **kwargs):
     print(*args, end=end, **kwargs)
 
 
-cprint = _print if settings.RUNLEVEL in (settings.RunLevel.DEBUG, settings.RunLevel.TESTING) else lambda *args, **kwargs: None
+cprint = (
+    _print
+    if settings.RUNLEVEL in (settings.RunLevel.DEBUG, settings.RunLevel.TESTING)
+    else lambda *args, **kwargs: None
+    )
 
 print_info = functools.partial(cprint, csi + '30m' + str(now()), '[INFO]   ')
 

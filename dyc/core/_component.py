@@ -102,7 +102,9 @@ class ComponentContainer(dict):
         if isinstance(key, str):
             key = _name_transform(key)
         elif not isinstance(key, type):
-            raise TypeError('Expected Type ' + repr(str) + ' or ' + repr(type) + ', got ' + repr(type(key)))
+            raise TypeError(
+                'Expected Type {} or {}, got {}'.format(str, type, type(key))
+                )
         item = super().setdefault(key, ComponentWrapper(key))
         item._wrapped = value
 
@@ -147,9 +149,11 @@ def inject(*components, **kwcomponents):
     """
     Injects components into the function.
 
-    All *components will be prepended to the *args the function is being called with.
+    All *components will be prepended to the *args the
+     function is being called with.
 
-    All **kwcomponents will be added to (and overwrite on key collision) the **kwargs the function is being called with.
+    All **kwcomponents will be added to (and overwrite on key collision)
+     the **kwargs the function is being called with.
 
     :param component:
     :param argname:
@@ -171,9 +175,11 @@ def inject_method(*components, **kwcomponents):
     """
     Injects components into the function.
 
-    All *components will be prepended to the *args the function is being called with.
+    All *components will be prepended to the *args the
+     function is being called with.
 
-    All **kwcomponents will be added to (and overwrite on key collision) the **kwargs the function is being called with.
+    All **kwcomponents will be added to (and overwrite on key collision)
+     the **kwargs the function is being called with.
 
     :param component:
     :param argname:

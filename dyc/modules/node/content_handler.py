@@ -59,7 +59,10 @@ class Compilers(lazy.Loadable):
         return self._dict[item]
 
     def load(self):
-        self._dict = {ct.machine_name: FieldBasedPageContent(ct) for ct in _model.ContentTypes.select()}
+        self._dict = {
+            ct.machine_name: FieldBasedPageContent(ct)
+            for ct in _model.ContentTypes.select()
+            }
 
 
 class FieldBasedPageContent(object):
@@ -88,7 +91,9 @@ class FieldBasedPageContent(object):
             _add_modifier : self.add_form
             }
 
-        if not dc_obj.request.client.check_permission(self.get_permission(page, modifier)):
+        if not dc_obj.request.client.check_permission(
+            self.get_permission(page, modifier)
+            ):
             return None
 
         node = dict(
@@ -128,7 +133,9 @@ class FieldBasedPageContent(object):
         return self.compile(dc_obj, page, _edit_modifier)
 
     def process_edit(self, dc_obj, page, query):
-        if not dc_obj.request.client.check_permission(self.get_permission(page, 'add')):
+        if not dc_obj.request.client.check_permission(
+            self.get_permission(page, 'add')
+            ):
             return None
         try:
             for one_field in self.fields:
@@ -136,8 +143,10 @@ class FieldBasedPageContent(object):
             success = True
             page.page_title = clean.remove_dangerous_tags(query['title'][0])
             page.published = _publishing_flag in query
-            page.menu_item = (None if query['parent-menu'][0] == 'none'
-                              else self.get_menu(*query['parent-menu'][0].rsplit('-', 1)))
+            page.menu_item = (
+                    None if query['parent-menu'][0] == 'none'
+                    else self.get_menu(*query['parent-menu'][0].rsplit('-', 1))
+                    )
             page.save()
         except Exception as e:
             print(e)
@@ -192,14 +201,19 @@ class FieldBasedPageContent(object):
         return ' '.join([modifier, 'content type', self.content_type])
 
     def get_fields(self):
-        field_info = _model.FieldConfig.select().where(_model.FieldConfig.content_type == self.dbobj)
+        field_info = _model.FieldConfig.select().where(
+                        _model.FieldConfig.content_type == self.dbobj
+                        )
         for a in field_info:
             yield field.Field(a, self.page_type)
 
     def editorial_list(self, page, client):
         for (name, modifier) in self._editorial_list_base:
             if client.check_permission(self.join_permission(modifier)):
-                yield (name, '/'.join(['', self.page_type, str(page.oid), modifier]))
+                yield (
+                    name,
+                    '/'.join(['', self.page_type, str(page.oid), modifier])
+                    )
 
     def get_menu(self, menu_name, item_id):
         item_id = int(item_id)
@@ -216,8 +230,10 @@ class FieldBasedPageContent(object):
             page_title=clean.remove_dangerous_tags(query['title'][0]),
             published=_publishing_flag in query,
             date_created=datetime.now(),
-            menu_item=(None if query['parent-menu'][0] == 'none'
-                       else self.get_menu(*query['parent-menu'][0].rsplit('-', 1)))
+            menu_item=(
+                None if query['parent-menu'][0] == 'none'
+                else self.get_menu(*query['parent-menu'][0].rsplit('-', 1))
+                )
         )
         for field in self.fields:
             field.process_add(
@@ -245,10 +261,19 @@ class FieldBasedPageContent(object):
             )
         publishing_options = html.TableRow(
             html.Label('Published', label_for='toggle-published'),
-            html.Checkbox(element_id='toggle-published', value=_publishing_flag, name=_publishing_flag,
-                          checked=False if page is None else page.published), classes={'toggle-published'})
+            html.Checkbox(
+                element_id='toggle-published',
+                value=_publishing_flag,
+                name=_publishing_flag,
+                checked=False if page is None else page.published),
+            classes={'toggle-published'}
+            )
 
-        return html.TableElement(publishing_options, menu_options, classes={'admin-options'})
+        return html.TableElement(
+                    publishing_options,
+                    menu_options,
+                    classes={'admin-options'}
+                    )
 
     @staticmethod
     def title_options(page=None):
@@ -259,8 +284,14 @@ class FieldBasedPageContent(object):
             required=True,
             size=90
             )
-        return (html.Label('Title', label_for='edit-title'),
-                input_element() if page is None else input_element(value=page.page_title))
+        return (
+            html.Label('Title', label_for='edit-title'),
+            (
+                input_element()
+                if page is None
+                else input_element(value=page.page_title)
+            )
+        )
 
 
 @mvc.controller_class
@@ -270,45 +301,77 @@ class CMSController(object):
     def __init__(self, compiler_map):
         self.compiler_map = compiler_map
 
-    @mvc.controller_method({'/node/{int}', 'node/{int}/access'}, method=dchttp.RequestMethods.GET, query=False)
+    @mvc.controller_method(
+        {'/node/{int}', 'node/{int}/access'},
+        method=dchttp.RequestMethods.GET,
+        query=False
+        )
     @make_node()
     def handle_compile(self, dc_obj, page_id):
         page = _model.Page.get(oid=page_id)
         return self.compiler_map[page.content_type].access(dc_obj, page)
 
 
-    @mvc.controller_method('/node/{int}/edit', method=dchttp.RequestMethods.POST, query=True)
+    @mvc.controller_method(
+        '/node/{int}/edit',
+        method=dchttp.RequestMethods.POST,
+        query=True
+        )
     def handle_edit(self, dc_obj, page_id, post):
         page = _model.Page.get(oid=page_id)
-        return self.compiler_map[page.content_type.machine_name].process_edit(dc_obj, page, post)
+        handler = self.compiler_map[page.content_type.machine_name]
+        return handler.process_edit(dc_obj, page, post)
 
 
-    @mvc.controller_method('/node/{int}/edit', method=dchttp.RequestMethods.GET, query=False)
+    @mvc.controller_method(
+        '/node/{int}/edit',
+        method=dchttp.RequestMethods.GET,
+        query=False
+        )
     @make_node()
     def handle_edit_page(self, dc_obj, page_id):
         page = _model.Page.get(oid=page_id)
-        return self.compiler_map[page.content_type.machine_name].edit(dc_obj, page)
+        handler = self.compiler_map[page.content_type.machine_name]
+        return handler.edit(dc_obj, page)
 
 
-    @mvc.controller_method('/node', method=dchttp.RequestMethods.GET, query=True)
-    @user_dec.authorize(' '.join(['access', 'node', 'overview']))
+    @mvc.controller_method(
+        '/node',
+        method=dchttp.RequestMethods.GET,
+        query=True
+        )
+    @user_dec.authorize('access node overview')
     @make_node()
     def overview(self, dc_obj, get):
-        my_range = [
+        my_range = (
             int(get['from'][0]) if 'from' in get else 0,
             int(get['to'][0]) if 'to' in get else _step
-        ]
-        for a in _model.Page.select().limit(
-                ','.join([str(a) for a in [my_range[0], my_range[1] - my_range[0] + 1]])).order_by('date_created desc'):
-            node = self.compiler_map[a.content_type.machine_name].access(dc_obj, a)
-            node['title'] = html.A('/node/' + str(a.oid), node['title'])
+        )
+        for a in (_model.Page
+            .select()
+            .limit('{},{}'.format(my_range[0], my_range[1] - my_range[0] + 1))
+            .order_by('date_created desc')
+            ):
+            handler = self.compiler_map[a.content_type.machine_name]
+            node = handler.access(dc_obj, a)
+            node['title'] = html.A('/node/{}'.format(a.oid), node['title'])
             yield node
 
-    @mvc.controller_method('/node/add/{str}', method=dchttp.RequestMethods.GET, query=False)
+    @mvc.controller_method(
+        '/node/add/{str}',
+        method=dchttp.RequestMethods.GET,
+        query=False
+        )
     @make_node()
     def add(self, dc_obj, content_type):
-        return self.compiler_map[content_type].add(dc_obj)
+        handler = self.compiler_map[content_type]
+        return handler.add(dc_obj)
 
-    @mvc.controller_method('/node/add/{str}', method=dchttp.RequestMethods.POST, query=True)
+    @mvc.controller_method(
+        '/node/add/{str}',
+        method=dchttp.RequestMethods.POST,
+        query=True
+        )
     def process_add(self, dc_obj, content_type, query):
-        return self.compiler_map[content_type].process_add(query, dc_obj.request.client)
+        handler = self.compiler_map[content_type]
+        return handler.process_add(query, dc_obj.request.client)

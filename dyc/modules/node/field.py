@@ -72,7 +72,10 @@ class _Field(object):
             return dict(
                 name=self.name,
                 content=wysiwyg.WysiwygTextarea(db_obj.content,
-                    classes={'field', 'field-' + self.name, 'edit'}, name=self.name))
+                    classes={'field', 'field-' + self.name, 'edit'},
+                    name=self.name
+                    )
+                )
         except:
             raise
 

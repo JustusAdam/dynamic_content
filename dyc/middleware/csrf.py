@@ -27,8 +27,14 @@ class AntiCSRFMiddleware(Handler):
             return None
         if not handler.options.get('anti_csrf', True):
             return None
-        if _form_token_name in request.query and _form_identifier_name in request.query:
-            if _validate(request.query[_form_identifier_name][0], request.query[_form_token_name][0]):
+        if (
+            _form_token_name in request.query
+            and _form_identifier_name in request.query
+            ):
+            if _validate(
+                request.query[_form_identifier_name][0],
+                request.query[_form_token_name][0]
+                ):
                 return None
         return response.Response(code=403)
 
@@ -37,7 +43,10 @@ def _validate(fid, token):
     try:
         a = ARToken.get(
             form_id=fid,
-            token=binascii.unhexlify(token.encode() if not isinstance(token, bytes) else token )
+            token=binascii.unhexlify(
+                (token.encode()
+                if not isinstance(token, bytes) else token)
+                )
             )
         if a:
             a.delete_instance()
@@ -69,6 +78,15 @@ class SecureForm(html.FormElement):
     def render_token(self):
         tid, token = new()
         return html.ContainerElement(
-            html.Input(input_type='hidden', name=_form_token_name, value=token),
-            html.Input(input_type='hidden', name=_form_identifier_name, value=tid)
-            , additional={'style': 'display:none;'})
+            html.Input(
+                input_type='hidden',
+                name=_form_token_name,
+                value=token
+                ),
+            html.Input(
+                input_type='hidden',
+                name=_form_identifier_name,
+                value=tid
+                ),
+            additional={'style': 'display:none;'}
+            )

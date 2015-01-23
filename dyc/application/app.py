@@ -131,10 +131,16 @@ class Application(threading.Thread, lazy.Loadable):
                 self.run_wsgi_http_server()
         else:
             if settings.HTTP_ENABLED:
-                thttp = threading.Thread(target=self.run_wsgi_http_server, name='DC-HTTP-Server')
+                thttp = threading.Thread(
+                    target=self.run_wsgi_http_server,
+                    name='DC-HTTP-Server'
+                    )
                 thttp.start()
             if settings.HTTPS_ENABLED:
-                thttps = threading.Thread(target=self.run_wsgi_https_server, name='DC-HTTPS-Server')
+                thttps = threading.Thread(
+                    target=self.run_wsgi_https_server,
+                    name='DC-HTTPS-Server'
+                    )
                 thttps.start()
 
     def run_wsgi_http_server(self):
@@ -170,7 +176,8 @@ class Application(threading.Thread, lazy.Loadable):
         console.cprint('\n\n')
         console.print_info(
             'Starting HTTPS WSGI Server on    Port: {}     and Host:  {}'.format(
-                settings.SERVER.host, settings.SERVER.ssl_port))
+                settings.SERVER.host, settings.SERVER.ssl_port)
+            )
         httpsd.serve_forever()
 
     def run_http_server_loop(self):
@@ -182,10 +189,16 @@ class Application(threading.Thread, lazy.Loadable):
                 self.run_http_server()
         else:
             if settings.HTTP_ENABLED:
-                thttp = threading.Thread(target=self.run_http_server, name='DC-HTTP-Server')
+                thttp = threading.Thread(
+                    target=self.run_http_server,
+                    name='DC-HTTP-Server'
+                    )
                 thttp.start()
             if settings.HTTPS_ENABLED:
-                thttps = threading.Thread(target=self.run_https_server, name='DC-HTTPS-Server')
+                thttps = threading.Thread(
+                    target=self.run_https_server,
+                    name='DC-HTTPS-Server'
+                    )
                 thttps.start()
 
 
@@ -263,6 +276,7 @@ class Application(threading.Thread, lazy.Loadable):
             view = handler(*(dc_obj, ) + args, **kwargs)
 
         except (exceptions.PathResolving, exceptions.MethodHandlerNotFound) as e:
+            log.write_error('Page not found with exception {}'.format(e))
             view = 'error'
             dc_obj.context['title'] = '404 - Page not found'
             dc_obj.context['content'] = (

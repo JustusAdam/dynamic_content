@@ -98,4 +98,4 @@ def directory(request, real_dir):
             title=real_dir.name
             )
         )
-    return core.get_component('TemplateFormatter')(_default_view, model)
+    return core.get_component('TemplateFormatter')(_default_view, dc_obj)
