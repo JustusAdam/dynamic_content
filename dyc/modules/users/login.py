@@ -3,7 +3,7 @@ from http import cookies
 
 from dyc import dchttp
 from dyc import modules
-from dyc.util import html
+from dyc.util import html, console
 from dyc.core import mvc
 from dyc.middleware import csrf
 commons, theming = modules.import_modules('commons', 'theming')
@@ -17,28 +17,41 @@ logout_prefix = 'logout'
 
 _cookie_time_format = '%a, %d %b %Y %H:%M:%S GMT'
 
-USERNAME_INPUT = html.Label('Username', label_for='username'), html.Input(name='username', required=True)
-PASSWORD_INPUT = html.Label('Password', label_for='password'), html.Input(input_type='password', required=True,
-                                                                          name='password')
+USERNAME_INPUT = (
+    html.Label('Username', label_for='username'),
+    html.Input(name='username', required=True)
+    )
+PASSWORD_INPUT = (
+    html.Label('Password', label_for='password'),
+    html.Input(input_type='password', required=True,name='password')
+    )
 
 LOGOUT_TARGET = '/login'
 
-LOGOUT_BUTTON = html.ContainerElement('Logout', html_type='a', classes={'logout', 'button'},
-                                      additional={'href': '/' + logout_prefix})
+LOGOUT_BUTTON = html.ContainerElement(
+    'Logout',
+    html_type='a',
+    classes={'logout', 'button'},
+    additional={'href': '/' + logout_prefix}
+    )
 
 LOGIN_FORM = csrf.SecureForm(
     html.TableElement(
         USERNAME_INPUT,
         PASSWORD_INPUT
-    )
-    , action='/' + login_prefix, classes={'login-form'}, submit=html.SubmitButton(value='Login')
+    ),
+    action='/' + login_prefix,
+    classes={'login-form'},
+    submit=html.SubmitButton(value='Login')
 )
 
 LOGIN_COMMON = csrf.SecureForm(
     html.ContainerElement(
         *USERNAME_INPUT + PASSWORD_INPUT
-    )
-    , action='/' + login_prefix, classes={'login-form'}, submit=html.SubmitButton(value='Login')
+    ),
+    action='/' + login_prefix,
+    classes={'login-form'},
+    submit=html.SubmitButton(value='Login')
 )
 
 
@@ -76,7 +89,11 @@ def login(dc_obj, username, password):
         return ':redirect:/login/failed'
 
 
-@mvc.controller_function('logout', method=dchttp.RequestMethods.GET, query=True)
+@mvc.controller_function(
+    'logout',
+    method=dchttp.RequestMethods.GET,
+    query=True
+    )
 def logout(dc_obj, query):
     user = dc_obj.request.client.user
     if user == users.GUEST:
@@ -89,6 +106,9 @@ def logout(dc_obj, query):
             dest = query['destination'][0]
         else:
             dest = '/'
-        dc_obj.config.setdefault('cookies', cookies.SimpleCookie()).load({'SESS': ''})
+        dc_obj.config.setdefault(
+            'cookies',
+            cookies.SimpleCookie()).load({'SESS': ''}
+            )
         dc_obj.config['cookies']['SESS']['expires'] = time.strftime(_cookie_time_format)
         return ':redirect:' + dest

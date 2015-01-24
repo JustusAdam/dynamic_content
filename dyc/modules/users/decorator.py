@@ -1,12 +1,13 @@
 import functools
-from dyc.util import decorators, structures
+from dyc.util import structures
+from dyc.core.mvc import context
 from dyc.errors import exceptions
 
 __author__ = 'Justus Adam'
 
 
 def authorize(permission):
-    @decorators.apply_to_type(structures.DynamicContent, apply_before=True)
+    @context.apply_to_context(apply_before=True)
     def inner(model):
         if not model.request.client.check_permission(permission):
             raise exceptions.LackingPermission(model.request.client, permission)

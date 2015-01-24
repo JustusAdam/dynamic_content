@@ -26,7 +26,8 @@ class UserInformationCommon(commons.Handler):
                 ('Your Username: ', self.get_username(client.user)),
                 ('Your Access Group: ', client.access_group.machine_name),
                 ('You Joined: ', self.get_date_joined(client.user))
-            ), LOGOUT_BUTTON
+            ),
+            LOGOUT_BUTTON
         )
 
     def title(self, conf):
@@ -60,18 +61,18 @@ def user_information(dc_obj, uid):
             ['UID', str(user.oid)],
             ['Username', user.username],
             ['Email-Address', user.email_address],
-            ['Full name', ' '.join([user.user_first_name, user.user_middle_name, user.user_last_name])],
+            ['Full name', ' '.join([user.first_name, user.middle_name, user.last_name])],
             ['Account created', user.date_created],
             ['Access Group', str(grp.oid) + ' (' + grp.machine_name + ')']
         )
     )
-    return 'page'
+    return 'user_overview'
 
 
 @mvc.controller_function('users', method=dchttp.RequestMethods.GET, query=True)
+@decorator.authorize('access users overview')
+@theming.theme()
 def users_overview(dc_obj, get_query):
-    if not dc_obj.client.check_permission('access users overview'):
-        return 'error'
     dc_obj.config['theme'] = 'admin_theme'
 
     if 'selection' in get_query:
@@ -91,14 +92,33 @@ def users_overview(dc_obj, get_query):
     user_list = list(all_users())
 
     head = [['UID', 'Username', 'Name (if provided)', 'Date created', 'Actions']]
-
     dc_obj.context['title'] = 'User Overview'
-    dc_obj.context['content'] = html.TableElement(*head + user_list, classes={'user-overview'}) if user_list else \
-        html.ContainerElement(html.ContainerElement('It seems you do not have any users yet.',
-                                          additional={'style': 'padding:10px;text-align:center;'}),
-                         html.ContainerElement('Would you like to ', html.ContainerElement('create one', html_type='a',
-                                                                                 additional={
-                                                                                     'href': '/users/new',
-                                                                                     'style': 'color:rgb(255, 199, 37);text-decoration:none;'}),
-                                          '?', additional={'style': 'padding:10px;'}), additional={
-                'style': 'padding:15px; text-align:center; background-color: cornflowerblue;color:white;border-radius:20px;font-size:20px;'})
+    dc_obj.context['content']=(
+            html.TableElement(*head + user_list, classes={'user-overview'})
+            if user_list else
+            html.ContainerElement(
+                html.ContainerElement(
+                    'It seems you do not have any users yet.',
+                    additional={'style': 'padding:10px;text-align:center;'}
+                    ),
+                html.ContainerElement(
+                    'Would you like to ',
+                    html.ContainerElement(
+                        'create one',
+                        html_type='a',
+                        additional={
+                            'href': '/users/new',
+                            'style': 'color:rgb(255, 199, 37);text-decoration:none;'
+                            }
+                        ),
+                    '?',
+                    additional={'style': 'padding:10px;'}
+                    ),
+                additional={
+                    'style': 'padding:15px; text-align:center;'
+                        'background-color:cornflowerblue;'
+                        'color:white;border-radius:20px;font-size:20px;'
+                        }
+                )
+            )
+    return 'user_overview'

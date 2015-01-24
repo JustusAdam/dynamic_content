@@ -38,7 +38,7 @@ from . import controller
 from .. import _component
 from dyc import dchttp
 from .context import apply_to_context
-from dyc.util import decorators, structures, typesafe
+from dyc.util import decorators, structures, typesafe, rest
 
 
 __author__ = 'Justus Adam'

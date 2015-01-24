@@ -91,9 +91,9 @@ def create_user_action(model, post):
 
 
 post_to_args = lambda post: {
-        key: post[key][0] for key in [
+        key: post[key][0] for key in (
             'username', 'password', 'email', 'last_name', 'first_name', 'middle_name'
-        ] if key in post
+        ) if key in post
     }
 
 
