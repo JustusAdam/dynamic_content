@@ -105,7 +105,7 @@ def revoke_permission(aid, permission):
     if aid == CONTROL_GROUP:
         log.write_error('users, permissions, assign_permission: cannot revoke permissions from control group')
     else:
-        model.AccessGroupPermission(oid=aid, permission=permission).delete_instance()
+        model.AccessGroupPermission(group=aid, permission=permission).delete_instance()
 
 
 def new_permission(permission):

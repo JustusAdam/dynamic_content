@@ -142,7 +142,7 @@ def _sort_perm_list(l):
 
 
 def compile_permission_list(permissions_list, checkbox_hook):
-    access_groups = sorted(model.AccessGroup.get_all(), key=lambda a: a.aid)
+    access_groups = sorted(model.AccessGroup.select(), key=lambda a: a.oid)
 
     def _list():
         yield ('Permissions', ) + tuple(a.machine_name for a in access_groups)
@@ -158,8 +158,8 @@ def compile_permission_list(permissions_list, checkbox_hook):
             yield [p] + list(
                 map(
                     lambda a: checkbox_hook(
-                        a.aid in row,
-                        '{}-{}'.format(a.aid, p.replace(' ', '-'))
+                        a.oid in row,
+                        '{}-{}'.format(a.oid, p.replace(' ', '-'))
                         ),
                     access_groups
                     )
@@ -169,8 +169,8 @@ def compile_permission_list(permissions_list, checkbox_hook):
 
 
 def permission_table(checkbox):
-    perms = model.AccessGroupPermission.get_all()
-    sort_perms = _sort_perm_list([(a.aid, a.permission) for a in perms])
+    perms = model.AccessGroupPermission.select()
+    sort_perms = _sort_perm_list([(a.group.oid, a.permission) for a in perms])
     comp_perms = compile_permission_list(sort_perms, checkbox)
 
     return html.TableElement(
@@ -182,7 +182,7 @@ def permission_table(checkbox):
                     for b in a[1:]
                     )
                 )
-            for a in comp_perm
+            for a in comp_perms
             ),
         classes=_permission_table_classes
         )
@@ -224,7 +224,7 @@ def edit_permissions(dc_obj):
     dc_obj.context['title'] = 'Edit Permissions'
     dc_obj.context['content'] = csrf.SecureForm(
         permission_table(
-        lambda name, value: html.Checkbox(name=name, value=name, checked=value)
+            lambda value, name: html.Checkbox(name=name, value=name, checked=value)
         ),
         action='/users/permissions/edit'
     )
@@ -234,11 +234,11 @@ def edit_permissions(dc_obj):
 @mvc.controller_function(
     'users/permissions/edit',
     method=dchttp.RequestMethods.POST,
-    query=False
+    query=True
     )
 @decorator.authorize('edit permissions')
-def edit_permissions_action(model, post):
-    permissions_list = _sort_perm_list([(a.aid, a.permission) for a in model.AccessGroupPermission.get_all()])
+def edit_permissions_action(dc_obj, post):
+    permissions_list = _sort_perm_list([(a.group.oid, a.permission) for a in model.AccessGroupPermission.select()])
     new_perm = []
     for item in post:
         m = re.fullmatch(permission_structure, item)
@@ -273,4 +273,4 @@ def edit_permissions_action(model, post):
     for aid, permission in add:
         users.assign_permission(aid, permission)
 
-    return ':redirect:/permissions'
+    return ':redirect:/users/permissions'
