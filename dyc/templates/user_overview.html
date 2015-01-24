@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title><?dchp echo(title) ?></title>
+    <?dchp
+    echo(stylesheets)
+    echo(scripts)
+    echo(meta)
+
+    # add pageclasses
+
+    if 'pageclasses' in globals():
+        if isinstance(pageclasses, str):
+            dom.add_class(pageclasses)
+        else:
+            dom.add_class(*pageclasses)
+
+    ?>
+</head>
+<body>
+    <div id="wrapper-main" class="">
+        <header>
+            <div id="header-wrapper" class="page-wrapper column-12 vertically-centered">
+                <div class="wrapper">
+                    <div id="pagetitle"><?dchp echo(pagetitle)?></div>
+                </div>
+            </div>
+            <nav>
+                <div class="page-wrapper vertically-centered column-12" id="nav-wrapper"></div>
+            </nav>
+        </header>
+        <div id="wrapper-middle" class="wrapper page-wrapper">
+            <div class="vertically-centered wrapper column-12">
+                <div id="main">
+                    <div class="wrapper content">
+                        <div>
+                            <h1><?dchp echo(title)?></h1>
+                            <?dchp echo(content)?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <div id="wrapper-footer" class="wrapper page-wrapper vertically-centered column-12">
+                <div id="footer-content" class="wrapper content">
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

@@ -80,8 +80,7 @@ def login_(dc_obj, query):
     require_ssl=True
     )
 @decorator.authorize('access login page')
-@theming.breadcrumbs
-@commons.Regions
+@theming.theme()
 def login(dc_obj, failed, query):
     console.print_debug(failed)
     if failed == 'failed':
@@ -95,7 +94,7 @@ def login(dc_obj, failed, query):
         return ':redirect:/login'
     dc_obj.context['content'] = html.ContainerElement(message, LOGIN_FORM)
     dc_obj.context['title'] = 'Login'
-    return 'page'
+    return 'user_overview'
 
 
 @mvc.controller_function(
