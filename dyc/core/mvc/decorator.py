@@ -6,22 +6,26 @@ Important interactions are:
 
  Registering a new view/controller function:
 
-  Annotate the function with @controller_function(*args) or @rest_controller_function(*args)
+  Annotate the function with @controller_function(*args) or
+   @rest_controller_function(*args)
 
   ... more doc to follow
 
   **options allow you to specify further flags and options that
-  might be interesting to other parts of the framework, mostly used by view middleware
+  might be interesting to other parts of the framework,
+  mostly used by view middleware
 
   known options are:
 
-   anti_csrf (boolean, default=True):  when set to false no anti-csrf token checking is performed
-    on requests to the path handled by this controller
-   require_ssl (boolean, default=False): when set to true a middleware will redirect any http request
-    to this controller to the appropriate https url provided the server currently has https enabled
+   anti_csrf (boolean, default=True):  when set to false no anti-csrf token
+    checking is performed on requests to the path handled by this controller
+   require_ssl (boolean, default=False): when set to true a middleware will
+    redirect any http request to this controller to the appropriate https url
+    provided the server currently has https enabled
 
 
-It is recommended to not directly use ControllerFunction and RestControllerFunction.
+It is recommended to not directly use ControllerFunction and
+RestControllerFunction.
 """
 
 
@@ -46,10 +50,12 @@ controller_mapper = _component.get_component('PathMap')
 
 class Autoconf(object):
     """
-    Chains Custom config, model config and default conf and assigns it to the model.
+    Chains Custom config, model config and default
+    conf and assigns it to the model.
 
     Priority is given as follows:
-     dc_obj.config > custom config argument? > Controller.config? > DefaultConfig
+     dc_obj.config > custom config argument?
+     > Controller.config? > DefaultConfig
      ? is optional, will be omitted if bool(?) == false
     """
 
@@ -59,14 +65,17 @@ class Autoconf(object):
 
     def __call__(self, func):
         @functools.wraps(func)
-        @decorators.apply_to_type(structures.DynamicContent, controller.Controller)
+        @decorators.apply_to_type(
+            structures.DynamicContent,
+            controller.Controller
+            )
         def wrap(model, controller):
-            model.config = collections.ChainMap(*[a for a in [
+            model.config = collections.ChainMap(*(a for a in (
                 model.config,
                 self.custom_conf,
                 self.get_controller_conf(controller),
                 DefaultConfig
-            ] if a])
+            ) if a))
 
         return wrap
 
@@ -78,12 +87,17 @@ def _to_set(my_input, allowed_vals=str):
     if isinstance(my_input, (list, tuple, set, frozenset)):
         for i in my_input:
             if not isinstance(i, allowed_vals):
-                raise TypeError('Expected type ' + repr(allowed_vals) + ' got ' + repr(type(my_input)))
+                raise TypeError(
+                    'Expected type {} got {}'.format(
+                        allowed_vals, type(my_input))
+                        )
         return frozenset(my_input)
     elif isinstance(my_input, allowed_vals):
         return frozenset({my_input})
     else:
-        raise TypeError('Expected type ' + repr((list, tuple, set, frozenset)) + ' or ' + repr(allowed_vals) + ' got ' + repr(type(my_input)))
+        raise TypeError('Expected type {} or {} got {}'.format(
+            (list, tuple, set, frozenset), allowed_vals, type(my_input)
+            ))
 
 
 class ControlFunction(object):
@@ -109,7 +123,9 @@ class ControlFunction(object):
         return self.function(*args, **kwargs)
 
     def __repr__(self):
-        return '<ControlFunction for path(s) \'' + repr(self.value) + '\' with ' + repr(self.function) + '>'
+        return '<ControlFunction for path(s) \'{}\' with {}>'.format(
+            self.value, self.function
+            )
 
 
 class RestControlFunction(ControlFunction):
@@ -148,7 +164,10 @@ controller_function = functools.partial(_controller_function, ControlFunction)
 
 
 def controller_class(class_):
-    c_funcs = list(filter(lambda a: isinstance(a, ControlFunction), class_.__dict__.values()))
+    c_funcs = tuple(filter(
+        lambda a: isinstance(a, ControlFunction),
+        class_.__dict__.values()
+        ))
     if c_funcs:
         instance = class_()
         controller_mapper._controller_classes.append(instance)
@@ -175,11 +194,14 @@ def json_return(context, res):
 @decorators.deprecated
 class url_args(object):
     """
-    Function decorator for controller Methods. Parses the Input (url) without prefix according to the regex.
+    Function decorator for controller Methods. Parses the Input (url)
+     without prefix according to the regex.
     Unpacks groups into function call arguments.
 
-    get and post can be lists of arguments which will be passed to the function as keyword arguments or booleans
-    if get/post are true the entire query is passed to the function as keyword argument 'get' or 'post'
+    get and post can be lists of arguments which will be passed
+     to the function as keyword arguments or booleans
+    if get/post are true the entire query is passed to
+     the function as keyword argument 'get' or 'post'
     if get/post are false no queries will passed
 
     if strict is true, only specified values will be accepted,
@@ -229,6 +251,12 @@ class url_args(object):
                 else:
                     kwargs.update(result)
             # return re.match(regex, str(url.path)).groups(), kwargs
-            return func(*(model, ) + re.match(self.regex, url.path.prt_to_str(1)).groups(), **kwargs)
+            return func(
+                *(model, ) + re.match(
+                    self.regex,
+                    url.path.prt_to_str(1)
+                    ).groups(),
+                **kwargs
+                )
 
         return _generic

@@ -9,7 +9,8 @@ def error_message(code, message=''):
     ERROR_MESSAGES = {
         401: ContainerElement(
             ContainerElement(
-                'Sorry, but you are not authorized to access this site', html_type='h1'
+                'Sorry, but you are not authorized to access this site',
+                html_type='h1'
             ), ContainerElement(
                 message
             )

@@ -13,11 +13,20 @@ __version__ = '0.2'
 __author__ = 'Justus Adam'
 
 
-LoggingLevel = structures.Enumeration('Logging', ('LOG_WARNINGS', 'LOG_ERRORS', 'THROW_ERRORS', 'THROW_ALL'))
-RunLevel = structures.Enumeration('RunLevel', ('TESTING', 'DEBUG', 'PRODUCTION'))
+LoggingLevel = structures.Enumeration(
+    'Logging',
+    ('LOG_WARNINGS', 'LOG_ERRORS', 'THROW_ERRORS', 'THROW_ALL')
+    )
+RunLevel = structures.Enumeration(
+    'RunLevel',
+    ('TESTING', 'DEBUG', 'PRODUCTION')
+    )
 PathMaps = structures.Enumeration('PathMaps', ('MULTI_TABLE', 'TREE'))
 ServerTypes = structures.Enumeration('ServerTypes', ('WSGI', 'PLAIN'))
-Distributions = structures.Enumeration('Distributions', ('FULL', 'STANDARD', 'FRAMEWORK'))
+Distributions = structures.Enumeration(
+    'Distributions',
+    ('FULL', 'STANDARD', 'FRAMEWORK')
+    )
 
 
 # the order in this list dictates the order in which these modules will be activated
@@ -44,7 +53,8 @@ MODULES_DIRECTORIES = ('custom/modules', 'modules')
 COREMODULES_DIRECTORIES = ('core',)
 MODULE_CONFIG_NAME = 'config.json'
 ALLOW_HIDDEN_FILES = False
-# Setting the above option to true will allow access to files starting with a '.' via the file handler/url
+# Setting the above option to true will allow access to files
+# starting with a '.' via the file handler/url
 # it is highly recommended to NOT set this flag to true!
 ALLOW_INDEXING = True
 BROWSER_CACHING = False

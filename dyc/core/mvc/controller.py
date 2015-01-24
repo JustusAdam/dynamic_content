@@ -34,7 +34,11 @@ class ControllerMapper(object):
         if not prefix == '': raise AttributeError
         path = path[0]
 
-        query = url.get_query if url.method == dchttp.RequestMethods.POST else url.post
+        query = (
+            url.get_query
+            if url.method == dchttp.RequestMethods.POST
+            else url.post
+            )
 
 
         def proc_one(element):

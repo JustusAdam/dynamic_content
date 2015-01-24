@@ -28,11 +28,23 @@ class Request(object):
         self.ssl_enabled = ssl_enabled
 
     @classmethod
-    def from_path_and_post(cls, host, path, method, headers, ssl_enabled, query_string=None):
+    def from_path_and_post(
+        cls,
+        host,
+        path,
+        method,
+        headers,
+        ssl_enabled,
+        query_string=None
+        ):
         host = host.rsplit(':', 1)
         port = int(host[1]) if len(host) == 2 else None
         host = host[0]
         parsed = parse.urlsplit(path)
-        query = parse.parse_qs(query_string) if query_string else parse.parse_qs(parsed.query)
+        query = (
+            parse.parse_qs(query_string)
+            if query_string
+            else parse.parse_qs(parsed.query)
+            )
         path = parsed.path
         return cls(host, port, path, method, query, headers, ssl_enabled)

@@ -40,7 +40,11 @@ class ParserStack(html.ParserStack):
             current=current
         )
         self.dchp_content = dchp_content if not dchp_content is None else []
-        self.dchp_element_name = dchp_element_name if not dchp_element_name is None else []
+        self.dchp_element_name = (
+            dchp_element_name
+            if not dchp_element_name is None
+            else []
+            )
         self.dchp_indent = dchp_indent
         self.dchp_active_indent = dchp_active_indent
 

@@ -34,8 +34,16 @@ class MenuItem:
     def __init__(self, display_name, item_path, parent_item, weight, item_id):
         self.display_name = display_name
         self.item_path = item_path
-        parent_item = parent_item.oid if isinstance(parent_item, model.MenuItem) else parent_item
-        self.parent_item = parent_item if parent_item is None else int(parent_item)
+        parent_item = (
+            parent_item.oid
+            if isinstance(parent_item, model.MenuItem)
+            else parent_item
+            )
+        self.parent_item = (
+            parent_item
+            if parent_item is None
+            else int(parent_item)
+            )
         self.weight = int(weight)
         self.children = []
         self.item_id = item_id
@@ -56,7 +64,9 @@ class MenuItem:
         if not self.children:
             return []
         else:
-            return list(itertools.chain(*[a.render(depth, max_depth) for a in self.children]))
+            return list(itertools.chain(
+                *tuple(a.render(depth, max_depth) for a in self.children))
+                )
 
     def __str__(self):
         return ''.join(str(a) for a in self.render(0))
@@ -69,25 +79,38 @@ class MenuChooseItem(MenuItem):
 
 class HTMLMenuItem(MenuItem):
     """
-    MenuItem implementation that overrides the render methods to render into a HTML Menu.
+    MenuItem implementation that overrides the render methods
+     to render into a HTML Menu.
 
-    Note that the return value of the render method here is a tuple with one element for the title and one element for
-    the list of children. aka. (title, children:List)
+    Note that the return value of the render method here is a tuple
+     with one element for the title and one element for
+     the list of children. aka. (title, children:List)
     """
 
     def render_self(self, depth):
         if self.item_path:
-            return html.ContainerElement(self.display_name, html_type='a', classes={'layer-' + str(depth), 'menu'},
-                                         additional={'href': self.item_path})
+            return html.ContainerElement(
+                self.display_name,
+                html_type='a',
+                classes={'layer-' + str(depth), 'menu'},
+                additional={'href': self.item_path}
+                )
         else:
-            return html.ContainerElement(self.display_name, html_type='span', classes={'layer-' + str(depth), 'menu'})
+            return html.ContainerElement(
+                self.display_name,
+                html_type='span',
+                classes={'layer-' + str(depth), 'menu'}
+                )
 
     def render_children(self, depth=0, max_depth=-1):
         if not self.children:
             return ''
-        return html.List(*[a.render(depth, max_depth) for a in self.children], list_type='ul',
-                         item_classes={'layer-' + str(depth)},
-                         classes={'layer-' + str(depth), 'menu'})
+        return html.List(
+            *tuple(a.render(depth, max_depth) for a in self.children),
+            list_type='ul',
+            item_classes={'layer-' + str(depth)},
+            classes={'layer-' + str(depth), 'menu'}
+            )
 
     def render(self, depth=0, max_depth=-1):
         if 0 <= max_depth <= depth:
@@ -106,7 +129,10 @@ class Handler(base.Handler):
             ul_list = menu(name, item_class=HTMLMenuItem)
             ul_list = ul_list.render_children(0)
         else:
-            ul_list = menu(name, item_class=HTMLMenuItem).render_children(0, int(render_args))
+            ul_list = menu(
+                name,
+                item_class=HTMLMenuItem).render_children(0, int(render_args)
+                )
         if ul_list:
             ul_list.element_id = name
         return ul_list
@@ -117,16 +143,20 @@ def get_items(menu_i, item_class=MenuItem):
     Calls the database operation obtaining data about the menu items and casts them onto MenuItems for convenience
     :return: List of MenuItems
     """
-    menu_i = model.Menu.get(machine_name=menu_i) if isinstance(menu_i, str) else menu_i
+    menu_i = (
+        model.Menu.get(machine_name=menu_i)
+        if isinstance(menu_i, str)
+        else menu_i
+        )
     items = model.MenuItem.select().where(model.MenuItem.menu == menu_i,
                                           model.MenuItem.enabled == True)
-    return [item_class(
+    return tuple(item_class(
         a.display_name,
         a.path,
         a.parent,
         a.weight,
         a.oid
-    ) for a in items]
+    ) for a in items)
 
 
 def order_items(name, source_table, language, items, root_class=MenuItem):
@@ -150,10 +180,12 @@ def order_items(name, source_table, language, items, root_class=MenuItem):
 
 
         for item in items:
-            item.children = sorted(mapping[item.item_id], key=lambda s: s.weight) if item.item_id in mapping else None
+            item.children = sorted(
+                mapping[item.item_id],
+                key=lambda s: s.weight) if item.item_id in mapping else None
         return mapping[-1][0]
 
-    return order()
+    return order()  
 
 
 def menu(name, source_table='menu', language='english', item_class=MenuItem):

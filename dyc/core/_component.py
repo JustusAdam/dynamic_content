@@ -21,10 +21,11 @@ def method_proxy(func):
 class ComponentWrapper(object):
     """
     A Proxy object for components to allow modules to bind
-    components to local variables before the component as been registered
+     components to local variables before the component as been registered
 
-    This means that if a non-existent component is being requested there will be no error
-    only using the component will throw the ComponentNotLoaded exception.
+    This means that if a non-existent component is being requested there
+     will be no error only using the component will throw the
+     ComponentNotLoaded exception.
 
     Please note that _name and _allow_reload can ONLY be set at instantiation.
     """
@@ -33,11 +34,8 @@ class ComponentWrapper(object):
 
     def __init__(self, name, allow_reload=False):
         super.__setattr__(self, '_name', name)
-        # self._name = name
         super.__setattr__(self, '_wrapped', None)
-        # self._wrapped = None
         super.__setattr__(self, '_allow_reload', allow_reload)
-        # self._allow_reload = allow_reload
 
     def __getattr__(self, item):
         if self.__getattribute__('_wrapped') is None:
@@ -165,7 +163,10 @@ def inject(*components, **kwcomponents):
         def wrap(*args, **kwargs):
             for a, b in kwcomponents.items():
                 kwargs[a] = get_component(b)
-            return func(*tuple(get_component(a) for a in components) + args, **kwargs)
+            return func(
+                *tuple(get_component(a) for a in components) + args,
+                **kwargs
+                )
         return wrap
 
     return inner
@@ -191,7 +192,10 @@ def inject_method(*components, **kwcomponents):
         def wrap(self, *args, **kwargs):
             for a, b in kwcomponents.items():
                 kwargs[a] = get_component(b)
-            return func(*(self, ) + tuple(get_component(a) for a in components) + args, **kwargs)
+            return func(
+                *(self, ) + tuple(get_component(a) for a in components) + args,
+                **kwargs
+                )
         return wrap
 
     return inner

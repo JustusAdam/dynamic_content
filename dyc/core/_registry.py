@@ -85,10 +85,16 @@ def register_installed_modules():
 
 
 def discover_modules():
-    for directory in settings.MODULES_DIRECTORIES + settings.COREMODULES_DIRECTORIES:
+    for directory in (
+        settings.MODULES_DIRECTORIES +
+        settings.COREMODULES_DIRECTORIES
+        ):
         path = pathlib.Path(directory)
         if not path.exists():
-            u = input('The module directory {} does not exist yet, would you like me to create it? [Y|n]'.format(path))
+            u = input(
+                'The module directory {} does not exist yet, '
+                'would you like me to create it? [Y|n]'.format(path)
+                )
             if u.lower() in ('n', 'no'):
                 continue
             if not path.parent.exists():
@@ -130,7 +136,10 @@ def register_single_module(moduleconf):
 def get_active_modules():
     modules = Module.select().where(Module.enabled == True)
     modules = tuple(modules)
-    return {item.machine_name: _module.import_by_path('dyc/' + item.path) for item in modules}
+    return {
+        item.machine_name: _module.import_by_path('dyc/' + item.path)
+        for item in modules
+        }
 
 
 @Component("Modules")
@@ -169,7 +178,10 @@ class Modules(dict, lazy.Loadable):
             acc = collections.defaultdict(list)
 
         for a in self:
-            for b in filter(lambda s: not s.startswith('_'), self[a].__dict__.keys()):
+            for b in filter(
+                lambda s: not s.startswith('_'),
+                self[a].__dict__.keys()
+                ):
                 if func(b, getattr(self[a], b)):
                     if single_value:
                         acc[a] = getattr(self[a], b)
@@ -187,7 +199,10 @@ class Modules(dict, lazy.Loadable):
     @lazy.ensure_loaded
     def get_handlers_by_name(self, name:str, single_value=False):
         if name.startswith('_'):
-            raise TypeError('name', 'identifier on non-hidden attribute (does not start with \'_\')')
+            raise TypeError(
+                'name',
+                'identifier on non-hidden attribute (does not start with \'_\')'
+                )
         return self._get_handlers(
             lambda a, b: b == name, single_value
             )

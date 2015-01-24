@@ -1,8 +1,9 @@
 """
 Implementation of the request handler.
 
-This class is being instantiated by the HTTP server when a request is received. This file should not be changed by
-non-core developers as it *should* not need altering.
+This class is being instantiated by the HTTP server when a request is received.
+This file should not be changed by non-core developers as it
+*should* not need altering.
 """
 from http import server
 import io
@@ -27,7 +28,13 @@ HEADER_SPLIT_REGEX = re.compile("(\S+?)\s*:\s*(\S+)")
 
 
 class RequestHandler(server.BaseHTTPRequestHandler):
-    def __init__(self, callback_function, ssl_enabled, request, client_address, server):
+    def __init__(self,
+        callback_function,
+        ssl_enabled,
+        request,
+        client_address,
+        server
+        ):
         self.callback = callback_function
         self.ssl_enabled = ssl_enabled
         super().__init__(request, client_address, server)
@@ -35,12 +42,20 @@ class RequestHandler(server.BaseHTTPRequestHandler):
     def do_POST(self):
         post_query = self.rfile.read(int(self.headers['Content-Length'])).decode()
 
-        request = Request.from_path_and_post(self.headers['Host'], self.path, 'post', self.headers, self.ssl_enabled, post_query)
+        request = Request.from_path_and_post(
+            self.headers['Host'],
+            self.path, 'post', self.headers, self.ssl_enabled, post_query)
         request.ssl_enabled = self.ssl_enabled
         return self.do_any(request)
 
     def do_GET(self):
-        request = Request.from_path_and_post(self.headers['Host'], self.path, 'get', self.headers, self.ssl_enabled)
+        request = Request.from_path_and_post(
+            self.headers['Host'],
+            self.path,
+            'get',
+            self.headers,
+            self.ssl_enabled
+            )
         return self.do_any(request)
 
     def do_any(self, request):
@@ -60,13 +75,19 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             try:
                 return function(*args, **kwargs)
             except PermissionError:
-                log.write_error('permission denied for operation {}'.format(self.path))
+                log.write_error(
+                    'permission denied for operation {}'.format(self.path)
+                    )
                 self.send_error(401, *self.responses[401])
             except TypeError:
-                log.write_error('value error for operation {}'.format(self.path))
+                log.write_error(
+                    'value error for operation {}'.format(self.path)
+                    )
                 self.send_error(400, *self.responses[400])
             except FileNotFoundError:
-                log.write_error('file could not be found for operation {}'.format(self.path))
+                log.write_error(
+                    'file could not be found for operation {}'.format(self.path)
+                    )
                 self.send_error(404, *self.responses[404])
             except HTTPError as err:
                 raise err
@@ -85,11 +106,20 @@ class RequestHandler(server.BaseHTTPRequestHandler):
         console.print_error(error)
         if error.code >= 400:
             if error.reason:
-                log.write_warning('HTTPError, code: {}, message: '.format(error.code, error.reason))
-                self.send_error(error.code, self.responses[error.code][0], error.reason)
+                log.write_warning(
+                'HTTPError, code: {}, message: {}'.format(
+                    error.code, error.reason
+                    )
+                )
+                self.send_error(
+                    error.code, self.responses[error.code][0], error.reason
+                    )
             else:
                 log.write_warning(
-                    'HTTPError,  code: {}, message: {}'.format(error.code, self.responses[error.code][0]))
+                    'HTTPError,  code: {}, message: {}'.format(
+                        error.code, self.responses[error.code][0]
+                        )
+                    )
                 self.send_error(error.code, *self.responses[error.code])
             return 0
         else:
@@ -114,15 +144,25 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             else:
                 self.send_header(headers[0], headers[1])
         else:
-            raise TypeError('Expected headers of type {} or {}, got {}'.format(dict, tuple, type(headers)))
+            raise TypeError(
+                'Expected headers of type {} or {}, got {}'.format(
+                    dict, tuple, type(headers)
+                    )
+                )
 
     def send_document(self, response):
 
-        self.send_error(response.code) if response.code >= 400 else self.send_response(response.code)
+        (self.send_error(response.code)
+        if response.code >= 400
+        else self.send_response(response.code))
 
         if response.code == 200:
-            response.headers.setdefault("Content-Length", str(len(response.body)))
-            headers = collections.ChainMap(response.headers, settings.DEFAULT_HEADERS)
+            response.headers.setdefault(
+                "Content-Length", str(len(response.body))
+                )
+            headers = collections.ChainMap(
+                response.headers, settings.DEFAULT_HEADERS
+                )
         else:
             headers = response.headers
 

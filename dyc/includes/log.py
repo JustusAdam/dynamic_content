@@ -8,7 +8,11 @@ __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-_path = pathlib.Path(settings.LOGFILE[1:]) if settings.LOGFILE.startswith('/') else pathlib.Path(__file__).parent / settings.LOGFILE
+_path = (
+    pathlib.Path(settings.LOGFILE[1:])
+    if settings.LOGFILE.startswith('/')
+    else pathlib.Path(__file__).parent / settings.LOGFILE
+    )
 if _path.is_dir():
     raise IsADirectoryError
 elif not _path.exists():

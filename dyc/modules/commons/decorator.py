@@ -104,7 +104,10 @@ def add_regions(dc_obj):
             }
 
     if not 'regions' in dc_obj.context:
-        dc_obj.context['regions'] = _regions(dc_obj.request.client, dc_obj.config['theme'])
+        dc_obj.context['regions'] = _regions(
+            dc_obj.request.client,
+            dc_obj.config['theme']
+            )
 
     return dc_obj
 

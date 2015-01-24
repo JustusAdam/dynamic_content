@@ -51,7 +51,8 @@ TypeArg = collections.namedtuple('TypeArg', ('name', 'type'))
 # A Path argument with a name.
 
 class HandlerContainer(object):
-    """Value object for holding handlers to various request types with some convenience methods for value access"""
+    """Value object for holding handlers to various request
+    types with some convenience methods for value access"""
 
     __slots__ = ('get', 'post')
 
@@ -109,8 +110,14 @@ class PathMap(Segment):
 
     @staticmethod
     def print_info(path, handler):
-        console.print_info('Registering on path {csi}4m/{path}{csi}24m     Handler: {module}.{csi}1m{function}'.format(
-            path=path, module=handler.function.__module__, csi=console.csi, function=handler.function.__name__))
+        console.print_info(
+            'Registering on path {csi}4m/{path}{csi}24m    '
+            ' Handler: {module}.{csi}1m{function}'.format(
+                path=path,
+                module=handler.function.__module__,
+                csi=console.csi,
+                function=handler.function.__name__)
+                )
 
     def add_path(self, path:str, handler):
         """registers given handler at given path"""
@@ -159,7 +166,9 @@ class TreePathMap(PathMap):
                 elif len(name) == 1:
                     return TypeArg(name[0], typemap[t])
                 else:
-                    raise exceptions.ControllerError('Name cannot contain spaces')
+                    raise exceptions.ControllerError(
+                        'Name cannot contain spaces'
+                        )
             else:
                 return segment
         for a in path.split('/'):
@@ -184,7 +193,10 @@ class TreePathMap(PathMap):
             elif isinstance(segment, TypeArg):
                 new = old.setdefault(segment.type, Segment(segment.name))
             else:
-                raise TypeError('Expected Type {} or {} not {}'.format(str, type, type(segment)))
+                raise TypeError(
+                    'Expected Type {} or {} not {}'.format(
+                        str, type, type(segment))
+                        )
 
             if not isinstance(new, Segment):
                 if isinstance(segment, str):
@@ -194,14 +206,22 @@ class TreePathMap(PathMap):
                 elif isinstance(segment, TypeArg):
                     new = old[segment.type] = Segment(segment.name, new)
                 else:
-                    raise TypeError('Expected Type {} or {} not {}'.format(str, type, type(segment)))
+                    raise TypeError(
+                        'Expected Type {} or {} not {}'.format(
+                            str, type, type(segment))
+                            )
             old = new
 
         m = new
 
         if destination == '**':
             if m.wildcard is None:
-                m.wildcard = HandlerContainer(**{a.lower():handler for a in handler.method})
+                m.wildcard = HandlerContainer(
+                    **{
+                        a.lower():handler
+                        for a in handler.method
+                        }
+                    )
             elif isinstance(m.wildcard, HandlerContainer):
                 self.add_to_container(m.wildcard, handler)
             else:
@@ -210,20 +230,38 @@ class TreePathMap(PathMap):
             s = m[destination]
             if isinstance(s, Segment):
                 if s.handler is None:
-                    s.handler = HandlerContainer(**{a.lower():handler for a in handler.method})
+                    s.handler = HandlerContainer(
+                        **{
+                            a.lower():handler
+                            for a in handler.method
+                            }
+                        )
                 else:
                     self.add_to_container(s.handler, handler)
             elif isinstance(s, HandlerContainer):
                 self.add_to_container(s, handler)
             else:
-                raise exceptions.ControllerError('Overwriting set Handlers is not allowed')
+                raise exceptions.ControllerError(
+                    'Overwriting set Handlers is not allowed'
+                    )
         else:
-            m[destination] = HandlerContainer(**{a.lower():handler for a in handler.method})
+            m[destination] = HandlerContainer(
+                **{
+                    a.lower():handler
+                    for a in handler.method
+                    }
+                )
 
     def find_handler(self, request):
-        path = request.path.split('/')[1:] if request.path.startswith('/') else request.path.split('/')
+        path = (request.path.split('/')[1:]
+                if request.path.startswith('/')
+                else request.path.split('/'))
         iargs, ikwargs = [], {}
-        wildcard = (getattr(self.wildcard, request.method), (), {}) if self.wildcard is not None else None
+        wildcard = (
+            (getattr(self.wildcard, request.method), (), {})
+            if self.wildcard is not None
+            else None
+            )
         segment_chain = [self]
 
         def get_new(old, segment:str):
@@ -240,7 +278,9 @@ class TreePathMap(PathMap):
                     raise exceptions.PathNotFound(segment)
 
             if not isinstance(segment, str):
-                raise TypeError('Expected type {} got {!s}'.format(str, type(segment)))
+                raise TypeError(
+                    'Expected type {} got {!s}'.format(str, type(segment))
+                    )
             try:
                 return old[segment]
             except KeyError:
@@ -250,8 +290,14 @@ class TreePathMap(PathMap):
         new = segment_chain[-1]
         for segment in path:
             if isinstance(new, Segment):
-                if new.wildcard and getattr(new.wildcard, request.method) is not None:
-                    wildcard = getattr(new.wildcard, request.method), tuple(iargs), ikwargs
+                if (new.wildcard
+                    and getattr(new.wildcard, request.method) is not None
+                    ):
+                    wildcard = (
+                        getattr(new.wildcard, request.method),
+                        tuple(iargs),
+                        ikwargs
+                        )
             else:
                 break
 
@@ -263,7 +309,11 @@ class TreePathMap(PathMap):
 
 
         else:
-            handler = handler_from_container(new, request.method, request.headers)
+            handler = handler_from_container(
+                                new,
+                                request.method,
+                                request.headers
+                                )
             if not handler is None:
                 return handler, iargs, ikwargs
 
@@ -284,13 +334,17 @@ class MultiTableSegment(Segment):
 
         if rest:
             if first == '**':
-                raise exceptions.ControllerError('Midsection cannot be wildcard')
+                raise exceptions.ControllerError(
+                    'Midsection cannot be wildcard'
+                    )
             elif first in self:
                 b = self[first]
                 if isinstance(b, HandlerContainer):
                     b = self[first] = MultiTableSegment(first, b)
                 elif not isinstance(b, MultiTableSegment):
-                    raise exceptions.ControllerError('Expected Handler, or Segment, found {}'.format(type(b)))
+                    raise exceptions.ControllerError(
+                        'Expected Handler, or Segment, found {}'.format(type(b))
+                        )
             else:
                 b = self[first] = MultiTableSegment(first)
 
@@ -328,14 +382,19 @@ class MultiTableSegment(Segment):
                 if rest:
                     if isinstance(match, MultiTableSegment):
                         try:
-                            return match.segment_get_handler('/'.join(rest), method, headers)
+                            return match.segment_get_handler(
+                                '/'.join(rest),
+                                method,
+                                headers
+                                )
                         except (exceptions.PathResolving,
                             exceptions.MethodHandlerNotFound) as e:
                             if exception is None:
                                 exception = e
                     elif exception is None:
                         exception = exceptions.PathResolving(
-                            'No matching handler could be found for {}'.format(path))
+                            'No matching handler could be found for {}'.format(path)
+                            )
                 else:
                     try:
                         return rethandler_func(match), ()
@@ -353,7 +412,11 @@ class MultiTableSegment(Segment):
                 match = self[t]
                 if rest:
                     try:
-                        func, args = match.segment_get_handler('/'.join(rest), method, headers)
+                        func, args = match.segment_get_handler(
+                            '/'.join(rest),
+                            method,
+                            headers
+                            )
                         return func, (p, ) + args
                     except (exceptions.PathResolving,
                         exceptions.MethodHandlerNotFound) as e:
@@ -394,7 +457,9 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
                     elif len(name) == 1:
                         return TypeArg(name[0], typemap[t])
                     else:
-                        raise exceptions.ControllerError('Name cannot contain spaces')
+                        raise exceptions.ControllerError(
+                            'Name cannot contain spaces'
+                            )
                 else:
                     return segment
             first, *rest = path.split('/')
@@ -412,7 +477,13 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
                 self.p = p if p is not None else []
 
             def flush_p(self):
-                self.r.append('/'.join(self.p if self.p[0] == '' else ([''] + self.p)) if len(self.p) != 0 else '')
+                self.r.append(
+                    '/'.join(
+                        (self.p
+                        if self.p[0] == ''
+                        else ([''] + self.p))
+                        )
+                        if len(self.p) != 0 else '')
                 self.p = []
 
         stack = Stack()
@@ -444,7 +515,11 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
 
     def find_handler(self, request):
         # TODO add headers to request and pass them on in this call
-        handler, typeargs = self.segment_get_handler(request.path, request.method, None)
+        handler, typeargs = self.segment_get_handler(
+                                request.path,
+                                request.method,
+                                None
+                                )
 
         def process_args(typeargs, values):
             args = []
@@ -457,8 +532,9 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
                 elif isinstance(targ, type):
                     args.append(val)
                 else:
-                    raise TypeError('Expected Type {} or {} got {}'.format(type,
-                        TypeArg, type(targ)))
+                    raise TypeError('Expected Type {} or {} got {}'.format(
+                        type, TypeArg, type(targ))
+                        )
 
             return tuple(args), kwargs
 
