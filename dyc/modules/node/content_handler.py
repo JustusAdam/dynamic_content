@@ -354,6 +354,8 @@ class CMSController(object):
             ):
             handler = self.compiler_map[a.content_type.machine_name]
             node = handler.access(dc_obj, a)
+            if not node:
+                continue
             node['title'] = html.A('/node/{}'.format(a.oid), node['title'])
             yield node
 

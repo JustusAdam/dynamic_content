@@ -2,9 +2,9 @@ from dyc.core import mvc
 from dyc import dchttp
 from dyc.util import html
 from dyc import modules
-commons = modules.import_module('commons')
+commons, theming = modules.import_modules('commons', 'theming')
 from .login import LOGOUT_BUTTON
-from . import users
+from . import users, decorator
 
 __author__ = 'Justus Adam'
 
@@ -84,7 +84,7 @@ def users_overview(dc_obj, get_query):
         for user in users.get_info(selection):
             yield [html.ContainerElement(str(user.oid), html_type='a', additional={'href': '/users/' + str(user.oid)}),
                    html.ContainerElement(user.username, html_type='a', additional={'href': '/users/' + str(user.oid)}),
-                   ' '.join([user.user_first_name, user.user_middle_name, user.user_last_name]),
+                   ' '.join([user.first_name, user.middle_name, user.last_name]),
                    user.date_created,
                    html.ContainerElement('edit', html_type='a',
                                     additional={'href': '/users/' + str(user.oid) + '/edit'})]

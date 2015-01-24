@@ -63,21 +63,52 @@ class LoginCommonHandler(commons.Handler):
         return LOGIN_COMMON
 
 
-@mvc.controller_function({'login'}, method=dchttp.RequestMethods.GET, query=True, require_ssl=True)
+@mvc.controller_function(
+    {'login'},
+    method=dchttp.RequestMethods.GET,
+    query=True,
+    require_ssl=True
+    )
+def login_(dc_obj, query):
+    return login(dc_obj, None, query)
+
+
+@mvc.controller_function(
+    {'login/{str}'},
+    method=dchttp.RequestMethods.GET,
+    query=True,
+    require_ssl=True
+    )
 @decorator.authorize('access login page')
 @theming.breadcrumbs
 @commons.Regions
-def login(dc_obj, query, failed=False):
-    print(query)
-    message = html.ContainerElement('Your Login failed, please try again.', classes={'alert'}) if failed else ''
+def login(dc_obj, failed, query):
+    console.print_debug(failed)
+    if failed == 'failed':
+        message = html.ContainerElement(
+            'Your Login failed, please try again.',
+            classes={'alert'}
+            )
+    elif failed is None:
+        message = ''
+    else:
+        return ':redirect:/login'
     dc_obj.context['content'] = html.ContainerElement(message, LOGIN_FORM)
     dc_obj.context['title'] = 'Login'
     return 'page'
 
 
-@mvc.controller_function('login', method=dchttp.RequestMethods.POST, query=['username', 'password'])
+@mvc.controller_function(
+    'login',
+    method=dchttp.RequestMethods.POST,
+    query=['username', 'password']
+    )
 @decorator.authorize('access login page')
-def login(dc_obj, username, password):
+def login_post(dc_obj, username, password):
+    if username is None or password is None:
+        return ':redirect:/login/failed'
+    if not len(username) == 1 or not len(password) == 1:
+        return ':redirect:/login/failed'
     username = username[0]
     password = password[0]
     token = session.start_session(username, password)
