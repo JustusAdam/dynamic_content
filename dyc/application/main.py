@@ -61,7 +61,7 @@ def prepare():
     if not str(_basedir.parent) in sys.path:
         sys.path.append(str(_basedir.parent))
 
-    os.chdir(str(_basedir))
+    # os.chdir(str(_basedir))
     # print(_basedir.parent)
 
     del _basedir
@@ -100,16 +100,10 @@ def prepare():
 def main():
     import argparse
     from dyc.includes import settings
-    from dyc.util import structures
 
     sbool = ('true', 'false')
 
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--runlevel', '-r',
-        type=str,
-        choices=tuple(map(str.lower, settings.RunLevel._fields))
-        )
     parser.add_argument('--logfile', type=str)
     parser.add_argument(
         '--loglevel',
@@ -147,8 +141,6 @@ def main():
     settings.HTTPS_ENABLED = bool_from_str(startargs.https_enabled, settings.HTTPS_ENABLED)
     settings.HTTP_ENABLED = bool_from_str(startargs.http_enabled, settings.HTTP_ENABLED)
 
-    if startargs.runlevel:
-        settings.RUNLEVEL = getattr(settings.RunLevel, startargs.runlevel.upper())
     if startargs.logfile:
         settings.LOGFILE = startargs.logfile
     if startargs.loglevel:

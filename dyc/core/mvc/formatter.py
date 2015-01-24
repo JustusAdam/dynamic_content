@@ -4,6 +4,7 @@ import sys
 from dyc.dchttp import response
 from .. import Component
 from dyc import dchp
+from dyc.includes import settings
 
 
 __author__ = 'Justus Adam'
@@ -68,7 +69,7 @@ class TemplateFormatter(object):
             pairing['request'] = request
             for path in self.view_path(view_name, dc_obj):
                 try:
-                    with open(path) as file:
+                    with open(settings.DC_BASEDIR + '/' + path) as file:
                         string = file.read()
                         break
                 except IOError:
@@ -95,5 +96,5 @@ class TemplateFormatter(object):
             if 'template_directory' in dc_obj.config:
                 yield dc_obj.config['template_directory'] + '/' + view
 
-            yield 'custom/template/' + view
+            yield 'custom/templates/' + view
             yield 'templates/' + view

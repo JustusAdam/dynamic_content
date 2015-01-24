@@ -66,9 +66,10 @@ DEFAULT_THEME = 'default_theme'
 DEFAULT_ADMIN_THEME = 'admin_theme'
 LOGGING_LEVEL = LoggingLevel.THROW_ALL
 SERVER = structures.ServerArguments(port=9012, host='localhost', ssl_port=9443)
-DATABASE = structures.DatabaseArguments(
-            'mysql', 'python_cms', True, 'python_cms', 'python_cms', 'localhost')
-BASEDIR = str(Path(__file__).parent.resolve())
+# DATABASE = structures.MySQL(
+            # 'mysql', 'python_cms', True, 'python_cms', 'python_cms', 'localhost')
+DATABASE = structures.SQLite(name='')
+DC_BASEDIR = str(Path(__file__).parent.parent.resolve())
 RUNLEVEL = RunLevel.TESTING
 I18N_SUPPORT_ENABLED = False
 SUPPORTED_LANGUAGES = {

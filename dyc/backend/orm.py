@@ -1,6 +1,6 @@
 from peewee import *
 from dyc.includes import settings
-from dyc.util import console
+from dyc.util import console, structures
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
@@ -13,11 +13,16 @@ def proxy_db():
         db.connect()
         return db
     elif settings.RUNLEVEL == settings.RunLevel.PRODUCTION:
-        return MySQLDatabase(database=settings.DATABASE.name,
-                             autocommit=settings.DATABASE.autocommit,
-                             user=settings.DATABASE.user,
-                             password=settings.DATABASE.password,
-                             host=settings.DATABASE.host).connect()
+        if isinstance(settings.DATABASE, structures.MySQL):
+            return MySQLDatabase(
+                database=settings.DATABASE.name,
+                autocommit=settings.DATABASE.autocommit,
+                user=settings.DATABASE.user,
+                password=settings.DATABASE.password,
+                host=settings.DATABASE.host
+                ).connect()
+        elif isinstance(settings.DATABASE, structures.SQLite):
+            return SqliteDatabase(settings.DATABASE.name)
     else:
         raise ValueError
 

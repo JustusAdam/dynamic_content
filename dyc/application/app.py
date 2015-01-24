@@ -73,6 +73,7 @@ class Application(threading.Thread, lazy.Loadable):
 
             dyc.tss.init_tables()
             dyc.tss.initialize()
+
         else:
             core._registry.register_installed_modules()
             for module in settings.DEFAULT_MODULES:

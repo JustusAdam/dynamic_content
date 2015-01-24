@@ -75,7 +75,7 @@ class BaseClassIdElement(BaseElement):
         self._value_params['id'] = val
 
 
-class ContainerElement(BaseClassIdElement):
+class Div(BaseClassIdElement):
     _list_replacement = None
 
     def __init__(self, *content, html_type='div', classes:set=None, element_id:str=None, additional:dict=None):
@@ -130,6 +130,9 @@ class ContainerElement(BaseClassIdElement):
         for a in self.iter_content():
             yield a
         yield '</' + self.html_type + '>'
+
+
+ContainerElement = Div
 
 
 class AbstractList(ContainerElement):
