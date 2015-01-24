@@ -1,9 +1,12 @@
 import re
+import itertools
 
 from dyc.core import mvc
 from dyc import dchttp
 from dyc.util import html
 from dyc.middleware import csrf
+from dyc import modules
+theming = modules.import_module('theming')
 from . import model, users, decorator
 
 
@@ -64,18 +67,18 @@ def user_form(**values):
 
 @mvc.controller_function('users/new', method=dchttp.RequestMethods.GET, query=False)
 @decorator.authorize('edit user accounts')
-def create_user_form(model):
+@theming.theme(default_theme='admin_theme')
+def create_user_form(dc_obj):
     if not model.client.check_permission():
         return 'error'
 
-    model.theme = 'admin_theme'
-    model['title'] = 'Create User'
-    model['content'] = csrf.SecureForm(
+    dc_obj.context['title'] = 'Create User'
+    dc_obj.context['content'] = csrf.SecureForm(
         html.TableElement(
             *list(user_form())
         ), action='/users/new', element_id='admin_form'
     )
-    return 'page'
+    return 'user_overview'
 
 
 @mvc.controller_function('users/new', method=dchttp.RequestMethods.POST, query=True)
@@ -97,7 +100,11 @@ post_to_args = lambda post: {
     }
 
 
-@mvc.controller_function('users/{int}/edit', method=dchttp.RequestMethods.POST, query=True)
+@mvc.controller_function(
+    'users/{int}/edit',
+    method=dchttp.RequestMethods.POST,
+    query=True
+    )
 def edit_user_action(model, uid, post):
     args = post_to_args(post)
     users.edit_user(uid, **args)
@@ -105,22 +112,27 @@ def edit_user_action(model, uid, post):
     return ':redirect:/'
 
 
-@mvc.controller_function('users/{int}/edit', method=dchttp.RequestMethods.GET, query=False)
-def edit_user_form(model, uid):
-    model['title'] = 'Edit User'
+@mvc.controller_function(
+    'users/{int}/edit',
+    method=dchttp.RequestMethods.GET,
+    query=False
+    )
+@theming.theme(default_theme='admin_theme')
+def edit_user_form(dc_obj, uid):
+    dc_obj.context['title'] = 'Edit User'
 
-    (user_id, username, email, first_name, middle_name, last_name, date_created) = users.get_single_user(
-        int(uid))
-    uf = user_form(user_id=user_id,
-                   username=username,
-                   email=email,
-                   first_name=first_name,
-                   middle_name=middle_name,
-                   last_name=last_name,
-                   date_created=date_created)
-    model.theme = 'admin_theme'
-    model['content'] = uf
-    return 'page'
+    user = users.get_single_user(int(uid))
+    uf = user_form(
+        user_id=user.oid,
+        username=user.username,
+        email=user.email_address,
+        first_name=user.first_name,
+        middle_name=user.middle_name,
+        last_name=user.last_name,
+        date_created=user.date_created
+        )
+    dc_obj.context['content'] = csrf.SecureForm(*tuple(itertools.chain(*uf)))
+    return 'user_overview'
 
 
 def _sort_perm_list(l):
@@ -133,7 +145,7 @@ def compile_permission_list(permissions_list, checkbox_hook):
     access_groups = sorted(model.AccessGroup.get_all(), key=lambda a: a.aid)
 
     def _list():
-        yield ['Permissions'] + [a.machine_name for a in access_groups]
+        yield ('Permissions', ) + tuple(a.machine_name for a in access_groups)
         permissions = {}
         for aid, per in permissions_list:
             if per in permissions:
@@ -144,61 +156,86 @@ def compile_permission_list(permissions_list, checkbox_hook):
         for p in permissions:
             row = sorted(permissions[p])
             yield [p] + list(
-                map(lambda a: checkbox_hook(a.aid in row, '-'.join([str(a.aid), p.replace(' ', '-')])), access_groups))
+                map(
+                    lambda a: checkbox_hook(
+                        a.aid in row,
+                        '{}-{}'.format(a.aid, p.replace(' ', '-'))
+                        ),
+                    access_groups
+                    )
+                )
 
     return sorted(_list(), key=lambda a: a[0])
 
 
 def permission_table(checkbox):
+    perms = model.AccessGroupPermission.get_all()
+    sort_perms = _sort_perm_list([(a.aid, a.permission) for a in perms])
+    comp_perms = compile_permission_list(sort_perms, checkbox)
+
     return html.TableElement(
-        *[
+        *tuple(
             html.TableRow(
-                *[
-                     html.TableData(a[0], classes=_permission_table_permissions_classes)
-                 ] + [
-                     html.TableData(b, classes=_permission_table_boolean_classes) for b in a[1:]
-                 ]
-            )
-            for a in compile_permission_list(
-                _sort_perm_list([(a.aid, a.permission) for a in model.AccessGroupPermission.get_all()]),
-                checkbox
-            )
-        ], classes=_permission_table_classes
+                html.TableData(a[0], classes=_permission_table_permissions_classes),
+                *tuple(
+                    html.TableData(b, classes=_permission_table_boolean_classes)
+                    for b in a[1:]
+                    )
+                )
+            for a in comp_perm
+            ),
+        classes=_permission_table_classes
+        )
+
+
+@mvc.controller_function(
+    'users/permissions',
+    method=dchttp.RequestMethods.GET,
+    query=False
     )
-
-
-@mvc.controller_function('users/permissions', method=dchttp.RequestMethods.GET, query=False)
 @decorator.authorize('view permissions')
-def permission_overview(model):
-    model['title'] = 'Permissions Overview'
-    model.theme = 'admin_theme'
+@theming.theme(default_theme='admin_theme')
+def permission_overview(dc_obj):
+    dc_obj.context['title'] = 'Permissions Overview'
 
     table = permission_table(lambda a, b: '&#x2713;' if a else '')
 
-    model['content'] = html.ContainerElement(
+    dc_obj.context['content'] = html.ContainerElement(
         html.ContainerElement(
-            'Please note, that permissions assigned to the group \'any authorized user\' automatically apply to any other group as well as any authenticated user',
+            'Please note, that permissions assigned to the group \'any'
+            ' authorized user\' automatically apply to any other group'
+            ' as well as any authenticated user',
             classes={'alert'}), table
     )
-    return 'page'
+    return 'user_overview'
 
 
 permission_structure = re.compile('(\d)+-([0-9a-zA-Z_-]+)')
 
 
-@mvc.controller_function('users/permissions/edit', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function(
+    'users/permissions/edit',
+    method=dchttp.RequestMethods.GET,
+    query=False
+    )
 @decorator.authorize('edit permissions')
-def edit_permissions(model):
-    model['title'] = 'Edit Permissions'
-    model.theme = 'admin_theme'
-    model['content'] = csrf.SecureForm(
-        permission_table(lambda name, value: html.Checkbox(name=name, value=name, checked=value)),
+@theming.theme(default_theme='admin_theme')
+def edit_permissions(dc_obj):
+    dc_obj.context['title'] = 'Edit Permissions'
+    dc_obj.context['content'] = csrf.SecureForm(
+        permission_table(
+        lambda name, value: html.Checkbox(name=name, value=name, checked=value)
+        ),
         action='/users/permissions/edit'
     )
-    return 'page'
+    return 'user_overview'
 
 
-@mvc.controller_function('users/permissions/edit', method=dchttp.RequestMethods.POST, query=False)
+@mvc.controller_function(
+    'users/permissions/edit',
+    method=dchttp.RequestMethods.POST,
+    query=False
+    )
 @decorator.authorize('edit permissions')
 def edit_permissions_action(model, post):
     permissions_list = _sort_perm_list([(a.aid, a.permission) for a in model.AccessGroupPermission.get_all()])

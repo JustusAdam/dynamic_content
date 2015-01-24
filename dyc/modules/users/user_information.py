@@ -42,7 +42,11 @@ class UserInformationCommon(commons.Handler):
         return users.get_user(user).date_created
 
 
-@mvc.controller_function('users/{int}', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function(
+    'users/{int}', method=dchttp.RequestMethods.GET,
+    query=False
+    )
+@theming.theme(default_theme='admin_theme')
 def user_information(dc_obj, uid):
     if not (
             (dc_obj.request.client.check_permission('view other user info') or
@@ -71,9 +75,8 @@ def user_information(dc_obj, uid):
 
 @mvc.controller_function('users', method=dchttp.RequestMethods.GET, query=True)
 @decorator.authorize('access users overview')
-@theming.theme()
+@theming.theme(default_theme='admin_theme')
 def users_overview(dc_obj, get_query):
-    dc_obj.config['theme'] = 'admin_theme'
 
     if 'selection' in get_query:
         selection = get_query['selection'][0]
