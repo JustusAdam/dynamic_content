@@ -17,7 +17,7 @@ class Request(object):
         'port'
     )
 
-    def __init__(self, host, port, path, method, query, headers, ssl_enabled):
+    def __init__(self, host, port, path:str, method, query, headers, ssl_enabled):
         self.host = host
         self.port = port
         self.headers = headers
@@ -26,6 +26,13 @@ class Request(object):
         self.query = query
         self.client = None
         self.ssl_enabled = ssl_enabled
+
+    def parent_page(self):
+        parent = self.path.rsplit('/', 1)
+        if not parent or parent[0] == '':
+            return '/'
+        else:
+            return parent[0]
 
     @classmethod
     def from_path_and_post(

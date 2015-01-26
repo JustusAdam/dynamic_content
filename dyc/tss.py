@@ -155,7 +155,7 @@ def initialize():
         ('login', 'login', 'users', 1),  # login common
         ('user_information', 'user_information', 'users', 1),  # user information common
         # from admin
-        (admin_menu_common, 'admin_menu', 'admin', 1)
+        #(admin_menu_common, 'admin_menu', 'admin', 1)
     ):
         commons.add_commons_config(machine_name=machine_name,
                            commons_type=type_,
@@ -169,7 +169,7 @@ def initialize():
         ('login', user_module.START_REGION, 0, user_module.START_THEME, True),
         ('user_information', user_module.START_REGION, 1, user_module.START_THEME, True),
         # from admin
-        (admin_menu_common, 'sidebar_left', 4, 'default_theme', True)
+        #(admin_menu_common, 'sidebar_left', 4, 'default_theme', True)
     ):
         commons.assign_common(common_name=name,
                       region=region,

@@ -68,7 +68,7 @@ def user_form(**values):
 @decorator.authorize('edit user accounts')
 @theming.theme(default_theme='admin_theme')
 def create_user_form(dc_obj):
-    if not model.client.check_permission():
+    if not dc_obj.request.client.check_permission():
         return 'error'
 
     dc_obj.context['title'] = 'Create User'
@@ -82,7 +82,7 @@ def create_user_form(dc_obj):
 
 @mvc.controller_function('users/new', method=dchttp.RequestMethods.POST, query=True)
 @decorator.authorize('edit user accounts')
-def create_user_action(model, post):
+def create_user_action(dc_obj, post):
     if 'password' in post:
         if post['confirm-password'] != post['password']:
             return 'error'
@@ -209,7 +209,7 @@ def permission_overview(dc_obj):
     return 'user_overview'
 
 
-permission_structure = re.compile('(\d)+-([0-9a-zA-Z_-]+)')
+permission_structure = re.compile('^(\d)+-([0-9a-zA-Z_-]+)$')
 
 
 @mvc.controller_function(
@@ -240,7 +240,7 @@ def edit_permissions_action(dc_obj, post):
     permissions_list = _sort_perm_list([(a.group.oid, a.permission) for a in model.AccessGroupPermission.select()])
     new_perm = []
     for item in post:
-        m = re.fullmatch(permission_structure, item)
+        m = re.match(permission_structure, item)
         if m:
             g = m.groups()
             # print('assigning permission ' + ' '.join([g[1].replace('-', ' '), 'to', str(g[0])]))

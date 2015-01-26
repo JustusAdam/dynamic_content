@@ -259,7 +259,9 @@ class Application(threading.Thread, lazy.Loadable):
 
         dc_obj = structures.DynamicContent(
             request=request,
-            context={},
+            context={
+                'parent_page': request.parent_page()
+            },
             config={}
             )
 
