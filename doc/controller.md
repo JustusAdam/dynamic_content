@@ -97,13 +97,28 @@ class MyController(object):
         method=dchttp.RequestMethods.POST, # lets handle some post requests
         query=['city', 'street'],
         anti_csrf=False, # one of the **options, this one turns csrf checking off
-        force_ssl=True # another **option, this one will force ssl, if available
+        require_ssl=True # another **option, this one will force ssl, if available
     )
     def my_method(self, dc_obj, path_arg, city, street):
         # do stuff
         return ':redirect:/somewhere'
 
 ```
+
+### Known Options
+
+Name | Expected type | Used by | Default
+-----|---------------|---------|--------
+anti_csrf | bool | dyc.middleware.csrf.AntiCSRFMiddleware | True
+require_ssl | bool | dyc.middleware.ssl.ConditionalSSLRedirect | False
+no_context | bool | dyc.application.app.Application | False
+
+With the following efects:
+- **anti_csrf**: en/disable csrf checking for requests to this path
+- **require_ssl**: forces ssl encryption on requests to this path, if ssl is enabled in settings
+- **no_context**: if True the context (DynamicContent) object argument is omitted when calling the controller  
+    Please note that some decorators, such as `dyc.modules.users.decorator.authorize` still required the DynamicContent object
+
 
 ### Implementation details
 
@@ -133,7 +148,60 @@ Any normal controller function has the following base signature:
 
 ```python
 @controller_function(**options)
-def controller_f(dc_obj, *args, **kwargs):
+def controller_f(dc_obj):
     dc_obj # instance of dyc.util.structures.DynamicContent
     return "" # view name
+```
+
+Common signature features:
+- unless `no_context=True` is set in the controller options every controller function is being called with an instance of dyc.util.structures.DynamicContent matching the request as the first argument.
+- unless a decorator is used to change the return outside of the controller itself, the return should be the name of the view/template that will be used.  
+    The '.html' can be omitted in the view name, it'll automatically get added by the formatter.
+    Decorators changing the return are for example:
+    `dyc.core.mvc.decorator.json_return`,
+    `dyc.modules.node.make_node`
+
+Additional features:
+
+
+Argument ordering rules:  
+
+1. positional arguments first
+* instance of DynamicContent always first
+* path arguments next, in the order they appear
+* the query dict (if query=True)
+* keyword arguments next
+* the named path arguments
+* the named query arguments
+
+
+
+```py
+@dyc.core.mvc.controller_function(
+    'handle/{str}/{int}/{str name}/hello/{int number}', # '/' before the path is optional
+    method=dyc.dchttp.RequestMethods.GET,
+    query=['some', 'argument']
+)
+def my_function(
+    instance_of_DynamicContent,
+    path_argument_1,
+    path_argument_2,
+    name,
+    argument,
+    number,
+    some
+):
+    assert \
+    # assuming a path 'handle/jeremy/2/clarkeson/hello/300'
+    # and a query with {'argument': [12]}
+    #
+    # the variables would be as follows:
+    path_argument_1 == 'jeremy' \
+    path_argument_2 == 2 \
+    name == 'clarkeson' \
+    number == 300 \
+    some == None \
+    argument == [12]
+
+    return 'page'
 ```
