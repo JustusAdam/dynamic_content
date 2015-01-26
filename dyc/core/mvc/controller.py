@@ -1,4 +1,3 @@
-from urllib import error
 from dyc import dchttp
 from dyc.util import decorators
 from .. import _component
