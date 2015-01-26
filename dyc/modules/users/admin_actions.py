@@ -74,7 +74,7 @@ def create_user_form(dc_obj):
     dc_obj.context['title'] = 'Create User'
     dc_obj.context['content'] = csrf.SecureForm(
         html.TableElement(
-            *list(user_form())
+            *tuple(user_form())
         ), action='/users/new', element_id='admin_form'
     )
     return 'user_overview'
