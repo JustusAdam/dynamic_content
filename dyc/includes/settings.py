@@ -29,9 +29,11 @@ Distributions = structures.Enumeration(
     )
 
 
+DC_BASEDIR = str(Path(__file__).parent.parent.resolve())
+PROJECT_DIR = DC_BASEDIR + '/custom'
+
 # the order in this list dictates the order in which these modules will be activated
-DEFAULT_MODULES = (
-    'admin',
+MODULES = (
     'users',
     'commons',
     'file',

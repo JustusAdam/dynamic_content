@@ -98,6 +98,8 @@ def prepare():
 
 
 def main():
+    prepare()
+
     import argparse
     from dyc.includes import settings
 
@@ -168,5 +170,4 @@ def main():
 
 
 if __name__ == '__main__':
-    prepare()
     main()
