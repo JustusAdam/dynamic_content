@@ -1,5 +1,4 @@
-from dyc import modules
-theming = modules.import_module('theming')
+from dyc.modules import theming
 from dyc.util import decorators, structures
 from dyc import core
 from . import model, page

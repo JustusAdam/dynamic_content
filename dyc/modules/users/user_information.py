@@ -1,8 +1,7 @@
 from dyc.core import mvc
 from dyc import dchttp
 from dyc.util import html
-from dyc import modules
-commons, theming = modules.import_modules('commons', 'theming')
+from dyc.modules import theming, commons
 from .login import LOGOUT_BUTTON
 from . import users, decorator
 

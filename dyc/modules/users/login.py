@@ -2,11 +2,10 @@ import datetime
 from http import cookies
 
 from dyc import dchttp
-from dyc import modules
 from dyc.util import html, console
 from dyc.core import mvc
 from dyc.middleware import csrf
-commons, theming = modules.import_modules('commons', 'theming')
+from dyc.modules import commons, theming
 from . import session, users, decorator
 
 

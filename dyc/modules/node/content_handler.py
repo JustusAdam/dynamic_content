@@ -3,14 +3,11 @@ import functools
 
 from dyc import core
 from dyc import dchttp
-from dyc import modules
 from dyc.core import mvc
 from dyc.util import lazy, html, clean
-
-wysiwyg = modules.import_module('wysiwyg')
-_menus = modules.import_module('.menus', 'commons')
-commonsmodel = modules.import_module('.model', 'commons')
-user_dec = modules.import_module('.decorator', 'users')
+from dyc.modules import wysiwyg
+from dyc.modules.commons import menus as _menus, model as commonsmodel
+from dyc.modules.users import decorator as user_dec
 
 from . import model as _model, field
 from .node import make_node
@@ -54,14 +51,14 @@ class Compilers(lazy.Loadable):
 
     @lazy.ensure_loaded
     def __getitem__(self, item):
-        if isinstance(item, _model.ContentTypes):
+        if isinstance(item, _model.ContentType):
             item = item.machine_name
         return self._dict[item]
 
     def load(self):
         self._dict = {
             ct.machine_name: FieldBasedPageContent(ct)
-            for ct in _model.ContentTypes.select()
+            for ct in _model.ContentType.select()
             }
 
 

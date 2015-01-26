@@ -1,3 +1,4 @@
+import importlib
 import functools
 import os
 import threading
@@ -6,7 +7,6 @@ from http import server
 
 from dyc.backend import orm
 from dyc import core
-from dyc.core.mvc import context as _model
 from dyc.includes import settings, log
 
 
@@ -17,7 +17,6 @@ if settings.HTTPS_ENABLED:
 from dyc.util import console, typesafe, lazy, catch_vardump, structures
 from dyc import dchttp
 from dyc.errors import exceptions
-from dyc import modules
 from . import config as _config
 
 
@@ -75,9 +74,8 @@ class Application(threading.Thread, lazy.Loadable):
             dyc.tss.initialize()
 
         else:
-            core._registry.register_installed_modules()
-            for module in settings.DEFAULT_MODULES:
-                modules.import_module(module)
+            for module in settings.MODULES:
+                importlib.import_module(module, 'dyc.modules')
 
     def http_callback(self, request):
         return self.process_request(request)

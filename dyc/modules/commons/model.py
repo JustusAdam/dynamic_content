@@ -1,7 +1,6 @@
 from dyc.backend import orm
-from dyc.modules import Module
-from dyc import modules
-theming = modules.import_module('theming')
+from dyc.modules import theming
+
 
 __author__ = 'Justus Adam'
 
@@ -21,7 +20,6 @@ class CommonData(orm.BaseModel):
 class CommonsConfig(orm.BaseModel):
     machine_name = orm.CharField(unique=True)
     element_type = orm.CharField()
-    handler_module = orm.ForeignKeyField(Module)
     access_type = orm.IntegerField()
 
 

@@ -3,7 +3,6 @@ This is a temporary script that will execute some queries on the database to fil
 to get some basic site setup done. It will be done in this script to avoid trying to insert into tables that have not
 been created yet.
 """
-from dyc import modules
 from dyc.util import console
 
 
@@ -18,7 +17,6 @@ def init_tables():
     import inspect
     from dyc.includes import settings
 
-    from dyc.core import _registry
 
     def _init_module(m):
         for item in dir(m):
@@ -31,17 +29,10 @@ def init_tables():
                     console.print_error(e)
                     log.write_error('create_table:', e)
 
-    _init_module(modules)
-
-    _registry.register_installed_modules()
-
     c = {}
 
-    for module in settings.DEFAULT_MODULES:
-        _registry._set_module_active(module)
-
-    for module in settings.DEFAULT_MODULES:
-        c[module] = modules.import_module(module)
+    for module in settings.MODULES:
+        c[module] = import_module('dyc.modules.' + module)
 
     for module in c.values():
         _init_module(module)
@@ -59,9 +50,8 @@ def init_tables():
 
 
 def initialize():
-
-    node, commons, user_module, admin, theming = modules.import_modules('node', 'commons', 'users', 'admin', 'theming')
     from dyc.includes import settings
+    from dyc.modules import users as user_module, commons, theming, node
 
     admin_menu_common = 'admin_menu'
 
@@ -169,7 +159,6 @@ def initialize():
     ):
         commons.add_commons_config(machine_name=machine_name,
                            commons_type=type_,
-                           handler_module=handler,
                            access_type=access_type)
 
     for name, region, weight, theme, show_title in (
@@ -188,18 +177,9 @@ def initialize():
                       theme=theme,
                       show_title=show_title)
 
-    name = 'node'
 
-    _module = modules.get_module(name)
-
-    path_prefix = 'node'
-
-    node.model.ContentHandler.create(machine_name='node',
-                                    module=_module,
-                                    path_prefix=path_prefix)
-    _ct1 = node.model.ContentTypes.create(machine_name='article',
+    _ct1 = node.model.ContentType.create(machine_name='article',
                                          displey_name='Simple Article',
-                                         content_handler=_module,
                                          theme=theming.get_theme('active'))
 
     bodytype = node.model.FieldType.create(machine_name='body', handler='node.text_field_handler')
@@ -225,46 +205,33 @@ def initialize():
                      page_type='node')
 
     # add admin pages
-
-    categories = {}
-
-    subcategories = {}
-
-    class Handlers:
-        def __init__(self, getfun):
-            self._getfun = getfun
-
-        def __getattr__(self, item):
-            n = self._getfun(item)
-            setattr(self, item, n)
-            return n
-
-
-    handler_modules = Handlers(lambda a: modules.Module.get(machine_name=a))
-
-    for name, display_name in [
-        ('user', 'Users')
-    ]:
-        categories[name] = admin.new_category(machine_name=name,
-                                              display_name=display_name)
-
-    for machine_name, display_name, category in [
-        ('user_management', 'Add and Edit Users', 'user'),
-        ('permission_management', 'View and edit Permissions', 'user')
-    ]:
-        subcategories[machine_name] = admin.new_subcategory(machine_name=machine_name,
-                                                            display_name=display_name,
-                                                            category=categories[category])
-
-    name = 'users'
-
-    for machine_name, display_name, subcategory, handler in [
-        ('create_user', 'Register new User', 'user_management', name),
-        ('user_overview', 'Overview', 'user_management', name),
-        ('view_permissions', 'View Permissions', 'permission_management', name),
-        ('edit_permissions', 'Edit Permissions', 'permission_management', name)
-    ]:
-        admin.new_page(machine_name=machine_name,
-                       display_name=display_name,
-                       subcategory=subcategories[subcategory],
-                       handler_module=getattr(handler_modules, handler))
+    #
+    # categories = {}
+    #
+    # subcategories = {}
+    #
+    # for name, display_name in [
+    #     ('user', 'Users')
+    # ]:
+    #     categories[name] = admin.new_category(machine_name=name,
+    #                                           display_name=display_name)
+    #
+    # for machine_name, display_name, category in [
+    #     ('user_management', 'Add and Edit Users', 'user'),
+    #     ('permission_management', 'View and edit Permissions', 'user')
+    # ]:
+    #     subcategories[machine_name] = admin.new_subcategory(machine_name=machine_name,
+    #                                                         display_name=display_name,
+    #                                                         category=categories[category])
+    #
+    # name = 'users'
+    #
+    # for machine_name, display_name, subcategory, handler in [
+    #     ('create_user', 'Register new User', 'user_management', name),
+    #     ('user_overview', 'Overview', 'user_management', name),
+    #     ('view_permissions', 'View Permissions', 'permission_management', name),
+    #     ('edit_permissions', 'Edit Permissions', 'permission_management', name)
+    # ]:
+    #     admin.new_page(machine_name=machine_name,
+    #                    display_name=display_name,
+    #                    subcategory=subcategories[subcategory])

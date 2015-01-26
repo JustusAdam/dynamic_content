@@ -1,11 +1,9 @@
 import pathlib
-from dyc import modules
 from dyc import dchp
 from dyc.dchttp import response
 from dyc.util import config, decorators
 from dyc.core import mvc
-theming, commons = modules.import_modules('theming', 'commons')
-
+from dyc.modules import theming, commons
 
 __author__ = 'Justus Adam'
 __version__ = '0.2'

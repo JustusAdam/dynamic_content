@@ -9,7 +9,7 @@ from pathlib import Path
 from dyc.util import structures
 
 
-__version__ = '0.2'
+__version__ = '0.2.2'
 __author__ = 'Justus Adam'
 
 
@@ -49,8 +49,7 @@ FILE_DIRECTORIES = {
     'private': 'custom/files/private',
     'public': 'custom/files/public'
     }
-MODULES_DIRECTORIES = ('custom/modules', 'modules')
-COREMODULES_DIRECTORIES = ('core',)
+MODULE_DIRECTORIES = ()
 MODULE_CONFIG_NAME = 'config.json'
 ALLOW_HIDDEN_FILES = False
 # Setting the above option to true will allow access to files
@@ -69,7 +68,6 @@ SERVER = structures.ServerArguments(port=9012, host='localhost', ssl_port=9443)
 # DATABASE = structures.MySQL(
             # 'mysql', 'python_cms', True, 'python_cms', 'python_cms', 'localhost')
 DATABASE = structures.SQLite(name='')
-DC_BASEDIR = str(Path(__file__).parent.parent.resolve())
 RUNLEVEL = RunLevel.TESTING
 I18N_SUPPORT_ENABLED = False
 SUPPORTED_LANGUAGES = {

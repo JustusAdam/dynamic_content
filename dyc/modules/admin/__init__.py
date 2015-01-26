@@ -1,5 +1,4 @@
 from . import pages, model
-from dyc.modules import Module
 from dyc.util import typesafe
 
 __author__ = 'Justus Adam'
@@ -26,7 +25,7 @@ def new_subcategory(machine_name:str, display_name, category:model.Category, des
 
 
 @typesafe.typesafe
-def new_page(machine_name:str, display_name, subcategory:model.Subcategory, handler_module:Module,
+def new_page(machine_name:str, display_name, subcategory:model.Subcategory,
              description='', weight=0):
     return model.AdminPage.create(machine_name=machine_name, display_name=display_name, subcategory=subcategory,
-                                  handler_module=handler_module, description=description, weight=weight)
+                                  description=description, weight=weight)

@@ -1,7 +1,6 @@
 from dyc import core
 from dyc.errors.exceptions import DCException
-from dyc import modules
-wysiwyg = modules.import_module('wysiwyg')
+from dyc.modules import wysiwyg
 from . import model
 from dyc.util import lazy, html, clean
 
