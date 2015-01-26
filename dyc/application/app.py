@@ -311,3 +311,10 @@ class Application(threading.Thread, lazy.Loadable):
                 return res
 
         return response
+
+
+if __name__ == '__main__':
+    print(
+        'This is not the main application file'
+        'try invoking main.py from this same package'
+    )

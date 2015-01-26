@@ -22,7 +22,7 @@ def proxy_db():
                 host=settings.DATABASE.host
                 ).connect()
         elif isinstance(settings.DATABASE, structures.SQLite):
-            return SqliteDatabase(settings.DATABASE.name)
+            return SqliteDatabase(settings.DC_BASEDIR + '/' + settings.DATABASE.name)
     else:
         raise ValueError
 
@@ -30,8 +30,10 @@ def proxy_db():
 database_proxy = proxy_db()
 
 
-class BaseModel(Model):
-    oid = PrimaryKeyField()
-
+class ConnectedModel(Model):
     class Meta:
         database = database_proxy
+
+
+class BaseModel(ConnectedModel):
+    oid = PrimaryKeyField()
