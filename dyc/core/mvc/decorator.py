@@ -164,7 +164,6 @@ def _controller_method(
     **options
     ):
     def wrap(func):
-        print(func.__class__)
         wrapped = class_(func, value, method, query, headers, options)
         return wrapped
     return wrap

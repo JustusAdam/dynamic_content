@@ -49,7 +49,6 @@ def prepare():
 
     # print(python_logo_ascii_art)
 
-    import os
     import pathlib
     import sys
 
