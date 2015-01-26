@@ -1,16 +1,20 @@
-# Controller functions
+# TLDR
 
-## How it operates
+- Put `@controller_function(value, method, headers, query, **options)` as the top-most decorator on your function (`value` are the url_paths it applies to).
+- If you're using a method use `@controller_class` on the class and `@controller_method(value, method, headers, query, **options)` on the method (otherwise works like `@controller_function`)
+- Let the function return the name of the view to use.
+
+# How it operates
 
 Websites in dynamic_content are created using a html template, also called 'view' and a function called the controller function or controller method which supplies the dynamic context/values for the template parser.
 
 The frameworks backbone data structure called 'DynamicContent' glues these two together.
 
-## The decorator
+# The decorator
 
 Functions operating as a controller in dynamic_content are marked as such using a python decorator.
 
-### Name and location
+## Name and location
 
 The decorator is called `@controller_function()` or `@controller_method()` if your controller function is a method of a class and not a bare function.
 
@@ -24,19 +28,19 @@ This decorator then has to be supplied with configuration information. Which pag
 
 More that one of these decorators can be applied to the same function.
 
-### Parameters
+## Parameters
 
 The full function signature is (the same signature applies to `controller_method`):
 
 ```python
 def controller_function(
-value,
-*,
-method=dchttp.RequestMethods.GET,
-headers=None,
-query=False,
-**options
-):
+    value,
+    *,
+    method=dchttp.RequestMethods.GET,
+    headers=None,
+    query=False,
+    **options
+    ):
 ```
 
 Name | Type | default | Function
@@ -47,7 +51,7 @@ headers | str, set[str] | None | special headers a request must have to be handl
 query | bool, list[str], tuple[str], dict{str: str} | False | either marks whether this controller accepts a query **or** which query parameters this function wants and in the case of the dict, how they should be called
 options | any | no options | additional options that are attached to the resulting ControllerFunction (attribute 'options') and can be accessed by view middleware
 
-### Path parameters
+## Path parameters
 
 When specifying a path for a controller function/method you can utilize a special minilanguage to handle dynamic paths.
 
@@ -59,7 +63,7 @@ Currently supported types are `str` and `int` (support for `float` and `hex` is 
 
 Path parameters have to be an entire path section aka `/some/{str}/hello`, there is no support for partial parameters aka `some/either-{str}/hello` yet. However you can use as many path parameters as you like and switch between named and unnamed path parameters.
 
-### Queries
+## Queries
 
 Your controller function can express its desire to accept a query in three different ways. Depending on the type of the argument supplied to `query=` in the decorator.
 
@@ -72,7 +76,7 @@ str | name to filter the query for | `list` | special case of iterable[str] for 
 
 
 
-### Example
+## Example
 
 ```python
 from dyc.core import mvc
@@ -105,7 +109,7 @@ class MyController(object):
 
 ```
 
-### Known Options
+## Known Options
 
 Name | Expected type | Used by | Default
 -----|---------------|---------|--------
@@ -120,7 +124,7 @@ With the following efects:
     Please note that some decorators, such as `dyc.modules.users.decorator.authorize` still required the DynamicContent object
 
 
-### Implementation details
+## Implementation details
 
 1. The actual signature of the decorator is obscured, since it is only a partially applied function. The real decorator is called `_controller_function`/`_controller_method` and additionally takes a type as a first argument.
     An instance of that type is registered with the pathmapper when the decorator registers the controller.
@@ -138,11 +142,11 @@ With the following efects:
     ```
 * `@controller_method` does not return the original function but rather a callable instance of dyc.core.mvc.decorator.ControllerFunction.
 
-## Structure
+# Structure
 
 Any function that handles a view requires a specific signature that depends on the options chosen in the decorator.
 
-### Common Signature
+## Common Signature
 
 Any normal controller function has the following base signature:
 
@@ -153,7 +157,7 @@ def controller_f(dc_obj):
     return "" # view name
 ```
 
-Common signature features:
+### Common signature features
 - unless `no_context=True` is set in the controller options every controller function is being called with an instance of dyc.util.structures.DynamicContent matching the request as the first argument.
 - unless a decorator is used to change the return outside of the controller itself, the return should be the name of the view/template that will be used.  
     The '.html' can be omitted in the view name, it'll automatically get added by the formatter.
@@ -161,10 +165,10 @@ Common signature features:
     `dyc.core.mvc.decorator.json_return`,
     `dyc.modules.node.make_node`
 
-Additional features:
+### Additional features
 
 
-Argument ordering rules:  
+### Argument ordering rules  
 
 1. positional arguments first
 * instance of DynamicContent always first
