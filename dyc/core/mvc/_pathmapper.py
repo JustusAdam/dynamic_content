@@ -130,18 +130,15 @@ class PathMap(Segment):
 
         if handler.query is True:
             args += (request.query, )
-        elif request.query:
-            if isinstance(handler.query, str):
-                kwargs[handler.query] = request.query.get(handler.query, None)
-            elif isinstance(handler.query, (list, tuple, set, frozenset)):
-                for name in handler.query:
-                    kwargs[name] = request.query.get(name, None)
-            elif isinstance(handler.query, dict):
-                for name, proxy in handler.query.items():
-                    kwargs[proxy] = request.query.get(name, None)
-        else:
-            if not handler.query is False:
-                raise exceptions.ControllerError('Expected Query')
+
+        elif isinstance(handler.query, str):
+            kwargs[handler.query] = request.query.get(handler.query, None)
+        elif isinstance(handler.query, (list, tuple, set, frozenset)):
+            for name in handler.query:
+                kwargs[name] = request.query.get(name, None)
+        elif isinstance(handler.query, dict):
+            for name, proxy in handler.query.items():
+                kwargs[proxy] = request.query.get(name, None)
 
         return handler, args, kwargs
 

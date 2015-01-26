@@ -32,7 +32,7 @@ def get_module_conf(path:str, module):
 
 
 def activate_module(module_name):
-    # console.cprint('Activating module: ' + module_name)
+    console.print_info('Activating module: ' + module_name)
     if is_active(module_name):
         console.print_error('Module ' + module_name + ' is already active.')
         return True
@@ -89,7 +89,7 @@ def discover_modules():
         settings.MODULES_DIRECTORIES +
         settings.COREMODULES_DIRECTORIES
         ):
-        path = pathlib.Path(directory)
+        path = pathlib.Path(settings.DC_BASEDIR) / directory
         if not path.exists():
             u = input(
                 'The module directory {} does not exist yet, '
@@ -97,18 +97,19 @@ def discover_modules():
                 )
             if u.lower() in ('n', 'no'):
                 continue
-            if not path.parent.exists():
-                path.parent.mkdir()
+            for pardir in reversed(path.parents):
+                if not pardir.exists():
+                    pardir.mkdir()
             path.mkdir()
         for file in filter(
                 lambda s: ((s.is_dir()
                             or s.suffix == '.py')
                            and not s.name.startswith('_')),
                 path.iterdir()):
-            yield {
-                'name': str(file.stem),
-                'path': str(file)
-                }
+            yield dict(
+                name=str(file.stem),
+                path=str(file)
+                )
 
 
 def register_modules(r_modules):
