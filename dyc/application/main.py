@@ -1,4 +1,6 @@
-"""
+import collections
+
+__doc__ = """
 Main file that runs the application.
 """
 python_logo_ascii_art = """
@@ -94,6 +96,22 @@ def prepare():
             setproctitle.setproctitle(title)
     except ImportError:
         pass
+
+
+def prepare_settings(obj):
+    from dyc.util import config
+    import os
+
+    if isinstance(obj, str) and os.path.isfile(obj):
+        if obj.endswith('.json'):
+            obj = config.read_config(obj, 'json')
+
+    return obj
+
+
+def harden_settings(settings:dict):
+    tuple_type = collections.namedtuple('Settings', *tuple(settings.keys()))
+    return tuple_type, tuple_type(**settings)
 
 
 def main():

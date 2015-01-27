@@ -147,30 +147,45 @@ def initialize():
             content=content
         )
 
-    for machine_name, type_, handler, access_type in (
+    commons_config_list = [
         # commons from comp
         ('start_menu', 'menu', 'commons', 0),
         ('copyright', 'com_text', 'commons', 0),
         # commons from users
-        ('login', 'login', 'users', 1),  # login common
-        ('user_information', 'user_information', 'users', 1),  # user information common
         # from admin
         #(admin_menu_common, 'admin_menu', 'admin', 1)
-    ):
-        commons.add_commons_config(machine_name=machine_name,
-                           commons_type=type_,
-                           access_type=access_type)
+    ]
 
-    for name, region, weight, theme, show_title in (
+    commons_list = [
         # from comp
         ('start_menu', 'navigation', 1, 'default_theme', False),
         ('copyright', 'footer', 1, 'default_theme', False),
         # from users
-        ('login', user_module.START_REGION, 0, user_module.START_THEME, True),
-        ('user_information', user_module.START_REGION, 1, user_module.START_THEME, True),
+
         # from admin
         #(admin_menu_common, 'sidebar_left', 4, 'default_theme', True)
-    ):
+    ]
+
+    if 'user_management' in settings.MODULES:
+        commons_config_list.extend(
+            (
+                ('login', 'login', 'users', 1),  # login common
+                ('user_information', 'user_information', 'users', 1),  # user information common
+            )
+        )
+        commons_list.extend(
+            (
+                ('login', user_module.START_REGION, 0, user_module.START_THEME, True),
+                ('user_information', user_module.START_REGION, 1, user_module.START_THEME, True),
+            )
+        )
+
+    for machine_name, type_, handler, access_type in commons_config_list:
+        commons.add_commons_config(machine_name=machine_name,
+                           commons_type=type_,
+                           access_type=access_type)
+
+    for name, region, weight, theme, show_title in commons_list:
         commons.assign_common(common_name=name,
                       region=region,
                       weight=weight,
