@@ -61,15 +61,13 @@ def user_form(**values):
     for (display_name, name) in _edit_user_table_order:
         kwargs = _edit_user_form.get(name, {})
         kwargs.__setitem__('value', values[name]) if name in values else None
-        yield [html.Label(display_name, label_for=name), html.Input(name=name, **kwargs)]
+        yield html.Label(display_name, label_for=name), html.Input(name=name, **kwargs)
 
 
 @mvc.controller_function('users/new', method=dchttp.RequestMethods.GET, query=False)
 @decorator.authorize('edit user accounts')
 @theming.theme(default_theme='admin_theme')
 def create_user_form(dc_obj):
-    if not dc_obj.request.client.check_permission():
-        return 'error'
 
     dc_obj.context['title'] = 'Create User'
     dc_obj.context['content'] = csrf.SecureForm(
@@ -85,6 +83,8 @@ def create_user_form(dc_obj):
 def create_user_action(dc_obj, post):
     if 'password' in post:
         if post['confirm-password'] != post['password']:
+            dc_obj.context['title'] = 'Passwords do not match'
+            dc_obj.context['content'] = ''
             return 'error'
         else:
             args = post_to_args(post)

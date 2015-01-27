@@ -1,5 +1,5 @@
 import functools
-from dyc.util import structures
+from dyc.util import structures, decorators
 from dyc.core.mvc import context
 from dyc.errors import exceptions
 
@@ -10,7 +10,7 @@ def authorize(permission):
     @context.apply_to_context(apply_before=True)
     def inner(model):
         if not model.request.client.check_permission(permission):
-            raise exceptions.LackingPermission(model.request.client, permission)
+            raise exceptions.LackingPermission(model.request.client.user, permission)
 
     return inner
 

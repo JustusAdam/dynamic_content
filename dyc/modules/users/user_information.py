@@ -61,12 +61,12 @@ def user_information(dc_obj, uid):
     grp = user.access_group
     dc_obj.context['content'] = html.ContainerElement(
         html.TableElement(
-            ['UID', str(user.oid)],
-            ['Username', user.username],
-            ['Email-Address', user.email_address],
-            ['Full name', ' '.join([user.first_name, user.middle_name, user.last_name])],
-            ['Account created', user.date_created],
-            ['Access Group', str(grp.oid) + ' (' + grp.machine_name + ')']
+            ('UID', str(user.oid)),
+            ('Username', user.username),
+            ('Email-Address', user.email_address),
+            ('Full name', ' '.join((user.first_name, user.middle_name, user.last_name))),
+            ('Account created', user.date_created),
+            ('Access Group', str(grp.oid) + ' (' + grp.machine_name + ')')
         )
     )
     return 'user_overview'
@@ -84,43 +84,59 @@ def users_overview(dc_obj, get_query):
 
     def all_users():
         for user in users.get_info(selection):
-            yield [html.ContainerElement(str(user.oid), html_type='a', additional={'href': '/users/' + str(user.oid)}),
-                   html.ContainerElement(user.username, html_type='a', additional={'href': '/users/' + str(user.oid)}),
-                   ' '.join([user.first_name, user.middle_name, user.last_name]),
-                   user.date_created,
-                   html.ContainerElement('edit', html_type='a',
-                                    additional={'href': '/users/' + str(user.oid) + '/edit'})]
-
-    user_list = list(all_users())
-
-    head = [['UID', 'Username', 'Name (if provided)', 'Date created', 'Actions']]
-    dc_obj.context['title'] = 'User Overview'
-    dc_obj.context['content']=(
-            html.TableElement(*head + user_list, classes={'user-overview'})
-            if user_list else
-            html.ContainerElement(
-                html.ContainerElement(
-                    'It seems you do not have any users yet.',
-                    additional={'style': 'padding:10px;text-align:center;'}
-                    ),
-                html.ContainerElement(
-                    'Would you like to ',
-                    html.ContainerElement(
-                        'create one',
-                        html_type='a',
-                        additional={
-                            'href': '/users/new',
-                            'style': 'color:rgb(255, 199, 37);text-decoration:none;'
-                            }
-                        ),
-                    '?',
-                    additional={'style': 'padding:10px;'}
-                    ),
-                additional={
-                    'style': 'padding:15px; text-align:center;'
-                        'background-color:cornflowerblue;'
-                        'color:white;border-radius:20px;font-size:20px;'
-                        }
+            href = '/users/{}'.format(user.oid)
+            yield (
+                html.A(
+                    href,
+                    str(user.oid)
+                ),
+                html.A(
+                    href,
+                    user.username
+                ),
+                ' '.join((user.first_name, user.middle_name, user.last_name)),
+                user.date_created,
+                html.A(
+                    '/users/' + str(user.oid) + '/edit',
+                    'edit',
                 )
             )
+
+    user_list = tuple(all_users())
+
+    head = (
+        ('UID', 'Username', 'Name (if provided)', 'Date created', 'Actions')
+        , # ...
+    )
+    dc_obj.context['title'] = 'User Overview'
+    dc_obj.context['content']=(
+        html.ContainerElement(
+            html.TableElement(*head + user_list, classes={'user-overview'}),
+            html.A('/users/new', 'New User', classes={'button'})
+        )
+        if user_list else
+        html.ContainerElement(
+            html.ContainerElement(
+                'It seems you do not have any users yet.',
+                additional={'style': 'padding:10px;text-align:center;'}
+                ),
+            html.ContainerElement(
+                'Would you like to ',
+                html.A(
+                    '/users/new',
+                    'create one',
+                    additional={
+                        'style': 'color:rgb(255, 199, 37);text-decoration:none;'
+                        }
+                    ),
+                '?',
+                additional={'style': 'padding:10px;'}
+                ),
+            additional={
+                'style': 'padding:15px; text-align:center;'
+                    'background-color:cornflowerblue;'
+                    'color:white;border-radius:20px;font-size:20px;'
+                    }
+            )
+        )
     return 'user_overview'

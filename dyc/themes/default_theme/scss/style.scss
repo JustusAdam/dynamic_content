@@ -71,6 +71,21 @@ a.button:hover, button:hover, input[type="submit"]:hover {
   cursor: pointer;
 //  background: linear-gradient(#eee, #b6b6b6) repeat scroll 0 0 rgba(0, 0, 0, 0);
 }
+
+.flat-button {
+  display: inline-block;
+  text-decoration: none;
+  padding: 7px 11px;
+  background-color: #9ABB6F;
+  color: white;
+  @include transition(background-color 300ms ease 0ms);
+}
+
+.flat-button:hover {
+  @include transition(background-color 300ms ease 0ms);
+  background-color: #84a059;
+}
+
 #main {
   @extend .column-9;
   float: left;

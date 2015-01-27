@@ -34,7 +34,10 @@
             <div class="vertically-centered wrapper column-12">
                 <div id="main">
                     <div class="wrapper content">
-                        <?dchp echo('<a href="{}">back</a>'.format(parent_page)) ?>
+                        <?dchp
+
+                        echo('<a href="{}" class="flat-button">back</a>'.format(parent_page))
+                        ?>
                         <h1><?dchp echo(title)?></h1>
                         <?dchp echo(content)?>
                     </div>
