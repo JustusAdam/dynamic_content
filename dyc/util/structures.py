@@ -44,6 +44,11 @@ DynamicContent = collections.namedtuple('DynamicContent',
 
 
 class InvisibleList(list):
+    def __init__(self, iterable, render_func=str):
+        super().__init__(iterable)
+        assert callable(render_func)
+        self.render_func = render_func
+
     def __iadd__(self, other):
         self.extend(other)
         return self
@@ -54,4 +59,4 @@ class InvisibleList(list):
         return a
 
     def __str__(self):
-        return ''.join(str(a) for a in self)
+        return ''.join(self.render_func(a) for a in self)

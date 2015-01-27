@@ -2,8 +2,8 @@ from dyc.core import mvc
 from dyc import dchttp
 from dyc.util import html
 from dyc.modules import theming, commons
-from .login import LOGOUT_BUTTON
-from . import users, decorator
+from dyc.modules.users.login import LOGOUT_BUTTON
+from dyc.modules.users import users, decorator
 
 __author__ = 'Justus Adam'
 

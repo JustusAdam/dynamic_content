@@ -14,7 +14,6 @@ SESSION_TOKEN_IDENTIFIER = 'SESS'
 SESSION_INVALIDATED = 'invalid'
 
 
-@middleware.register
 class AuthorizationMiddleware(middleware.Handler):
     def handle_request(self, request):
         if 'Cookie' in request.headers:

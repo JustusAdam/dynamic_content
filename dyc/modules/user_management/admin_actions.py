@@ -6,7 +6,7 @@ from dyc import dchttp
 from dyc.util import html
 from dyc.middleware import csrf
 from dyc.modules import theming
-from . import model, users, decorator
+from dyc.modules.users import model, users, decorator
 
 
 __author__ = 'Justus Adam'

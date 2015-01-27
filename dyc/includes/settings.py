@@ -35,6 +35,7 @@ PROJECT_DIR = DC_BASEDIR + '/custom'
 # the order in this list dictates the order in which these modules will be activated
 MODULES = (
     'users',
+    'user_management',
     'commons',
     'file',
     'i18n',
@@ -84,6 +85,7 @@ PATHMAP_TYPE = PathMaps.MULTI_TABLE
 LOGFILE = 'app.log'
 MIDDLEWARE = (
     'dyc.middleware.alias.Middleware',
+    'dyc.modules.users.middleware.AuthorizationMiddleware',
     'dyc.modules.file.PathHandler',
     'dyc.middleware.trailing_slash.RemoveTrailingSlash',
     'dyc.middleware.ssl.ConditionalSSLRedirect',
@@ -102,6 +104,7 @@ HTTP_ENABLED = True
 HTTPS_ENABLED = True
 SSL_CERTFILE = '../dynamic-content.org.crt'
 SSL_KEYFILE = '../dynamic-content.org.key'
+USE_LOGIN_PAGE = True
 
 
 # delete names that are not settings

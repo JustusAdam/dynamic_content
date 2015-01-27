@@ -46,7 +46,7 @@ def compile_nodes(res, dc_obj):
 
         template = _get_template('multi_node_template')
         content = structures.InvisibleList(
-            dchp.evaluator.evaluate_html(template, a) for a in res
+            (dchp.evaluator.evaluate_html(template, a) for a in res)
             )
     elif isinstance(res, response.Response):
         return res

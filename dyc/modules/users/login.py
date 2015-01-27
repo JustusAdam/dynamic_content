@@ -65,22 +65,22 @@ class LoginCommonHandler(commons.Handler):
 @mvc.controller_function(
     {'login'},
     method=dchttp.RequestMethods.GET,
-    query=True,
+    query=False,
     require_ssl=True
     )
-def login_(dc_obj, query):
-    return login(dc_obj, None, query)
+def login_(dc_obj):
+    return login(dc_obj, None)
 
 
 @mvc.controller_function(
     {'login/{str}'},
     method=dchttp.RequestMethods.GET,
-    query=True,
-    require_ssl=True
+    require_ssl=True,
+    query=False
     )
 @decorator.authorize('access login page')
 @theming.theme()
-def login(dc_obj, failed, query):
+def login(dc_obj, failed):
     console.print_debug(failed)
     if failed == 'failed':
         message = html.ContainerElement(
