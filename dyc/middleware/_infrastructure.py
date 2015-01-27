@@ -43,7 +43,7 @@ class Handler(object):
     def handle_controller(self, dc_obj, handler, args, kwargs):
         pass
 
-    def handle_view(self, view,  dc_obj):
+    def handle_view(self, view, dc_obj):
         pass
 
     def handle_response(self, request, response_obj):

@@ -2,6 +2,7 @@ import json
 from dyc.backend import orm
 from dyc.core import mvc
 from dyc.includes import settings
+from dyc.middleware import Handler
 from dyc.util import html
 
 __author__ = 'Justus Adam'
@@ -86,8 +87,10 @@ def compile_stuff(dc_obj):
     dc_obj.context.setdefault('pagetitle', pagetitle)
 
 
-def theme_dc_obj(dc_obj):
+def theme_dc_obj(dc_obj, default_theme=settings.DEFAULT_THEME):
     if not 'theme_config' in dc_obj.config or not dc_obj.config['theme_config']:
+        if not 'theme' in dc_obj.config:
+            dc_obj.config['theme'] = default_theme
         attach_theme_conf(dc_obj)
         compile_stuff(dc_obj)
 
@@ -95,7 +98,7 @@ def theme_dc_obj(dc_obj):
 def theme(default_theme=settings.DEFAULT_THEME):
     @mvc.context.apply_to_context(apply_before=False)
     def _inner(dc_obj):
-        theme_dc_obj(dc_obj)
+        theme_dc_obj(dc_obj, default_theme)
 
     if callable(default_theme):
         func, default_theme = default_theme, settings.DEFAULT_THEME
@@ -158,3 +161,12 @@ class Theme(orm.BaseModel):
     machine_name = orm.CharField(unique=True)
     enabled = orm.BooleanField(default=False)
     path = orm.CharField()
+
+
+class Middleware(Handler):
+    def handle_view(self, view, dc_obj):
+        if 'theme' in dc_obj.handler_options:
+             if dc_obj.handler_options['theme'] is True:
+                 theme_dc_obj(dc_obj)
+             elif isinstance(dc_obj.handler_options['theme'], str):
+                 theme_dc_obj(dc_obj, dc_obj.handler_options['theme'])
