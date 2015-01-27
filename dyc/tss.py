@@ -107,8 +107,8 @@ def initialize():
     # add themes
 
     for name, path, enabled in [
-        ('default_theme', 'themes/default_theme', True),
-        ('admin_theme', 'themes/admin_theme', True)
+        ('default_theme', settings.DC_BASEDIR + '/themes/default_theme', True),
+        ('admin_theme', settings.DC_BASEDIR + '/themes/admin_theme', True)
     ]:
         theming.add_theme(
             name=name,

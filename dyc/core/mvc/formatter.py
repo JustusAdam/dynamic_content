@@ -69,7 +69,7 @@ class TemplateFormatter(object):
             pairing['request'] = request
             for path in self.view_path(view_name, dc_obj):
                 try:
-                    with open(settings.DC_BASEDIR + '/' + path) as file:
+                    with open(path) as file:
                         string = file.read()
                         break
                 except IOError:
@@ -96,5 +96,5 @@ class TemplateFormatter(object):
             if 'template_directory' in dc_obj.config:
                 yield dc_obj.config['template_directory'] + '/' + view
 
-            yield 'custom/templates/' + view
-            yield 'templates/' + view
+            yield settings.DC_BASEDIR + '/custom/templates/' + view
+            yield settings.DC_BASEDIR + '/templates/' + view

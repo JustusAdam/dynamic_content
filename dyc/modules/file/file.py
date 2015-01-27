@@ -24,7 +24,6 @@ _default_view = 'indexdir'
 
 def handle(request):
     path_split = request.path.split('/')
-    # print(request.path)
     path_split = path_split[1:] if path_split[0] == '' else path_split
     trailing_slash, path_split = (True, path_split[:-1]) if path_split[-1] == '' else (False, path_split)
     if len(path_split) < 1:
@@ -32,7 +31,9 @@ def handle(request):
     basedirs = settings.FILE_DIRECTORIES[path_split[0]]
     if isinstance(basedirs, str):
         basedirs = (basedirs,)
-    for basedir in basedirs:
+    for basedir in (
+            (settings.DC_BASEDIR + '/' + bd if not bd.startswith('/') else bd)
+            for bd in basedirs):
         filepath = '/'.join([basedir] + path_split[1:])
         filepath = pathlib.Path(filepath)
 

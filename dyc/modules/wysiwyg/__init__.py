@@ -1,4 +1,3 @@
-from dyc.modules.theming import InvisibleList
 from dyc.util import html, structures
 from ._elements import WysiwygTextarea, identifier
 from dyc.core.mvc import context
@@ -16,7 +15,7 @@ def decorator_hook(dc_obj:structures.DynamicContent):
     if 'scripts' in dc_obj.context:
         dc_obj.context['scripts'] += [basic_script, apply_script]
     else:
-        dc_obj.context['scripts'] = InvisibleList((basic_script, apply_script))
+        dc_obj.context['scripts'] = structures.InvisibleList((basic_script, apply_script))
 
 
 def use(name='tinymce'):
