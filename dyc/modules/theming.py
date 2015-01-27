@@ -166,7 +166,10 @@ class Theme(orm.BaseModel):
 class Middleware(Handler):
     def handle_view(self, view, dc_obj):
         if 'theme' in dc_obj.handler_options:
-             if dc_obj.handler_options['theme'] is True:
-                 theme_dc_obj(dc_obj)
-             elif isinstance(dc_obj.handler_options['theme'], str):
-                 theme_dc_obj(dc_obj, dc_obj.handler_options['theme'])
+            if dc_obj.handler_options['theme'] is True:
+                theme_dc_obj(dc_obj)
+            elif isinstance(dc_obj.handler_options['theme'], str):
+                theme_dc_obj(dc_obj, dc_obj.handler_options['theme'])
+        if ('breadcrumbs' in dc_obj.handler_options
+            and dc_obj.handler_options['breadcrumbs'] is True):
+            attach_breadcrumbs(dc_obj)
