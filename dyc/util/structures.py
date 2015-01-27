@@ -40,3 +40,18 @@ Mainly consists (after instantiation by the application) of two dictionaries:
 """
 DynamicContent = collections.namedtuple('DynamicContent',
     ('config', 'context', 'request', 'handler_options'))
+
+
+
+class InvisibleList(list):
+    def __iadd__(self, other):
+        self.extend(other)
+        return self
+
+    def __add__(self, other):
+        a = InvisibleList(self)
+        a.extend(other)
+        return a
+
+    def __str__(self):
+        return ''.join(str(a) for a in self)

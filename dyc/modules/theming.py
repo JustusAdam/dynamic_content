@@ -3,7 +3,7 @@ from dyc.backend import orm
 from dyc.core import mvc
 from dyc.includes import settings
 from dyc.middleware import Handler
-from dyc.util import html
+from dyc.util import html, structures
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
@@ -13,20 +13,6 @@ config_file_name = 'config.json'
 
 
 pagetitle = '<a href="/">dynamic_content - fast, lightweight and extensible</a>'
-
-
-class InvisibleList(list):
-    def __iadd__(self, other):
-        self.extend(other)
-        return self
-
-    def __add__(self, other):
-        a = InvisibleList(self)
-        a.extend(other)
-        return a
-
-    def __str__(self):
-        return ''.join(str(a) for a in self)
 
 
 def get_theme(name):
@@ -61,7 +47,7 @@ def compile_stuff(dc_obj):
     if 'stylesheets' in dc_obj.context:
         dc_obj.context['stylesheets'] += theme_stylesheets
     else:
-        dc_obj.context['stylesheets'] = InvisibleList(theme_stylesheets)
+        dc_obj.context['stylesheets'] = structures.InvisibleList(theme_stylesheets)
 
     scripts_directory = theme_path + dc_obj.config['theme_config']['stylesheet_directory']
     theme_scripts = (
@@ -71,7 +57,7 @@ def compile_stuff(dc_obj):
     if 'scripts' in dc_obj.context:
         dc_obj.context['scripts'] += theme_scripts
     else:
-        dc_obj.context['scripts'] = InvisibleList(theme_scripts)
+        dc_obj.context['scripts'] = structures.InvisibleList(theme_scripts)
 
     favicon = dc_obj.config['theme_config'].get('favicon', 'favicon.icon')
     apple_icon = dc_obj.config['theme_config'].get('apple-touch-icon', 'favicon.icon')
@@ -82,7 +68,7 @@ def compile_stuff(dc_obj):
     if 'meta' in dc_obj.context:
         dc_obj.context['meta'] += [theme_meta]
     else:
-        dc_obj.context['meta'] = InvisibleList(theme_meta)
+        dc_obj.context['meta'] = structures.InvisibleList(theme_meta)
 
     dc_obj.context.setdefault('pagetitle', pagetitle)
 
