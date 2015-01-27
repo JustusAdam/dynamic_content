@@ -39,4 +39,4 @@ Mainly consists (after instantiation by the application) of two dictionaries:
         (amongst other things 'client' can be found here)
 """
 DynamicContent = collections.namedtuple('DynamicContent',
-    ('config', 'context', 'request'))
+    ('config', 'context', 'request', 'handler_options'))

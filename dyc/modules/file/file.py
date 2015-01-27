@@ -86,6 +86,7 @@ def directory(request, real_dir):
         real_dir = pathlib.Path(real_dir)
     dc_obj = structures.DynamicContent(
         request=request,
+        handler_options={},
         config={},
         context=dict(
             content=html.List(

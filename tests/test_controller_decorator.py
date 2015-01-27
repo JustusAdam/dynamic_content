@@ -17,7 +17,8 @@ class TestDecorator(unittest.TestCase):
         model = structures.DynamicContent(
             request=r,
             context={},
-            config={}
+            config={},
+            handler_options={}
         )
 
         @mvc.controller_function(prefix1, method=dchttp.RequestMethods.GET, query=True)

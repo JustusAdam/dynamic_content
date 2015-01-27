@@ -256,18 +256,17 @@ class Application(threading.Thread, lazy.Loadable):
             if res is not None:
                 return res
 
-
-        dc_obj = structures.DynamicContent(
-            request=request,
-            context={
-                'parent_page': request.parent_page()
-            },
-            config={}
-            )
-
-
         try:
             handler, args, kwargs = pathmap.resolve(request)
+
+            dc_obj = structures.DynamicContent(
+                request=request,
+                context={
+                    'parent_page': request.parent_page()
+                },
+                config={},
+                handler_options=handler.options
+            )
 
             for obj in cmw:
                 res = obj.handle_controller(dc_obj, handler, args, kwargs)
@@ -284,6 +283,17 @@ class Application(threading.Thread, lazy.Loadable):
         except (exceptions.PathResolving, exceptions.MethodHandlerNotFound) as e:
             log.write_error('Page not found with exception {}'.format(e))
             view = 'error'
+
+            dc_obj = structures.DynamicContent(
+                request=request,
+                context={
+                    'parent_page': request.parent_page()
+                },
+                config={},
+                handler_options={}
+            )
+
+
             dc_obj.context['title'] = '404 - Page not found'
             dc_obj.context['content'] = (
                 '<h3>Pathmapper encountered an error</h3>'

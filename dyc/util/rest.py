@@ -1,3 +1,5 @@
+from dyc import dchttp
+
 __author__ = 'Justus Adam'
 
 import inspect
@@ -27,3 +29,22 @@ def _object_transform(o):
 
 
 json_transform = lambda a: json.dumps(a, default=_object_transform)
+
+
+def json_response(content, context):
+    return dchttp.response.Response(
+        code=200,
+        body=json_transform(content),
+        headers=(
+            context.config['headers']
+            if 'headers' in context.config
+            and context.config['headers'] is not None
+            else {}
+            ),
+        cookies=(
+            context.config['cookies']
+            if 'cookies' in context.config
+            and context.config is not None
+            else {}
+            )
+    )

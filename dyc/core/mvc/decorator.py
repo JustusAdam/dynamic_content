@@ -1,4 +1,4 @@
-"""
+__doc__ = """
 This module defines decorators to use for registering and interacting
 with the dynamic_content model-view-controller implementation
 
@@ -39,7 +39,6 @@ from .. import _component
 from dyc import dchttp
 from .context import apply_to_context
 from dyc.util import decorators, structures, typesafe, rest
-from dyc.util.rest import json_transform
 
 
 __author__ = 'Justus Adam'
@@ -197,22 +196,7 @@ rest_controller_method = functools.partial(_controller_method, RestControlFuncti
 
 @apply_to_context(return_from_decorator=True, with_return=True)
 def json_return(context, res):
-    return dchttp.response.Response(
-        code=200,
-        body=json_transform(res),
-        headers=(
-            context.config['headers']
-            if 'headers' in context.config
-            and context.config['headers'] is not None
-            else {}
-            ),
-        cookies=(
-            context.config['cookies']
-            if 'cookies' in context.config
-            and context.config is not None
-            else {}
-            )
-    )
+    return rest.json_response(res, context)
 
 
 @decorators.deprecated

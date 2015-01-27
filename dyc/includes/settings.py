@@ -86,7 +86,8 @@ MIDDLEWARE = (
     'dyc.middleware.alias.Middleware',
     'dyc.modules.file.PathHandler',
     'dyc.middleware.trailing_slash.RemoveTrailingSlash',
-    'dyc.middleware.ssl.ConditionalSSLRedirect'
+    'dyc.middleware.ssl.ConditionalSSLRedirect',
+    'dyc.middleware.rest.JSONTransform'
     )
 ANTI_CSRF = True
 DEFAULT_HEADERS = {
