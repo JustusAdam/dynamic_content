@@ -1,17 +1,12 @@
 import pathlib
 from dyc import dchp
 from dyc.dchttp import response
-from dyc.util import config, decorators
+from dyc.util import config, decorators, structures
 from dyc.core import mvc
 from dyc.modules import theming, commons
 
 __author__ = 'Justus Adam'
 __version__ = '0.2'
-
-
-class InvisibleList(list):
-    def __str__(self):
-        return ''.join(str(a) for a in self)
 
 
 def compile_nodes(res, dc_obj):
@@ -50,7 +45,7 @@ def compile_nodes(res, dc_obj):
             dc_obj.context['title'] = 'Overview'
 
         template = _get_template('multi_node_template')
-        content = InvisibleList(
+        content = structures.InvisibleList(
             dchp.evaluator.evaluate_html(template, a) for a in res
             )
     elif isinstance(res, response.Response):

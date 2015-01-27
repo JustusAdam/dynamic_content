@@ -13,7 +13,7 @@ def Enumeration(name, levels, start=0):
 ServerArguments = collections.namedtuple('ServerArguments', ('host', 'port', 'ssl_port'))
 MySQL = collections.namedtuple(
     'MySQL',
-    ('type', 'user', 'autocommit', 'password', 'name', 'host'))
+    ('user', 'autocommit', 'password', 'name', 'host'))
 SQLite = collections.namedtuple(
     'SQLite',
     ('name', )

@@ -113,11 +113,10 @@ def render_breadcrumbs(url):
                     html_type='span',
                     classes={'breadcrumb-separator'}
                 ),
-                html.ContainerElement(
+                html.A(
+                    location,
                     name,
-                    html_type='a',
-                    classes={'breadcrumb'},
-                    additional={'href': location}
+                    classes={'breadcrumb'}
                 )
             ):
                 yield i
