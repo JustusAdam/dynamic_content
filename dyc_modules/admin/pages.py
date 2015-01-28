@@ -1,7 +1,7 @@
 import collections
 
 from dyc.core import mvc
-from dyc import dchttp
+from dyc import http
 from dyc.util import html
 from dyc.modules import commons, node
 from dyc.modules.users import decorator as user_dec
@@ -12,7 +12,7 @@ __author__ = 'Justus Adam'
 ADMIN_PATH = '/admin'
 
 
-@mvc.controller_function('admin', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function('admin', method=http.RequestMethods.GET, query=False)
 @user_dec.authorize('access admin pages')
 @node.make_node()
 def overview(dc_obj):
@@ -85,7 +85,7 @@ class OverviewCommon(commons.Handler):
 
 @mvc.controller_function(
     'admin/{str}',
-    method=dchttp.RequestMethods.GET,
+    method=http.RequestMethods.GET,
     query=False
     )
 @node.make_node()
@@ -111,7 +111,7 @@ def category(dc_obj, name):
 
 @mvc.controller_function(
     'admin/{str}/{str}',
-    method=dchttp.RequestMethods.GET,
+    method=http.RequestMethods.GET,
     query=False
     )
 @node.make_node()
@@ -147,7 +147,7 @@ def subcategory(dc_obj, category_name,  name):
 
 @mvc.controller_function(
     'admin/{str}/{str}/{str}',
-    method=dchttp.RequestMethods.GET,
+    method=http.RequestMethods.GET,
     query=False
     )
 def page(dc_obj, category_name, subcategory_name, page_name):

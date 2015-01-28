@@ -1,4 +1,4 @@
-from dyc import dchttp
+from dyc import http
 from dyc.util import decorators
 from .. import _component
 
@@ -35,7 +35,7 @@ class ControllerMapper(object):
 
         query = (
             url.get_query
-            if url.method == dchttp.RequestMethods.POST
+            if url.method == http.RequestMethods.POST
             else url.post
             )
 

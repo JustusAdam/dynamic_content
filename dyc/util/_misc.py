@@ -1,5 +1,5 @@
 import functools
-from dyc import dchttp
+from dyc import http
 from dyc.errors import exceptions
 
 __author__ = 'Justus Adam'
@@ -15,7 +15,7 @@ def catch_vardump(func):
         try:
             return func(*args, **kwargs)
         except exceptions.Vardump as v:
-            return dchttp.response.Response(
+            return http.response.Response(
                 open('errors/error.html').read().format(
                     v.request, lformat(v.locals), lformat(v.globals)
                 ).encode('utf-8'), code=200

@@ -2,7 +2,7 @@ import unittest
 from dyc import core
 from dyc.core import mvc
 from dyc.util import structures
-from dyc import dchttp
+from dyc import http
 
 __author__ = 'Justus Adam'
 
@@ -13,7 +13,7 @@ class TestDecorator(unittest.TestCase):
 
         prefix1 = 'hello/{str}'
         testpath = 'somepath35'
-        r = dchttp.Request('localhost', 8080, '/hello/' + testpath, 'get', {}, None, False)
+        r = http.Request('localhost', 8080, '/hello/' + testpath, 'get', {}, None, False)
         model = structures.DynamicContent(
             request=r,
             context={},
@@ -21,7 +21,7 @@ class TestDecorator(unittest.TestCase):
             handler_options={}
         )
 
-        @mvc.controller_function(prefix1, method=dchttp.RequestMethods.GET, query=True)
+        @mvc.controller_function(prefix1, method=http.RequestMethods.GET, query=True)
         def handle(model, arg, get):
             return model, arg, get
 

@@ -6,12 +6,12 @@ own page handlers.
 import pathlib
 from urllib import parse
 import mimetypes
-from dyc import dchttp
+from dyc import http
 from dyc import core
 from dyc.core import mvc
 from dyc.includes import settings
 from dyc.util import html, structures
-from dyc.dchttp import response, request as _request
+from dyc.http import response, request as _request
 from dyc import middleware
 
 
@@ -68,7 +68,7 @@ def handle(request):
 
 @mvc.controller_class
 class PathHandler(middleware.Handler):
-    @mvc.controller_method({'theme/**', 'public/**', '/**'}, method=dchttp.RequestMethods.GET)
+    @mvc.controller_method({'theme/**', 'public/**', '/**'}, method=http.RequestMethods.GET)
     def handle(self, dc_obj, path):
         return self.parse_path(dc_obj, path)
 

@@ -1,6 +1,6 @@
 import pathlib
 from dyc import dchp
-from dyc.dchttp import response
+from dyc.http import response
 from dyc.util import config, decorators, structures
 from dyc.core import mvc
 from dyc.modules import theming, commons

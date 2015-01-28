@@ -1,5 +1,5 @@
 from . import _infrastructure
-from dyc.dchttp import ssl
+from dyc.http import ssl
 
 
 class ConditionalSSLRedirect(_infrastructure.Handler):

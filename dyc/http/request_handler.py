@@ -13,7 +13,7 @@ import sys
 import traceback
 from urllib.error import HTTPError
 import collections
-from dyc.dchttp import Request
+from dyc.http import Request
 from dyc.includes import log, settings
 from dyc.util import console
 

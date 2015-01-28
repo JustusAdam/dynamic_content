@@ -4,7 +4,7 @@ import os
 from dyc.backend import orm
 from . import register, Handler
 from dyc.util import html
-from dyc.dchttp import RequestMethods, response
+from dyc.http import RequestMethods, response
 from dyc.includes import settings
 
 

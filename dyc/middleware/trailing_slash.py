@@ -1,5 +1,5 @@
 from dyc import middleware
-from dyc.dchttp import response
+from dyc.http import response
 
 
 __author__ = 'Justus Adam'

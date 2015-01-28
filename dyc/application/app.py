@@ -15,7 +15,7 @@ if settings.HTTPS_ENABLED:
     import ssl
 
 from dyc.util import console, typesafe, lazy, catch_vardump, structures
-from dyc import dchttp
+from dyc import http
 from dyc.errors import exceptions
 from . import config as _config
 
@@ -75,7 +75,7 @@ class Application(threading.Thread, lazy.Loadable):
 
         else:
             for module in settings.MODULES:
-                importlib.import_module(module, 'dyc.modules')
+                importlib.import_module(module, 'dyc_modules')
 
     def http_callback(self, request):
         return self.process_request(request)
@@ -99,7 +99,7 @@ class Application(threading.Thread, lazy.Loadable):
             query = environ['QUERY_STRING']
         else:
             query = None
-        return dchttp.Request.from_path_and_post(
+        return http.Request.from_path_and_post(
             host=environ['HTTP_HOST'],
             path=environ['PATH_INFO'],
             headers={
@@ -310,7 +310,7 @@ class Application(threading.Thread, lazy.Loadable):
                 )
 
         # Allow view to directly return a response, mainly to handle errors
-        if not isinstance(view, dchttp.response.Response):
+        if not isinstance(view, http.response.Response):
             for obj in cmw:
                 res = obj.handle_view(view, dc_obj)
                 if res is not None:

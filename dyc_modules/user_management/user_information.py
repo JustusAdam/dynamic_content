@@ -1,5 +1,5 @@
 from dyc.core import mvc
-from dyc import dchttp
+from dyc import http
 from dyc.util import html
 from dyc.modules import theming, commons
 from dyc.modules.users.login import LOGOUT_BUTTON
@@ -42,7 +42,7 @@ class UserInformationCommon(commons.Handler):
 
 
 @mvc.controller_function(
-    'users/{int}', method=dchttp.RequestMethods.GET,
+    'users/{int}', method=http.RequestMethods.GET,
     query=False
     )
 @theming.theme(default_theme='admin_theme')
@@ -72,7 +72,7 @@ def user_information(dc_obj, uid):
     return 'user_overview'
 
 
-@mvc.controller_function('users', method=dchttp.RequestMethods.GET, query=True)
+@mvc.controller_function('users', method=http.RequestMethods.GET, query=True)
 @decorator.authorize('access users overview')
 @theming.theme(default_theme='admin_theme')
 def users_overview(dc_obj, get_query):

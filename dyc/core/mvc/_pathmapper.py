@@ -1,5 +1,5 @@
 import collections
-from dyc import dchttp
+from dyc import http
 
 from dyc.errors import exceptions
 from .. import _component
@@ -142,7 +142,7 @@ class PathMap(Segment):
 
         return handler, args, kwargs
 
-    def find_handler(self, request:dchttp.Request):
+    def find_handler(self, request:http.Request):
         """Resolve the appropriate handler for the given path and request method
 
          :return partial function encapsulating the handler function

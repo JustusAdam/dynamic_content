@@ -1,7 +1,7 @@
 import re
 import sys
 
-from dyc.dchttp import response
+from dyc.http import response
 from .. import Component
 from dyc import dchp
 from dyc.includes import settings

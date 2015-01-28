@@ -2,9 +2,9 @@ import pathlib
 import sys
 import collections
 from dyc.util import structures
-from dyc.dchttp import server
-from dyc.dchttp import request_handler
-from dyc.dchttp import wsgi
+from dyc.http import server
+from dyc.http import request_handler
+from dyc.http import wsgi
 
 
 __author__ = 'Justus Adam'

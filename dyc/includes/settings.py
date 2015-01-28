@@ -85,12 +85,12 @@ PATHMAP_TYPE = PathMaps.MULTI_TABLE
 LOGFILE = 'app.log'
 MIDDLEWARE = (
     'dyc.middleware.alias.Middleware',
-    'dyc.modules.users.middleware.AuthorizationMiddleware',
-    'dyc.modules.file.PathHandler',
+    'dyc_modules.users.middleware.AuthorizationMiddleware',
+    'dyc_modules.file.PathHandler',
     'dyc.middleware.trailing_slash.RemoveTrailingSlash',
     'dyc.middleware.ssl.ConditionalSSLRedirect',
     'dyc.middleware.rest.JSONTransform',
-    'dyc.modules.theming.Middleware'
+    'dyc_modules.theming.Middleware'
     )
 ANTI_CSRF = True
 DEFAULT_HEADERS = {

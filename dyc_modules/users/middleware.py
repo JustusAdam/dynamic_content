@@ -1,7 +1,7 @@
 import time
 import http.cookies
 from dyc import middleware
-from dyc.dchttp import response
+from dyc.http import response
 from . import session, users, client
 
 

@@ -1,4 +1,4 @@
-from dyc import dchttp
+from dyc import http
 
 __author__ = 'Justus Adam'
 
@@ -32,7 +32,7 @@ json_transform = lambda a: json.dumps(a, default=_object_transform)
 
 
 def json_response(content, context):
-    return dchttp.response.Response(
+    return http.response.Response(
         code=200,
         body=json_transform(content),
         headers=(

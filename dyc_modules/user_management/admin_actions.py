@@ -2,7 +2,7 @@ import re
 import itertools
 
 from dyc.core import mvc
-from dyc import dchttp
+from dyc import http
 from dyc.util import html
 from dyc.middleware import csrf
 from dyc.modules import theming
@@ -64,7 +64,7 @@ def user_form(**values):
         yield html.Label(display_name, label_for=name), html.Input(name=name, **kwargs)
 
 
-@mvc.controller_function('users/new', method=dchttp.RequestMethods.GET, query=False)
+@mvc.controller_function('users/new', method=http.RequestMethods.GET, query=False)
 @decorator.authorize('edit user accounts')
 @theming.theme(default_theme='admin_theme')
 def create_user_form(dc_obj):
@@ -78,7 +78,7 @@ def create_user_form(dc_obj):
     return 'user_overview'
 
 
-@mvc.controller_function('users/new', method=dchttp.RequestMethods.POST, query=True)
+@mvc.controller_function('users/new', method=http.RequestMethods.POST, query=True)
 @decorator.authorize('edit user accounts')
 def create_user_action(dc_obj, post):
     if 'password' in post:
@@ -101,7 +101,7 @@ post_to_args = lambda post: {
 
 @mvc.controller_function(
     'users/{int}/edit',
-    method=dchttp.RequestMethods.POST,
+    method=http.RequestMethods.POST,
     query=True
     )
 def edit_user_action(model, uid, post):
@@ -113,7 +113,7 @@ def edit_user_action(model, uid, post):
 
 @mvc.controller_function(
     'users/{int}/edit',
-    method=dchttp.RequestMethods.GET,
+    method=http.RequestMethods.GET,
     query=False
     )
 @theming.theme(default_theme='admin_theme')
@@ -189,7 +189,7 @@ def permission_table(checkbox):
 
 @mvc.controller_function(
     'users/permissions',
-    method=dchttp.RequestMethods.GET,
+    method=http.RequestMethods.GET,
     query=False
     )
 @decorator.authorize('view permissions')
@@ -214,7 +214,7 @@ permission_structure = re.compile('^(\d)+-([0-9a-zA-Z_-]+)$')
 
 @mvc.controller_function(
     'users/permissions/edit',
-    method=dchttp.RequestMethods.GET,
+    method=http.RequestMethods.GET,
     query=False
     )
 @decorator.authorize('edit permissions')
@@ -232,7 +232,7 @@ def edit_permissions(dc_obj):
 
 @mvc.controller_function(
     'users/permissions/edit',
-    method=dchttp.RequestMethods.POST,
+    method=http.RequestMethods.POST,
     query=True
     )
 @decorator.authorize('edit permissions')

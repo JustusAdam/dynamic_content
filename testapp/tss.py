@@ -32,7 +32,7 @@ def init_tables():
     c = {}
 
     for module in settings.MODULES:
-        c[module] = import_module('dyc.modules.' + module)
+        c[module] = import_module('dyc_modules.' + module)
 
     for module in c.values():
         _init_module(module)

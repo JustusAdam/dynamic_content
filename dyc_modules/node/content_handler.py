@@ -2,7 +2,7 @@ from datetime import datetime
 import functools
 
 from dyc import core
-from dyc import dchttp
+from dyc import http
 from dyc.core import mvc
 from dyc.util import lazy, html, clean
 from dyc.modules import wysiwyg
@@ -300,7 +300,7 @@ class CMSController(object):
 
     @mvc.controller_method(
         {'/node/{int}', 'node/{int}/access'},
-        method=dchttp.RequestMethods.GET,
+        method=http.RequestMethods.GET,
         query=False
         )
     @make_node()
@@ -311,7 +311,7 @@ class CMSController(object):
 
     @mvc.controller_method(
         '/node/{int}/edit',
-        method=dchttp.RequestMethods.POST,
+        method=http.RequestMethods.POST,
         query=True
         )
     def handle_edit(self, dc_obj, page_id, post):
@@ -322,7 +322,7 @@ class CMSController(object):
 
     @mvc.controller_method(
         '/node/{int}/edit',
-        method=dchttp.RequestMethods.GET,
+        method=http.RequestMethods.GET,
         query=False
         )
     @make_node()
@@ -334,7 +334,7 @@ class CMSController(object):
 
     @mvc.controller_method(
         '/node',
-        method=dchttp.RequestMethods.GET,
+        method=http.RequestMethods.GET,
         query=True
         )
     @user_dec.authorize('access node overview')
@@ -358,7 +358,7 @@ class CMSController(object):
 
     @mvc.controller_method(
         '/node/add/{str}',
-        method=dchttp.RequestMethods.GET,
+        method=http.RequestMethods.GET,
         query=False
         )
     @make_node()
@@ -368,7 +368,7 @@ class CMSController(object):
 
     @mvc.controller_method(
         '/node/add/{str}',
-        method=dchttp.RequestMethods.POST,
+        method=http.RequestMethods.POST,
         query=True
         )
     def process_add(self, dc_obj, content_type, query):

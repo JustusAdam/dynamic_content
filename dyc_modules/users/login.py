@@ -1,7 +1,7 @@
 import datetime
 from http import cookies
 
-from dyc import dchttp
+from dyc import http
 from dyc.util import html, console
 from dyc.core import mvc
 from dyc.middleware import csrf
@@ -64,7 +64,7 @@ class LoginCommonHandler(commons.Handler):
 
 @mvc.controller_function(
     {'login'},
-    method=dchttp.RequestMethods.GET,
+    method=http.RequestMethods.GET,
     query=False,
     require_ssl=True
     )
@@ -74,7 +74,7 @@ def login_(dc_obj):
 
 @mvc.controller_function(
     {'login/{str}'},
-    method=dchttp.RequestMethods.GET,
+    method=http.RequestMethods.GET,
     require_ssl=True,
     query=False
     )
@@ -98,7 +98,7 @@ def login(dc_obj, failed):
 
 @mvc.controller_function(
     'login',
-    method=dchttp.RequestMethods.POST,
+    method=http.RequestMethods.POST,
     query=['username', 'password']
     )
 @decorator.authorize('access login page')
@@ -120,7 +120,7 @@ def login_post(dc_obj, username, password):
 
 @mvc.controller_function(
     'logout',
-    method=dchttp.RequestMethods.GET,
+    method=http.RequestMethods.GET,
     query=True
     )
 def logout(dc_obj, query):

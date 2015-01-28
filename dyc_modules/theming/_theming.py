@@ -1,9 +1,8 @@
 import json
-from dyc.backend import orm
 from dyc.core import mvc
 from dyc.includes import settings
-from dyc.middleware import Handler
 from dyc.util import html, structures
+from . import model
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
@@ -11,19 +10,18 @@ __version__ = '0.1'
 
 config_file_name = 'config.json'
 
-
 pagetitle = '<a href="/">dynamic_content - fast, lightweight and extensible</a>'
 
 
 def get_theme(name):
     if name in ('active', 'default_theme'):
         name = 'default_theme'
-    return Theme.get(machine_name=name)
+    return model.Theme.get(machine_name=name)
 
 
 def load_theme_conf(theme):
-    if not isinstance(theme, Theme):
-        theme = Theme.get(machine_name=theme)
+    if not isinstance(theme, model.Theme):
+        theme = model.Theme.get(machine_name=theme)
     with open(theme.path + '/' + config_file_name) as file:
         conf = json.loads(file.read())
     conf['path'] = theme.path
@@ -35,6 +33,7 @@ def attach_theme_conf(dc_obj, default_theme=settings.DEFAULT_THEME):
         theme = dc_obj.config['theme'] = dc_obj.config['theme'] if 'theme' in dc_obj.config and dc_obj.config['theme'] else default_theme
         dc_obj.config['theme_config'] = load_theme_conf(theme)
         dc_obj.config['template_directory'] = dc_obj.config['theme_config']['path'] + '/' + dc_obj.config['theme_config'].get('template_directory', 'templates')
+
 
 
 def compile_stuff(dc_obj):
@@ -93,68 +92,3 @@ def theme(default_theme=settings.DEFAULT_THEME):
         return _inner
     else:
         raise TypeError('Expected {} or {}, got {}'.format(callable, str, type(default_theme)))
-
-
-breadcrumb_separator = '>>'
-
-
-def get_breadcrumbs(url):
-    path = url.split('/')
-    yield 'home', '/'
-    for i in range(1, len(path)):
-        yield path[i], '/'.join(path[:i+1])
-
-def render_breadcrumbs(url):
-    def acc():
-        for (name, location) in get_breadcrumbs(url):
-            for i in (
-                html.ContainerElement(
-                    breadcrumb_separator,
-                    html_type='span',
-                    classes={'breadcrumb-separator'}
-                ),
-                html.A(
-                    location,
-                    name,
-                    classes={'breadcrumb'}
-                )
-            ):
-                yield i
-
-    return html.ContainerElement(*tuple(acc()), classes={'breadcrumbs'})
-
-
-def attach_breadcrumbs(dc_obj):
-    if not 'breadcrumbs' in dc_obj:
-        dc_obj.context['breadcrumbs'] = render_breadcrumbs(dc_obj.request.path)
-
-
-@mvc.context.apply_to_context(apply_before=False)
-def breadcrumbs(dc_obj):
-    attach_breadcrumbs(dc_obj)
-
-
-def add_theme(name, path, enabled):
-    return Theme.create(
-        machine_name=name,
-        path=path,
-        enabled=enabled
-    )
-
-
-class Theme(orm.BaseModel):
-    machine_name = orm.CharField(unique=True)
-    enabled = orm.BooleanField(default=False)
-    path = orm.CharField()
-
-
-class Middleware(Handler):
-    def handle_view(self, view, dc_obj):
-        if 'theme' in dc_obj.handler_options:
-            if dc_obj.handler_options['theme'] is True:
-                theme_dc_obj(dc_obj)
-            elif isinstance(dc_obj.handler_options['theme'], str):
-                theme_dc_obj(dc_obj, dc_obj.handler_options['theme'])
-        if ('breadcrumbs' in dc_obj.handler_options
-            and dc_obj.handler_options['breadcrumbs'] is True):
-            attach_breadcrumbs(dc_obj)

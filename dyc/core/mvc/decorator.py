@@ -36,7 +36,7 @@ import re
 from . import Config, DefaultConfig
 from . import controller
 from .. import _component
-from dyc import dchttp
+from dyc import http
 from .context import apply_to_context
 from dyc.util import decorators, structures, typesafe, rest
 
@@ -139,7 +139,7 @@ def _controller_function(
     class_,
     value,
     *,
-    method=dchttp.RequestMethods.GET,
+    method=http.RequestMethods.GET,
     headers=None,
     query=False,
     **options
@@ -157,7 +157,7 @@ def _controller_method(
     class_,
     value,
     *,
-    method=dchttp.RequestMethods.GET,
+    method=http.RequestMethods.GET,
     headers=None,
     query=False,
     **options
