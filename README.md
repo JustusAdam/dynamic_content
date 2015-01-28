@@ -10,6 +10,11 @@ Currently there is no documentation and few comments and docstrings and it is by
 
 100% Python 3
 
+## Documentation
+
+[readthedocs.org](https://dynamic-content.readthedocs.org)
+
+
 ## Requirements
 
 * Database
