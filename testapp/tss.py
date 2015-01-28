@@ -3,7 +3,7 @@ This is a temporary script that will execute some queries on the database to fil
 to get some basic site setup done. It will be done in this script to avoid trying to insert into tables that have not
 been created yet.
 """
-from dyc.util import console
+from dycc.util import console
 
 
 __author__ = 'Justus Adam'
@@ -11,11 +11,11 @@ __version__ = '0.2.1'
 
 
 def init_tables():
-    from dyc.includes import log
+    from dycc.includes import log
     from importlib import import_module
-    from dyc.backend import orm
+    from dycc.backend import orm
     import inspect
-    from dyc.includes import settings
+    from dycc.includes import settings
 
 
     def _init_module(m):
@@ -32,7 +32,7 @@ def init_tables():
     c = {}
 
     for module in settings.MODULES:
-        c[module] = import_module('dyc_modules.' + module)
+        c[module] = import_module('dycm.' + module)
 
     for module in c.values():
         _init_module(module)
@@ -43,15 +43,15 @@ def init_tables():
             console.print_error(error)
             log.write_error('init_tables:', error)
 
-    from dyc.middleware import alias, csrf
+    from dycc.middleware import alias, csrf
     alias.Alias.create_table()
     csrf.ARToken.create_table()
 
 
 
 def initialize():
-    from dyc.includes import settings
-    from dyc.modules import users as user_module, commons, theming, node
+    from dycc.includes import settings
+    from dycm import users as user_module, commons, theming, node
 
     admin_menu_common = 'admin_menu'
 
@@ -92,7 +92,7 @@ def initialize():
 
     # add some useful aliases
 
-    from dyc.middleware import alias
+    from dycc.middleware import alias
 
     aliases = [
         ('/', '/node/1'),
@@ -106,12 +106,14 @@ def initialize():
 
     # add themes
 
+    theme_path = theming.__file__.rsplit('/', 1)[0]
+
     for name, path, enabled in [
-        ('default_theme', settings.DC_BASEDIR + '/themes/default_theme', True),
-        ('admin_theme', settings.DC_BASEDIR + '/themes/admin_theme', True)
+        ('default_theme', theme_path + '/themes/default_theme', True),
+        ('admin_theme', theme_path + '/themes/admin_theme', True)
     ]:
-        theming.add_theme(
-            name=name,
+        theming.model.Theme.create(
+            machine_name=name,
             path=path,
             enabled=enabled
             )
@@ -195,7 +197,7 @@ def initialize():
 
     _ct1 = node.model.ContentType.create(machine_name='article',
                                          displey_name='Simple Article',
-                                         theme=theming.get_theme('active'))
+                                         theme=theming.model.Theme.get(machine_name='default_theme'))
 
     bodytype = node.model.FieldType.create(machine_name='body', handler='node.text_field_handler')
 

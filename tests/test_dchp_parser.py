@@ -1,5 +1,5 @@
 import unittest
-from dyc import dchp
+from dycc import dchp
 
 
 class TestDcHP(unittest.TestCase):

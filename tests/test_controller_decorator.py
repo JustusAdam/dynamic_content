@@ -1,8 +1,8 @@
 import unittest
-from dyc import core
-from dyc.core import mvc
-from dyc.util import structures
-from dyc import http
+import dycc
+from dycc import mvc
+from dycc.util import structures
+from dycc import http
 
 __author__ = 'Justus Adam'
 
@@ -25,7 +25,7 @@ class TestDecorator(unittest.TestCase):
         def handle(model, arg, get):
             return model, arg, get
 
-        handler, args, kwargs = core.get_component('PathMap').resolve(r)
+        handler, args, kwargs = dycc.get_component('PathMap').resolve(r)
         result_model, result_arg, result_get = handler(model, *args, **kwargs)
         self.assertEqual(model, result_model)
         self.assertEqual(testpath, result_arg)

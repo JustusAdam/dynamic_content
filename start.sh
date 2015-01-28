@@ -2,6 +2,6 @@
 
 BASEDIR=`dirname $0`
 
-cd $BASEDIR
+cd ${BASEDIR}
 
 python3 ./dyc/application/main.py

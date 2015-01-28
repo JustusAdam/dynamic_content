@@ -1,7 +1,6 @@
 import unittest
-import sys
-from dyc.util import parser
-from dyc.util.parser import elements as _e
+from dycc.util import parser
+from dycc.util.parser import elements as _e
 
 
 __author__ = 'Justus Adam'

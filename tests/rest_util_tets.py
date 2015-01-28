@@ -1,7 +1,7 @@
 __author__ = 'Justus Adam'
 
 import unittest
-from dyc.util import rest
+from dycc.util import rest
 
 
 class TestRestUtil(unittest.TestCase):

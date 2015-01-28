@@ -1,4 +1,8 @@
-from dyc.application import main
+from dycc.application import main
 
 if __name__ == '__main__':
-    main.main()
+    def init():
+        from testapp import tss
+        tss.init_tables()
+        tss.initialize()
+    main.main(init)
