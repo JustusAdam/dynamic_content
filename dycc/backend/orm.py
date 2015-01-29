@@ -7,22 +7,18 @@ __version__ = '0.1'
 
 
 def proxy_db():
-    console.print_info('Current RunLevel:  ', settings.RUNLEVEL,  '  ->  ', settings.RunLevel[settings.RUNLEVEL])
-    if settings.RUNLEVEL in [settings.RunLevel.TESTING, settings.RunLevel.DEBUG]:
+    console.print_info('Current RunLevel:  ', settings['runlevel'],  '  ->  ', structures.RunLevel[settings['runlevel']])
+    if settings['runevel'] in [structures.RunLevel.TESTING, structures.RunLevel.DEBUG]:
         db = SqliteDatabase(':memory:')
         db.connect()
         return db
-    elif settings.RUNLEVEL == settings.RunLevel.PRODUCTION:
-        if isinstance(settings.DATABASE, structures.MySQL):
+    elif settings['runlevel'] == structures.RunLevel.PRODUCTION:
+        if settings['database']['type'] == 'mysql':
             return MySQLDatabase(
-                database=settings.DATABASE.name,
-                autocommit=settings.DATABASE.autocommit,
-                user=settings.DATABASE.user,
-                password=settings.DATABASE.password,
-                host=settings.DATABASE.host
+                **{a:b for a,b in settings['database'].keys() if not a == 'type'}
                 ).connect()
-        elif isinstance(settings.DATABASE, structures.SQLite):
-            return SqliteDatabase(settings.DC_BASEDIR + '/' + settings.DATABASE.name)
+        elif settings['database']['type'] == 'sqlite':
+            return SqliteDatabase(settings['database']['name'])
     else:
         raise ValueError
 

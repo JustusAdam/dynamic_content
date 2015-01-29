@@ -28,7 +28,7 @@ def load_theme_conf(theme):
     return conf
 
 
-def attach_theme_conf(dc_obj, default_theme=settings.DEFAULT_THEME):
+def attach_theme_conf(dc_obj, default_theme=settings['default_theme']):
     if not 'theme_config' in dc_obj.config or dc_obj.config['theme_config'] is None:
         theme = dc_obj.config['theme'] = dc_obj.config['theme'] if 'theme' in dc_obj.config and dc_obj.config['theme'] else default_theme
         dc_obj.config['theme_config'] = load_theme_conf(theme)
@@ -72,7 +72,7 @@ def compile_stuff(dc_obj):
     dc_obj.context.setdefault('pagetitle', pagetitle)
 
 
-def theme_dc_obj(dc_obj, default_theme=settings.DEFAULT_THEME):
+def theme_dc_obj(dc_obj, default_theme=settings['default_theme']):
     if not 'theme_config' in dc_obj.config or not dc_obj.config['theme_config']:
         if not 'theme' in dc_obj.config:
             dc_obj.config['theme'] = default_theme
@@ -80,13 +80,13 @@ def theme_dc_obj(dc_obj, default_theme=settings.DEFAULT_THEME):
         compile_stuff(dc_obj)
 
 
-def theme(default_theme=settings.DEFAULT_THEME):
+def theme(default_theme=settings['default_theme']):
     @mvc.context.apply_to_context(apply_before=False)
     def _inner(dc_obj):
         theme_dc_obj(dc_obj, default_theme)
 
     if callable(default_theme):
-        func, default_theme = default_theme, settings.DEFAULT_THEME
+        func, default_theme = default_theme, settings['default_theme']
         return _inner(func)
     elif isinstance(default_theme, str):
         return _inner

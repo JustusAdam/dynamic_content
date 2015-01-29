@@ -1,12 +1,13 @@
 import inspect
 from functools import wraps
 from dycc.includes import settings
+from dycc.util import structures
 
 __author__ = 'Justus Adam'
 
 
 def typesafe(func):
-    if settings.RUNLEVEL == settings.RunLevel.PRODUCTION: return func
+    if settings['runlevel'] == structures.RunLevel.PRODUCTION: return func
     spec = inspect.getfullargspec(func)
     types = spec.annotations
     def_args = spec.args

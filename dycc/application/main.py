@@ -1,4 +1,7 @@
 import collections
+import pathlib
+import dycc
+from dycc.util import config,structures
 
 __doc__ = """
 Main file that runs the application.
@@ -98,27 +101,21 @@ def prepare():
         pass
 
 
-def prepare_settings(obj):
-    from dycc.util import config
-    import os
-
-    if isinstance(obj, str) and os.path.isfile(obj):
-        if obj.endswith('.json'):
-            obj = config.read_config(obj, 'json')
-
-    return obj
-
-
 def harden_settings(settings:dict):
     tuple_type = collections.namedtuple('Settings', *tuple(settings.keys()))
     return tuple_type, tuple_type(**settings)
 
 
-def main(init_function=None):
+def main(custom_settings, init_function=None):
+    settings = config.read_config('dycc/includes/settings.yml')
+    if isinstance(custom_settings, str):
+        custom_settings = config.read_config(custom_settings)
+
+    settings.update(custom_settings)
+
     prepare()
 
     import argparse
-    from dycc.includes import settings
     import sys
 
     sbool = ('true', 'false')
@@ -137,12 +134,12 @@ def main(init_function=None):
     parser.add_argument(
         '--loglevel',
         type=str,
-        choices=tuple(map(str.lower, settings.LoggingLevel._fields))
+        choices=tuple(map(str.lower, structures.LoggingLevel._fields))
         )
     parser.add_argument(
         '--pathmap',
         type=str,
-        choices=tuple(map(str.lower, settings.PathMaps._fields))
+        choices=tuple(map(str.lower, structures.PathMaps._fields))
         )
     parser.add_argument('--port', type=int)
     parser.add_argument('--ssl_port', type=int)
@@ -160,42 +157,42 @@ def main(init_function=None):
     parser.add_argument(
         '--server',
         type=str,
-        choices=tuple(map(str.lower, settings.ServerTypes._fields))
+        choices=tuple(map(str.lower, structures.ServerTypes._fields))
         )
     parser.add_argument('--ssl_certfile', type=str)
     parser.add_argument('--ssl_keyfile', type=str)
 
     startargs = parser.parse_args()
 
-    settings.HTTPS_ENABLED = bool_from_str(startargs.https_enabled, settings.HTTPS_ENABLED)
-    settings.HTTP_ENABLED = bool_from_str(startargs.http_enabled, settings.HTTP_ENABLED)
+    settings['HTTPS_ENABLED'] = bool_from_str(startargs.https_enabled, settings['HTTPS_ENABLED'])
+    settings['HTTP_ENABLED'] = bool_from_str(startargs.http_enabled, settings['HTTP_ENABLED'])
 
     if startargs.logfile:
-        settings.LOGFILE = startargs.logfile
+        settings['LOGFILE'] = startargs.logfile
     if startargs.loglevel:
-        settings.LOGGING_LEVEL = getattr(settings.LoggingLevel, startargs.loglevel.upper())
+        settings['LOGGING_LEVEL'] = getattr(structures.LoggingLevel, startargs.loglevel.upper())
     if startargs.port or startargs.host or startargs.ssl_port:
-        settings.SERVER = type(settings.SERVER)(
-            host=startargs.host if startargs.host else settings.SERVER.host,
-            port=startargs.port if startargs.port else settings.SERVER.port,
-            ssl_port=startargs.ssl_port if startargs.ssl_port else settings.SERVER.ssl_port,
+        settings['SERVER'] = dict(
+            host=startargs.host if startargs.host else settings['SERVER'].host,
+            port=startargs.port if startargs.port else settings['SERVER'].port,
+            ssl_port=startargs.ssl_port if startargs.ssl_port else settings['SERVER'].ssl_port,
             )
     if startargs.server:
-        settings.SERVER_TYPE = getattr(settings.ServerTypes, startargs.server.upper())
+        settings['SERVER_TYPE'] = getattr(structures.ServerTypes, startargs.server.upper())
     if startargs.ssl_certfile:
-        settings.SSL_CERTFILE = startargs.ssl_certfile
+        settings['SSL_CERTFILE'] = startargs.ssl_certfile
     if startargs.ssl_keyfile:
-        settings.SSL_KEYFILE = startargs.ssl_keyfile
+        settings['SSL_KEYFILE'] = startargs.ssl_keyfile
+
+    settings['dc_basedir'] = str(pathlib.Path(__file__).parent.parent)
+
+    dycc.register('settings', settings)
 
     from dycc import application
 
     application.Application(
         application.Config(
-            server_arguments=settings.SERVER
+            server_arguments=settings['SERVER']
             ),
         init_function
         ).start()
-
-
-if __name__ == '__main__':
-    main()

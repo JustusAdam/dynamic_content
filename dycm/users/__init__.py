@@ -2,7 +2,7 @@ from dycc.includes import settings
 from . import users, model, client, session, decorator , middleware
 
 
-if settings.USE_LOGIN_PAGE:
+if settings['use_login_page']:
     from . import login
 
 __author__ = 'Justus Adam'

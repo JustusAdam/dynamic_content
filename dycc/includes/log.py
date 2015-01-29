@@ -9,9 +9,9 @@ __version__ = '0.1'
 
 
 _path = (
-    pathlib.Path(settings.LOGFILE[1:])
-    if settings.LOGFILE.startswith('/')
-    else pathlib.Path(__file__).parent / settings.LOGFILE
+    pathlib.Path(settings['logfile'][1:])
+    if settings['logfile'].startswith('/')
+    else pathlib.Path(__file__).parent / settings['logfile']
     )
 if _path.is_dir():
     raise IsADirectoryError

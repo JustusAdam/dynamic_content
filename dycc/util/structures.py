@@ -19,6 +19,21 @@ SQLite = collections.namedtuple(
     ('name', )
 )
 
+LoggingLevel = Enumeration(
+    'Logging',
+    ('LOG_WARNINGS', 'LOG_ERRORS', 'THROW_ERRORS', 'THROW_ALL')
+    )
+RunLevel = Enumeration(
+    'RunLevel',
+    ('TESTING', 'DEBUG', 'PRODUCTION')
+    )
+PathMaps = Enumeration('PathMaps', ('MULTI_TABLE', 'TREE'))
+ServerTypes = Enumeration('ServerTypes', ('WSGI', 'PLAIN'))
+Distributions = Enumeration(
+    'Distributions',
+    ('FULL', 'STANDARD', 'FRAMEWORK')
+    )
+
 
 """
 Backbone datastructure for dynamic_content.

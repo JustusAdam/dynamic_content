@@ -3,7 +3,7 @@ This is a temporary script that will execute some queries on the database to fil
 to get some basic site setup done. It will be done in this script to avoid trying to insert into tables that have not
 been created yet.
 """
-from dycc.util import console
+from dycc.util import console, structures
 
 
 __author__ = 'Justus Adam'
@@ -31,7 +31,7 @@ def init_tables():
 
     c = {}
 
-    for module in settings.MODULES:
+    for module in settings['modules']:
         c[module] = import_module('dycm.' + module)
 
     for module in c.values():
@@ -83,7 +83,7 @@ def initialize():
             user_module.users.new_permission(permission)
             user_module.users.assign_permission(access_group, permission)
 
-    if settings.RUNLEVEL in [settings.RunLevel.TESTING, settings.RunLevel.DEBUG]:
+    if settings['runlevel'] in [structures.RunLevel.TESTING, structures.RunLevel.DEBUG]:
         user_module.users.add_user(username='justus', password='???', email='justus.jonas@verizon.com', first_name='Justus', last_name='Jonas')
         user_module.users.assign_access_group('justus', ADMIN_GRP)
         user_module.users.add_user(username='peter', password='???', email='peter.shaw@verizon.com', first_name='Peter', last_name='Shaw')
@@ -168,7 +168,7 @@ def initialize():
         #(admin_menu_common, 'sidebar_left', 4, 'default_theme', True)
     ]
 
-    if 'user_management' in settings.MODULES:
+    if 'user_management' in settings['modules']:
         commons_config_list.extend(
             (
                 ('login', 'login', 'users', 1),  # login common

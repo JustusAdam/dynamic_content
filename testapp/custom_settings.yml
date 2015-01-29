@@ -1,0 +1,7 @@
+database: {
+  type: 'sqlite',
+  name: ''
+}
+
+# 0:FULL, 1:STANDARD, 2:FRAMEWORK
+distribution: 0

@@ -1,6 +1,7 @@
 import functools
 from dycc.includes import settings
 import datetime
+from dycc.util import structures
 
 
 __author__ = 'Justus Adam'
@@ -29,7 +30,7 @@ def _print(*args, end=csi + '0m\n', **kwargs):
 
 cprint = (
     _print
-    if settings.RUNLEVEL in (settings.RunLevel.DEBUG, settings.RunLevel.TESTING)
+    if settings['runlevel'] in (structures.RunLevel.DEBUG, structures.RunLevel.TESTING)
     else lambda *args, **kwargs: None
     )
 

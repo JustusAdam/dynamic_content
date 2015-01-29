@@ -36,8 +36,8 @@ GUEST.save()
 
 
 def hash_password(password, salt):
-    return hashlib.pbkdf2_hmac(settings.HASHING_ALGORITHM, password, salt, settings.HASHING_ROUNDS,
-                               settings.HASH_LENGTH)
+    return hashlib.pbkdf2_hmac(settings['hashing_algorithm'], password, salt, settings['hashing_rounds'],
+                               settings['hash_length'])
 
 
 def check_ident(password, salt, comp_hash):
@@ -46,7 +46,7 @@ def check_ident(password, salt, comp_hash):
 
 
 def hash_and_new_salt(password):
-    salt = os.urandom(settings.SALT_LENGTH)
+    salt = os.urandom(settings['salt_length'])
     hashed = hash_password(password.encode(), salt)
     return hashed, salt
 

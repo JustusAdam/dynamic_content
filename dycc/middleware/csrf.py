@@ -23,7 +23,7 @@ class AntiCSRFMiddleware(Handler):
         request = dc_obj.request
         if request.method is not RequestMethods.post:
             return None
-        if not settings.ANTI_CSRF:
+        if not settings['anti_csrf']:
             return None
         if not handler.options.get('anti_csrf', True):
             return None

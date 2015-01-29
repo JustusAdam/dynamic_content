@@ -27,12 +27,12 @@ def handle(request):
     path_split = path_split[1:] if path_split[0] == '' else path_split
     if len(path_split) < 1:
         return response.Response(code=response.HttpResponseCodes.NotFound)
-    basedirs = settings.FILE_DIRECTORIES[path_split[0]]
+    basedirs = settings['file_directories'][path_split[0]]
     if isinstance(basedirs, str):
         basedirs = (basedirs,)
     filepath = '/'.join(path_split[1:])
     basedirs = tuple(
-        (settings.DC_BASEDIR + '/' + bd if not bd.startswith('/') else bd)
+        (settings['dc_basedir'] + '/' + bd if not bd.startswith('/') else bd)
         for bd in basedirs)
     for resp in (serve_from(request, filepath, basedir) for basedir in basedirs):
         if not resp is None:
@@ -53,13 +53,13 @@ def serve_from(request, file, basedir):
     filepath = filepath.resolve()
     basedir = pathlib.Path(basedir).resolve()
 
-    if not settings.ALLOW_HIDDEN_FILES and filepath.name.startswith('.'):
+    if not settings['allow_hidden_files'] and filepath.name.startswith('.'):
         return response.Response(code=response.HttpResponseCodes.Forbidden)
 
     if basedir not in filepath.parents and basedir != filepath:
         return response.Response(code=response.HttpResponseCodes.Forbidden)
     if filepath.is_dir():
-        if not settings.ALLOW_INDEXING:
+        if not settings['allow_indexing']:
             return response.Response(code=response.HttpResponseCodes.Forbidden)
         elif not trailing_slash:
             return response.Redirect(location='{}/'.format(request.path))
@@ -88,7 +88,7 @@ class PathHandler(middleware.Handler):
         return handle(dc_obj.request)
 
     def handle_request(self, request):
-        if request.path.split('/')[1] in settings.FILE_DIRECTORIES:
+        if request.path.split('/')[1] in settings['file_directories']:
             return handle(request)
         return None
 

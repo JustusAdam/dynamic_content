@@ -161,7 +161,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
                 "Content-Length", str(len(response.body))
                 )
             headers = collections.ChainMap(
-                response.headers, settings.DEFAULT_HEADERS
+                response.headers, settings['default_headers']
                 )
         else:
             headers = response.headers

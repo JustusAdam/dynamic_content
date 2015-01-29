@@ -2,6 +2,7 @@ import functools
 import inspect
 
 from dycc.includes import log, settings
+from dycc.util import structures
 
 
 __author__ = 'Justus Adam'
@@ -10,9 +11,9 @@ __author__ = 'Justus Adam'
 def deprecated(func):
     @functools.wraps(func)
     def wrap(*args, **kwargs):
-        if settings.LOGGING_LEVEL == settings.LoggingLevel.THROW_ALL:
+        if settings['logging_level'] == structures.LoggingLevel.THROW_ALL:
             raise DeprecationWarning
-        if settings.LOGGING_LEVEL == settings.LoggingLevel.LOG_WARNINGS:
+        if settings['logging_level'] == structures.LoggingLevel.LOG_WARNINGS:
             log.write_warning('in', func, ':', 'using deprecated function')
         return func(*args, **kwargs)
 

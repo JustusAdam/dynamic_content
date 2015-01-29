@@ -1,29 +1,43 @@
 """
-Tool for convenient standard (json) config reading and writing
+Tool for convenient standard (json, yaml) config reading and writing
 """
+import functools
 import pathlib
+import yaml
+import json
+import re
+
 
 __author__ = 'Justus Adam'
+__version__ = '0.2'
 
 
-def read_config(path, file_type='json'):
-    import json
+loaders = {
+    'yaml': yaml.load,
+    'json': json.load
+}
 
-    if isinstance(path, pathlib.Path):
-        path = str(path)
-
-    if not path.endswith('.' + file_type):
-        path += '.' + file_type
-    with open(path, mode='r') as file:
-        return json.load(file)
+dumpers = {
+    'yaml': lambda a, file: print(yaml.safe_dump(a), file=file),
+    'json': json.dump
+}
 
 
-def write_config(config, path, file_type='json'):
-    if path.endswith('.' + file_type):
-        ending = ''
-    else:
-        ending = '.' + file_type
-    import json
+def guess_type(file:str):
+    assert isinstance(file, str)
+    a = file.rsplit('.')[1]
+    return {
+        'yml': 'yaml'
+    }.get(a, a)
 
-    with open(path + ending, mode='w') as file:
-        json.dump(config, file, indent=4)
+
+def read_config(file):
+    _type = guess_type(file)
+    with open(file, 'r') as f:
+        return loaders[_type](f)
+
+
+def write_config(obj, file):
+    _type = guess_type(file)
+    with open(file, 'w') as f:
+        dumpers[_type](obj, f)

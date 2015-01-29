@@ -3,7 +3,7 @@ from dycc import http
 
 from dycc.errors import exceptions
 from .. import _component
-from dycc.util import console
+from dycc.util import console, structures
 from dycc.includes import settings
 
 
@@ -545,7 +545,7 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
 
 _component.Component('PathMap')(
     {
-        settings.PathMaps.MULTI_TABLE: MultiTablePathMap,
-        settings.PathMaps.TREE: TreePathMap
-    }[settings.PATHMAP_TYPE]
+        structures.PathMaps.MULTI_TABLE: MultiTablePathMap,
+        structures.PathMaps.TREE: TreePathMap
+    }[settings['pathmap_type']]
 )
