@@ -107,13 +107,14 @@ def harden_settings(settings:dict):
 
 
 def main(custom_settings, init_function=None):
+    settings = dycc.get_component('settings')
+
     if isinstance(custom_settings, str):
+        settings['custom_settings_path'] = custom_settings
         custom_settings = config.read_config(custom_settings)
 
     if not isinstance(custom_settings, dict):
         raise TypeError('Expected {}, got {}'.format(dict, type(custom_settings)))
-
-    settings = dycc.get_component('settings')
 
     settings.update(custom_settings)
 

@@ -1,3 +1,39 @@
+modules:
+  - 'users'
+  - 'user_management'
+  - 'commons'
+  - 'file'
+  - 'i18n'
+  - 'fileupload'
+  - 'theming'
+  - 'wysiwyg'
+  - 'node'
+
+middleware:
+  - 'dycc.middleware.alias.Middleware'
+  - 'dycm.users.middleware.AuthorizationMiddleware'
+  - 'dycm.theming.middleware.FileHandler'
+  - 'dycm.file.PathHandler'
+  - 'dycc.middleware.trailing_slash.RemoveTrailingSlash'
+  - 'dycc.middleware.ssl.ConditionalSSLRedirect'
+  - 'dycc.middleware.rest.JSONTransform'
+  - 'dycm.theming.middleware.Middleware'
+
+ssl_certfile: '../dynamic-content.org.crt'
+ssl_keyfile: '../dynamic-content.org.key'
+
+use_login_page: True
+
+i18n_support_enabled: False
+supported_languages: {
+  en_us: 'english (us)',
+  en_gb: 'english (gb)',
+  de: 'german',
+  fr: 'french'
+  }
+base_language: 'en_us'
+default_language: 'en_us'
+
 database: {
   type: 'sqlite',
   name: ':memory:'
