@@ -15,8 +15,9 @@ class Common:
         self.item_type = item_type
 
 
-@dycc.inject('CommonsMap')
+
 class RegionHandler:
+    @dycc.inject_method('CommonsMap')
     def __init__(self, commons_map, region_name, region_config, theme, client):
         self.commons_map = commons_map
         self.client = client

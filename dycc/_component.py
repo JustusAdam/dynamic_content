@@ -6,7 +6,11 @@ __author__ = 'Justus Adam'
 __version__ = '0.2.1'
 
 
-_name_transform = lambda name: name.lower().replace('_', '').replace(' ', '')
+def _name_transform(name):
+    new_name = name.lower().replace('_', '').replace(' ', '')
+    if not new_name.isalpha():
+        raise ValueError('Bad character in {}'.format(new_name))
+    return new_name
 
 
 def method_proxy(func):
@@ -108,7 +112,7 @@ class ComponentContainer(dict):
 
     def __getitem__(self, key):
         if isinstance(key, type):
-            return self.classmap.setdefault(key, ComponentWrapper(key))
+            return self.setdefault(key, ComponentWrapper(key))
         else:
             new_key = _name_transform(key)
             return super().setdefault(new_key, ComponentWrapper(new_key))
@@ -127,7 +131,9 @@ del ComponentContainer
 
 def _decorator(name, *args, **kwargs):
     def inner(class_):
-        register(name, class_(*args, **kwargs))
+        obj = class_(*args, **kwargs)
+        register(name, obj)
+        register(class_, obj)
         return class_
 
     return inner
@@ -159,15 +165,15 @@ def inject(*components, **kwcomponents):
     """
 
     def inner(func):
-        @functools.wraps(func)
-        def wrap(*args, **kwargs):
-            for a, b in kwcomponents.items():
-                kwargs[a] = get_component(b)
-            return func(
-                *tuple(get_component(a) for a in components) + args,
-                **kwargs
-                )
-        return wrap
+        return functools.partial(
+            func,
+            *tuple(
+                get_component(a) for a in components
+            ),
+            **{
+                a:get_component(b) for a,b in kwcomponents.items()
+            }
+        )
 
     return inner
 

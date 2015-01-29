@@ -3,5 +3,9 @@ database: {
   name: ':memory:'
 }
 
+runlevel: 0
+
+project_dir: 'dycc'
+
 # 0:FULL, 1:STANDARD, 2:FRAMEWORK
 distribution: 0

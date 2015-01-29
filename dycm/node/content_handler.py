@@ -293,9 +293,9 @@ class FieldBasedPageContent(object):
 
 
 @mvc.controller_class
-@dycc.inject('CMSCompilers')
 class CMSController(object):
 
+    @dycc.inject_method('CMSCompilers')
     def __init__(self, compiler_map):
         self.compiler_map = compiler_map
 

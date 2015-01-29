@@ -268,7 +268,7 @@ class Application(threading.Thread, lazy.Loadable):
             elif 'no_context' in handler.options and handler.options['no_context'] is False:
                 view = handler(*args, **kwargs)
             else:
-                raise TypeError('Expected type {} for "co_context" option in handler, got {}'.format(bool, type(handler.options['no_context'])))
+                raise TypeError('Expected type {} for "no_context" option in handler, got {}'.format(bool, type(handler.options['no_context'])))
 
         except (exceptions.PathResolving, exceptions.MethodHandlerNotFound) as e:
             log.write_error('Page not found with exception {}'.format(e))
