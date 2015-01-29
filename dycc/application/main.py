@@ -107,11 +107,17 @@ def harden_settings(settings:dict):
 
 
 def main(custom_settings, init_function=None):
-    settings = config.read_config('dycc/includes/settings.yml')
     if isinstance(custom_settings, str):
         custom_settings = config.read_config(custom_settings)
 
+    if not isinstance(custom_settings, dict):
+        raise TypeError('Expected {}, got {}'.format(dict, type(custom_settings)))
+
+    settings = dycc.get_component('settings')
+
     settings.update(custom_settings)
+
+    settings['dc_basedir'] = str(pathlib.Path(__file__).parent.parent)
 
     prepare()
 
@@ -120,7 +126,7 @@ def main(custom_settings, init_function=None):
 
     sbool = ('true', 'false')
 
-    if settings.DC_BASEDIR in sys.path:
+    if settings['dc_basedir'] in sys.path:
         print(
             'Starting thins software in the package directory or adding '
             'the package directory to the path can cause name conflicts '
@@ -164,35 +170,28 @@ def main(custom_settings, init_function=None):
 
     startargs = parser.parse_args()
 
-    settings['HTTPS_ENABLED'] = bool_from_str(startargs.https_enabled, settings['HTTPS_ENABLED'])
-    settings['HTTP_ENABLED'] = bool_from_str(startargs.http_enabled, settings['HTTP_ENABLED'])
+    settings['https_enabled'] = bool_from_str(startargs.https_enabled, settings['https_enabled'])
+    settings['http_enabled'] = bool_from_str(startargs.http_enabled, settings['http_enabled'])
 
     if startargs.logfile:
-        settings['LOGFILE'] = startargs.logfile
+        settings['logfile'] = startargs.logfile
     if startargs.loglevel:
-        settings['LOGGING_LEVEL'] = getattr(structures.LoggingLevel, startargs.loglevel.upper())
+        settings['logging_level'] = getattr(structures.LoggingLevel, startargs.loglevel.upper())
     if startargs.port or startargs.host or startargs.ssl_port:
-        settings['SERVER'] = dict(
-            host=startargs.host if startargs.host else settings['SERVER'].host,
-            port=startargs.port if startargs.port else settings['SERVER'].port,
-            ssl_port=startargs.ssl_port if startargs.ssl_port else settings['SERVER'].ssl_port,
+        settings['server'] = dict(
+            host=startargs.host if startargs.host else settings['server'].host,
+            port=startargs.port if startargs.port else settings['server'].port,
+            ssl_port=startargs.ssl_port if startargs.ssl_port else settings['server'].ssl_port,
             )
     if startargs.server:
-        settings['SERVER_TYPE'] = getattr(structures.ServerTypes, startargs.server.upper())
+        settings['server_type'] = getattr(structures.ServerTypes, startargs.server.upper())
     if startargs.ssl_certfile:
-        settings['SSL_CERTFILE'] = startargs.ssl_certfile
+        settings['ssl_certfile'] = startargs.ssl_certfile
     if startargs.ssl_keyfile:
-        settings['SSL_KEYFILE'] = startargs.ssl_keyfile
-
-    settings['dc_basedir'] = str(pathlib.Path(__file__).parent.parent)
-
-    dycc.register('settings', settings)
+        settings['ssl_keyfile'] = startargs.ssl_keyfile
 
     from dycc import application
 
     application.Application(
-        application.Config(
-            server_arguments=settings['SERVER']
-            ),
         init_function
         ).start()

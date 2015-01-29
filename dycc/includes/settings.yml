@@ -1,13 +1,13 @@
 # the order in this list dictates the order in which these modules will be activated
 modules:
-  - 'users',
-  - 'user_management',
-  - 'commons',
-  - 'file',
-  - 'i18n',
-  - 'fileupload',
-  - 'theming',
-  - 'wysiwyg',
+  - 'users'
+  - 'user_management'
+  - 'commons'
+  - 'file'
+  - 'i18n'
+  - 'fileupload'
+  - 'theming'
+  - 'wysiwyg'
   - 'node'
 file_directories: {
   private: 'custom/files/private',
@@ -24,7 +24,7 @@ allow_indexing: True
 browser_caching: False
 hashing_algorithm: 'sha256'
 hashing_rounds: 100000
-hash_lengt: 64
+hash_length: 64
 salt_length: 16
 default_theme: 'default_theme'
 default_admin_theme: 'admin_theme'
@@ -39,7 +39,7 @@ server: {
 }
 
 # 0:TESTING, 1:DEBUG, 2:PRODUCTION
-RUNLEVEL = 0
+runlevel: 0
 i18n_support_enabled: False
 supported_languages: {
   en_us: 'english (us)',
@@ -48,19 +48,19 @@ supported_languages: {
   fr: 'french'
   }
 base_language: 'en_us'
-daefault_language: 'en_us'
+default_language: 'en_us'
 
 # 0:MULTI_TABLE, 1:TREE
 pathmap_type: 0
 logfile: 'app.log'
 middleware:
-  - 'dycc.middleware.alias.Middleware',
-  - 'dycm.users.middleware.AuthorizationMiddleware',
-  - 'dycm.theming.middleware.FileHandler',
-  - 'dycm.file.PathHandler',
-  - 'dycc.middleware.trailing_slash.RemoveTrailingSlash',
-  - 'dycc.middleware.ssl.ConditionalSSLRedirect',
-  - 'dycc.middleware.rest.JSONTransform',
+  - 'dycc.middleware.alias.Middleware'
+  - 'dycm.users.middleware.AuthorizationMiddleware'
+  - 'dycm.theming.middleware.FileHandler'
+  - 'dycm.file.PathHandler'
+  - 'dycc.middleware.trailing_slash.RemoveTrailingSlash'
+  - 'dycc.middleware.ssl.ConditionalSSLRedirect'
+  - 'dycc.middleware.rest.JSONTransform'
   - 'dycm.theming.middleware.Middleware'
 
 anti_csrf: True

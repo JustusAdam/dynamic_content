@@ -5,4 +5,4 @@ if __name__ == '__main__':
         from testapp import tss
         tss.init_tables()
         tss.initialize()
-    main.main(init)
+    main.main('custom_settings.yml', init)

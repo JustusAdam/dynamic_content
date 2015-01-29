@@ -25,7 +25,7 @@ dumpers = {
 
 def guess_type(file:str):
     assert isinstance(file, str)
-    a = file.rsplit('.')[1]
+    a = file.rsplit('.', 1)[1]
     return {
         'yml': 'yaml'
     }.get(a, a)

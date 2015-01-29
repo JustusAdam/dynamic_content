@@ -33,13 +33,12 @@ class Application(threading.Thread, lazy.Loadable):
 
     call with .run() to execute in main thread (not recommended)
     """
-    def __init__(self, config, init_function):
+    def __init__(self, init_function):
         if settings['runlevel'] == structures.RunLevel.DEBUG:
             log.write_info('app starting')
         super().__init__()
         lazy.Loadable.__init__(self)
         self.init_function = init_function
-        self.config = config
         self.decorator = dycc.get_component('TemplateFormatter')
 
     @dycc.inject_method(cmw='Middleware')
@@ -48,7 +47,7 @@ class Application(threading.Thread, lazy.Loadable):
             log.write_info('loading components')
         console.print_info('Loading Components ... ')
         console.print_info('Loading Middleware ...')
-        cmw.load(settings['MIDDLEWARE'])
+        cmw.load(settings['middleware'])
         console.print_info('Loading Modules ...')
         self.load_modules()
         if callable(self.init_function):
@@ -62,7 +61,7 @@ class Application(threading.Thread, lazy.Loadable):
             log.write_info('starting server')
         if settings['server_type'] == structures.ServerTypes.PLAIN:
             self.run_http_server_loop()
-        elif settings['server_type'] == settings.ServerTypes.WSGI:
+        elif settings['server_type'] == structures.ServerTypes.WSGI:
             self.run_wsgi_server_loop()
 
     @staticmethod
@@ -136,28 +135,29 @@ class Application(threading.Thread, lazy.Loadable):
                 thttps.start()
 
     def run_wsgi_http_server(self):
-        httpd = self.config.wsgi_server(
-            (self.config.server_arguments.host,
-            self.config.server_arguments.port),
-            self.config.wsgi_request_handler
+        from dycc.http import wsgi
+        httpd = wsgi.Server(
+            (settings['server']['host'],
+            settings['server']['port']),
+            wsgi.Handler
         )
+
         httpd.set_app(functools.partial(self.wsgi_callback, False))
         console.cprint('\n\n')
         console.print_info(
             'Starting HTTP WSGI Server on    Port: {}     and Host: {}'.format(
-                self.config.server_arguments.port,
-                self.config.server_arguments.host
+                settings['server']['host'],
+                settings['server']['port']
                 ))
         httpd.serve_forever()
 
     def run_wsgi_https_server(self):
-        httpsd = self.config.wsgi_server(
-            (
-                self.config.server_arguments.host,
-                self.config.server_arguments.ssl_port
-                ),
-            self.config.wsgi_request_handler
-            )
+        from dycc.http import wsgi
+        httpsd = wsgi.Server(
+            (settings['server']['host'],
+            settings['server']['port']),
+            wsgi.Handler
+        )
         httpsd.set_app(functools.partial(self.wsgi_callback, True))
         httpsd.socket = ssl.wrap_socket(
             httpsd.socket,
@@ -168,7 +168,7 @@ class Application(threading.Thread, lazy.Loadable):
         console.cprint('\n\n')
         console.print_info(
             'Starting HTTPS WSGI Server on    Port: {}     and Host:  {}'.format(
-                settings['server'].host, settings['server'].ssl_port)
+                settings['server']['host'], settings['server']['ssl_port'])
             )
         httpsd.serve_forever()
 
@@ -195,35 +195,38 @@ class Application(threading.Thread, lazy.Loadable):
 
 
     def run_http_server(self):
+        from dycc.http import request_handler
+        from dycc.http import server
         request_handler = functools.partial(
-                            self.config.http_request_handler,
+                            request_handler.RequestHandler,
                             self.http_callback,
                             False
                             )
 
         server_address = (
-            self.config.server_arguments.host,
-            self.config.server_arguments.port
+            settings['server']['host'],
+            settings['server']['port']
             )
-        httpd = self.config.server_class(server_address, request_handler)
+        httpd = server.ThreadedHTTPServer(server_address, request_handler)
         console.cprint('\n\n')
         console.print_info('Starting Server on host: {}, port:'.format(
-            self.config.server_arguments.host,
-            self.config.server_arguments.port))
+            *server_address))
         httpd.serve_forever()
 
     def run_https_server(self):
+        from dycc.http import server
+        from dycc.http import request_handler
         request_handler = functools.partial(
-                            self.config.http_request_handler,
+                            request_handler.RequestHandler,
                             self.http_callback,
                             True
                             )
 
         server_address = (
-            self.config.server_arguments.host,
-            self.config.server_arguments.ssl_port
+            settings['server']['host'],
+            settings['server']['port']
             )
-        httpd = self.config.server_class(server_address, request_handler)
+        httpd = server.ThreadedHTTPServer(server_address, request_handler)
         httpd.socket = ssl.wrap_socket(
             httpd.socket,
             keyfile=settings['ssl_keyfile'],
@@ -232,14 +235,8 @@ class Application(threading.Thread, lazy.Loadable):
             )
         console.cprint('\n\n')
         console.print_info('Starting Server on host: {}, port:'.format(
-            self.config.server_arguments.host,
-            self.config.server_arguments.port))
+            *server_address))
         httpd.serve_forever()
-
-    def set_working_directory(self):
-        if settings.RUNLEVEL == settings.RunLevel.TESTING: log.write_info(
-            'setting working directory ({})'.format(self.config.basedir))
-        os.chdir(self.config.basedir)
 
     @catch_vardump
     @dycc.inject_method(cmw='Middleware', pathmap='PathMap')

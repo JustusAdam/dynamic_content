@@ -1,6 +1,6 @@
 database: {
   type: 'sqlite',
-  name: ''
+  name: ':memory:'
 }
 
 # 0:FULL, 1:STANDARD, 2:FRAMEWORK
