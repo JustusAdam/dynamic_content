@@ -61,11 +61,28 @@ class HookManager:
             executable(h, *args, **kwargs)
 
     def return_call_hooks(self, hook, *args,**kwargs):
-         for res in self.yield_call_hooks(hook, *args, **kwargs):
-             if not res is None:
-                 return res
+        """
+        Call hooks, break and return if a hook does not return None
+
+        :param hook: hook name
+        :param args: args to call hook with
+        :param kwargs: kwargs to call hook with
+        :return: hook(*arsg, **kwargs) if not None
+        """
+        for res in self.yield_call_hooks(hook, *args, **kwargs):
+            if not res is None:
+                return res
 
     def return_call_hooks_with(self, hook, executable, *args, **kwargs):
+        """
+        Call executable on hooks, break and return if a call does not return None
+
+        :param hook: hook name
+        :param executable: executable to call
+        :param args: args to call with
+        :param kwargs: kwargs to call with
+        :return: return executable(hook, *args, **kwargs) if not None
+        """
         for res in self.yield_call_hooks_with(hook, executable, *args, **kwargs):
             if not res is None:
                 return res
@@ -96,6 +113,7 @@ class HookManager:
         :param kwargs: kwargs to call hook with
         :return: executable(hook, *args, **kwargs)
         """
+        assert callable(executable)
         for h in self.get_hooks(hook):
             res = executable(h, *args, **kwargs)
             if not res is None: yield res
