@@ -2,6 +2,7 @@ import datetime
 from http import cookies
 
 from dycc import http
+from dycc import hooks
 from dycc.util import html, console
 from dycc import mvc
 from dycc.middleware import csrf
@@ -34,15 +35,33 @@ LOGOUT_BUTTON = html.ContainerElement(
     additional={'href': '/' + logout_prefix}
     )
 
-LOGIN_FORM = csrf.SecureForm(
-    html.TableElement(
-        USERNAME_INPUT,
-        PASSWORD_INPUT
-    ),
-    action='/' + login_prefix,
-    classes={'login-form'},
-    submit=html.SubmitButton(value='Login')
-)
+
+class LoginHook:
+    def handle_form(self, form):
+        raise NotImplementedError
+
+    def handle_login_request(self, query):
+        raise NotImplementedError
+
+
+hooks.HookManager.manager().init_hook('login', expected_class=LoginHook)
+
+
+def login_form():
+    form = csrf.SecureForm(
+        html.TableElement(
+            USERNAME_INPUT,
+            PASSWORD_INPUT
+        ),
+        action='/' + login_prefix,
+        classes={'login-form'},
+        submit=html.SubmitButton(value='Login')
+    )
+    for hook in hooks.HookManager.manager().get_hooks('login'):
+        res = hook.handle_form(form)
+        if res:
+            form = res
+    return form
 
 LOGIN_COMMON = csrf.SecureForm(
     html.ContainerElement(
@@ -91,7 +110,7 @@ def login(dc_obj, failed):
         message = ''
     else:
         return ':redirect:/login'
-    dc_obj.context['content'] = html.ContainerElement(message, LOGIN_FORM)
+    dc_obj.context['content'] = html.ContainerElement(message, login_form())
     dc_obj.context['title'] = 'Login'
     return 'user_overview'
 
@@ -99,12 +118,23 @@ def login(dc_obj, failed):
 @mvc.controller_function(
     'login',
     method=http.RequestMethods.POST,
-    query=['username', 'password']
+    query=True
     )
 @decorator.authorize('access login page')
-def login_post(dc_obj, username, password):
-    if username is None or password is None:
+def login_post(dc_obj, query):
+
+    for hook in hooks.HookManager.manager().get_hook('login'):
+        res = hook.handle_login_request(query)
+        if res is False:
+            return ':redirect:/login/failed'
+        if res is True:
+            continue
+        elif res is not None:
+            return res
+
+    if not 'username' in query or not 'password' in query:
         return ':redirect:/login/failed'
+    username, password = query['username'], query['password']
     if not len(username) == 1 or not len(password) == 1:
         return ':redirect:/login/failed'
     username = username[0]
