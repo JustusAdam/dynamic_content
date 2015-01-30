@@ -50,4 +50,4 @@ class HookManager:
         self._hooks[hook].append(handler)
 
     def get_hooks(self, hook):
-        return self._hooks[hook]
+        return self._hooks[hook].hooks

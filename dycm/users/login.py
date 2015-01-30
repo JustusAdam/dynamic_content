@@ -125,7 +125,7 @@ def login(dc_obj, failed):
 @decorator.authorize('access login page')
 def login_post(dc_obj, query):
 
-    for hook in hooks.HookManager.manager().get_hook('login'):
+    for hook in hooks.HookManager.manager().get_hooks('login'):
         res = hook.handle_login_request(query)
         if res is False:
             return ':redirect:/login/failed'
