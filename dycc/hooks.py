@@ -22,19 +22,42 @@ class HookManager:
     __slots__ = (
         '_hooks'
     )
+
     def __init__(self):
         self._hooks = {}
 
     @staticmethod
     def manager():
+        """
+        Get the manager component instance
+
+        :return: HookManager instance
+        """
         return get_component('HookManager')
 
     def init_hook(self, hook, expected_class=Hook):
+        """
+        Initialize a hook. This is the clean way to do it,
+         where it'll register the hook name, initialize an
+         empty hooks list and set an expected type/class.
+
+        :param hook:
+        :param expected_class:
+        :return:
+        """
         assert isinstance(expected_class, type)
         assert hook
         self._hooks[hook] = HookList(hooks=[], expected_class=expected_class)
 
     def register(self, hook, handler, priority=0):
+        """
+        Register a new handler with the named hook
+
+        :param hook:
+        :param handler:
+        :param priority:
+        :return:
+        """
         if not hook in self:
             console.print_warning(
                 'Assigning to uninitialized hook {}, '
@@ -50,13 +73,36 @@ class HookManager:
         self._hooks[hook].append(handler)
 
     def get_hooks(self, hook):
+        """
+        Get list of hooks registered at name 'hook'
+
+        :param hook:
+        :return:
+        """
         return self._hooks[hook].hooks
 
     def blank_call_hooks(self, hook, *args,**kwargs):
-         for h in self.get_hooks(hook):
-             h(*args, **kwargs)
+        """
+        Call each hook with args and kwargs
+
+        :param hook: hook name
+        :param args: args to call hooks with
+        :param kwargs: kwargs to call hooks with
+        :return: None
+        """
+        for h in self.get_hooks(hook):
+            h(*args, **kwargs)
 
     def blank_call_hooks_with(self, hook, executable, *args, **kwargs):
+        """
+        Call executable with each hook once with args, kwargs
+
+        :param hook: hook name
+        :param executable: executable to call with hook
+        :param args: args to call hook with
+        :param kwargs: kwargs to call hook with
+        :return: None
+        """
         for h in self.get_hooks(hook):
             executable(h, *args, **kwargs)
 
