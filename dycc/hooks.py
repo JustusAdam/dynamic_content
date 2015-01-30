@@ -1,5 +1,6 @@
 from . import Component, get_component
 import collections
+from dycc.errors import exceptions
 from .util import console
 
 __author__ = 'Justus Adam'
@@ -13,8 +14,24 @@ HookList = collections.namedtuple('HookList', ('hooks', 'expected_class'))
 class Hook:
     hook_name = ''
 
-    def register(self, priority=0):
+    @classmethod
+    def init_hook(cls):
+        HookManager.manager().init_hook(cls.hook_name, cls)
+
+    @classmethod
+    def register_class(cls, priority=0):
+        cls().register_instance(priority)
+
+    def register_instance(self, priority=0):
         HookManager.manager().register(self.hook_name, self, priority)
+
+    @staticmethod
+    def manager():
+        return HookManager.manager()
+
+    @classmethod
+    def get_hooks(cls):
+        return cls.manager().get_hooks(cls.hook_name)
 
 
 @Component('HookManager')
@@ -47,16 +64,18 @@ class HookManager:
         """
         assert isinstance(expected_class, type)
         assert hook
+        if hook in self._hooks:
+            raise exceptions.HookExists(hook)
         self._hooks[hook] = HookList(hooks=[], expected_class=expected_class)
 
     def register(self, hook, handler, priority=0):
         """
         Register a new handler with the named hook
 
-        :param hook:
-        :param handler:
-        :param priority:
-        :return:
+        :param hook: name of the hook to register for
+        :param handler: handler object/function
+        :param priority: where to place it in the list
+        :return: None
         """
         if not hook in self:
             console.print_warning(
@@ -79,6 +98,8 @@ class HookManager:
         :param hook:
         :return:
         """
+        if not hook in self._hooks:
+            raise exceptions.HookNotInitialized(hook)
         return self._hooks[hook].hooks
 
     def blank_call_hooks(self, hook, *args,**kwargs):
@@ -136,6 +157,7 @@ class HookManager:
     def yield_call_hooks(self, hook, *args,**kwargs):
         """
         Call hooks with args, kwargs yielding results
+
         :param hook: hook name
         :param args: args to call hook with
         :param kwargs: kwargs to call hook with

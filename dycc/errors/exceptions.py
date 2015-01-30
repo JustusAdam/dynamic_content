@@ -54,6 +54,16 @@ class ComponentLoaded(ControllerError):
         super().__init__('Component ' + name + ' is already loaded.')
 
 
+class HookExists(DCException):
+    def __init__(self, hook):
+        super().__init__('{} already exists'.format(hook))
+
+
+class HookNotInitialized(DCException):
+    def __init__(self, hook):
+        super().__init__('{} hooks are not initalized'.format(hook))
+
+
 class LackingPermission(DCException):
     def __init__(self, client, permission, action=''):
         super().__init__(
