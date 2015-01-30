@@ -15,7 +15,7 @@ middleware:
   - 'dycm.theming.middleware.FileHandler'
   - 'dycm.file.PathHandler'
   - 'dycc.middleware.trailing_slash.RemoveTrailingSlash'
-  - 'dycc.middleware.ssl.ConditionalSSLRedirect'
+  - 'dycc.middleware.ssl.ConditionalRedirect'
   - 'dycc.middleware.rest.JSONTransform'
   - 'dycm.theming.middleware.Middleware'
 
