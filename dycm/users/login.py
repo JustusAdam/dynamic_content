@@ -37,11 +37,16 @@ LOGOUT_BUTTON = html.ContainerElement(
 
 
 class LoginHook:
+    hook_name = 'login'
+
     def handle_form(self, form):
         raise NotImplementedError
 
     def handle_login_request(self, query):
         raise NotImplementedError
+
+    def register(self, priority=0):
+        hooks.HookManager.manager().register(self.hook_name, self, priority)
 
 
 hooks.HookManager.manager().init_hook('login', expected_class=LoginHook)
