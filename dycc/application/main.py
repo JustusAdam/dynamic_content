@@ -148,7 +148,7 @@ def main(custom_settings, init_function=None):
         type=str,
         choices=tuple(map(str.lower, structures.PathMaps._fields))
         )
-    parser.add_argument('--port', type=int)
+    parser.add_argument('--port', '-p', type=int)
     parser.add_argument('--ssl_port', type=int)
     parser.add_argument(
         '--https_enabled',
@@ -160,7 +160,7 @@ def main(custom_settings, init_function=None):
         type=str,
         choices=sbool
         )
-    parser.add_argument('--host')
+    parser.add_argument('--host', type=str)
     parser.add_argument(
         '--server',
         type=str,
@@ -180,9 +180,9 @@ def main(custom_settings, init_function=None):
         settings['logging_level'] = getattr(structures.LoggingLevel, startargs.loglevel.upper())
     if startargs.port or startargs.host or startargs.ssl_port:
         settings['server'] = dict(
-            host=startargs.host if startargs.host else settings['server'].host,
-            port=startargs.port if startargs.port else settings['server'].port,
-            ssl_port=startargs.ssl_port if startargs.ssl_port else settings['server'].ssl_port,
+            host=startargs.host if startargs.host else settings['server']['host'],
+            port=startargs.port if startargs.port else settings['server']['port'],
+            ssl_port=startargs.ssl_port if startargs.ssl_port else settings['server']['ssl_port'],
             )
     if startargs.server:
         settings['server_type'] = getattr(structures.ServerTypes, startargs.server.upper())
