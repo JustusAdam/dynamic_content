@@ -4,6 +4,9 @@ from dycc.includes import settings
 __author__ = 'Justus Adam'
 
 
+_default_language = 'en'
+
+
 def _get_table(lang):
     class Lang(orm.BaseModel):
         source_string = orm.TextField()
@@ -17,7 +20,7 @@ def _get_table(lang):
 
 class T:
     def __getattr__(self, item):
-        if item in settings['supported_languages']:
+        if item in settings.get('supported_languages', (_default_language, )):
             table = _get_table(item)
             table.create_table(fail_silently=True)
             setattr(self, item, table)
@@ -26,7 +29,7 @@ class T:
             raise AttributeError
 
 
-_t = T() if settings['i18n_support_enabled'] is True else None
+_t = T() if settings.get('i18n_support_enabled', False) is True else None
 
 del T
 
@@ -39,8 +42,8 @@ def translate(source_string, language=settings['default_language']):
         return source_string
 
 
-def edit_display_name(source_string, translation, language=settings['default_language']):
-    if language != settings['base_language'] and settings['i18n_support_enabled']:
+def edit_display_name(source_string, translation, language=settings.get('default_language', _default_language)):
+    if language != settings.get('base_language', _default_language) and settings.get('i18n_support_enabled', False):
         db_result = getattr(_t, language).get(source_string=source_string)
         if db_result:
             db_result.translation = translation

@@ -114,7 +114,7 @@ def main(custom_settings, init_function=None):
         custom_settings = config.read_config(custom_settings)
 
     if not isinstance(custom_settings, dict):
-        raise TypeError('Expected {}, got {}'.format(dict, type(custom_settings)))
+        raise TypeError('Expected {},  got {}'.format(dict, type(custom_settings)))
 
     settings.update(custom_settings)
 
