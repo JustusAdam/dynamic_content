@@ -238,10 +238,12 @@ class Application(threading.Thread, lazy.Loadable):
     @catch_vardump
     @dycc.inject_method(pathmap='PathMap')
     def process_request(self, request, pathmap):
-        for mw in middleware.Handler.get_hooks():
-            res = mw.handle_request(request)
-            if res is not None:
-                return res
+        res = middleware.Handler.return_call_hooks_with(
+            lambda self, request: self.handle_request(request),
+            request
+        )
+        if res is not None:
+            return res
 
         try:
             handler, args, kwargs = pathmap.resolve(request)
@@ -255,10 +257,13 @@ class Application(threading.Thread, lazy.Loadable):
                 handler_options=handler.options
             )
 
-            for mw in middleware.Handler.get_hooks():
-                res = mw.handle_controller(dc_obj, handler, args, kwargs)
-                if res is not None:
-                    return res
+            res = middleware.Handler.return_call_hooks_with(
+                lambda self, dc_obj, handler, args, kwargs:
+                self.handle_controller(dc_obj, handler, args, kwargs),
+                dc_obj, handler, args, kwargs
+            )
+            if res is not None:
+                return res
 
             if not 'no_context' in handler.options or handler.options['no_context'] is True:
                 view = handler(*(dc_obj, ) + args, **kwargs)
@@ -298,19 +303,23 @@ class Application(threading.Thread, lazy.Loadable):
 
         # Allow view to directly return a response, mainly to handle errors
         if not isinstance(view, http.response.Response):
-            for mw in middleware.Handler.get_hooks():
-                res = mw.handle_view(view, dc_obj)
-                if res is not None:
-                    return res
+            res = middleware.Handler.return_call_hooks_with(
+                lambda self, view, dc_obj: self.handle_view(view, dc_obj),
+                view, dc_obj
+            )
+            if res is not None:
+                return res
 
             response = self.decorator(view, dc_obj)
         else:
             response = view
 
-        for mw in middleware.Handler.get_hooks():
-            res = mw.handle_response(request, response)
-            if res is not None:
-                return res
+        res = middleware.Handler.return_call_hooks_with(
+            lambda self, request, response: self.handle_response(request, response),
+            request, response
+        )
+        if res is not None:
+            return res
 
         return response
 
