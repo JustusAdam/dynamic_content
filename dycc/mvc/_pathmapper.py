@@ -172,7 +172,7 @@ class TreePathMap(PathMap):
             yield _inner(a)
 
     def add_path(self, path:str, handler):
-        path = path if path.startswith('/') else '/' + path
+        path = path[1:] if path.startswith('/') else path
         self.print_info(path, handler)
         path = self.parse_path(path)
 
