@@ -9,7 +9,6 @@ import unittest
 class MyTestCase(unittest.TestCase):
     def setUp(self):
 
-        @hooks.register()
         @hooks.register(8)
         class TestHook1(hooks.Hook):
             hook_name = 'testhook1'
@@ -31,6 +30,8 @@ class MyTestCase(unittest.TestCase):
 
         TestHook1.register_instance(TestHook1(3))
 
+        TestHook1(6).register_instance()
+
         self.TestHook1 = TestHook1
 
     def test_all_called(self):
@@ -40,7 +41,8 @@ class MyTestCase(unittest.TestCase):
         for a in (
             (0, (2, 3), {'l':6}),
             (8, (2, 3), {'l':6}),
-            (3, (2, 3), {'l':6})
+            (3, (2, 3), {'l':6}),
+            (6, (2, 3), {'l':6})
         ):
 
             self.assertIn(a, res1)
@@ -55,7 +57,8 @@ class MyTestCase(unittest.TestCase):
         for a in (
             (0, 4),
             (8, 4),
-            (3, 4)
+            (3, 4),
+            (6, 4)
         ):
             self.assertIn(a, res2)
 
@@ -65,7 +68,7 @@ class MyTestCase(unittest.TestCase):
 
         self.assertIn(
             res3,
-            (8, 3)
+            (8, 3, 6)
         )
 
 
