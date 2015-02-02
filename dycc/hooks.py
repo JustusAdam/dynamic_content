@@ -16,7 +16,11 @@ class Hook:
 
     @classmethod
     def init_hook(cls):
-        HookManager.manager().init_hook(cls.hook_name, cls)
+        cls.manager().init_hook(cls.hook_name, cls)
+
+    @classmethod
+    def is_initialized(cls):
+        return cls.manager().has_hook(cls.hook_name)
 
     @classmethod
     def register_class(cls, priority=0):
@@ -115,6 +119,9 @@ class HookManager:
             )
         container.hooks.append(handler)
 
+    def has_hook(self, hook):
+        return hook in self._hooks
+
     def get_hooks(self, hook):
         """
         Get list of hooks registered at name 'hook'
@@ -122,7 +129,7 @@ class HookManager:
         :param hook:
         :return:
         """
-        if not hook in self._hooks:
+        if not self.has_hook(hook):
             raise exceptions.HookNotInitialized(hook)
         return self._hooks[hook].hooks
 
@@ -211,3 +218,15 @@ class HookManager:
         for h in self.get_hooks(hook):
             res = executable(h, *args, **kwargs)
             if not res is None: yield res
+
+
+def register(*args, priority=0, **kwargs):
+    def inner(cls):
+        if not cls.is_initialized():
+            cls.init_hook()
+        cls.register_instance(
+            cls(*args, **kwargs),
+            priority
+        )
+        return cls
+    return inner
