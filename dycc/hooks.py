@@ -101,7 +101,7 @@ class HookManager:
         :param priority: where to place it in the list
         :return: None
         """
-        if not hook in self:
+        if not hook in self._hooks:
             console.print_warning(
                 'Assigning to uninitialized hook {}, '
                 'assuming type {}'.format(hook, type(handler))
@@ -113,7 +113,7 @@ class HookManager:
                 'Expected instance of {} for hook handler for hook {}, '
                 'got {}'.format(container.expected_class, hook, type(handler))
             )
-        self._hooks[hook].append(handler)
+        container.hooks.append(handler)
 
     def get_hooks(self, hook):
         """

@@ -39,6 +39,12 @@ LOGOUT_BUTTON = html.ContainerElement(
 class LoginHook(hooks.Hook):
     hook_name = 'login'
 
+    def __handle_form_hook(self, form):
+        return self.handle_form(form)
+
+    def __handle_login_request_hook(self, query):
+        return self.handle_login_request(query)
+
     def handle_form(self, form):
         raise NotImplementedError
 
@@ -124,11 +130,8 @@ def login(dc_obj, failed):
     )
 @decorator.authorize('access login page')
 def login_post(dc_obj, query):
-
-    manager = hooks.HookManager.manager()
-
-    for res in manager.yield_call_hooks_with(
-            'login', LoginHook.handle_login_request, query
+    for res in LoginHook.yield_call_hooks_with(
+            LoginHook.__handle_login_request_hook, query
     ):
         if res is False:
             return ':redirect:/login/failed'

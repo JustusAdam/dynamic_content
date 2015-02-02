@@ -23,4 +23,5 @@ def add_alias(source, alias):
 
 class Middleware(middleware.Handler):
     def handle_request(self, request):
+        print('')
         request.path = translate_alias(request.path)
