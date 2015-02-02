@@ -97,5 +97,5 @@ class TemplateFormatter(object):
             if 'template_directory' in dc_obj.config:
                 yield dc_obj.config['template_directory'] + '/' + view
 
-            yield settings['project_dir'] + '/templates/' + view
+            yield settings.get('project_dir', '.') + '/templates/' + view
             yield settings['dc_basedir'] + '/templates/' + view
