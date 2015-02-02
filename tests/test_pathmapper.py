@@ -10,12 +10,10 @@ __author__ = 'Justus Adam'
 
 class TestMultiTableMapper(unittest.TestCase):
     def setUp(self):
-        self.mapper = MultiTablePathMap()
+        self.mt_mapper = MultiTablePathMap()
+        self.t_mapper = TreePathMap()
 
-    def test_add_path(self):
-
-
-        testpaths = (
+        self.testpaths1 = (
             (
                 'hello/bla',  lambda : 4, 'hello/bla', 4, ()
             ),
@@ -29,79 +27,62 @@ class TestMultiTableMapper(unittest.TestCase):
                 'tryit/**', lambda s: s, 'tryit/lolo', 'tryit/lolo', ()
             ),
             (
+                '/', lambda : 4, '/', 4, ()
+            )
+        )
+
+        self.testpaths2 = (
+            (
                 'horn/{int}/tee/**', lambda a, b: (a,b), 'horn/4/tee/tree/branch', (4,'horn/4/tee/tree/branch'), (int, )
-            )
+            ),
         )
+
+    def test_mt_add_path(self):
 
         method = 'get'
         host = 'localhost'
         port = 8080
 
-        for path, handler, teststring, result, typeargs in testpaths[0:4]:
+        for path, handler, teststring, result, typeargs in self.testpaths1:
             handler = ControlFunction(handler, path, method, False, None)
             handler.typeargs = typeargs
-            self.mapper.add_path(path, handler)
+            self.mt_mapper.add_path(path, handler)
             request = http.Request(host, port, teststring, method, None, None, False)
-            handler, args, kwargs = self.mapper.find_handler(request)
+            handler, args, kwargs = self.mt_mapper.find_handler(request)
             self.assertEqual(handler(*args, **kwargs), result)
 
-        for path, handler, teststring, result, typeargs in testpaths[4:]:
+        for path, handler, teststring, result, typeargs in self.testpaths2:
             handler = ControlFunction(handler, path, method, False, None)
             handler.typeargs = typeargs
-            self.mapper.add_path(path, handler)
+            self.mt_mapper.add_path(path, handler)
             request = http.Request(host, port, teststring, method, None, None, False)
-            handler, args, kwargs = self.mapper.resolve(request)
+            handler, args, kwargs = self.mt_mapper.resolve(request)
             self.assertTupleEqual(handler(*args, **kwargs), result)
 
-        for path, handler, teststring, result, typeargs in testpaths[0:2]:
+        for path, handler, teststring, result, typeargs in self.testpaths1[0:2]:
             handler = ControlFunction(handler, path, method, False, None)
             handler.typeargs = typeargs
-            self.assertRaises(ControllerError, self.mapper.add_path, path, handler)
+            self.assertRaises(ControllerError, self.mt_mapper.add_path, path, handler)
 
-
-class TestTreeMapper(unittest.TestCase):
-    def setUp(self):
-        self.mapper = TreePathMap()
-
-    def test_add_path(self):
-
-
-        testpaths = (
-            (
-                'hello/bla',  lambda : 4, 'hello/bla', 4
-            ),
-            (
-                'hello/loko/nunu', lambda : 7, 'hello/loko/nunu', 7
-            ),
-            (
-                'tryi/{int}', lambda a: a, 'tryi/4', 4
-            ),
-            (
-                'tryit/**', lambda s: s, 'tryit/lolo', 'tryit/lolo'
-            ),
-            (
-                'horn/{int}/tee/**', lambda a, b: (a,b), 'horn/4/tee/tree/branch', (4,'horn/4/tee/tree/branch')
-            )
-        )
-
+    def test_t_add_path(self):
         method = 'get'
         host = 'localhost'
         port = 8080
 
-        for path, handler, teststring, result in testpaths[0:4]:
+        for path, handler, teststring, result, targs in self.testpaths1:
             handler = ControlFunction(handler, path, method, False, None)
-            self.mapper.add_path(path, handler)
+            self.t_mapper.add_path(path, handler)
             request = http.Request(host, port, teststring, method, None, None, False)
-            handler, args, kwargs = self.mapper.find_handler(request)
+            handler, args, kwargs = self.t_mapper.find_handler(request)
             self.assertEqual(handler(*args, **kwargs), result)
 
-        for path, handler, teststring, result in testpaths[4:]:
+        for path, handler, teststring, result, targs in self.testpaths2:
             handler = ControlFunction(handler, path, method, False, None)
-            self.mapper.add_path(path, handler)
+            self.t_mapper.add_path(path, handler)
             request = http.Request(host, port, teststring, method, None, None, False)
-            handler, args, kwargs = self.mapper.resolve(request)
+            handler, args, kwargs = self.t_mapper.resolve(request)
             self.assertTupleEqual(handler(*args, **kwargs), result)
 
-        for path, handler, teststring, result in testpaths[0:2]:
+        for path, handler, teststring, result, targs in self.testpaths1[0:2]:
             handler = ControlFunction(handler, path, method, False, None)
-            self.assertRaises(ControllerError, self.mapper.add_path, path, handler)
+            self.assertRaises(ControllerError, self.t_mapper.add_path, path, handler)
