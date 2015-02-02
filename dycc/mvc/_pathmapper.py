@@ -111,7 +111,7 @@ class PathMap(Segment):
     @staticmethod
     def print_info(path, handler):
         console.print_info(
-            'Registering on path {csi}4m/{path}{csi}24m    '
+            'Registering on path {csi}4m{path}{csi}24m    '
             ' Handler: {module}.{csi}1m{function}'.format(
                 path=path,
                 module=handler.function.__module__,
@@ -172,7 +172,7 @@ class TreePathMap(PathMap):
             yield _inner(a)
 
     def add_path(self, path:str, handler):
-        path = path[1:] if path.startswith('/') else path
+        path = path if path.startswith('/') else '/' + path
         self.print_info(path, handler)
         path = self.parse_path(path)
 
@@ -502,7 +502,7 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
 
 
     def add_path(self, path:str, handler):
-        path = path[1:] if path.startswith('/') else path
+        path = path if path.startswith('/') else '/' + path
         self.print_info(path, handler)
         path_list = self.parse_path(path)
         typeargs = tuple(filter(lambda a: (isinstance(a, type)
