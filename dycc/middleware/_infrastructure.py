@@ -1,42 +1,16 @@
 import inspect
 import importlib
 import dycc
+from dycc import hooks
 
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-@dycc.component('Middleware')
-class Container(object):
-    def __init__(self):
-        super().__init__()
-        self.finalized = False
-        self._wrapped = []
+class Handler(hooks.Hook):
+    hook_name = 'middleware'
 
-    def load(self, stuff):
-        for item in stuff:
-            package, name = item.rsplit('.', 1)
-            module = importlib.import_module(package)
-            obj = getattr(module, name)()
-            if not isinstance(obj, Handler):
-                raise TypeError
-            self.register(obj)
-
-    def finalize(self):
-        self.finalized = True
-        self._wrapped = tuple(self._wrapped)
-
-    def register(self, obj, *options):
-        if self.finalized:
-            self._wrapped = self._wrapped + (obj, )
-        self._wrapped.append(obj)
-
-    def __getitem__(self, item):
-        return self._wrapped[item]
-
-
-class Handler(object):
     def handle_request(self, request):
         pass
 
@@ -50,23 +24,37 @@ class Handler(object):
         pass
 
 
+def load(stuff):
+    for item in stuff:
+        package, name = item.rsplit('.', 1)
+        module = importlib.import_module(package)
+        obj = getattr(module, name)()
+        if not isinstance(obj, Handler):
+            raise TypeError
+        obj.register_instance()
+
+
+Handler.init_hook()
+
+
 cmw = dycc.get_component('Middleware')
 
 
-@dycc.inject('Middleware')
-def register(cmw, options=(), args=(), kwargs=None):
+def register(options=(), args=(), kwargs=None):
+
     kwargs = kwargs if not kwargs is None else {}
     def _inner(cls):
         if inspect.isclass(cls) and issubclass(cls, Handler):
-            cmw.register(cls(*args, **kwargs))
+            instance = cls(*args, **kwargs)
         elif isinstance(cls, Handler):
-            cmw.register(cls)
+            instance = cls
         else:
             raise TypeError(
                 'Expected a subclass or instance of {}, got {}'.format(
                     Handler, type(cls)
                     )
                 )
+        instance.register_instance()
         return cls
     if not args and not kwargs and (callable(options)
                                     or inspect.isclass(options)):

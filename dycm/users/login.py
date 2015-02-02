@@ -46,7 +46,7 @@ class LoginHook(hooks.Hook):
         raise NotImplementedError
 
 
-hooks.HookManager.manager().init_hook('login', expected_class=LoginHook)
+LoginHook.init_hook()
 
 
 def login_form():

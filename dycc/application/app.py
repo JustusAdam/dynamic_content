@@ -1,6 +1,5 @@
 import importlib
 import functools
-import os
 import threading
 import traceback
 from http import server
@@ -15,7 +14,7 @@ if settings['https_enabled']:
     import ssl
 
 from dycc.util import console, lazy, catch_vardump, structures
-from dycc import http
+from dycc import http, middleware
 from dycc.errors import exceptions
 
 
@@ -41,18 +40,16 @@ class Application(threading.Thread, lazy.Loadable):
         self.init_function = init_function
         self.decorator = dycc.get_component('TemplateFormatter')
 
-    @dycc.inject_method(cmw='Middleware')
-    def load(self, cmw):
+    def load(self):
         if settings['runlevel'] == structures.RunLevel.DEBUG:
             log.write_info('loading components')
         console.print_info('Loading Components ... ')
         console.print_info('Loading Middleware ...')
-        cmw.load(settings['middleware'])
+        middleware.load(settings['middleware'])
         console.print_info('Loading Modules ...')
         self.load_modules()
         if callable(self.init_function):
             self.init_function()
-        cmw.finalize()
 
     @lazy.ensure_loaded
     def run(self):
@@ -239,12 +236,13 @@ class Application(threading.Thread, lazy.Loadable):
         httpd.serve_forever()
 
     @catch_vardump
-    @dycc.inject_method(cmw='Middleware', pathmap='PathMap')
-    def process_request(self, request, cmw, pathmap):
-        for obj in cmw:
-            res = obj.handle_request(request)
-            if res is not None:
-                return res
+    def process_request(self, request, pathmap):
+        res = middleware.Handler.return_call_hooks_with(
+            middleware.Handler.handle_request,
+            request
+        )
+        if res is not None:
+            return res
 
         try:
             handler, args, kwargs = pathmap.resolve(request)
@@ -258,10 +256,12 @@ class Application(threading.Thread, lazy.Loadable):
                 handler_options=handler.options
             )
 
-            for obj in cmw:
-                res = obj.handle_controller(dc_obj, handler, args, kwargs)
-                if res is not None:
-                    return res
+            res = middleware.Handler.return_call_hooks_with(
+                middleware.Handler.handle_controller,
+                dc_obj, handler, args, kwargs
+            )
+            if res is not None:
+                return res
 
             if not 'no_context' in handler.options or handler.options['no_context'] is True:
                 view = handler(*(dc_obj, ) + args, **kwargs)
@@ -301,19 +301,23 @@ class Application(threading.Thread, lazy.Loadable):
 
         # Allow view to directly return a response, mainly to handle errors
         if not isinstance(view, http.response.Response):
-            for obj in cmw:
-                res = obj.handle_view(view, dc_obj)
-                if res is not None:
-                    return res
+            res = middleware.Handler.return_call_hooks_with(
+                middleware.Handler.handle_view,
+                view, dc_obj
+            )
+            if res is not None:
+                return res
 
             response = self.decorator(view, dc_obj)
         else:
             response = view
 
-        for obj in cmw:
-            res = obj.handle_response(request, response)
-            if res is not None:
-                return res
+        res = middleware.Handler.return_call_hooks_with(
+            middleware.Handler.handle_response,
+            request, response
+        )
+        if res is not None:
+            return res
 
         return response
 

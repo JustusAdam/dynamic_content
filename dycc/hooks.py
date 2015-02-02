@@ -33,6 +33,30 @@ class Hook:
     def get_hooks(cls):
         return cls.manager().get_hooks(cls.hook_name)
 
+    @classmethod
+    def blank_call_hooks(cls, *args,**kwargs):
+        cls.manager().blank_call_hooks(cls.hook_name, *args, **kwargs)
+
+    @classmethod
+    def blank_call_hooks_with(cls, executable, *args, **kwargs):
+        cls.manager().blank_call_hooks(cls.hook_name, executable, *args, **kwargs)
+
+    @classmethod
+    def return_call_hooks(cls, *args,**kwargs):
+        return cls.manager().return_call_hooks(cls.hook_name, *args, **kwargs)
+
+    @classmethod
+    def return_call_hooks_with(cls, executable, *args, **kwargs):
+        return cls.manager().return_call_hooks_with(cls.hook_name, executable, *args, **kwargs)
+
+    @classmethod
+    def yield_call_hooks(cls, *args,**kwargs):
+        return cls.manager().yield_call_hooks(cls.hook_name, *args,**kwargs)
+
+    @classmethod
+    def yield_call_hooks_with(cls, executable, *args, **kwargs):
+        return cls.manager().yield_call_hooks_with(cls.hook_name, executable, *args, **kwargs)
+
 
 @Component('HookManager')
 class HookManager:
@@ -139,6 +163,7 @@ class HookManager:
         for res in self.yield_call_hooks(hook, *args, **kwargs):
             if not res is None:
                 return res
+        return None
 
     def return_call_hooks_with(self, hook, executable, *args, **kwargs):
         """
@@ -153,6 +178,7 @@ class HookManager:
         for res in self.yield_call_hooks_with(hook, executable, *args, **kwargs):
             if not res is None:
                 return res
+        return None
 
     def yield_call_hooks(self, hook, *args,**kwargs):
         """
