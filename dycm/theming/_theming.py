@@ -13,9 +13,17 @@ config_file_name = 'config.json'
 pagetitle = '<a href="/">dynamic_content - fast, lightweight and extensible</a>'
 
 
+def _default_theme():
+    return settings.get('default_theme', 'default_theme')
+
+
+def _default_admin_theme():
+    return settings.get('default_theme', 'admin_theme')
+
+
 def get_theme(name):
     if name in ('active', 'default_theme'):
-        name = 'default_theme'
+        name = _default_theme()
     return model.Theme.get(machine_name=name)
 
 
@@ -28,7 +36,8 @@ def load_theme_conf(theme):
     return conf
 
 
-def attach_theme_conf(dc_obj, default_theme=settings['default_theme']):
+def attach_theme_conf(dc_obj, default_theme=None):
+    default_theme = default_theme if not default_theme is None else _default_theme()
     if not 'theme_config' in dc_obj.config or dc_obj.config['theme_config'] is None:
         theme = dc_obj.config['theme'] = dc_obj.config['theme'] if 'theme' in dc_obj.config and dc_obj.config['theme'] else default_theme
         dc_obj.config['theme_config'] = load_theme_conf(theme)
@@ -86,7 +95,7 @@ def theme(default_theme=settings['default_theme']):
         theme_dc_obj(dc_obj, default_theme)
 
     if callable(default_theme):
-        func, default_theme = default_theme, settings['default_theme']
+        func, default_theme = default_theme, _default_theme()
         return _inner(func)
     elif isinstance(default_theme, str):
         return _inner

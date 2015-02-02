@@ -19,8 +19,17 @@ middleware:
   - 'dycc.middleware.rest.JSONTransform'
   - 'dycm.theming.middleware.Middleware'
 
-ssl_certfile: '../dynamic-content.org.crt'
-ssl_keyfile: '../dynamic-content.org.key'
+file_directories: {
+  private: 'files/private',
+  public: 'files/public',
+}
+
+allow_indexing: True
+ssl_certfile: "../dynamic-content.org.crt"
+ssl_keyfile: "../dynamic-content.org.key"
+
+default_theme: 'default_theme'
+default_admin_theme: 'admin_theme'
 
 use_login_page: True
 
@@ -41,7 +50,7 @@ database: {
 
 runlevel: 0
 
-project_dir: 'dycc'
+project_dir: 'testapp'
 
 # 0:FULL, 1:STANDARD, 2:FRAMEWORK
 distribution: 0

@@ -22,12 +22,16 @@ _template_path = 'themes/default_theme/template/page.html'
 _default_view = 'indexdir'
 
 
+def get_file_directories():
+    return settings.get('file_directories', ())
+
+
 def handle(request):
     path_split = request.path.split('/')
     path_split = path_split[1:] if path_split[0] == '' else path_split
     if len(path_split) < 1:
         return response.Response(code=response.HttpResponseCodes.NotFound)
-    basedirs = settings['file_directories'][path_split[0]]
+    basedirs = get_file_directories()[path_split[0]]
     if isinstance(basedirs, str):
         basedirs = (basedirs,)
     filepath = '/'.join(path_split[1:])
@@ -53,13 +57,13 @@ def serve_from(request, file, basedir):
     filepath = filepath.resolve()
     basedir = pathlib.Path(basedir).resolve()
 
-    if not settings['allow_hidden_files'] and filepath.name.startswith('.'):
+    if not settings.get('allow_hidden_files', False) and filepath.name.startswith('.'):
         return response.Response(code=response.HttpResponseCodes.Forbidden)
 
     if basedir not in filepath.parents and basedir != filepath:
         return response.Response(code=response.HttpResponseCodes.Forbidden)
     if filepath.is_dir():
-        if not settings['allow_indexing']:
+        if not settings.get('allow_indexing', False):
             return response.Response(code=response.HttpResponseCodes.Forbidden)
         elif not trailing_slash:
             return response.Redirect(location='{}/'.format(request.path))
@@ -88,7 +92,7 @@ class PathHandler(middleware.Handler):
         return handle(dc_obj.request)
 
     def handle_request(self, request):
-        if request.path.split('/')[1] in settings['file_directories']:
+        if request.path.split('/')[1] in get_file_directories():
             return handle(request)
         return None
 
