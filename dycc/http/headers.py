@@ -1,3 +1,5 @@
+import inspect
+
 __author__ = 'Justus Adam'
 __version__ = '0.1'
 
@@ -115,6 +117,9 @@ class Header:
                 'The type {} is not supported for auto construction'.format(type(raw))
             )
 
+    def to_tuple(self):
+        return self.key, self.value
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.key == other.key and self.value == other.value
@@ -125,3 +130,45 @@ class Header:
 
     def __str__(self):
         return str(self.key) + ': ' + str(self.value)
+
+
+class HeaderMap(dict):
+    __slots__ = ()
+
+    def __init__(self, iterable=None, **kwargs):
+        def one(iterable):
+
+            def convert(a):
+                if not isinstance(a, Header):
+                    a = Header.auto_construct(a)
+                return a.key, a
+
+            if iterable is not None:
+                if isinstance(iterable, dict):
+                    iterable = iterable.items()
+                for i in iterable:
+                    yield convert(i)
+            for i in kwargs.items():
+                yield convert(i)
+
+
+        super().__init__(
+            one(iterable)
+        )
+
+    def __setitem__(self, key, value):
+        if not isinstance(value, Header):
+            value = Header.from_tuple((key, value))
+        super().__setitem__(key, value)
+
+    def add(self, header):
+        h = Header.auto_construct(header)
+        if inspect.isgenerator(h):
+            for i in h:
+                self.add(i)
+        else:
+            self[h.key] = h
+
+    def to_tuple(self):
+        for a in self.values():
+            yield a.to_tuple()

@@ -1,5 +1,6 @@
 from http import cookies as _cookies
 import collections
+from . import headers as h_mod
 
 
 __author__ = 'Justus Adam'
@@ -69,7 +70,7 @@ class Response(object):
     def __init__(self, body=None, code=200, headers:dict=None, cookies=None):
         self.body = body
         self.code = code
-        self.headers = headers if not headers is None else {}
+        self.headers = h_mod.HeaderMap(headers) if not headers is None else h_mod.HeaderMap()
         if (isinstance(cookies, dict)
             and cookies
             and not isinstance(cookies, _cookies.BaseCookie)):

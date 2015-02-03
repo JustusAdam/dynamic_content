@@ -106,7 +106,7 @@ class Application(threading.Thread, lazy.Loadable):
         start_response(
             '{} {}'.format(response.code,
                 server.BaseHTTPRequestHandler.responses[response.code][0]),
-            [tuple(a) for a in response.headers.items()]
+            list(response.headers.to_tuple())
         )
         return [response.body if response.body else ''.encode('utf-8')]
 
