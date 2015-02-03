@@ -16,7 +16,7 @@ class Header:
     def many_from_str(cls, string:str):
         l = string.split('\n')
         for i in l:
-                yield cls.from_str(i)
+            yield cls.from_str(i)
 
     @classmethod
     def any_from_str(cls, string:str):
@@ -24,8 +24,7 @@ class Header:
         if len(l) == 1:
             return cls.from_str(l[0])
         else:
-            for i in l:
-                yield cls.from_str(i)
+            return cls.many_from_str(string)
 
     @classmethod
     def many_from_dict(cls, d:dict):
@@ -45,14 +44,27 @@ class Header:
     from_list = from_tuple
 
     @classmethod
-    def many_from_tuple(cls, l):
-        for i in l:
+    def many_from_tuple(cls, t):
+        for i in t:
             yield cls.auto_construct(i)
 
     many_from_list = many_from_tuple
 
     @classmethod
+    def any_from_tuple(cls, t):
+        if len(t) == 2 and isinstance(t[0], str):
+            return cls.from_tuple(t)
+        else:
+            return cls.many_from_tuple(t)
+
+    @classmethod
     def auto_construct(cls, raw):
+        """
+        Constructs a new Header instance with the appropriate classmethod
+         determined by the type of the input
+        :param raw: raw input data
+        :return:
+        """
         if isinstance(raw, cls):
             return raw
         elif isinstance(raw, dict):
@@ -60,15 +72,11 @@ class Header:
         elif isinstance(raw, str):
             return cls.any_from_str(raw)
         elif isinstance(raw, (list, tuple)):
-            if len(raw) == 2 and isinstance(raw[0], str):
-                try:
-                    yield cls.from_str(raw[0])
-                    yield cls.from_str(raw[1])
-                except ValueError:
-                    return cls(*raw)
-            else:
-                for i in raw:
-                    yield cls.auto_construct(i)
+            return cls.any_from_tuple(raw)
+        else:
+            raise TypeError(
+                'The type {} is not supported for auto construction'.format(type(raw))
+            )
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
