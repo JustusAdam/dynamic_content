@@ -143,7 +143,7 @@ def initialize():
                 weight=weight
             )
 
-    for name, content in (('copyright', '<p>\"dynamic_content\" CMS - © Justus Adam 2014</p>'), ):
+    for name, content in (('copyright', '<p>\"dynamic_content\" CMS - © Justus Adam 2015</p>'), ):
         commons.model.CommonData.create(
             machine_name=name,
             content=content

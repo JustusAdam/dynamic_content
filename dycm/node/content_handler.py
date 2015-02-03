@@ -237,7 +237,7 @@ class FieldBasedPageContent(object):
             field.process_add(
                 page_type=self.page_type,
                 page_id=page.oid,
-                content=query[field.name][0]
+                content=query.get(field.name, [None])[0]
             )
 
         return ':redirect:/node/' + str(page.oid)
