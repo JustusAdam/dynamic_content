@@ -72,6 +72,12 @@ class Header:
         for i in t:
             yield cls.auto_construct(i)
 
+    @classmethod
+    def many_from_set(cls, s):
+        assert isinstance(s, (set, frozenset))
+        for i in s:
+            yield cls.auto_construct(i)
+
     many_from_list = many_from_tuple
 
     @classmethod
@@ -112,6 +118,8 @@ class Header:
             return cls.any_from_str(raw)
         elif isinstance(raw, (list, tuple)):
             return cls.any_from_tuple(raw)
+        elif isinstance(raw, (set, frozenset)):
+            return cls.many_from_set(raw)
         else:
             raise TypeError(
                 'The type {} is not supported for auto construction'.format(type(raw))
@@ -125,6 +133,9 @@ class Header:
             return self.key == other.key and self.value == other.value
         else:
             return self == self.auto_construct(other)
+
+    def __hash__(self):
+        return (hash(self.key) << 1) ^ hash(self.value)
 
     equals = __eq__
 

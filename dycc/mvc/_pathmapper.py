@@ -28,7 +28,9 @@ class Segment(dict):
     @staticmethod
     def add_to_container(container, handler_func):
         def _compare_two(one, other):
-            if one.headers == other.headers:
+            h1, h2 = set(one.headers), set(other.headers)
+
+            if h1 == h2:
                 raise exceptions.ControllerError(
                 'Handler mapping collision. Headers do not differ.')
 
@@ -79,10 +81,17 @@ def handler_from_container(container, method, headers):
     handler = getattr(handler_container, method)
 
     if handler is not None:
-        if isinstance(handler, tuple):
-            pass
-            # TODO match headers
+        headers = set(headers)
+        if isinstance(handler, (tuple, list)):
+            l = sorted(handler, key=lambda a: len(a.headers))
+            for a in l:
+                if a.headers <= headers:
+                    return a
+            else:
+                return None
         else:
+            if not handler.headers <= headers:
+                return None
             return handler
     else:
         return None
@@ -213,28 +222,15 @@ class TreePathMap(PathMap):
 
         if destination == '**':
             if m.wildcard is None:
-                m.wildcard = HandlerContainer(
-                    **{
-                        a.lower():handler
-                        for a in handler.method
-                        }
-                    )
-            elif isinstance(m.wildcard, HandlerContainer):
-                self.add_to_container(m.wildcard, handler)
-            else:
-                raise exceptions.ControllerError
+                m.wildcard = HandlerContainer()
+            self.add_to_container(m.wildcard, handler)
+
         elif destination in m:
             s = m[destination]
             if isinstance(s, Segment):
                 if s.handler is None:
-                    s.handler = HandlerContainer(
-                        **{
-                            a.lower():handler
-                            for a in handler.method
-                            }
-                        )
-                else:
-                    self.add_to_container(s.handler, handler)
+                    s.handler = HandlerContainer()
+                self.add_to_container(s.handler, handler)
             elif isinstance(s, HandlerContainer):
                 self.add_to_container(s, handler)
             else:
@@ -255,10 +251,10 @@ class TreePathMap(PathMap):
                 else request.path.split('/'))
         iargs, ikwargs = [], {}
         wildcard = (
-            (getattr(self.wildcard, request.method), (), {})
-            if self.wildcard is not None
-            else None
-            )
+            handler_from_container(self.wildcard, request.method, request.headers)
+            , (), {}
+        ) if self.wildcard is not None else None
+
         segment_chain = [self]
 
         def get_new(old, segment:str):
@@ -291,7 +287,7 @@ class TreePathMap(PathMap):
                     and getattr(new.wildcard, request.method) is not None
                     ):
                     wildcard = (
-                        getattr(new.wildcard, request.method),
+                        handler_from_container(new.wildcard, request.method, request.headers),
                         tuple(iargs),
                         ikwargs
                         )
@@ -307,10 +303,10 @@ class TreePathMap(PathMap):
 
         else:
             handler = handler_from_container(
-                                new,
-                                request.method,
-                                request.headers
-                                )
+                new,
+                request.method,
+                request.headers
+                )
             if not handler is None:
                 return handler, iargs, ikwargs
 
@@ -515,7 +511,7 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
         handler, typeargs = self.segment_get_handler(
                                 request.path,
                                 request.method,
-                                None
+                                request.headers
                                 )
 
         def process_args(typeargs, values):

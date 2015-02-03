@@ -1,5 +1,3 @@
-import inspect
-
 __doc__ = """
 This module defines decorators to use for registering and interacting
 with the dynamic_content model-view-controller implementation
@@ -36,6 +34,7 @@ from .. import _component
 from dycc import http
 from .context import apply_to_context
 from dycc.util import rest
+import inspect
 
 
 __author__ = 'Justus Adam'
@@ -46,7 +45,11 @@ controller_mapper = _component.get_component('PathMap')
 
 
 def _to_set(my_input, allowed_vals=str):
-    if isinstance(my_input, (list, tuple, set, frozenset)):
+    if isinstance(my_input, frozenset):
+        return my_input
+    elif isinstance(my_input, set):
+        return frozenset(my_input)
+    if isinstance(my_input, (list, tuple)):
         for i in my_input:
             if not isinstance(i, allowed_vals):
                 raise TypeError(
@@ -102,13 +105,13 @@ def _controller_function(
     value,
     *,
     method=http.RequestMethods.GET,
-    headers=None,
+    headers=frozenset(),
     query=False,
     **options
     ):
     def wrap(func):
-        h = http.headers.Header.auto_construct(headers)
-        h = tuple(h) if inspect.isgenerator(h) else (h,)
+        h = http.headers.Header.auto_construct(headers) if not headers is None else None
+        h = set(h) if inspect.isgenerator(h) else {h}
         wrapped = class_(func, value, method, query, h, options)
         for val in wrapped.value:
             controller_mapper.add_path(val, wrapped)
@@ -122,13 +125,13 @@ def _controller_method(
     value,
     *,
     method=http.RequestMethods.GET,
-    headers=None,
+    headers=frozenset(),
     query=False,
     **options
     ):
     def wrap(func):
-        h = http.headers.Header.auto_construct(headers)
-        h = tuple(h) if inspect.isgenerator(h) else (h,)
+        h = http.headers.Header.auto_construct(headers) if not headers is None else None
+        h = frozenset(h) if inspect.isgenerator(h) else {h}
         wrapped = class_(func, value, method, query, h, options)
         return wrapped
     return wrap
