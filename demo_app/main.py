@@ -4,7 +4,7 @@ __author__ = 'Justus Adam'
 
 if __name__ == '__main__':
     def init():
-        from testapp import tss
+        from demo_app import tss
         tss.init_tables()
         tss.initialize()
     main.main('custom_settings.yml', init)

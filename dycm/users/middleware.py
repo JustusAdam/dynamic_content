@@ -17,9 +17,9 @@ SESSION_INVALIDATED = 'invalid'
 class AuthorizationMiddleware(middleware.Handler):
     def handle_request(self, request):
         if 'Cookie' in request.headers:
-            cookies = http.cookies.SimpleCookie(request.headers['Cookie'])
+            cookies = http.cookies.SimpleCookie(request.headers['Cookie'].value)
         elif 'HTTP_COOKIE' in request.headers:
-            cookies = http.cookies.SimpleCookie(request.headers['HTTP_COOKIE'])
+            cookies = http.cookies.SimpleCookie(request.headers['HTTP_COOKIE'].value)
         else:
             request.client = client.Information(users.GUEST)
             return
