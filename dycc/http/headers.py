@@ -13,7 +13,22 @@ class Header:
         return cls(k, v)
 
     @classmethod
-    def from_dict(cls, d:dict):
+    def many_from_str(cls, string:str):
+        l = string.split('\n')
+        for i in l:
+                yield cls.from_str(i)
+
+    @classmethod
+    def any_from_str(cls, string:str):
+        l = string.split('\n')
+        if len(l) == 1:
+            return cls.from_str(l[0])
+        else:
+            for i in l:
+                yield cls.from_str(i)
+
+    @classmethod
+    def many_from_dict(cls, d:dict):
         for k, v in d.items():
             yield cls(k, v)
 
@@ -29,18 +44,37 @@ class Header:
 
     from_list = from_tuple
 
+    @classmethod
+    def many_from_tuple(cls, l):
+        for i in l:
+            yield cls.auto_construct(i)
+
+    many_from_list = many_from_tuple
+
+    @classmethod
+    def auto_construct(cls, raw):
+        if isinstance(raw, cls):
+            return raw
+        elif isinstance(raw, dict):
+            return cls.many_from_dict(raw)
+        elif isinstance(raw, str):
+            return cls.any_from_str(raw)
+        elif isinstance(raw, (list, tuple)):
+            if len(raw) == 2 and isinstance(raw[0], str):
+                try:
+                    yield cls.from_str(raw[0])
+                    yield cls.from_str(raw[1])
+                except ValueError:
+                    return cls(*raw)
+            else:
+                for i in raw:
+                    yield cls.auto_construct(i)
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.key == other.key and self.value == other.value
-        elif isinstance(other, str):
-            return self == self.from_str(other)
-        elif isinstance(other, (tuple, list)):
-            return self == self.from_tuple(other)
         else:
-            raise TypeError(
-                'Equality check expected type {}, {}, {} or {},'
-                'found {}'.format(self.__class__, str, tuple, list, type(other))
-            )
+            return self == self.auto_construct(other)
 
     def __str__(self):
         return str(self.key) + ': ' + str(self.value)
