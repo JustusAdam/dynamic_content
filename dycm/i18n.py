@@ -34,7 +34,7 @@ _t = T() if settings.get('i18n_support_enabled', False) is True else None
 del T
 
 
-def translate(source_string, language=settings['default_language']):
+def translate(source_string, language=settings.get('default_language',_default_language)):
     if language != settings.BASE_LANGUAGE and settings.I18N_SUPPORT_ENABLED:
         db_result = getattr(_t, language).get(source_string=source_string)
         return db_result.translation if db_result else source_string

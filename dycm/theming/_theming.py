@@ -81,7 +81,7 @@ def compile_stuff(dc_obj):
     dc_obj.context.setdefault('pagetitle', pagetitle)
 
 
-def theme_dc_obj(dc_obj, default_theme=settings['default_theme']):
+def theme_dc_obj(dc_obj, default_theme=_default_theme()):
     if not 'theme_config' in dc_obj.config or not dc_obj.config['theme_config']:
         if not 'theme' in dc_obj.config:
             dc_obj.config['theme'] = default_theme
@@ -89,7 +89,7 @@ def theme_dc_obj(dc_obj, default_theme=settings['default_theme']):
         compile_stuff(dc_obj)
 
 
-def theme(default_theme=settings['default_theme']):
+def theme(default_theme=_default_theme()):
     @mvc.context.apply_to_context(apply_before=False)
     def _inner(dc_obj):
         theme_dc_obj(dc_obj, default_theme)

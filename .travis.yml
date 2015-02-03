@@ -8,6 +8,5 @@ install:
     - pip install --target libs --upgrade -r requirements.txt
 env:
     - PYTHONPATH=./libs
-script:
-    - python -OO -m unittest discover -v -s tests
+script: nosetests
 sudo: false
