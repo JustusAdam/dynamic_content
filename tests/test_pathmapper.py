@@ -1,6 +1,5 @@
 import unittest
-
-from dycc.errors.exceptions import ControllerError
+from dycc.errors.exceptions import ControllerError, MethodHandlerNotFound
 from dycc.mvc._pathmapper import MultiTablePathMap, TreePathMap
 from dycc.mvc.decorator import ControlFunction
 from dycc import http
@@ -14,27 +13,15 @@ class TestMapper(unittest.TestCase):
         self.t_mapper = TreePathMap()
 
         self.testpaths1 = (
-            (
-                'hello/bla',  lambda : 4, 'hello/bla', 4, ()
-            ),
-            (
-                'hello/loko/nunu', lambda : 7, 'hello/loko/nunu', 7, ()
-            ),
-            (
-                'tryi/{int}', lambda a: a, 'tryi/4', 4, (int, )
-            ),
-            (
-                'tryit/**', lambda s: s, 'tryit/lolo', 'tryit/lolo', ()
-            ),
-            (
-                '/', lambda : 4, '/', 4, ()
-            )
+            ('hello/bla',  lambda : 4, 'hello/bla', 4, ()),
+            ('hello/loko/nunu', lambda : 7, 'hello/loko/nunu', 7, ()),
+            ('tryi/{int}', lambda a: a, 'tryi/4', 4, (int, )),
+            ('tryit/**', lambda s: s, 'tryit/lolo', 'tryit/lolo', ()),
+            ('/', lambda : 4, '/', 4, ())
         )
 
         self.testpaths2 = (
-            (
-                'horn/{int}/tee/**', lambda a, b: (a,b), 'horn/4/tee/tree/branch', (4,'horn/4/tee/tree/branch'), (int, )
-            ),
+            ('horn/{int}/tee/**', lambda a, b: (a,b), 'horn/4/tee/tree/branch', (4,'horn/4/tee/tree/branch'), (int, )),
         )
 
     def test_mt_add_path(self):
@@ -86,3 +73,33 @@ class TestMapper(unittest.TestCase):
         for path, handler, teststring, result, targs in self.testpaths1[0:2]:
             handler = ControlFunction(handler, path, method, False, None)
             self.assertRaises(ControllerError, self.t_mapper.add_path, path, handler)
+
+    def test_header_resolving(self):
+        host = 'localhost'
+        port = 0
+        query = ()
+
+
+        for mapper in (self.t_mapper, self.mt_mapper):
+
+            for function, path, method, headers, test_empty in (
+                (lambda :7, '/test', 'get', frozenset(http.headers.Header.auto_construct('Location: /\nHTTPS: None')), True),
+                (lambda : 0, '/', 'post', frozenset((http.headers.Header.auto_construct('Location: hello'),)), True),
+                (lambda : 9, '/lala', 'get', frozenset(), False)
+            ):
+
+                handler = ControlFunction(
+                    function=function, value=path, method=method, headers=headers, query=query
+                )
+
+                mapper.add_path(path, handler)
+                request1 = http.Request(host, port, path, method, query, frozenset(), False)
+                request2 = http.Request(host, port, path, method, query, headers, False)
+                h2 = http.headers.HeaderMap(headers, Method='0')
+                request3 = http.Request(host, port, path, method, query, h2, False)
+                if test_empty:
+                    self.assertRaises(MethodHandlerNotFound, mapper.resolve, request1)
+                self.assertIs(
+                    mapper.resolve(request2)[0].function, function
+                )
+                self.assertRaises(MethodHandlerNotFound, mapper.resolve, request3)

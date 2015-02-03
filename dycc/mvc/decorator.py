@@ -77,7 +77,7 @@ class ControlFunction(object):
         self.value = _to_set(value)
         self.method = _to_set(method, str)
         self.query = query if isinstance(query, (dict, bool)) else _to_set(query)
-        self.headers = None if headers is None else _to_set(headers)
+        self.headers = frozenset() if headers is None else _to_set(headers)
         self.instance = None
         self.typeargs = []
         self.options = options if options is not None else {}

@@ -180,6 +180,12 @@ class HeaderMap(dict):
         else:
             self[h.key] = h
 
-    def to_tuple(self):
+    def to_iter(self):
         for a in self.values():
             yield a.to_tuple()
+
+    def to_tuple(self):
+        return tuple(self.to_iter())
+
+    def to_set(self):
+        return set(self.to_iter())
