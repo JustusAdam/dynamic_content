@@ -84,5 +84,7 @@ class Header:
         else:
             return self == self.auto_construct(other)
 
+    equals = __eq__
+
     def __str__(self):
         return str(self.key) + ': ' + str(self.value)
