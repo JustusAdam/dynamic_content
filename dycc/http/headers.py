@@ -9,17 +9,20 @@ class Header:
 
     @classmethod
     def from_str(cls, string:str):
+        assert isinstance(string, str)
         k, v = string.split(': ', 1)
         return cls(k, v)
 
     @classmethod
     def many_from_str(cls, string:str):
+        assert isinstance(string, str)
         l = string.split('\n')
         for i in l:
             yield cls.from_str(i)
 
     @classmethod
     def any_from_str(cls, string:str):
+        assert isinstance(string, str)
         l = string.split('\n')
         if len(l) == 1:
             return cls.from_str(l[0])
@@ -28,11 +31,23 @@ class Header:
 
     @classmethod
     def many_from_dict(cls, d:dict):
+        """
+        Return iterable of Headers constructed from the dict
+        :param d: dictionary
+        :return: generator
+        """
+        assert isinstance(d, dict)
         for k, v in d.items():
             yield cls(k, v)
 
     @classmethod
     def from_tuple(cls, t):
+        """
+        Build new Header instance from a key, value tuple/list
+        :param t: tuple/list
+        :return: new Header
+        """
+        assert isinstance(t, (tuple, list))
         if len(t) == 2:
             return cls(*t)
         else:
@@ -45,6 +60,13 @@ class Header:
 
     @classmethod
     def many_from_tuple(cls, t):
+        """
+        Yield new Header instances from the tuple/list
+
+        :param t: tuple/list
+        :return: generator
+        """
+        assert isinstance(t, (tuple, list))
         for i in t:
             yield cls.auto_construct(i)
 
@@ -52,8 +74,23 @@ class Header:
 
     @classmethod
     def any_from_tuple(cls, t):
+        """
+        Build new Header instances from a tuple.
+
+        If the tuple is ov type (key, value) only a
+         single Header instance is returned
+
+        Otherwise an iterable of new Headers is returned.
+
+        :param t: tuple/list
+        :return: generator or Header
+        """
+        assert isinstance(t, (tuple, list))
         if len(t) == 2 and isinstance(t[0], str):
-            return cls.from_tuple(t)
+            try:
+                return cls.from_str(t[0]), cls.from_str(t[1])
+            except ValueError:
+                return cls.from_tuple(t)
         else:
             return cls.many_from_tuple(t)
 
