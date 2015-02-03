@@ -64,6 +64,25 @@ class TestHeaderAutoConstruct(TestHeaderConstruct):
             self.assertRaises(TypeError, headers.Header.auto_construct, t)
 
 
+class TestHeaderComparison(unittest.TestCase):
+    def test_equal(self):
+        for k, v, o, ov in (
+            ('MyKey', 'MyValue', 'OtherKey', 'OtherValue'),
+            ('TestKey', 'testValue', 'Coollision', '88494y204')
+        ):
+
+            h1 = headers.Header(k, v)
+
+            self.assertEqual(h1, headers.Header.from_tuple((k,v)))
+            self.assertEqual(h1, headers.Header.from_str(k + ': ' + v))
+            self.assertIn(h1, headers.Header.many_from_dict({k:v}))
+
+            self.assertTrue(h1 == k + ': ' + v)
+            self.assertTrue(h1 == (k, v))
+            self.assertFalse(h1 == o + ': ' + ov)
+            self.assertFalse(h1 == (o, ov))
+
+
 
 if __name__ == '__main__':
     unittest.main()
