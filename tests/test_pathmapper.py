@@ -8,7 +8,7 @@ from dycc import http
 __author__ = 'Justus Adam'
 
 
-class TestMultiTableMapper(unittest.TestCase):
+class TestMapper(unittest.TestCase):
     def setUp(self):
         self.mt_mapper = MultiTablePathMap()
         self.t_mapper = TreePathMap()
