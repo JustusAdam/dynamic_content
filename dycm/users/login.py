@@ -28,27 +28,56 @@ PASSWORD_INPUT = (
 
 LOGOUT_TARGET = '/login'
 
-LOGOUT_BUTTON = html.ContainerElement(
+LOGOUT_BUTTON = html.A(
+    '/' + logout_prefix,
     'Logout',
-    html_type='a',
-    classes={'logout', 'button'},
-    additional={'href': '/' + logout_prefix}
+    classes={'logout', 'button'}
     )
 
 
 class LoginHook(hooks.Hook):
+    """
+    A Hook designed to allow custom interaction with the login process.
+
+    Usage:
+     Alter the query using handle_form(form) by appending custom input fields.
+
+     Handle part of the login POST request with handle_login_request(query)
+      by returning according to the docstring in handle_login_request (query)
+    """
+
     hook_name = 'login'
 
-    def __handle_form_hook(self, form):
-        return self.handle_form(form)
-
-    def __handle_login_request_hook(self, query):
-        return self.handle_login_request(query)
-
     def handle_form(self, form):
+        """
+        Alter the html form that is used for the login process.
+
+        Append/prepend your custom input fields or return a new form
+
+        Subsequent hooks will be called with your new form.
+
+        :param form: csrf.SecureForm element
+        :return: None or new csrf.SecureForm
+        """
         raise NotImplementedError
 
     def handle_login_request(self, query):
+        """
+        Take action based on the query received with the login POST request
+
+        If returning False will count request as failed.
+
+        If returning True or None will continue.
+
+        If returning 2-tuple will be interpreted as (username, password)
+         and will immediately go onto opening the session,
+         calling further hooks will be skipped
+
+        If returning anything else will break and return that value.
+
+        :param query: query dict object
+        :return: any
+        """
         raise NotImplementedError
 
 
@@ -65,11 +94,12 @@ def login_form():
         classes={'login-form'},
         submit=html.SubmitButton(value='Login')
     )
-    for hook in hooks.HookManager.manager().get_hooks('login'):
+    for hook in LoginHook.get_hooks():
         res = hook.handle_form(form)
-        if res:
+        if res is not None:
             form = res
     return form
+
 
 LOGIN_COMMON = csrf.SecureForm(
     html.ContainerElement(
@@ -131,22 +161,26 @@ def login(dc_obj, failed):
 @decorator.authorize('access login page')
 def login_post(dc_obj, query):
     for res in LoginHook.yield_call_hooks_with(
-            LoginHook.__handle_login_request_hook, query
+        lambda self, query: self.handle_login_request(query),
+        query
     ):
         if res is False:
             return ':redirect:/login/failed'
         if res is True:
             continue
+        elif isinstance(res, (tuple, list)) and len(res) == 2:
+            username, password = res
+            break
         elif res is not None:
             return res
-
-    if not 'username' in query or not 'password' in query:
-        return ':redirect:/login/failed'
-    username, password = query['username'], query['password']
-    if not len(username) == 1 or not len(password) == 1:
-        return ':redirect:/login/failed'
-    username = username[0]
-    password = password[0]
+    else:
+        if not 'username' in query or not 'password' in query:
+            return ':redirect:/login/failed'
+        username, password = query['username'], query['password']
+        if not len(username) == 1 or not len(password) == 1:
+            return ':redirect:/login/failed'
+        username = username[0]
+        password = password[0]
     token = session.start_session(username, password)
     if token:
         cookie = cookies.SimpleCookie({'SESS': token})
