@@ -1,6 +1,6 @@
 from ._util import RequestMethods
 from .request import Request
-from . import response
+from . import response, headers
 
 
 __author__ = 'Justus Adam'

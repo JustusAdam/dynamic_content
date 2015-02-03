@@ -1,3 +1,5 @@
+import inspect
+
 __doc__ = """
 This module defines decorators to use for registering and interacting
 with the dynamic_content model-view-controller implementation
@@ -105,7 +107,9 @@ def _controller_function(
     **options
     ):
     def wrap(func):
-        wrapped = class_(func, value, method, query, headers, options)
+        h = http.headers.Header.auto_construct(headers)
+        h = tuple(h) if inspect.isgenerator(h) else (h,)
+        wrapped = class_(func, value, method, query, h, options)
         for val in wrapped.value:
             controller_mapper.add_path(val, wrapped)
         return wrapped
@@ -123,7 +127,9 @@ def _controller_method(
     **options
     ):
     def wrap(func):
-        wrapped = class_(func, value, method, query, headers, options)
+        h = http.headers.Header.auto_construct(headers)
+        h = tuple(h) if inspect.isgenerator(h) else (h,)
+        wrapped = class_(func, value, method, query, h, options)
         return wrapped
     return wrap
 
