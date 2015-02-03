@@ -82,10 +82,10 @@ class TestMapper(unittest.TestCase):
 
         for mapper in (self.t_mapper, self.mt_mapper):
 
-            for function, path, method, headers, test_empty in (
-                (lambda :7, '/test', 'get', frozenset(http.headers.Header.auto_construct('Location: /\nHTTPS: None')), True),
-                (lambda : 0, '/', 'post', frozenset((http.headers.Header.auto_construct('Location: hello'),)), True),
-                (lambda : 9, '/lala', 'get', frozenset(), False)
+            for function, path, method, headers, is_empty in (
+                (lambda :7, '/test', 'get', frozenset(http.headers.Header.auto_construct('Location: /\nHTTPS: None')), False),
+                (lambda : 0, '/', 'post', frozenset((http.headers.Header.auto_construct('Location: hello'),)), False),
+                (lambda : 9, '/lala', 'get', frozenset(), True)
             ):
 
                 handler = ControlFunction(
@@ -97,9 +97,10 @@ class TestMapper(unittest.TestCase):
                 request2 = http.Request(host, port, path, method, query, headers, False)
                 h2 = http.headers.HeaderMap(headers, Method='0')
                 request3 = http.Request(host, port, path, method, query, h2, False)
-                if test_empty:
+                if not is_empty:
                     self.assertRaises(MethodHandlerNotFound, mapper.resolve, request1)
                 self.assertIs(
                     mapper.resolve(request2)[0].function, function
                 )
-                self.assertRaises(MethodHandlerNotFound, mapper.resolve, request3)
+                if not is_empty:
+                    self.assertRaises(MethodHandlerNotFound, mapper.resolve, request3)
