@@ -165,7 +165,7 @@ class PathMap(Segment):
 
 class TreePathMap(PathMap):
     __doc__ = """Hashmap tree based path mapper implementation"""
-    __slots__ = '_controller_classes',
+    __slots__ = ()
 
     @staticmethod
     def parse_path(path:str):
@@ -327,7 +327,7 @@ class TreePathMap(PathMap):
 
 class MultiTableSegment(Segment):
     __doc__ = """Special Subclass of segment used for the MultiMap path mapper"""
-    __slots__ = 'name', 'handler', 'wildcard'
+    __slots__ = ()
 
     def get_handler_container(self, path):
         first, *rest = path
@@ -438,7 +438,7 @@ class MultiTableSegment(Segment):
 
 class MultiTablePathMap(MultiTableSegment, PathMap):
     __doc__ = """Path mapper implementation based on junction stacked hash tables"""
-    __slots__ = '_controller_classes',
+    __slots__ = ()
 
     @staticmethod
     def parse_path(path):

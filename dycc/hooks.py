@@ -17,10 +17,46 @@ class Hook:
     """
     __slots__ = 'priority',
 
-    hook_name = ''
-
-    def __init__(self, priority=0):
+    def __init__(self, priority):
         self.priority = priority
+
+    def init_hook(self):
+        raise NotImplementedError
+
+    def is_initialized(self):
+        raise NotImplementedError
+
+    def register_instance(self):
+        HookManager.manager().register(self.hook_name, self)
+
+    @staticmethod
+    def manager():
+        return HookManager.manager()
+
+    def get_hooks(self):
+        raise NotImplementedError
+
+    def blank_call_hooks(self, *args,**kwargs):
+        raise NotImplementedError
+
+    def blank_call_hooks_with(self, executable, *args, **kwargs):
+        raise NotImplementedError
+
+    def return_call_hooks(self, *args,**kwargs):
+        raise NotImplementedError
+
+    def return_call_hooks_with(self, executable, *args, **kwargs):
+        raise NotImplementedError
+
+    def yield_call_hooks(self, *args,**kwargs):
+        raise NotImplementedError
+
+    def yield_call_hooks_with(self, executable, *args, **kwargs):
+        raise NotImplementedError
+
+
+class ClassHook(Hook):
+    hook_name = ''
 
     @classmethod
     def init_hook(cls):
@@ -33,13 +69,6 @@ class Hook:
     @classmethod
     def register_class(cls, priority=0):
         cls(priority).register_instance()
-
-    def register_instance(self):
-        HookManager.manager().register(self.hook_name, self)
-
-    @staticmethod
-    def manager():
-        return HookManager.manager()
 
     @classmethod
     def get_hooks(cls):
@@ -68,6 +97,48 @@ class Hook:
     @classmethod
     def yield_call_hooks_with(cls, executable, *args, **kwargs):
         return cls.manager().yield_call_hooks_with(cls.hook_name, executable, *args, **kwargs)
+
+
+class InstanceHook(Hook):
+    __slots__ = 'hook_name',
+
+    def __init__(self, hook_name, priority=0):
+        self.hook_name = hook_name
+        super().__init__(priority)
+
+    def init_hook(self):
+        self.manager().init_hook(self.hook_name, self.__class__)
+
+    def is_initialized(self):
+        return self.manager().has_hook(self.hook_name)
+
+    def get_hooks(self):
+        return self.manager().get_hooks(self.hook_name)
+
+    def blank_call_hooks(self, *args,**kwargs):
+        self.manager().blank_call_hooks(self.hook_name, *args, **kwargs)
+
+    def blank_call_hooks_with(self, executable, *args, **kwargs):
+        self.manager().blank_call_hooks(self.hook_name, executable, *args, **kwargs)
+
+    def return_call_hooks(self, *args,**kwargs):
+        return self.manager().return_call_hooks(self.hook_name, *args, **kwargs)
+
+    def return_call_hooks_with(self, executable, *args, **kwargs):
+        return self.manager().return_call_hooks_with(self.hook_name, executable, *args, **kwargs)
+
+    def yield_call_hooks(self, *args,**kwargs):
+        return self.manager().yield_call_hooks(self.hook_name, *args,**kwargs)
+
+    def yield_call_hooks_with(self, executable, *args, **kwargs):
+        return self.manager().yield_call_hooks_with(self.hook_name, executable, *args, **kwargs)
+
+
+class FunctionHook(InstanceHook):
+    __slots__ = 'function',
+
+    def __init__(self, function, hook_name, priority):
+        super().__init__(hook_name)
 
 
 @Component('HookManager')
