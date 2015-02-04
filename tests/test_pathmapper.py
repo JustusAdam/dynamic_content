@@ -1,7 +1,7 @@
 import unittest
 from dycc.errors.exceptions import ControllerError, MethodHandlerNotFound
-from dycc.mvc._pathmapper import MultiTablePathMap, TreePathMap
-from dycc.mvc.decorator import ControlFunction
+from dycc.route._map import MultiTablePathMap, TreePathMap
+from dycc.route.decorator import ControlFunction
 from dycc import http
 
 __author__ = 'Justus Adam'
