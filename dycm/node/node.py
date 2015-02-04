@@ -1,7 +1,8 @@
+import functools
 import pathlib
 from dycc import dchp
 from dycc.http import response
-from dycc.util import config, decorators, structures
+from dycc.util import config, structures
 from dycc import mvc
 from dycm import theming, commons
 
@@ -11,7 +12,7 @@ __version__ = '0.2'
 
 def compile_nodes(res, dc_obj):
 
-    @decorators.multicache
+    @functools.lru_cache()
     def _get_template(_type):
         if ('theme_config' in dc_obj.config
             and dc_obj.config['theme_config'] is not None

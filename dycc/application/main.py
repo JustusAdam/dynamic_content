@@ -84,36 +84,37 @@ def check_parallel_process():
     try:
         import setproctitle
         import subprocess
-
-        title = 'dynamic_content'
-
-        res = subprocess.check_output(('ps', '-ef'))
-
-        lines = tuple(filter(
-                    lambda a: ' ' + title + ' ' in a,
-                    res.decode().splitlines()
-                    ))
-
-        if len(lines) != 0:
-            console.print_debug(lines)
-            a = input(
-                '\n\nAnother {} process has been detected.\n'
-                'Would you like to kill it, in order to start a new one?\n'
-                '[y|N]'.format(title)
-                )
-            if a.lower() in ('y', 'yes'):
-                subprocess.call(('pkill', 'dynamic_content'))
-            else:
-                a = input(
-                    'Would you like to exit this process instead? [Y|n]'
-                )
-                if not a.lower() in ('n', 'no'):
-                    quit(code=0)
-
-        if not setproctitle.getproctitle() == title:
-            setproctitle.setproctitle(title)
     except ImportError:
-        pass
+        return None
+
+    title = 'dynamic_content'
+
+    res = subprocess.check_output(('ps', '-ef'))
+
+    lines = tuple(filter(
+                lambda a: ' ' + title + ' ' in a,
+                res.decode().splitlines()
+                ))
+
+    if len(lines) != 0:
+        console.print_debug(lines)
+        a = input(
+            '\n\nAnother {} process has been detected.\n'
+            'Would you like to kill it, in order to start a new one?\n'
+            '[y|N]'.format(title)
+            )
+        if a.lower() in ('y', 'yes'):
+            subprocess.call(('pkill', 'dynamic_content'))
+        else:
+            a = input(
+                'Would you like to exit this process instead? [Y|n]'
+            )
+            if not a.lower() in ('n', 'no'):
+                quit(code=0)
+
+    if not setproctitle.getproctitle() == title:
+        setproctitle.setproctitle(title)
+
 
 
 def harden_settings(settings:dict):

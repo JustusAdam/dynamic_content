@@ -145,6 +145,7 @@ def for_method_and_func(_generic):
     return wrap
 
 
+@deprecated
 def multicache(func):
     _cache = {}
 

@@ -1,5 +1,6 @@
+import functools
 from dycm import theming
-from dycc.util import time, decorators
+from dycc.util import time
 from dycc.backend import orm
 from dycm.users import model as usersmodel
 from dycm.commons import model as commonsmodel
@@ -23,7 +24,7 @@ class Page(orm.BaseModel):
     menu_item = orm.ForeignKeyField(commonsmodel.MenuItem, null=True)
 
 
-@decorators.multicache
+@functools.lru_cache()
 def field(name):
     class FieldData(orm.BaseModel):
         class Meta:

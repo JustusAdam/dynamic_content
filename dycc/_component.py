@@ -165,6 +165,8 @@ def inject(*components, **kwcomponents):
     """
 
     def inner(func):
+        # TODO when moving to 3.4 replace unify inject and inject_method
+        # and use functools.partialmethod here
         return functools.partial(
             func,
             *tuple(
