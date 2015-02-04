@@ -7,4 +7,8 @@ if __name__ == '__main__':
         from demo_app import tss
         tss.init_tables()
         tss.initialize()
-    main.main('custom_settings.yml', init)
+
+    # get folder containing settings
+    f = __file__.rsplit('/', 1)[0]
+
+    main.main(f + '/custom_settings.yml', init)
