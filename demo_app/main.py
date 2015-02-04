@@ -11,4 +11,4 @@ if __name__ == '__main__':
     # get folder containing settings
     f = __file__.rsplit('/', 1)[0]
 
-    main.main(f + '/custom_settings.yml', init)
+    main.main(f + '/custom_settings.yml', init, project_dir=f)
