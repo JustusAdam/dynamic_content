@@ -8,7 +8,7 @@ __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-class Handler(hooks.Hook):
+class Handler(hooks.ClassHook):
     hook_name = 'middleware'
 
     def handle_request(self, request):
