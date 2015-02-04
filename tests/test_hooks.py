@@ -10,10 +10,11 @@ class MyTestCase(unittest.TestCase):
     def setUp(self):
 
         @hooks.register(8)
-        class TestHook1(hooks.Hook):
+        class TestHook1(hooks.ClassHook):
             hook_name = 'testhook1'
 
             def __init__(self, arg=0):
+                super().__init__()
                 self.arg = arg
 
             def __call__(self, *args, **kwargs):
