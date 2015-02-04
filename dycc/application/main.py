@@ -88,7 +88,7 @@ def prepare():
             a = input(
                 '\n\nAnother {} process has been detected.\n'
                 'Would you like to kill it, in order to start a new one?\n'
-                '[y|N]\n\n\n'.format(title)
+                '[y|N]'.format(title)
                 )
             if a.lower() in ('y', 'yes'):
                 subprocess.call(('pkill', 'dynamic_content'))
