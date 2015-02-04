@@ -51,23 +51,18 @@ class TemplateFormatter(object):
             )
 
     def serve_document(self, dc_obj, request, view_name):
-        encoding = (
-            dc_obj.config['encoding']
-            if 'encoding' in dc_obj.config
-            and dc_obj.config['encoding']
-            else _defaults['encoding'])
 
-        dc_obj.config.setdefault('decorator_attributes', {})
+        encoding = dc_obj.config.get('encoding', _defaults['encoding'])
+        decorator_attributes = dc_obj.config.get('decorator_attributes', {})
 
-        if 'no-encode' in dc_obj.config['decorator_attributes']:
+        if 'no-encode' in decorator_attributes:
             document = dc_obj.context['content']
 
-        elif ('no_view' in dc_obj.config['decorator_attributes']
+        elif ('no_view' in decorator_attributes
             or view_name is None):
             document = dc_obj.context['content'].encode(encoding)
         else:
-            pairing = dc_obj.context
-            pairing['request'] = request
+            pairing = self.make_pairing(dc_obj)
             for path in self.view_path(view_name, dc_obj):
                 try:
                     with open(path) as file:
@@ -87,6 +82,13 @@ class TemplateFormatter(object):
             headers=dc_obj.config.get('headers', None),
             cookies=dc_obj.config.get('cookies', None)
             )
+
+    @staticmethod
+    def make_pairing(dc_obj):
+        return dict(
+            dc_obj.context,
+            request= dc_obj.request
+        )
 
     @staticmethod
     def view_path(view, dc_obj):
