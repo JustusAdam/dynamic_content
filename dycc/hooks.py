@@ -1,6 +1,5 @@
 from . import Component, get_component
 import collections
-import inspect
 from dycc.errors import exceptions
 from .util import console
 
@@ -14,10 +13,16 @@ HookList = collections.namedtuple('HookList', ('hooks', 'expected_class'))
 
 class Hook:
     __doc__ = """
+    Abstract Hook baseclass. Used mainly to ensure typesafety
+     in the Hook manager
+
+    It is not recommended to directly subclass this class,
+     subclass from InstanceHook or ClassHook instead,
+     depending on the purpose you'll want to use the hook for.
     """
     __slots__ = 'priority',
 
-    def __init__(self, priority):
+    def __init__(self, priority=0):
         self.priority = priority
 
     def init_hook(self):
@@ -56,6 +61,23 @@ class Hook:
 
 
 class ClassHook(Hook):
+    __slots__ = ()
+    __doc__ = """
+    Base class for inheritance based hooks.
+
+    Use by subclassing this class and setting the hook_name attribute,
+     as well as implementing any additional methods you'd like
+
+    The convenience methods (like is_initialized() or return_call_hooks())
+     are all classmethods for class hooks such as this.
+
+    Class hooks can be registered using the @register decorator.
+
+    Additionally this type provides a register_class() method
+     which can be used to register a new instance of this hook
+     with the manager, but only if the constructor does not require
+     additional arguments
+    """
     hook_name = ''
 
     @classmethod
@@ -100,6 +122,17 @@ class ClassHook(Hook):
 
 
 class InstanceHook(Hook):
+    __doc__ = """
+    Instance based Hook type.
+
+    Used by instantiating and then registering the instances.
+
+    You'll first have to subclass this and implement any method you require
+     when actually calling the hook.
+
+    Useful if one wants to register the same hook type for multiple hooks
+     or do runtime dynamic hook assignment.
+    """
     __slots__ = 'hook_name',
 
     def __init__(self, hook_name, priority=0):
@@ -137,9 +170,19 @@ class InstanceHook(Hook):
 
 
 class FunctionHook(InstanceHook):
+    __doc__ = """
+    Special subclass of InstanceHook.
+
+    Designed to allow you to quickly turn an arbitrary callable into a hook.
+
+    Use by instantiating with the hook_name and a callable (function).
+
+    Can also be created using the
+     @function_hook(hook_name, priority, expected_class) decorator.
+    """
     __slots__ = 'function',
 
-    def __init__(self, function, hook_name, priority):
+    def __init__(self, function, hook_name, priority=0):
         super().__init__(hook_name, priority)
         self.function = function
 
@@ -149,9 +192,7 @@ class FunctionHook(InstanceHook):
 
 @Component('HookManager')
 class HookManager:
-    __slots__ = (
-        '_hooks'
-    )
+    __slots__ = '_hooks',
 
     def __init__(self):
         self._hooks = {}
