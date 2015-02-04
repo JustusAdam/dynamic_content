@@ -18,7 +18,9 @@ _typecheck = {
 
 
 class Segment(dict):
-    """A Segment of the path structure"""
+    __doc__ = """A Segment of the path structure"""
+    __slots__ = 'name', 'handler', 'wildcard'
+
     def __init__(self, name, handler=None, **kwargs):
         super().__init__(**kwargs)
         self.name = name
@@ -53,10 +55,9 @@ TypeArg = collections.namedtuple('TypeArg', ('name', 'type'))
 # A Path argument with a name.
 
 class HandlerContainer(object):
-    """Value object for holding handlers to various request
+    __doc__ = """Value object for holding handlers to various request
     types with some convenience methods for value access"""
-
-    __slots__ = ('get', 'post')
+    __slots__ = 'get', 'post'
 
     def __init__(self, get=None, post=None):
         self.get = get
@@ -98,7 +99,9 @@ def handler_from_container(container, method, headers):
 
 
 class PathMap(Segment):
-    """Abstract Baseclass for path mappers"""
+    __doc__ = """Abstract Baseclass for path mappers"""
+    __slots__ = '_controller_classes',
+
     def __init__(self, **kwargs):
         super().__init__('/', **kwargs)
         # console.print_info('Utilizing PathMapType:   ' + self.__class__.__name__)
@@ -161,7 +164,9 @@ class PathMap(Segment):
 
 
 class TreePathMap(PathMap):
-    """Hashmap tree based path mapper implementation"""
+    __doc__ = """Hashmap tree based path mapper implementation"""
+    __slots__ = '_controller_classes',
+
     @staticmethod
     def parse_path(path:str):
         def _inner(segment:str):
@@ -321,7 +326,9 @@ class TreePathMap(PathMap):
 
 
 class MultiTableSegment(Segment):
-    """Special Subclass of segment used for the MultiMap path mapper"""
+    __doc__ = """Special Subclass of segment used for the MultiMap path mapper"""
+    __slots__ = 'name', 'handler', 'wildcard'
+
     def get_handler_container(self, path):
         first, *rest = path
 
@@ -430,7 +437,9 @@ class MultiTableSegment(Segment):
 
 
 class MultiTablePathMap(MultiTableSegment, PathMap):
-    """Path mapper implementation based on junction stacked hash tables"""
+    __doc__ = """Path mapper implementation based on junction stacked hash tables"""
+    __slots__ = '_controller_classes',
+
     @staticmethod
     def parse_path(path):
         """
