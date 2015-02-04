@@ -22,7 +22,7 @@ It is by no means feature complete. Pull requests, contributions and feedback ar
   * Mysql/MariaDB database, tested for >= v. 5.5
   * PostgreSQL (untested, no example config)
 * Libraries
-  * Python > v 3.4 http://python.org + python stdlib
+  * [Python >= 3.2 + python stdlib](http://python.org)
   * peewee orm
   * MySQL Connector/Python library for database connection (only if using mysql)
   * PostgreSQL driver??
@@ -34,14 +34,14 @@ It is by no means feature complete. Pull requests, contributions and feedback ar
 * Navigate to the root folder (should be `dynamic_content`)
 * Start the application by either
   * Invoking the python interpreter  
-  `python3 dyc/application/main.py`
-  You can specify the `--host` and `--port` (default 'localhost:9012') as well as the `--runlevel` (testing, debug, production)  
+  `python3 demo_app/main.py`
+  You can specify the `--host` and `--port` (default 'localhost:9012')
   Full information on the supported command line options can be found by calling the script with `-h` or `--help`
   * Starting the shellscript  
   `./start.sh`
 * Open the webpage `choosen_host:choosen_port` with the browser of your choosing, the default being `localhost:9012`
 
-You can look at and manipulate the settings at `dyc/includes/setting.py`
+You can look at and manipulate the settings at `demo_app/custom_setting.yml`
 
 
 ## Roadmap
@@ -59,6 +59,8 @@ You can look at and manipulate the settings at `dyc/includes/setting.py`
 * **Extensibility**
     * Added several decorators to allow easy use of core functionality
     * Added dynamic path mapping allow for easy addition of custom controllers
+    * Added hook system to allow plug-in code
+    * Added middleware for plug-in request handling 
 * **MISC Features**
     * Special handling for other requests like traceroute etc. &#x2718;
 * **SQLite integration** &#x2713;
