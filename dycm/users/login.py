@@ -35,7 +35,7 @@ LOGOUT_BUTTON = html.A(
     )
 
 
-class LoginHook(hooks.Hook):
+class LoginHook(hooks.ClassHook):
     """
     A Hook designed to allow custom interaction with the login process.
 
