@@ -10,3 +10,6 @@ env:
     - PYTHONPATH=./libs
 script: nosetests
 sudo: false
+os:
+  - linux
+  - osx
