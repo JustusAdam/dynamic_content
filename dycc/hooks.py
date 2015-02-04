@@ -106,8 +106,10 @@ class InstanceHook(Hook):
         self.hook_name = hook_name
         super().__init__(priority)
 
-    def init_hook(self):
-        self.manager().init_hook(self.hook_name, self.__class__)
+    def init_hook(self, expected_class=None):
+        if expected_class is None:
+            expected_class = self.__class__
+        self.manager().init_hook(self.hook_name, expected_class)
 
     def is_initialized(self):
         return self.manager().has_hook(self.hook_name)
@@ -313,8 +315,11 @@ def register(*args, **kwargs):
     return inner
 
 
-def function_hook(hook_name, priority):
+def function_hook(hook_name, priority, expected_class=FunctionHook):
     def inner(func):
-        FunctionHook(func, hook_name, priority).register_instance()
+        f = FunctionHook(func, hook_name, priority)
+        if not f.is_initialized():
+            f.init_hook(expected_class)
+        f.register_instance()
         return func
     return inner
