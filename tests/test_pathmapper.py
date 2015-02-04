@@ -102,5 +102,11 @@ class TestMapper(unittest.TestCase):
                 self.assertIs(
                     mapper.resolve(request2)[0].function, function
                 )
-                if not is_empty:
-                    self.assertRaises(MethodHandlerNotFound, mapper.resolve, request3)
+                for a in headers:
+                    assert a in h2.values()
+
+                assert set(h2.values()) >= headers
+
+                self.assertIs(
+                    mapper.resolve(request3)[0].function, function
+                )

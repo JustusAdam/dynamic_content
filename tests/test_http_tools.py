@@ -24,23 +24,34 @@ class TestHeaderConstruct(unittest.TestCase):
             self.assertIsInstance(h, headers.Header)
             self.assertEqual(h.key, 'MyKey')
             self.assertEqual(h.value, 'SomeValue')
+            hs = h.from_str(string)
+            self.assertEqual(h, hs)
+            self.assertEqual(hash(h), hash(hs))
 
         h2l = (self.many_header_string_construct(string1),
                self.any_header_string_construct(string1))
 
-        for h2 in h2l:
-            self.assertTrue(inspect.isgenerator(h2))
+        for hs in h2l:
+            self.assertTrue(inspect.isgenerator(hs))
 
-            h2 = tuple(h2)
+            hs = tuple(hs)
 
-            for i in h2:
+            for i in hs:
                 self.assertIsInstance(i, headers.Header)
 
-            self.assertEqual(h2[0].key, 'MyKey')
-            self.assertEqual(h2[0].value, 'SomeValue')
+            h1, h2 = hs
 
-            self.assertEqual(h2[1].key, 'OtherKey')
-            self.assertEqual(h2[1].value, 'AnotherValue')
+            self.assertEqual(h1.key, 'MyKey')
+            self.assertEqual(h1.value, 'SomeValue')
+            h3 = h1.from_str(str(h1))
+            self.assertEqual(h1, h3)
+            self.assertEqual(hash(h1), hash(h3))
+
+            self.assertEqual(h2.key, 'OtherKey')
+            self.assertEqual(h2.value, 'AnotherValue')
+            h3 = h2.from_str(str(h2))
+            self.assertEqual(h2, h3)
+            self.assertEqual(hash(h2), hash(h3))
 
     def test_tuple_construct(self):
         tuple1 = ('Key', 'Value')
@@ -50,6 +61,9 @@ class TestHeaderConstruct(unittest.TestCase):
         self.assertIsInstance(h, headers.Header)
         self.assertEqual(h.key, tuple1[0])
         self.assertEqual(h.value, tuple1[1])
+        h2 = h.from_str(str(h))
+        self.assertEqual(h2, h)
+        self.assertEqual(hash(h), hash(h2))
 
 
 class TestHeaderAutoConstruct(TestHeaderConstruct):

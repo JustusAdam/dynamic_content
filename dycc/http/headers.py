@@ -5,6 +5,9 @@ __version__ = '0.1'
 
 
 class Header:
+    __slots__ = (
+        'key', 'value'
+    )
     def __init__(self, key, value=None):
         self.key = key
         self.value = value
@@ -40,7 +43,10 @@ class Header:
         """
         assert isinstance(d, dict)
         for k, v in d.items():
-            yield cls(k, v)
+            if isinstance(v, cls):
+                yield v
+            else:
+                yield cls(k, v)
 
     @classmethod
     def from_tuple(cls, t):
@@ -51,7 +57,10 @@ class Header:
         """
         assert isinstance(t, (tuple, list))
         if len(t) == 2:
-            return cls(*t)
+            if isinstance(t[1], cls):
+                return t[1]
+            else:
+                return cls(*t)
         else:
             raise TypeError(
                 'tuple for header construction must have length 2, '
@@ -101,6 +110,8 @@ class Header:
                 return cls.from_tuple(t)
         else:
             return cls.many_from_tuple(t)
+
+    any_from_list = any_from_tuple
 
     @classmethod
     def auto_construct(cls, raw):
