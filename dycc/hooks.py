@@ -229,13 +229,10 @@ class HookManager:
             if not res is None: yield res
 
 
-def register(*args, priority=0, **kwargs):
+def register(*args, **kwargs):
     def inner(cls):
         if not cls.is_initialized():
             cls.init_hook()
-        cls.register_instance(
-            cls(*args, **kwargs),
-            priority
-        )
+        cls(*args, **kwargs).register_instance()
         return cls
     return inner
