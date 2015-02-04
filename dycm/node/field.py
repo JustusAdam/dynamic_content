@@ -78,7 +78,7 @@ class _Field(object):
         except:
             raise
 
-    def process_edit(self, page_id, content):
+    def process_edit_request(self, page_id, content):
         try:
             db_obj = self.from_db(page_id)
             db_obj.content = clean.remove_dangerous_tags(content)

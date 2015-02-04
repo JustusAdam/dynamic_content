@@ -129,27 +129,31 @@ class FieldBasedPageContent(object):
     def edit(self, dc_obj, page):
         return self.compile(dc_obj, page, _edit_modifier)
 
-    def process_edit(self, dc_obj, page, query):
+    def process_edit_request(self, dc_obj, page, query):
         if not dc_obj.request.client.check_permission(
-            self.get_permission(page, 'add')
+            self.get_permission(page, 'edit')
             ):
             return None
         try:
-            for one_field in self.fields:
-                one_field.process_edit(page.oid, query[one_field.name][0])
-            success = True
-            page.page_title = clean.remove_dangerous_tags(query['title'][0])
-            page.published = _publishing_flag in query
-            page.menu_item = (
-                    None if query['parent-menu'][0] == 'none'
-                    else self.get_menu(*query['parent-menu'][0].rsplit('-', 1))
-                    )
-            page.save()
+            success = self.do_edit(page, query)
         except Exception as e:
             print(e)
             success = False
 
         return ':redirect:/node/{}{}'.format(page.oid, '' if success else '/add')
+
+    def do_edit(self, page, query):
+        for one_field in self.fields:
+            one_field.process_edit_request(page.oid, query[one_field.name][0])
+        page.page_title = clean.remove_dangerous_tags(query['title'][0])
+        page.published = _publishing_flag in query
+        page.menu_item = (
+                None if query['parent-menu'][0] == 'none'
+                else self.get_menu(*query['parent-menu'][0].rsplit('-', 1))
+                )
+        page.save()
+        return True
+
 
     @wysiwyg.use()
     def add(self, dc_obj):
@@ -318,7 +322,7 @@ class CMSController(object):
     def handle_edit(self, dc_obj, page_id, post):
         page = _model.Page.get(oid=page_id)
         handler = self.compiler_map[page.content_type.machine_name]
-        return handler.process_edit(dc_obj, page, post)
+        return handler.process_edit_request(dc_obj, page, post)
 
 
     @mvc.controller_method(
