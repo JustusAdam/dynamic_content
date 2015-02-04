@@ -16,7 +16,7 @@ init_settings()
 del init_settings
 
 
-from . import includes, errors, http, dchp, middleware, application
+from . import includes, errors, http, dchp, middleware, application, route
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'

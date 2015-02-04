@@ -4,7 +4,7 @@ from http import cookies
 from dycc import http
 from dycc import hooks
 from dycc.util import html, console
-from dycc import mvc
+from dycc import route
 from dycc.middleware import csrf
 from dycm import commons, theming
 from . import session, users, decorator
@@ -119,7 +119,7 @@ class LoginCommonHandler(commons.Handler):
         return LOGIN_COMMON
 
 
-@mvc.controller_function(
+@route.controller_function(
     {'login'},
     method=http.RequestMethods.GET,
     query=False,
@@ -129,7 +129,7 @@ def login_(dc_obj):
     return login(dc_obj, None)
 
 
-@mvc.controller_function(
+@route.controller_function(
     {'login/{str}'},
     method=http.RequestMethods.GET,
     require_ssl=True,
@@ -153,7 +153,7 @@ def login(dc_obj, failed):
     return 'user_overview'
 
 
-@mvc.controller_function(
+@route.controller_function(
     'login',
     method=http.RequestMethods.POST,
     query=True
@@ -190,7 +190,7 @@ def login_post(dc_obj, query):
         return ':redirect:/login/failed'
 
 
-@mvc.controller_function(
+@route.controller_function(
     'logout',
     method=http.RequestMethods.GET,
     query=True

@@ -1,10 +1,10 @@
 import datetime
 import pathlib
-from dycc import mvc
+from dycc import route
 from dycc import http
 
 
-@mvc.controller_function('/upload', method=http.RequestMethods.post, query=['file', 'name'])
+@route.controller_function('/upload', method=http.RequestMethods.post, query=['file', 'name'])
 def upload(dc_obj, file, name):
     file, name = file[0], name[0]
     name, ext = name.rsplit('.',1)
@@ -28,13 +28,13 @@ def upload(dc_obj, file, name):
     return ':redirect:/upload'
 
 
-@mvc.controller_function('/upload', method=http.RequestMethods.get)
+@route.controller_function('/upload', method=http.RequestMethods.get)
 def upload_2(dc_obj):
     dc_obj['failed'] = False
     return 'fileupload'
 
 
-@mvc.controller_function('/upload/failed', method=http.RequestMethods.get)
+@route.controller_function('/upload/failed', method=http.RequestMethods.get)
 def upload_failed(dc_obj):
     dc_obj['failed'] = True
     return 'fileupload'

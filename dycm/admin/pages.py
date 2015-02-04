@@ -1,6 +1,6 @@
 import collections
 
-from dycc import mvc
+from dycc import route
 from dycc import http
 from dycc.util import html
 from dycm import commons, node
@@ -12,7 +12,7 @@ __author__ = 'Justus Adam'
 ADMIN_PATH = '/admin'
 
 
-@mvc.controller_function('admin', method=http.RequestMethods.GET, query=False)
+@route.controller_function('admin', method=http.RequestMethods.GET, query=False)
 @user_dec.authorize('access admin pages')
 @node.make_node()
 def overview(dc_obj):
@@ -84,7 +84,7 @@ class OverviewCommon(commons.Handler):
         return ''.join(subcategories)
 
 
-@mvc.controller_function(
+@route.controller_function(
     'admin/{str}',
     method=http.RequestMethods.GET,
     query=False
@@ -110,7 +110,7 @@ def category(dc_obj, name):
     return new_node
 
 
-@mvc.controller_function(
+@route.controller_function(
     'admin/{str}/{str}',
     method=http.RequestMethods.GET,
     query=False
@@ -146,7 +146,7 @@ def subcategory(dc_obj, category_name,  name):
     return new_node
 
 
-@mvc.controller_function(
+@route.controller_function(
     'admin/{str}/{str}/{str}',
     method=http.RequestMethods.GET,
     query=False

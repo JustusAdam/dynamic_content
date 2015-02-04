@@ -1,10 +1,5 @@
 from .config import Config, DefaultConfig
-from . import _pathmapper, context, formatter
-from .decorator import (controller_function,
-    controller_method, controller_class)
-
-
-del _pathmapper
+from . import context
 
 
 __author__ = 'Justus Adam'

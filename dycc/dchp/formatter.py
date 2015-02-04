@@ -3,7 +3,7 @@ import sys
 
 from dycc.http import response
 from .. import Component
-from dycc import dchp
+from . import evaluator
 from dycc.includes import settings
 
 
@@ -78,7 +78,7 @@ class TemplateFormatter(object):
             else:
                 raise IOError(view_name)
 
-            document = str(dchp.evaluator.evaluate_html(string, pairing))
+            document = str(evaluator.evaluate_html(string, pairing))
             document = document.encode(encoding)
 
         return response.Response(

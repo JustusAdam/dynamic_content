@@ -1,4 +1,4 @@
-from dycc.mvc import decorator as mvc_decorator
+from dycc import route
 from dycc.util import html
 from dycm import i18n
 from dycc.middleware import csrf
@@ -7,9 +7,9 @@ from . import model as _model, menus as _menus, decorator
 __author__ = 'Justus Adam'
 
 
-@mvc_decorator.controller_class
+@route.controller_class
 class MenuAdminController:
-    @mvc_decorator.controller_method('menus')
+    @route.controller_method('menus')
     @decorator.Regions
     def handle_menus(self, dc_obj, url):
         if len(url.path) == 1:

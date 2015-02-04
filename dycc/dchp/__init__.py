@@ -1,4 +1,4 @@
-"""
+__doc__ = """
 DcHP - the dynamic_content hypertext preprocessor
 
 Is a special html parser that finds <?dchp ?> blocks in your html file and
@@ -25,7 +25,7 @@ some special properties:
 """
 
 
-from . import parser, evaluator
+from . import parser, evaluator, formatter
 
 
 __author__ = 'Justus Adam'

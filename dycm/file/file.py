@@ -8,7 +8,7 @@ from urllib import parse
 import mimetypes
 from dycc import http
 import dycc
-from dycc import mvc
+from dycc import route
 from dycc.includes import settings
 from dycc.util import html, structures
 from dycc.http import response
@@ -78,11 +78,9 @@ def serve_from(request, file, basedir):
             )
 
 
-
-
-@mvc.controller_class
+@route.controller_class
 class PathHandler(middleware.Handler):
-    @mvc.controller_method({'theme/**', 'public/**', '/**'}, method=http.RequestMethods.GET)
+    @route.controller_method({'theme/**', 'public/**', '/**'}, method=http.RequestMethods.GET)
     def handle(self, dc_obj, path):
         return self.parse_path(dc_obj, path)
 

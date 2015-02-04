@@ -1,7 +1,7 @@
 import re
 import itertools
 
-from dycc import mvc
+from dycc import route
 from dycc import http
 from dycc.util import html
 from dycc.middleware import csrf
@@ -64,7 +64,7 @@ def user_form(**values):
         yield html.Label(display_name, label_for=name), html.Input(name=name, **kwargs)
 
 
-@mvc.controller_function('users/new', method=http.RequestMethods.GET, query=False)
+@route.controller_function('users/new', method=http.RequestMethods.GET, query=False)
 @decorator.authorize('edit user accounts')
 @theming.theme(default_theme='admin_theme')
 def create_user_form(dc_obj):
@@ -78,7 +78,7 @@ def create_user_form(dc_obj):
     return 'user_overview'
 
 
-@mvc.controller_function('users/new', method=http.RequestMethods.POST, query=True)
+@route.controller_function('users/new', method=http.RequestMethods.POST, query=True)
 @decorator.authorize('edit user accounts')
 def create_user_action(dc_obj, post):
     if 'password' in post:
@@ -99,7 +99,7 @@ post_to_args = lambda post: {
     }
 
 
-@mvc.controller_function(
+@route.controller_function(
     'users/{int}/edit',
     method=http.RequestMethods.POST,
     query=True
@@ -111,7 +111,7 @@ def edit_user_action(model, uid, post):
     return ':redirect:/'
 
 
-@mvc.controller_function(
+@route.controller_function(
     'users/{int}/edit',
     method=http.RequestMethods.GET,
     query=False
@@ -187,7 +187,7 @@ def permission_table(checkbox):
         )
 
 
-@mvc.controller_function(
+@route.controller_function(
     'users/permissions',
     method=http.RequestMethods.GET,
     query=False
@@ -212,7 +212,7 @@ def permission_overview(dc_obj):
 permission_structure = re.compile('^(\d)+-([0-9a-zA-Z_-]+)$')
 
 
-@mvc.controller_function(
+@route.controller_function(
     'users/permissions/edit',
     method=http.RequestMethods.GET,
     query=False
@@ -230,7 +230,7 @@ def edit_permissions(dc_obj):
     return 'user_overview'
 
 
-@mvc.controller_function(
+@route.controller_function(
     'users/permissions/edit',
     method=http.RequestMethods.POST,
     query=True

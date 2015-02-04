@@ -3,7 +3,7 @@ import functools
 
 import dycc
 from dycc import http
-from dycc import mvc
+from dycc import route
 from dycc.util import lazy, html, clean
 from dycm import wysiwyg
 from dycm.commons import menus as _menus, model as commonsmodel
@@ -296,14 +296,14 @@ class FieldBasedPageContent(object):
         )
 
 
-@mvc.controller_class
+@route.controller_class
 class CMSController(object):
 
     @dycc.inject_method('CMSCompilers')
     def __init__(self, compiler_map):
         self.compiler_map = compiler_map
 
-    @mvc.controller_method(
+    @route.controller_method(
         {'/node/{int}', 'node/{int}/access'},
         method=http.RequestMethods.GET,
         query=False
@@ -314,7 +314,7 @@ class CMSController(object):
         return self.compiler_map[page.content_type].access(dc_obj, page)
 
 
-    @mvc.controller_method(
+    @route.controller_method(
         '/node/{int}/edit',
         method=http.RequestMethods.POST,
         query=True
@@ -325,7 +325,7 @@ class CMSController(object):
         return handler.process_edit_request(dc_obj, page, post)
 
 
-    @mvc.controller_method(
+    @route.controller_method(
         '/node/{int}/edit',
         method=http.RequestMethods.GET,
         query=False
@@ -337,7 +337,7 @@ class CMSController(object):
         return handler.edit(dc_obj, page)
 
 
-    @mvc.controller_method(
+    @route.controller_method(
         '/node',
         method=http.RequestMethods.GET,
         query=True
@@ -361,7 +361,7 @@ class CMSController(object):
             node['title'] = html.A('/node/{}'.format(a.oid), node['title'])
             yield node
 
-    @mvc.controller_method(
+    @route.controller_method(
         '/node/add/{str}',
         method=http.RequestMethods.GET,
         query=False
@@ -371,7 +371,7 @@ class CMSController(object):
         handler = self.compiler_map[content_type]
         return handler.add(dc_obj)
 
-    @mvc.controller_method(
+    @route.controller_method(
         '/node/add/{str}',
         method=http.RequestMethods.POST,
         query=True

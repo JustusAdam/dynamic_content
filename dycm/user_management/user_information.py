@@ -1,4 +1,4 @@
-from dycc import mvc
+from dycc import route
 from dycc import http
 from dycc.util import html
 from dycm import theming, commons
@@ -43,7 +43,7 @@ class UserInformationCommon(commons.Handler):
         return users.get_user(user).date_created
 
 
-@mvc.controller_function(
+@route.controller_function(
     'users/{int}', method=http.RequestMethods.GET,
     query=False
     )
@@ -74,7 +74,7 @@ def user_information(dc_obj, uid):
     return 'user_overview'
 
 
-@mvc.controller_function('users', method=http.RequestMethods.GET, query=True)
+@route.controller_function('users', method=http.RequestMethods.GET, query=True)
 @decorator.authorize('access users overview')
 @theming.theme(default_theme='admin_theme')
 def users_overview(dc_obj, get_query):

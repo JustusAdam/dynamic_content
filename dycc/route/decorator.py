@@ -32,7 +32,7 @@ import functools
 
 from .. import _component
 from dycc import http
-from .context import apply_to_context
+from dycc.mvc import context
 from dycc.util import rest
 import inspect
 
@@ -163,6 +163,6 @@ rest_controller_function = functools.partial(_controller_function, RestControlFu
 rest_controller_method = functools.partial(_controller_method, RestControlFunction)
 
 
-@apply_to_context(return_from_decorator=True, with_return=True)
+@context.apply_to_context(return_from_decorator=True, with_return=True)
 def json_return(context, res):
     return rest.json_response(res, context)

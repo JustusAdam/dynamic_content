@@ -1,6 +1,6 @@
 import unittest
 import dycc
-from dycc import mvc
+from dycc import route
 from dycc.util import structures
 from dycc import http
 
@@ -21,7 +21,7 @@ class TestDecorator(unittest.TestCase):
             handler_options={}
         )
 
-        @mvc.controller_function(prefix1, method=http.RequestMethods.GET, query=True)
+        @route.controller_function(prefix1, method=http.RequestMethods.GET, query=True)
         def handle(model, arg, get):
             return model, arg, get
 
