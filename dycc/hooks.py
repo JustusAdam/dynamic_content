@@ -1,5 +1,6 @@
 from . import Component, get_component
 import collections
+import inspect
 from dycc.errors import exceptions
 from .util import console
 
@@ -12,7 +13,14 @@ HookList = collections.namedtuple('HookList', ('hooks', 'expected_class'))
 
 
 class Hook:
+    __doc__ = """
+    """
+    __slots__ = 'priority',
+
     hook_name = ''
+
+    def __init__(self, priority=0):
+        self.priority = priority
 
     @classmethod
     def init_hook(cls):
@@ -24,10 +32,10 @@ class Hook:
 
     @classmethod
     def register_class(cls, priority=0):
-        cls().register_instance(priority)
+        cls(priority).register_instance()
 
-    def register_instance(self, priority=0):
-        HookManager.manager().register(self.hook_name, self, priority)
+    def register_instance(self):
+        HookManager.manager().register(self.hook_name, self)
 
     @staticmethod
     def manager():
@@ -90,19 +98,18 @@ class HookManager:
         :param expected_class:
         :return:
         """
-        assert isinstance(expected_class, type)
+        assert issubclass(expected_class, Hook)
         assert hook
         if hook in self._hooks:
             raise exceptions.HookExists(hook)
         self._hooks[hook] = HookList(hooks=[], expected_class=expected_class)
 
-    def register(self, hook, handler, priority=0):
+    def register(self, hook, handler):
         """
         Register a new handler with the named hook
 
         :param hook: name of the hook to register for
         :param handler: handler object/function
-        :param priority: where to place it in the list
         :return: None
         """
         if not hook in self._hooks:
@@ -110,7 +117,7 @@ class HookManager:
                 'Assigning to uninitialized hook {}, '
                 'assuming type {}'.format(hook, type(handler))
             )
-            self._hooks[hook] = HookList(hooks=[], expected_class=type(handler))
+            self.init_hook(hook, type(handler))
         container = self._hooks[hook]
         if not isinstance(handler, container.expected_class):
             raise TypeError(
@@ -118,6 +125,7 @@ class HookManager:
                 'got {}'.format(container.expected_class, hook, type(handler))
             )
         container.hooks.append(handler)
+        container.hooks.sort(key=lambda a: a.priority, reverse=True)
 
     def has_hook(self, hook):
         return hook in self._hooks
@@ -155,6 +163,7 @@ class HookManager:
         :param kwargs: kwargs to call hook with
         :return: None
         """
+        assert callable(executable)
         for h in self.get_hooks(hook):
             executable(h, *args, **kwargs)
 

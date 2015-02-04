@@ -5,9 +5,8 @@ __version__ = '0.1'
 
 
 class Header:
-    __slots__ = (
-        'key', 'value'
-    )
+    __slots__ = 'key', 'value'
+
     def __init__(self, key, value=None):
         self.key = key
         self.value = value
