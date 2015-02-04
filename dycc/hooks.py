@@ -138,7 +138,11 @@ class FunctionHook(InstanceHook):
     __slots__ = 'function',
 
     def __init__(self, function, hook_name, priority):
-        super().__init__(hook_name)
+        super().__init__(hook_name, priority)
+        self.function = function
+
+    def __call__(self, *args, **kwargs):
+        return self.function(*args, **kwargs)
 
 
 @Component('HookManager')
@@ -306,4 +310,11 @@ def register(*args, **kwargs):
             cls.init_hook()
         cls(*args, **kwargs).register_instance()
         return cls
+    return inner
+
+
+def function_hook(hook_name, priority):
+    def inner(func):
+        FunctionHook(func, hook_name, priority).register_instance()
+        return func
     return inner
