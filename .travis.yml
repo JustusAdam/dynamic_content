@@ -6,9 +6,7 @@ python:
     - "pypy3"
 install:
     - mkdir libs
-    - pip install --target libs --upgrade -r requirements.txt
-env:
-    - PYTHONPATH=./libs
+    - pip install --upgrade -r requirements.txt
 script: nosetests
 sudo: false
 os:
