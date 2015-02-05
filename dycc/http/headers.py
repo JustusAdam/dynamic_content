@@ -20,9 +20,9 @@ class Header:
     @classmethod
     def many_from_str(cls, string:str):
         assert isinstance(string, str)
-        l = string.split('\n')
-        for i in l:
-            yield cls.from_str(i)
+        for i in string.split('\r\n'):
+            for s in i.split('\n'):
+                yield cls.from_str(s)
 
     @classmethod
     def any_from_str(cls, string:str):
