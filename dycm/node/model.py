@@ -7,6 +7,8 @@ from dycm.commons import model as commonsmodel
 
 
 __author__ = 'Justus Adam'
+__version__ = '0.1'
+
 
 class ContentType(orm.BaseModel):
     machine_name = orm.CharField(unique=True)
