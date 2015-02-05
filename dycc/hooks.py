@@ -189,6 +189,19 @@ class FunctionHook(InstanceHook):
     def __call__(self, *args, **kwargs):
         return self.function(*args, **kwargs)
 
+    @classmethod
+    def make(cls, hook_name, priority, expected_class=None):
+        if expected_class is None:
+            expected_class = cls
+        assert issubclass(cls, expected_class)
+        def inner(func):
+            f = cls(func, hook_name, priority)
+            if not f.is_initialized():
+                f.init_hook(expected_class)
+            f.register_instance()
+            return func
+        return inner
+
 
 @Component('HookManager')
 class HookManager:
@@ -353,14 +366,4 @@ def register(*args, **kwargs):
             cls.init_hook()
         cls(*args, **kwargs).register_instance()
         return cls
-    return inner
-
-
-def function_hook(hook_name, priority, expected_class=FunctionHook):
-    def inner(func):
-        f = FunctionHook(func, hook_name, priority)
-        if not f.is_initialized():
-            f.init_hook(expected_class)
-        f.register_instance()
-        return func
     return inner
