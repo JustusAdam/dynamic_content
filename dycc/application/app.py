@@ -3,8 +3,6 @@ import functools
 import threading
 import traceback
 from http import server
-
-from dycc.backend import orm
 import dycc
 from dycc.includes import settings, log
 
@@ -111,6 +109,7 @@ class Application(threading.Thread, lazy.Loadable):
         return [response.body if response.body else ''.encode('utf-8')]
 
     def run_wsgi_server_loop(self):
+        from dycc.backend import orm
         if (hasattr(orm.database_proxy, 'database')
             and orm.database_proxy.database == ':memory:'):
             if settings['https_enabled']:
@@ -170,6 +169,7 @@ class Application(threading.Thread, lazy.Loadable):
         httpsd.serve_forever()
 
     def run_http_server_loop(self):
+        from dycc.backend import orm
         if (hasattr(orm.database_proxy, 'database')
             and orm.database_proxy.database == ':memory:'):
             if settings['https_enabled']:
