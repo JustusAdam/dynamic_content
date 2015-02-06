@@ -169,7 +169,7 @@ class InstanceHook(Hook):
         return self.manager().yield_call_hooks_with(self.hook_name, executable, *args, **kwargs)
 
 
-class FunctionHook(InstanceHook):
+class FunctionHook(Hook):
     __doc__ = """
     Special subclass of InstanceHook.
 
@@ -182,12 +182,15 @@ class FunctionHook(InstanceHook):
     """
     __slots__ = 'function',
 
-    def __init__(self, function, hook_name, priority=0):
-        super().__init__(hook_name, priority)
+    def __init__(self, function, priority=0):
+        super().__init__(priority)
         self.function = function
 
     def __call__(self, *args, **kwargs):
         return self.function(*args, **kwargs)
+
+    def init_hook(self, expected_class=None):
+        self.manager().init_hook(self.hook_name, expected_class)
 
     @classmethod
     def make(cls, hook_name, priority, expected_class=None):
@@ -201,6 +204,10 @@ class FunctionHook(InstanceHook):
             f.register_instance()
             return func
         return inner
+
+
+class FormHook(FunctionHook):
+     pass
 
 
 @Component('HookManager')

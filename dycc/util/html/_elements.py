@@ -40,7 +40,11 @@ class BaseElement:
         return str(self) + str(other)
 
     def render_head(self):
-        return transform.to_html_head(self.html_type, self._value_params, self._params)
+        return transform.to_html_head(
+            self.html_type,
+            self._value_params,
+            self._params
+        )
 
     def render(self):
         return '<' + self.render_head() + '>'
@@ -53,7 +57,13 @@ class BaseElement:
 
 
 class BaseClassIdElement(BaseElement):
-    def __init__(self, html_type, classes:set=None, element_id:str=None, additional:dict=None):
+    def __init__(
+        self,
+        html_type,
+        classes:set=None,
+        element_id:str=None,
+        additional:dict=None
+    ):
         super().__init__(html_type, additional)
         self._value_params['class'] = classes
         self._value_params['id'] = element_id
@@ -75,12 +85,29 @@ class BaseClassIdElement(BaseElement):
         self._value_params['id'] = val
 
 
-class Div(BaseClassIdElement):
+class ContainerElement(list, BaseClassIdElement):
     _list_replacement = None
 
-    def __init__(self, *content, html_type='div', classes:set=None, element_id:str=None, additional:dict=None):
-        super().__init__(html_type, classes, element_id, additional)
-        self.content = content
+    def __init__(
+        self,
+        *content,
+        html_type='div',
+        classes:set=None,
+        element_id:str=None,
+        additional:dict=None
+    ):
+        super().__init__(content)
+        BaseClassIdElement.__init__(
+            self,
+            html_type,
+            classes,
+            element_id,
+            additional
+        )
+
+    @property
+    def content(self):
+        return self
 
     def __bool__(self):
         return bool(self.content)
@@ -92,19 +119,6 @@ class Div(BaseClassIdElement):
         else:
             return ContainerElement
 
-    @property
-    def content(self):
-        return self._content
-
-    @content.setter
-    def content(self, value):
-        if isinstance(value, str):
-            self._content = [value]
-        elif hasattr(value, '__iter__'):
-            self._content = list(self.ensure_type(v) for v in value)
-        else:
-            self._content = value
-
     def ensure_type(self, value):
         if isinstance(value, (list, tuple)):
             return self.list_replacement(*value)
@@ -112,7 +126,7 @@ class Div(BaseClassIdElement):
             return value
 
     def render_content(self):
-        return ''.join(str(a) for a in self._content)
+        return ''.join(str(a) for a in self)
 
     def render(self):
         return '<' + self.render_head() + '>' + self.render_content() + '</' + self.html_type + '>'
@@ -132,7 +146,9 @@ class Div(BaseClassIdElement):
         yield '</' + self.html_type + '>'
 
 
-ContainerElement = Div
+Div = functools.partial(ContainerElement, html_type='div')
+
+Span = functools.partial(ContainerElement, html_type='span')
 
 
 class AbstractList(ContainerElement):
@@ -142,13 +158,8 @@ class AbstractList(ContainerElement):
     def subtype_wrapper(self, *args, **kwargs):
         return ContainerElement(*args, html_type=self._subtypes[0], **kwargs)
 
-    @property
-    def content(self):
-        return self._content
-
-    @content.setter
-    def content(self, val):
-        self._content = list(self.ensure_subtype(v) for v in val)
+    def render_content(self):
+        return ''.join(str(self.ensure_subtype(a)) for a in self)
 
     def ensure_subtype(self, value):
         if isinstance(value, str):
@@ -157,7 +168,8 @@ class AbstractList(ContainerElement):
                 return value
             else:
                 return self.subtype_wrapper(value)
-        elif isinstance(value, BaseElement) and value.html_type in self._subtypes:
+        elif (isinstance(value, BaseElement)
+              and value.html_type in self._subtypes):
             return value
         elif isinstance(value, (list, tuple)):
             return self.subtype_wrapper(*value)
@@ -166,8 +178,21 @@ class AbstractList(ContainerElement):
 
 
 class A(ContainerElement):
-    def __init__(self, href, *content, classes:set=None, element_id:str=None, additional:dict=None):
-        super().__init__(*content, html_type='a', classes=classes, element_id=element_id, additional=additional)
+    def __init__(
+        self,
+        href,
+        *content,
+        classes:set=None,
+        element_id:str=None,
+        additional:dict=None
+    ):
+        super().__init__(
+            *content,
+            html_type='a',
+            classes=classes,
+            element_id=element_id,
+            additional=additional
+        )
         self._value_params['href'] = href
 
 
@@ -176,10 +201,25 @@ class HTMLPage(ContainerElement):
     _metatags = None
     _scripts = None
 
-    def __init__(self, title, *content, classes:set=None, element_id:str=None, additional:dict=None, metatags:set=None,
-                 stylesheets:set=None, scripts:set=None):
-        super().__init__(title, *content, html_type='html', classes=classes, element_id=element_id,
-                         additional=additional)
+    def __init__(
+        self,
+        title,
+        *content,
+        classes:set=None,
+        element_id:str=None,
+        additional:dict=None,
+        metatags:set=None,
+        stylesheets:set=None,
+        scripts:set=None
+    ):
+        super().__init__(
+            title,
+            *content,
+            html_type='html',
+            classes=classes,
+            element_id=element_id,
+            additional=additional
+        )
         self.stylesheets = stylesheets
         self.metatags = metatags
         self.scripts = scripts
@@ -227,11 +267,17 @@ class HTMLPage(ContainerElement):
         self._stylesheets |= other.stylesheets
         self._metatags |= other.metatags
         self._scripts |= other.scripts
-        self.content += other.content
+        self.extend(other)
 
 
 class LinkElement(BaseElement):
-    def __init__(self, href, rel, element_type:str=None, additional:dict=None):
+    def __init__(
+        self,
+        href,
+        rel,
+        element_type:str=None,
+        additional:dict=None
+    ):
         super().__init__('link', additional)
         self._value_params['rel'] = rel
         self._value_params['href'] = href
@@ -239,7 +285,14 @@ class LinkElement(BaseElement):
 
 
 class Stylesheet(BaseElement):
-    def __init__(self, href, media='all', typedec='text/css', rel='stylesheet', additional:dict=None):
+    def __init__(
+        self,
+        href,
+        media='all',
+        typedec='text/css',
+        rel='stylesheet',
+        additional:dict=None
+    ):
         super().__init__('link', additional)
         self._value_params['href'] = href
         self._value_params['media'] = media
@@ -248,18 +301,42 @@ class Stylesheet(BaseElement):
 
 
 class Script(ContainerElement):
-    def __init__(self, *content, src:str=None, prop_type='text/javascript', additional:dict=None):
-        super().__init__(*content, html_type='script', additional=additional)
+    def __init__(
+        self,
+        *content,
+        src:str=None,
+        prop_type='text/javascript',
+        additional:dict=None
+    ):
+        super().__init__(
+            *content,
+            html_type='script',
+            additional=additional
+        )
         self._value_params['type'] = prop_type
         self._value_params['src'] = src
 
 
 class List(AbstractList):
-    def __init__(self, *content, list_type='ul', classes:set=None, element_id:str=None, additional:dict=None,
-                 item_classes:set=None, item_additional_properties:dict=None):
+    def __init__(
+        self,
+        *content,
+        list_type='ul',
+        classes:set=None,
+        element_id:str=None,
+        additional:dict=None,
+        item_classes:set=None,
+        item_additional_properties:dict=None
+    ):
         self.item_classes = item_classes
         self.item_additionals = item_additional_properties
-        super().__init__(*content, html_type=list_type, classes=classes, element_id=element_id, additional=additional)
+        super().__init__(
+            *content,
+            html_type=list_type,
+            classes=classes,
+            element_id=element_id,
+            additional=additional
+        )
 
     def ensure_subtype(self, value):
         if isinstance(value, BaseClassIdElement) and value.html_type in self._subtypes:
@@ -277,10 +354,26 @@ class List(AbstractList):
 class Select(AbstractList):
     _subtypes = ['option']
 
-    def __init__(self, *content, classes:set=None, element_id:str=None, additional:dict=None, form:str=None,
-                 required:bool=False, disabled=False, name:str=None, selected:str=None):
+    def __init__(
+        self,
+        *content,
+        classes:set=None,
+        element_id:str=None,
+        additional:dict=None,
+        form:str=None,
+        required:bool=False,
+        disabled=False,
+        name:str=None,
+        selected:str=None
+    ):
         self.selected = selected
-        super().__init__(*content, html_type='select', classes=classes, element_id=element_id, additional=additional)
+        super().__init__(
+            *content,
+            html_type='select',
+            classes=classes,
+            element_id=element_id,
+            additional=additional
+        )
         self._value_params['form'] = form
         self._value_params['name'] = name
         if required:
@@ -293,7 +386,12 @@ class Select(AbstractList):
 
 
 class Option(ContainerElement):
-    def __init__(self, *content, selected=False, value:str=None):
+    def __init__(
+        self,
+        *content,
+        selected=False,
+        value:str=None
+    ):
         super().__init__(*content, html_type='option')
         self._value_params['value'] = value
         self.selected = selected
@@ -306,22 +404,34 @@ class Option(ContainerElement):
 
 
 class TableElement(ContainerElement):
-    def __init__(self, *content, classes:set=None, element_id:str=None, additional:dict=None, table_head=False):
+    def __init__(
+        self,
+        *content,
+        classes:set=None,
+        element_id:str=None,
+        additional:dict=None,
+        table_head=False
+    ):
         self.table_head = table_head
-        super().__init__(*content, html_type='table', classes=classes, element_id=element_id, additional=additional)
+        super().__init__(
+            *content,
+            html_type='table',
+            classes=classes,
+            element_id=element_id,
+            additional=additional
+        )
 
-    @property
-    def content(self):
-        return self._content
+    def render_content(self):
+        def compile_c():
+            if self.table_head:
+                yield self.ensure_th(self[0])
+                iterable = self[1:]
+            else:
+                iterable = self
+            for row in iterable:
+                yield self.ensure_tr(row)
 
-    @content.setter
-    def content(self, value):
-        if isinstance(value, str):
-            self._content = value
-        elif self.table_head:
-            self._content = [self.ensure_th(value[0])] + [self.ensure_tr(row) for row in value[1:]]
-        else:
-            self._content = [self.ensure_tr(row) for row in value]
+        return ''.join(compile_c())
 
     @staticmethod
     def ensure_tr(row):
@@ -340,20 +450,25 @@ class TableElement(ContainerElement):
         return str(TableHead(row))
 
 
-class TableRow(ContainerElement):
-    def __init__(self, *content, classes:set=None, element_id:str=None, additional:dict=None):
-        super().__init__(*content, html_type='tr', classes=classes, element_id=element_id, additional=additional)
+class AbstractTableRow(ContainerElement):
+    def __init__(
+        self,
+        html_type,
+        *content,
+        classes:set=None,
+        element_id:str=None,
+        additional:dict=None
+    ):
+        super().__init__(
+            *content,
+            html_type=html_type,
+            classes=classes,
+            element_id=element_id,
+            additional=additional
+        )
 
-    @property
-    def content(self):
-        return self._content
-
-    @content.setter
-    def content(self, value):
-        if isinstance(value, str):
-            self._content = value
-        else:
-            self._content = [self.ensure_td(row) for row in value]
+    def render_content(self):
+        return ''.join(str(self.ensure_td(row)) for row in self)
 
     @staticmethod
     def ensure_td(row):
@@ -365,15 +480,11 @@ class TableRow(ContainerElement):
             return TableData(row)
 
 
-class TableHead(TableRow):
-    def __init__(self, *content, classes:set=None, element_id:str=None, additional:dict=None):
-        super().__init__(*content, classes=classes, element_id=element_id, additional=additional)
-        self.html_type = 'th'
+TableHead = functools.partial(AbstractTableRow, html_type='th')
 
+TableRow = functools.partial(AbstractTableRow, html_type='tr')
 
-class TableData(ContainerElement):
-    def __init__(self, *content, classes:set=None, element_id:str=None, additional:dict=None):
-        super().__init__(*content, html_type='td', classes=classes, element_id=element_id, additional=additional)
+TableData = functools.partial(ContainerElement, html_type='td')
 
 
 class Input(BaseClassIdElement):
@@ -392,38 +503,80 @@ class Input(BaseClassIdElement):
 
 
 class TextInput(Input):
-    def __init__(self, classes:set=None, element_id:str=None, name:str=None, form:str=None,
-                 value:str=None, size:int=60, required=False, additional:dict=None):
-        super().__init__(classes=classes, element_id=element_id, input_type='text', name=name, form=form,
-                         value=value, required=required, additional=additional)
+    def __init__(
+        self,
+        classes:set=None,
+        element_id:str=None,
+        name:str=None,
+        form:str=None,
+        value:str=None,
+        size:int=60,
+        required=False,
+        additional:dict=None
+    ):
+        super().__init__(
+            classes=classes,
+            element_id=element_id,
+            input_type='text',
+            name=name,
+            form=form,
+            value=value,
+            required=required,
+            additional=additional
+        )
         self._value_params['size'] = size
 
 
-class Radio(Input):
-    def __init__(self, classes:set=None, element_id:str=None, name:str=None, form:str=None, value:str=None,
-                 required=False, checked=False, additional:dict=None):
-        super().__init__(classes=classes, element_id=element_id, input_type='radio', name=name, form=form,
-                         value=value,
-                         required=required, additional=additional)
+class AbstractCheckable(Input):
+    def __init__(
+        self,
+        input_type,
+        classes:set=None,
+        element_id:str=None,
+        name:str=None,
+        form:str=None,
+        value:str=None,
+        required=False,
+        checked=False,
+        additional:dict=None
+    ):
+        super().__init__(
+            classes=classes,
+            element_id=element_id,
+            input_type=input_type,
+            name=name,
+            form=form,
+            value=value,
+            required=required,
+            additional=additional
+        )
         if checked:
             self._value_params['checked'] = 'checked'
 
 
-class Checkbox(Input):
-    def __init__(self, classes:set=None, element_id:str=None, name:str=None, form:str=None, value:str=None,
-                 required=False, checked=False, additional:dict=None):
-        super().__init__(classes=classes, element_id=element_id, input_type='checkbox', name=name, form=form,
-                         value=value,
-                         required=required, additional=additional)
-        if checked:
-            self._value_params['checked'] = 'checked'
+Radio = functools.partial(AbstractCheckable, input_type='radio')
+Checkbox = functools.partial(AbstractCheckable, input_type='checkbox')
 
 
 class Textarea(ContainerElement):
-    def __init__(self, *content, classes:set=None, element_id:str=None, name:str=None, form:str=None, required=False,
-                 rows=0, cols=0, additional:dict=None):
-        super().__init__(*content, html_type='textarea', classes=classes, element_id=element_id,
-                         additional=additional)
+    def __init__(
+        self,
+        *content,
+        classes:set=None,
+        element_id:str=None,
+        name:str=None,
+        form:str=None,
+        required=False,
+        rows=0,
+        cols=0,
+        additional:dict=None
+    ):
+        super().__init__(
+            *content,
+            html_type='textarea',
+            classes=classes,
+            element_id=element_id,
+            additional=additional)
         self._value_params['name'] = name
         self._value_params['form'] = form
         self._value_params['rows'] = rows
@@ -433,22 +586,64 @@ class Textarea(ContainerElement):
 
 
 class Label(ContainerElement):
-    def __init__(self, *content, label_for:str=None, classes:set=None, element_id:str=None, additional:dict=None):
-        super().__init__(*content, html_type='label', classes=classes, element_id=element_id, additional=additional)
+    def __init__(
+        self,
+        *content,
+        label_for:str=None,
+        classes:set=None,
+        element_id:str=None,
+        additional:dict=None
+    ):
+        super().__init__(
+            *content,
+            html_type='label',
+            classes=classes,
+            element_id=element_id,
+            additional=additional
+        )
         self._value_params['label'] = label_for
 
 
-class SubmitButton(Input):
-    def __init__(self, value='Submit', classes:set=None, element_id:str=None, name:str=None, form:str=None,
-                 additional:dict=None):
-        super().__init__(value=value, classes=classes, element_id=element_id, name=name, input_type='submit', form=form,
-                         additional=additional)
+
+def SubmitButton(
+    value='Submit',
+    classes:set=None,
+    element_id:str=None,
+    name:str=None,
+    form:str=None,
+    additional:dict=None
+):
+    return Input(
+        value=value,
+        classes=classes,
+        element_id=element_id,
+        name=name,
+        input_type='submit',
+        form=form,
+        additional=additional
+    )
 
 
 class FormElement(ContainerElement):
-    def __init__(self, *content, action='<?dchp echo(request.url) ?>', classes:set=None, element_id:str=None, method='post', charset='UTF-8',
-                 submit=SubmitButton(), target:str=None, additional:dict=None):
-        super().__init__(*content, html_type='form', classes=classes, element_id=element_id, additional=additional)
+    def __init__(
+        self,
+        *content,
+        action='<?dchp echo(request.url) ?>',
+        classes:set=None,
+        element_id:str=None,
+        method='post',
+        charset='UTF-8',
+        submit=SubmitButton(),
+        target:str=None,
+        additional:dict=None
+    ):
+        super().__init__(
+            *content,
+            html_type='form',
+            classes=classes,
+            element_id=element_id,
+            additional=additional
+        )
         self._value_params['method'] = method
         self._value_params['charset'] = charset
         self._value_params['target'] = target
@@ -480,9 +675,9 @@ class Elements(dict):
 # TODO add all elements
 elements = Elements(
     a=functools.partial(A, '/'),
-    span=functools.partial(ContainerElement, html_type='span'),
-    div=functools.partial(ContainerElement, html_type='div'),
-    html=functools.partial(ContainerElement, html_type='html'),
+    span=Span,
+    div=Div,
+    html=HTMLPage,
     head=functools.partial(ContainerElement, html_type='head'),
     body=functools.partial(ContainerElement, html_type='body'),
     form=FormElement,
