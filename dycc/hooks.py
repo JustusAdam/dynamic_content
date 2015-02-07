@@ -8,7 +8,32 @@ __version__ = '0.1'
 
 
 HookFunc = collections.namedtuple('HookFunc', ('func', 'priority', 'class_'))
-HookList = collections.namedtuple('HookList', ('hooks', 'expected_class'))
+
+
+
+class HookList(list):
+    __slots__ = ('hooks', 'expected_class', 'name')
+
+    def __init__(self, name, *hooks, expected_class=Hook):
+        super().__init__(*hooks)
+        self.name = name
+        self.expected_class = expected_class
+
+    def append(self, p_object):
+        if not isinstance(p_object, self.expected_class):
+            raise TypeError(
+                'Expected instance of {} for hook handler for hook {}, '
+                'got {}'.format(self.expected_class, self.name, type(p_object))
+            )
+        super().append(p_object)
+        self._sort()
+
+    def _sort(self):
+        self.sort(key=lambda a: a.priority, reverse=True)
+
+    def extend(self, iterable):
+        super().extend(iterable)
+        self._sort()
 
 
 class Hook:
@@ -240,7 +265,7 @@ class HookManager:
         assert hook
         if hook in self._hooks:
             raise exceptions.HookExists(hook)
-        self._hooks[hook] = HookList(hooks=[], expected_class=expected_class)
+        self._hooks[hook] = HookList(hook, expected_class=expected_class)
 
     def register(self, hook, handler):
         """
@@ -257,13 +282,7 @@ class HookManager:
             )
             self.init_hook(hook, type(handler))
         container = self._hooks[hook]
-        if not isinstance(handler, container.expected_class):
-            raise TypeError(
-                'Expected instance of {} for hook handler for hook {}, '
-                'got {}'.format(container.expected_class, hook, type(handler))
-            )
-        container.hooks.append(handler)
-        container.hooks.sort(key=lambda a: a.priority, reverse=True)
+        container.append(handler)
 
     def has_hook(self, hook):
         return hook in self._hooks
@@ -277,7 +296,7 @@ class HookManager:
         """
         if not self.has_hook(hook):
             raise exceptions.HookNotInitialized(hook)
-        return self._hooks[hook].hooks
+        return self._hooks[hook]
 
     def blank_call_hooks(self, hook, *args,**kwargs):
         """
