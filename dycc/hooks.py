@@ -7,10 +7,6 @@ __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-HookFunc = collections.namedtuple('HookFunc', ('func', 'priority', 'class_'))
-
-
-
 class HookList(list):
     __slots__ = ('hooks', 'expected_class', 'name')
 
