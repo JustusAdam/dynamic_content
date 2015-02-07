@@ -24,7 +24,6 @@ dumpers = {
 
 
 def guess_type(file:str):
-    assert isinstance(file, str)
     a = file.rsplit('.', 1)[1]
     return {
         'yml': 'yaml'
@@ -32,12 +31,14 @@ def guess_type(file:str):
 
 
 def read_config(file):
+    file = str(file)
     _type = guess_type(file)
     with open(file, 'r') as f:
         return loaders[_type](f)
 
 
 def write_config(obj, file):
+    file = str(file)
     _type = guess_type(file)
     with open(file, 'w') as f:
         dumpers[_type](obj, f)

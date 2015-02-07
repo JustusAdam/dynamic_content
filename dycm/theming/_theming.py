@@ -1,4 +1,5 @@
 import json
+import pathlib
 from dycc import mvc
 from dycc.includes import settings
 from dycc.util import html, structures
@@ -30,7 +31,7 @@ def get_theme(name):
 def load_theme_conf(theme):
     if not isinstance(theme, model.Theme):
         theme = model.Theme.get(machine_name=theme)
-    with open(theme.path + '/' + config_file_name) as file:
+    with open(str(pathlib.Path(theme.path) / config_file_name)) as file:
         conf = json.loads(file.read())
     conf['path'] = theme.path
     return conf
@@ -42,7 +43,6 @@ def attach_theme_conf(dc_obj, default_theme=None):
         theme = dc_obj.config['theme'] = dc_obj.config['theme'] if 'theme' in dc_obj.config and dc_obj.config['theme'] else default_theme
         dc_obj.config['theme_config'] = load_theme_conf(theme)
         dc_obj.config['template_directory'] = dc_obj.config['theme_config']['path'] + '/' + dc_obj.config['theme_config'].get('template_directory', 'templates')
-
 
 
 def compile_stuff(dc_obj):

@@ -1,3 +1,5 @@
+import pathlib
+
 from ._component import Component, component, call_component, get_component, inject, inject_method, register
 from . import util
 
@@ -8,7 +10,7 @@ def init_settings(settings):
         from .util import config
         register(
             'settings',
-            config.read_config(__file__.rsplit('/', 1)[0] + '/includes/settings.yml')
+            config.read_config(pathlib.Path(__file__).parent / 'includes/settings.yml')
         )
 
 init_settings()

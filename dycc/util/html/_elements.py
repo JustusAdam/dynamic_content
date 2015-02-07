@@ -109,9 +109,6 @@ class ContainerElement(list, BaseClassIdElement):
     def content(self):
         return self
 
-    def __bool__(self):
-        return bool(self.content)
-
     @property
     def list_replacement(self):
         if self._list_replacement:
