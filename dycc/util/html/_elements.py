@@ -428,7 +428,7 @@ class TableElement(ContainerElement):
             for row in iterable:
                 yield self.ensure_tr(row)
 
-        return ''.join(compile_c())
+        return ''.join(str(a) for a in compile_c())
 
     @staticmethod
     def ensure_tr(row):
@@ -450,11 +450,11 @@ class TableElement(ContainerElement):
 class AbstractTableRow(ContainerElement):
     def __init__(
         self,
-        html_type,
         *content,
-        classes:set=None,
-        element_id:str=None,
-        additional:dict=None
+        html_type: str=None,
+        classes: set=None,
+        element_id: str=None,
+        additional: dict=None
     ):
         super().__init__(
             *content,
