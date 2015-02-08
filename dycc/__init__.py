@@ -1,8 +1,23 @@
+"""
+
+"""
+import pathlib
+
 from ._component import Component, component, call_component, get_component, inject, inject_method, register
 from . import util
 
+__author__ = 'Justus Adam'
+__version__ = '0.1'
+
+
 @inject('settings')
 def init_settings(settings):
+    """
+    Only exists to inject the settings.
+
+    :param settings: injected settings component
+    :return:
+    """
 
     if settings._wrapped is None:
         from .util import config
@@ -12,11 +27,12 @@ def init_settings(settings):
         )
 
 init_settings()
-
 del init_settings
 
 
-from . import includes, errors, http, dchp, middleware, application, route
+if __name__ == '__main__':
 
-__author__ = 'Justus Adam'
-__version__ = '0.1'
+    from . import includes, errors, http, dchp, middleware, application, route
+
+else:
+    from . import includes, errors, http, dchp, middleware, application, route
