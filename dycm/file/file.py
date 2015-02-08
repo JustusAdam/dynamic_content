@@ -74,7 +74,7 @@ def serve_from(request, file, basedir):
             return response.Redirect(location=request.path[:-1])
         return response.Response(
             body=filepath.open('rb').read(),
-            headers={'Content-Type':'{};charset={}'.format(*mimetypes.guess_type(str(filepath.name)))}
+            headers={'Content-Type': '{};charset={}'.format(*mimetypes.guess_type(str(filepath.name)))}
             )
 
 

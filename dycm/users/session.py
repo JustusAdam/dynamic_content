@@ -12,6 +12,7 @@ __author__ = 'Justus Adam'
 # SESSION_LENGTH > 0 is unlimited session length
 SESSION_LENGTH = -1
 SESS_TOKEN_LENGTH = 16
+SESSION_INVALIDATED = 'invalid'
 
 
 def new_token():
@@ -51,6 +52,8 @@ def authenticate_user(username_or_uid, password):
 
 
 def validate_session(token):
+    if isinstance(token, str) and token == SESSION_INVALIDATED:
+        return None
     if not isinstance(token, bytes):
         token = binascii.unhexlify(token.encode())
     try:

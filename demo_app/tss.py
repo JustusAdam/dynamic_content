@@ -1,3 +1,5 @@
+import pathlib
+
 __doc__ = """
 This is a temporary script that will execute some queries on the database to fill in the necessary content
 to get some basic site setup done. It will be done in this script to avoid trying to insert into tables that have not
@@ -106,11 +108,11 @@ def initialize():
 
     # add themes
 
-    theme_path = theming.__file__.rsplit('/', 1)[0]
+    theme_path = pathlib.Path(theming.__file__).parent
 
     for name, path, enabled in [
-        ('default_theme', theme_path + '/themes/default_theme', True),
-        ('admin_theme', theme_path + '/themes/admin_theme', True)
+        ('default_theme', str(theme_path / 'themes/default_theme'), True),
+        ('admin_theme', str(theme_path / 'themes/admin_theme'), True)
     ]:
         theming.model.Theme.create(
             machine_name=name,
