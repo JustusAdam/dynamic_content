@@ -1,5 +1,5 @@
-from dynamic_content.backend import orm
-from dynamic_content import middleware
+from framework.backend import orm
+from framework import middleware
 
 
 __author__ = 'Justus Adam'

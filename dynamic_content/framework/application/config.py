@@ -1,9 +1,7 @@
 import pathlib
 import sys
-from dynamic_content.util import structures
-from dynamic_content.http import server
-from dynamic_content.http import request_handler
-from dynamic_content.http import wsgi
+from framework.util import structures
+from framework.http import wsgi, server, request_handler
 
 
 __author__ = 'Justus Adam'

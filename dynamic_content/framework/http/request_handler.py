@@ -13,9 +13,9 @@ import sys
 import traceback
 from urllib.error import HTTPError
 import collections
-from dynamic_content.http import Request
-from dynamic_content.includes import log, settings
-from dynamic_content.util import console
+from framework.http import Request
+from framework.includes import log, settings
+from framework.util import console
 
 
 __author__ = 'Justus Adam'

@@ -1,6 +1,6 @@
 from peewee import *
-from dynamic_content.includes import settings
-from dynamic_content.util import console, structures
+from framework.includes import settings
+from framework.util import console, structures
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'

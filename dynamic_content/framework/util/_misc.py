@@ -1,6 +1,6 @@
 import functools
-from dynamic_content import http
-from dynamic_content.errors import exceptions
+from framework import http
+from framework.errors import exceptions
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'

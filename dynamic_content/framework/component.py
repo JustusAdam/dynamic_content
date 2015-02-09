@@ -1,5 +1,5 @@
 import functools
-from dynamic_content.errors import exceptions
+from framework.errors import exceptions
 
 
 __author__ = 'Justus Adam'

@@ -1,5 +1,5 @@
-from . import Component, get_component
-from dynamic_content.errors import exceptions
+from .component import Component, get_component
+from .errors import exceptions
 from .util import console
 
 __author__ = 'Justus Adam'

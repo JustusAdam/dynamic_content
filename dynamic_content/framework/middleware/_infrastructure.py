@@ -1,7 +1,6 @@
 import inspect
 import importlib
-import dynamic_content
-from dynamic_content import hooks
+from framework import hooks, component
 
 
 __author__ = 'Justus Adam'
@@ -37,7 +36,7 @@ def load(stuff):
 Handler.init_hook()
 
 
-cmw = dynamic_content.get_component('Middleware')
+cmw = component.get_component('Middleware')
 
 
 def register(options=(), args=(), kwargs=None):

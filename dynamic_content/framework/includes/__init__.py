@@ -1,7 +1,7 @@
-import dynamic_content
+from framework import component
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-settings = dynamic_content.get_component('settings')
+settings = component.get_component('settings')

@@ -3,17 +3,16 @@ import functools
 import threading
 import traceback
 from http import server
-import dynamic_content
-from dynamic_content.includes import settings, log
+from framework.includes import settings, log
 
 
 # enable https
 if settings['https_enabled']:
     import ssl
 
-from dynamic_content.util import console, lazy, catch_vardump, structures
-from dynamic_content import http, middleware
-from dynamic_content.errors import exceptions
+from framework.util import console, lazy, catch_vardump, structures
+from framework import http, middleware, component
+from framework.errors import exceptions
 
 
 __author__ = 'Justus Adam'
@@ -36,7 +35,7 @@ class Application(threading.Thread, lazy.Loadable):
         super().__init__()
         lazy.Loadable.__init__(self)
         self.init_function = init_function
-        self.decorator = dynamic_content.get_component('TemplateFormatter')
+        self.decorator = component.get_component('TemplateFormatter')
 
     def load(self):
         if settings['runlevel'] == structures.RunLevel.DEBUG:
@@ -109,7 +108,7 @@ class Application(threading.Thread, lazy.Loadable):
         return [response.body if response.body else ''.encode('utf-8')]
 
     def run_wsgi_server_loop(self):
-        from dynamic_content.backend import orm
+        from framework.backend import orm
         if (hasattr(orm.database_proxy, 'database')
             and orm.database_proxy.database == ':memory:'):
             if settings['https_enabled']:
@@ -131,7 +130,7 @@ class Application(threading.Thread, lazy.Loadable):
                 thttps.start()
 
     def run_wsgi_http_server(self):
-        from dynamic_content.http import wsgi
+        from framework.http import wsgi
         httpd = wsgi.Server(
             (settings['server']['host'],
             settings['server']['port']),
@@ -148,7 +147,7 @@ class Application(threading.Thread, lazy.Loadable):
         httpd.serve_forever()
 
     def run_wsgi_https_server(self):
-        from dynamic_content.http import wsgi
+        from framework.http import wsgi
         httpsd = wsgi.Server(
             (settings['server']['host'],
             settings['server']['port']),
@@ -169,7 +168,7 @@ class Application(threading.Thread, lazy.Loadable):
         httpsd.serve_forever()
 
     def run_http_server_loop(self):
-        from dynamic_content.backend import orm
+        from framework.backend import orm
         if (hasattr(orm.database_proxy, 'database')
             and orm.database_proxy.database == ':memory:'):
             if settings['https_enabled']:
@@ -192,8 +191,8 @@ class Application(threading.Thread, lazy.Loadable):
 
 
     def run_http_server(self):
-        from dynamic_content.http import request_handler
-        from dynamic_content.http import server
+        from framework.http import request_handler
+        from framework.http import server
         request_handler = functools.partial(
                             request_handler.RequestHandler,
                             self.http_callback,
@@ -211,8 +210,8 @@ class Application(threading.Thread, lazy.Loadable):
         httpd.serve_forever()
 
     def run_https_server(self):
-        from dynamic_content.http import server
-        from dynamic_content.http import request_handler
+        from framework.http import server
+        from framework.http import request_handler
         request_handler = functools.partial(
                             request_handler.RequestHandler,
                             self.http_callback,
@@ -236,7 +235,7 @@ class Application(threading.Thread, lazy.Loadable):
         httpd.serve_forever()
 
     @catch_vardump
-    @dynamic_content.inject_method(pathmap='PathMap')
+    @component.inject_method(pathmap='PathMap')
     def process_request(self, request, pathmap):
         res = middleware.Handler.return_call_hooks_with(
             lambda self, request: self.handle_request(request),

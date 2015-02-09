@@ -1,5 +1,5 @@
 import functools
-from dynamic_content.includes import settings
+from framework.includes import settings
 import datetime
 
 

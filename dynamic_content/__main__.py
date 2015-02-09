@@ -1,4 +1,3 @@
-import dynamic_content
 import argparse
 import pathlib
 import sys
@@ -41,15 +40,15 @@ __author__ = 'Justus Adam'
 __version__ = '0.2.4'
 
 
-def bool_from_str(string, default=False):
+def bool_from_str(string):
     if not isinstance(string, str):
-        return default
+        return None
     if string.lower() == 'false':
         return False
     elif string.lower() == 'true':
         return True
     else:
-        return default
+        return None
 
 
 def prepare():
@@ -178,7 +177,7 @@ def prepare_parser():
     )
 
     parser.add_argument(
-        'path', '--path', type=str
+        '--path', '-p', type=str
     )
 
     # options
@@ -194,7 +193,7 @@ def prepare_parser():
         type=str,
         choices=tuple(map(str.lower, structures.PathMaps._fields))
         )
-    parser.add_argument('--port', '-p', type=int)
+    parser.add_argument('--port', type=int)
     parser.add_argument('--ssl_port', type=int)
     parser.add_argument(
         '--https_enabled',
@@ -234,10 +233,17 @@ def process_cmd_args(settings):
     settings['modus'] = startargs.modus
 
 
-    settings['project_dir'] = startargs.path if startargs.path else '.'
+    pd = startargs.path if startargs.path else '.'
 
-    settings['https_enabled'] = bool_from_str(startargs.https_enabled, settings['https_enabled'])
-    settings['http_enabled'] = bool_from_str(startargs.http_enabled, settings['http_enabled'])
+    settings['project_dir'] = str(pathlib.Path(pd).resolve())
+
+    https_enabled = bool_from_str(startargs.https_enabled)
+    if https_enabled is not None:
+        settings['https_enabled'] = https_enabled
+
+    http_enabled = bool_from_str(startargs.http_enabled)
+    if http_enabled is not None:
+        settings['http_enabled'] = http_enabled
 
     if startargs.logfile:
         settings['logfile'] = startargs.logfile
@@ -259,7 +265,7 @@ def process_cmd_args(settings):
     return settings
 
 
-@dynamic_content.inject('settings')
+@inject('settings')
 def get_settings(settings):
     """
     It felt cleaner to provide the settings via dependency injection.
@@ -288,7 +294,7 @@ def init_settings(settings):
     if settings._wrapped is None:
         register(
             'settings',
-            config.read_config(pathlib.Path(__file__).parent / 'includes/settings.yml')
+            config.read_config(pathlib.Path(__file__).parent / 'settings.yml')
         )
 
     return settings
