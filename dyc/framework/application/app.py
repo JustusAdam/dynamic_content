@@ -30,7 +30,7 @@ class Application(threading.Thread, lazy.Loadable):
 
     call with .run() to execute in main thread (not recommended)
     """
-    def __init__(self, init_function):
+    def __init__(self, init_function=None):
         if settings['runlevel'] == structures.RunLevel.DEBUG:
             log.write_info('app starting')
         super().__init__()

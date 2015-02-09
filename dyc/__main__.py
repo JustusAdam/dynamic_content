@@ -1,9 +1,9 @@
-import collections
 import dyc
 import argparse
 import pathlib
 import sys
-from dyc.util import config, structures, console
+from framework.util import config, structures, console
+from framework.component import inject, register
 
 __doc__ = """
 Main file that runs the application.
@@ -35,7 +35,7 @@ python_logo_ascii_art = """
           ..=====+++++++++=.
                 ..~+=...
 """
-## Python logo Ascii art by @xero -> https://gist.github.com/xero/3555086
+# Python logo Ascii art by @xero -> https://gist.github.com/xero/3555086
 
 __author__ = 'Justus Adam'
 __version__ = '0.2.4'
@@ -116,12 +116,6 @@ def check_parallel_process():
         setproctitle.setproctitle(title)
 
 
-
-def harden_settings(settings:dict):
-    tuple_type = collections.namedtuple('Settings', *tuple(settings.keys()))
-    return tuple_type, tuple_type(**settings)
-
-
 def update_settings(settings, custom, kwsettings):
     """
     Update the settings dict with the custom settings
@@ -176,6 +170,19 @@ def prepare_parser():
     sbool = ('true', 'false')
 
     parser = argparse.ArgumentParser()
+
+    # arguments
+
+    parser.add_argument(
+        'modus', choices=('run', 'test', 'debug')
+    )
+
+    parser.add_argument(
+        'path', '--path', type=str
+    )
+
+    # options
+
     parser.add_argument('--logfile', type=str)
     parser.add_argument(
         '--loglevel',
@@ -222,6 +229,13 @@ def process_cmd_args(settings):
 
     startargs = parser.parse_args()
 
+    assert startargs.modus
+
+    settings['modus'] = startargs.modus
+
+
+    settings['project_dir'] = startargs.path if startargs.path else '.'
+
     settings['https_enabled'] = bool_from_str(startargs.https_enabled, settings['https_enabled'])
     settings['http_enabled'] = bool_from_str(startargs.http_enabled, settings['http_enabled'])
 
@@ -261,34 +275,40 @@ def get_settings(settings):
     return settings
 
 
-def main(custom_settings, init_function=None, **kwargs):
-    """
+def get_custom_settings(startargs):
+    dir_ = pathlib.Path(startargs['project_dir'])
+    file = 'settings.yml'
+    return config.read_config(
+        str(dir_ / file)
+    )
 
-    :param custom_settings: your settings file or dict
-    :param init_function: some initializer callable that the app thread should call
-    :param kwargs: additional settings
-    :return: None
-    """
 
-    settings = get_settings()
+@inject('settings')
+def init_settings(settings):
+    if settings._wrapped is None:
+        register(
+            'settings',
+            config.read_config(pathlib.Path(__file__).parent / 'includes/settings.yml')
+        )
 
-    if isinstance(custom_settings, str):
-        settings['custom_settings_path'] = custom_settings
-        custom_settings = config.read_config(custom_settings)
+    return settings
 
-    if not isinstance(custom_settings, dict):
-        raise TypeError('Expected {},  got {}'.format(dict, type(custom_settings)))
 
-    settings = update_settings(settings, custom_settings, kwargs)
+settings = init_settings()
 
-    check_import_conflict(settings)
+startargs = process_cmd_args({})
 
-    prepare()
+custom_settings = get_custom_settings(startargs)
 
-    process_cmd_args(settings)
+settings = update_settings(settings, custom_settings, startargs)
 
-    from dyc import application
+check_import_conflict(settings)
 
-    application.Application(
-        init_function
-        ).start()
+prepare()
+
+from framework import application
+
+application.Application().start()
+
+
+del init_settings

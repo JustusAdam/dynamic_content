@@ -1,35 +1,9 @@
 from . import Component, get_component
-import collections
 from dyc.errors import exceptions
 from .util import console
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
-
-
-class HookList(list):
-    __slots__ = ('hooks', 'expected_class', 'name')
-
-    def __init__(self, name, *hooks, expected_class=Hook):
-        super().__init__(*hooks)
-        self.name = name
-        self.expected_class = expected_class
-
-    def append(self, p_object):
-        if not isinstance(p_object, self.expected_class):
-            raise TypeError(
-                'Expected instance of {} for hook handler for hook {}, '
-                'got {}'.format(self.expected_class, self.name, type(p_object))
-            )
-        super().append(p_object)
-        self._sort()
-
-    def _sort(self):
-        self.sort(key=lambda a: a.priority, reverse=True)
-
-    def extend(self, iterable):
-        super().extend(iterable)
-        self._sort()
 
 
 class Hook:
@@ -229,6 +203,31 @@ class FunctionHook(Hook):
 
 class FormHook(FunctionHook):
      pass
+
+
+class HookList(list):
+    __slots__ = ('hooks', 'expected_class', 'name')
+
+    def __init__(self, name, *hooks, expected_class=Hook):
+        super().__init__(*hooks)
+        self.name = name
+        self.expected_class = expected_class
+
+    def append(self, p_object):
+        if not isinstance(p_object, self.expected_class):
+            raise TypeError(
+                'Expected instance of {} for hook handler for hook {}, '
+                'got {}'.format(self.expected_class, self.name, type(p_object))
+            )
+        super().append(p_object)
+        self._sort()
+
+    def _sort(self):
+        self.sort(key=lambda a: a.priority, reverse=True)
+
+    def extend(self, iterable):
+        super().extend(iterable)
+        self._sort()
 
 
 @Component('HookManager')
