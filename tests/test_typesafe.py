@@ -1,4 +1,4 @@
-from dynamic_content.util.typesafe import typesafe
+from framework.util.typesafe import typesafe
 
 __author__ = 'Justus Adam'
 

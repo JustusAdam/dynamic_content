@@ -1,4 +1,4 @@
-from dynamic_content.util.html import ContainerElement
+from framework.util.html import ContainerElement
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'

@@ -1,7 +1,6 @@
 from . import response
-from dynamic_content.includes import settings
-from dynamic_content.util import console
-from dynamic_content.includes import log
+from framework.includes import settings, log
+from framework.util import console
 
 
 def conditional_redirect(request):

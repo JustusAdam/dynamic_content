@@ -1,10 +1,10 @@
 import re
 import sys
 
-from dynamic_content.http import response
-from .. import Component
+from framework.http import response
+from ..component import Component
 from . import evaluator
-from dynamic_content.includes import settings
+from framework.includes import settings
 
 
 __author__ = 'Justus Adam'

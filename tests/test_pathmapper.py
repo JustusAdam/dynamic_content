@@ -1,8 +1,8 @@
 import unittest
-from dynamic_content.errors.exceptions import ControllerError, MethodHandlerNotFound
-from dynamic_content.route._map import MultiTablePathMap, TreePathMap
-from dynamic_content.route.decorator import ControlFunction
-from dynamic_content import http
+from framework.errors.exceptions import ControllerError, MethodHandlerNotFound
+from framework.route._map import MultiTablePathMap, TreePathMap
+from framework.route.decorator import ControlFunction
+from framework import http
 
 __author__ = 'Justus Adam'
 

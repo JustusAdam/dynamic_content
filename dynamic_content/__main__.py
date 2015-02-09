@@ -1,12 +1,12 @@
+"""
+Main file that runs the application.
+"""
 import argparse
 import pathlib
 import sys
 from framework.util import config, structures, console
 from framework.component import inject, register
 
-__doc__ = """
-Main file that runs the application.
-"""
 python_logo_ascii_art = """
           .?77777777777777$.
           777..777777777777$+
@@ -41,6 +41,11 @@ __version__ = '0.2.4'
 
 
 def bool_from_str(string):
+    """
+    Transform a string 'true' or 'false' into the appropriate boolean value
+    :param string:
+    :return:
+    """
     if not isinstance(string, str):
         return None
     if string.lower() == 'false':
@@ -52,6 +57,10 @@ def bool_from_str(string):
 
 
 def prepare():
+    """
+    Some generic operations to do before starting the app.
+    :return:
+    """
 
     # print(python_logo_ascii_art)
 
@@ -62,9 +71,6 @@ def prepare():
     # if framework is not in the path yet, add it and import it
     if not str(_basedir.parent) in sys.path:
         sys.path.append(str(_basedir.parent))
-
-    # os.chdir(str(_basedir))
-    # print(_basedir.parent)
 
     del _basedir
 
@@ -90,25 +96,27 @@ def check_parallel_process():
 
     res = subprocess.check_output(('ps', '-ef'))
 
-    lines = tuple(filter(
-                lambda a: ' ' + title + ' ' in a,
-                res.decode().splitlines()
-                ))
+    lines = tuple(
+        filter(
+            lambda a: ' ' + title + ' ' in a,
+            res.decode().splitlines()
+        )
+    )
 
     if len(lines) != 0:
         console.print_debug(lines)
-        a = input(
+        user_input = input(
             '\n\nAnother {} process has been detected.\n'
             'Would you like to kill it, in order to start a new one?\n'
             '[y|N]'.format(title)
             )
-        if a.lower() in ('y', 'yes'):
+        if user_input.lower() in ('y', 'yes'):
             subprocess.call(('pkill', 'dynamic_content'))
         else:
-            a = input(
+            user_input = input(
                 'Would you like to exit this process instead? [Y|n]'
             )
-            if not a.lower() in ('n', 'no'):
+            if not user_input.lower() in ('n', 'no'):
                 quit(code=0)
 
     if not setproctitle.getproctitle() == title:
@@ -139,25 +147,6 @@ def update_settings(settings, custom, kwsettings):
     return settings
 
 
-def check_import_conflict(settings):
-    """
-    Verify that the application is not being started with dycc in the python path
-     since that will cause import naming conflicts
-
-    :param settings: settings dict
-    :return: None or quit application
-    """
-
-    if settings['dc_basedir'] in sys.path:
-        print(
-            'Starting thins software in the package directory or adding '
-            'the package directory to the path can cause name conflicts '
-            'please start this from a different location or don\'t add it '
-            'to the path.'
-        )
-        quit(code=1)
-
-
 def prepare_parser():
     """
     Instantiate a argparse cmd line argument parser
@@ -173,11 +162,11 @@ def prepare_parser():
     # arguments
 
     parser.add_argument(
-        'modus', choices=('run', 'test', 'debug')
+        'modus', choices=('run', 'test', 'debug'), nargs=1
     )
 
     parser.add_argument(
-        '--path', '-p', type=str
+        'path', type=str, nargs='?'
     )
 
     # options
@@ -232,7 +221,6 @@ def process_cmd_args(settings):
 
     settings['modus'] = startargs.modus
 
-
     pd = startargs.path if startargs.path else '.'
 
     settings['project_dir'] = str(pathlib.Path(pd).resolve())
@@ -248,15 +236,25 @@ def process_cmd_args(settings):
     if startargs.logfile:
         settings['logfile'] = startargs.logfile
     if startargs.loglevel:
-        settings['logging_level'] = getattr(structures.LoggingLevel, startargs.loglevel.upper())
+        settings['logging_level'] = getattr(
+            structures.LoggingLevel, startargs.loglevel.upper()
+        )
     if startargs.port or startargs.host or startargs.ssl_port:
         settings['server'] = dict(
-            host=startargs.host if startargs.host else settings['server']['host'],
-            port=startargs.port if startargs.port else settings['server']['port'],
-            ssl_port=startargs.ssl_port if startargs.ssl_port else settings['server']['ssl_port'],
+            host=(startargs.host
+                  if startargs.host
+                  else settings['server']['host']),
+            port=(startargs.port
+                  if startargs.port
+                  else settings['server']['port']),
+            ssl_port=(startargs.ssl_port
+                      if startargs.ssl_port
+                      else settings['server']['ssl_port']),
             )
     if startargs.server:
-        settings['server_type'] = getattr(structures.ServerTypes, startargs.server.upper())
+        settings['server_type'] = getattr(
+            structures.ServerTypes, startargs.server.upper()
+        )
     if startargs.ssl_certfile:
         settings['ssl_certfile'] = startargs.ssl_certfile
     if startargs.ssl_keyfile:
@@ -282,6 +280,12 @@ def get_settings(settings):
 
 
 def get_custom_settings(startargs):
+    """
+    Read the provided settings file.
+
+    :param startargs: parsed command line arguments
+    :return:
+    """
     dir_ = pathlib.Path(startargs['project_dir'])
     file = 'settings.yml'
     return config.read_config(
@@ -291,6 +295,12 @@ def get_custom_settings(startargs):
 
 @inject('settings')
 def init_settings(settings):
+    """
+    Initialize the settings with the default settings.
+
+    :param settings: injected settings component
+    :return:
+    """
     if settings._wrapped is None:
         register(
             'settings',
@@ -300,21 +310,29 @@ def init_settings(settings):
     return settings
 
 
-settings = init_settings()
+def main():
+    """
+    Things to do to start the app.
 
-startargs = process_cmd_args({})
+    :return: None
+    """
 
-custom_settings = get_custom_settings(startargs)
+    settings = init_settings()
 
-settings = update_settings(settings, custom_settings, startargs)
+    startargs = process_cmd_args({})
 
-check_import_conflict(settings)
+    custom_settings = get_custom_settings(startargs)
 
-prepare()
+    update_settings(settings, custom_settings, startargs)
 
-from framework import application
+    prepare()
 
-application.Application().start()
+    from framework import application
 
+    application.Application().start()
+
+
+if __name__ == '__main__':
+    main()
 
 del init_settings

@@ -1,5 +1,5 @@
 from . import parser
-from dynamic_content.util.parser import elements
+from framework.util.parser import elements
 
 
 __author__ = 'Justus Adam'

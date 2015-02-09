@@ -1,7 +1,7 @@
 import inspect
 from functools import wraps
-from dynamic_content.includes import settings
-from dynamic_content.util import structures
+from framework.includes import settings
+from framework.util import structures
 
 __author__ = 'Justus Adam'
 

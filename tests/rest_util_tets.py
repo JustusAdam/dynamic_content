@@ -1,7 +1,7 @@
 __author__ = 'Justus Adam'
 
 import unittest
-from dynamic_content.util import rest
+from framework.util import rest
 
 
 class TestRestUtil(unittest.TestCase):

@@ -1,5 +1,5 @@
 import binascii
-from dynamic_content.middleware import csrf
+from framework.middleware import csrf
 
 __author__ = 'Justus Adam'
 

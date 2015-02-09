@@ -1,5 +1,5 @@
 import functools
-from dynamic_content.util import structures
+from framework.util import structures
 from . import ssl
 
 

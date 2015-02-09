@@ -1,4 +1,4 @@
-from dynamic_content.http import headers
+from framework.http import headers
 import inspect
 
 __author__ = 'justusadam'

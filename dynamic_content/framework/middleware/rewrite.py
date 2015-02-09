@@ -1,5 +1,5 @@
-from dynamic_content import middleware
-from dynamic_content.http import response
+from framework import middleware
+from framework.http import response
 
 
 __author__ = 'Justus Adam'

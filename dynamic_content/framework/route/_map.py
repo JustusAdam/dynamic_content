@@ -1,10 +1,10 @@
 import collections
-from dynamic_content import http
+from framework import http
 
-from dynamic_content.errors import exceptions
-from .. import _component
-from dynamic_content.util import console, structures
-from dynamic_content.includes import settings
+from framework.errors import exceptions
+from .. import component
+from framework.util import console, structures
+from framework.includes import settings
 
 
 __author__ = 'Justus Adam'
@@ -548,7 +548,7 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
         return handler, (), {}
 
 
-_component.Component('PathMap')(
+component.Component('PathMap')(
     {
         structures.PathMaps.MULTI_TABLE: MultiTablePathMap,
         structures.PathMaps.TREE: TreePathMap

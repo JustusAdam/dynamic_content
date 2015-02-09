@@ -1,5 +1,5 @@
 import unittest
-from dynamic_content.util import clean
+from framework.util import clean
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'

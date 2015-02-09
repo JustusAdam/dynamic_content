@@ -6,7 +6,7 @@ values required to make dynamic_content functional.
 Might need to be expanded.
 """
 from pathlib import Path
-from dynamic_content.util import structures
+from framework.util import structures
 
 
 __version__ = '0.2.2'

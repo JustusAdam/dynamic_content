@@ -1,5 +1,5 @@
 from . import _infrastructure
-from dynamic_content.http import ssl
+from framework.http import ssl
 
 
 class ConditionalRedirect(_infrastructure.Handler):

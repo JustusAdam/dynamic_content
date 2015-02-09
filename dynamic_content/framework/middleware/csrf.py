@@ -1,11 +1,11 @@
 import binascii
 import os
 
-from dynamic_content.backend import orm
+from framework.backend import orm
 from . import register, Handler
-from dynamic_content.util import html
-from dynamic_content.http import RequestMethods, response
-from dynamic_content.includes import settings
+from framework.util import html
+from framework.http import RequestMethods, response
+from framework.includes import settings
 
 
 __author__ = 'Justus Adam'

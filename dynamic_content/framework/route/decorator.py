@@ -30,10 +30,10 @@ RestControllerFunction.
 
 import functools
 
-from .. import _component
-from dynamic_content import http
-from dynamic_content.mvc import context
-from dynamic_content.util import rest
+from .. import component
+from framework import http
+from framework.mvc import context
+from framework.util import rest
 import inspect
 
 
@@ -41,7 +41,9 @@ __author__ = 'Justus Adam'
 __version__ = '0.2'
 
 
-controller_mapper = _component.get_component('PathMap')
+@component.inject('PathMap')
+def get_cm(cm):
+    return cm
 
 
 def _to_set(my_input, allowed_vals=str):
@@ -114,7 +116,7 @@ def _controller_function(
         h = set(h) if inspect.isgenerator(h) else {h}
         wrapped = class_(func, value, method, query, h, options)
         for val in wrapped.value:
-            controller_mapper.add_path(val, wrapped)
+            get_cm().add_path(val, wrapped)
         return wrapped
     return wrap
 
@@ -147,12 +149,12 @@ def controller_class(class_):
         ))
     if c_funcs:
         instance = class_()
-        controller_mapper._controller_classes.append(instance)
+        get_cm()._controller_classes.append(instance)
         for item in c_funcs:
             for wrapped in item.wrapping:
                 wrapped.instance = instance
                 for i in wrapped.value:
-                    controller_mapper.add_path(i, wrapped)
+                    get_cm().add_path(i, wrapped)
     return class_
 
 

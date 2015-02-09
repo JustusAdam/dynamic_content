@@ -38,6 +38,10 @@ class Application(threading.Thread, lazy.Loadable):
         self.decorator = component.get_component('TemplateFormatter')
 
     def load(self):
+        """
+        Load necessary for the application
+        :return: None
+        """
         if settings['runlevel'] == structures.RunLevel.DEBUG:
             log.write_info('loading components')
         console.print_info('Loading Components ... ')
@@ -50,6 +54,10 @@ class Application(threading.Thread, lazy.Loadable):
 
     @lazy.ensure_loaded
     def run(self):
+        """
+        The executable that is run by the Thread
+        :return:
+        """
         console.print_name()
         if settings['runlevel'] == structures.RunLevel.DEBUG:
             log.write_info('starting server')
@@ -60,14 +68,32 @@ class Application(threading.Thread, lazy.Loadable):
 
     @staticmethod
     def load_modules():
+        """
+        Load modules specified in settings
+
+        :return:
+        """
         for module in settings['modules']:
             importlib.import_module('.' + module, 'dycm')
 
     def http_callback(self, request):
+        """
+        Callable to return to when a request comes in
+
+        :param request: the issued request
+        :return: processed request
+        """
         return self.process_request(request)
 
     @staticmethod
     def wsgi_make_request(ssl_enabled, environ):
+        """
+        Construct a Request object form the WSGI environ
+
+        :param ssl_enabled: boolean whether ssl is enabled
+        :param environ: WSGI's environ dict
+        :return:
+        """
         search_headers = {
             'CONTENT_TYPE',
             'HTTP_CACHE_CONTROL',
@@ -97,6 +123,15 @@ class Application(threading.Thread, lazy.Loadable):
         )
 
     def wsgi_callback(self, ssl_enabled, environ, start_response):
+        """
+        Callback to return to from a WSGI Request
+
+        :param ssl_enabled: boolean indicating whether
+            it is a ssl enabled request
+        :param environ: WSGI environ dict
+        :param start_response: callback
+        :return: response body
+        """
         request = self.wsgi_make_request(ssl_enabled, environ)
         response = self.process_request(request)
 
@@ -108,64 +143,64 @@ class Application(threading.Thread, lazy.Loadable):
         return [response.body if response.body else ''.encode('utf-8')]
 
     def run_wsgi_server_loop(self):
+        """
+        Spawn WSGI server Thread(s)
+
+        :return: None
+        """
         from framework.backend import orm
-        if (hasattr(orm.database_proxy, 'database')
-            and orm.database_proxy.database == ':memory:'):
+        if (
+            hasattr(orm.database_proxy, 'database')
+            and orm.database_proxy.database == ':memory:'
+        ):
             if settings['https_enabled']:
-                self.run_wsgi_https_server()
+                self.run_wsgi_http_server(True)
             elif settings['http_enabled']:
-                self.run_wsgi_http_server()
+                self.run_wsgi_http_server(False)
         else:
             if settings['http_enabled']:
                 thttp = threading.Thread(
                     target=self.run_wsgi_http_server,
+                    args=(False, ),
                     name='DC-HTTP-Server'
                     )
                 thttp.start()
             if settings['https_enabled']:
                 thttps = threading.Thread(
-                    target=self.run_wsgi_https_server,
+                    target=self.run_wsgi_http_server,
+                    args=(True, ),
                     name='DC-HTTPS-Server'
                     )
                 thttps.start()
 
-    def run_wsgi_http_server(self):
+    def run_wsgi_http_server(self, ssl_enabled):
         from framework.http import wsgi
+
+        port = 'ssl_port' if ssl_enabled else 'port'
+
         httpd = wsgi.Server(
             (settings['server']['host'],
-            settings['server']['port']),
+            settings['server'][port]),
             wsgi.Handler
         )
 
-        httpd.set_app(functools.partial(self.wsgi_callback, False))
+        httpd.set_app(functools.partial(self.wsgi_callback, ssl_enabled))
+        if ssl_enabled:
+            httpd.socket = ssl.wrap_socket(
+                httpd.socket,
+                keyfile=settings['ssl_keyfile'],
+                certfile=settings['ssl_certfile'],
+                server_side=True
+                )
         console.cprint('\n\n')
         console.print_info(
-            'Starting HTTP WSGI Server on    Port: {}     and Host: {}'.format(
+            'Starting {} WSGI Server on    Port: {}     and Host: {}'.format(
+                'HTTPS' if ssl_enabled else 'HTTP',
                 settings['server']['host'],
                 settings['server']['port']
                 ))
         httpd.serve_forever()
-
-    def run_wsgi_https_server(self):
-        from framework.http import wsgi
-        httpsd = wsgi.Server(
-            (settings['server']['host'],
-            settings['server']['port']),
-            wsgi.Handler
-        )
-        httpsd.set_app(functools.partial(self.wsgi_callback, True))
-        httpsd.socket = ssl.wrap_socket(
-            httpsd.socket,
-            keyfile=settings['ssl_keyfile'],
-            certfile=settings['ssl_certfile'],
-            server_side=True
-            )
-        console.cprint('\n\n')
-        console.print_info(
-            'Starting HTTPS WSGI Server on    Port: {}     and Host:  {}'.format(
-                settings['server']['host'], settings['server']['ssl_port'])
-            )
-        httpsd.serve_forever()
+        return httpd
 
     def run_http_server_loop(self):
         from framework.backend import orm

@@ -1,6 +1,6 @@
 import unittest
-from dynamic_content.util import parser
-from dynamic_content.util.parser import elements as _e
+from framework.util import parser
+from framework.util.parser import elements as _e
 
 
 __author__ = 'Justus Adam'

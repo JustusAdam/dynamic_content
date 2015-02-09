@@ -1,4 +1,4 @@
-from dynamic_content.util.parser import html, generic, elements
+from framework.util.parser import html, generic, elements
 
 
 __author__ = 'Justus Adam'

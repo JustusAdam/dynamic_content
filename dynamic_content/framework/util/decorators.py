@@ -1,8 +1,8 @@
 import functools
 import inspect
 
-from dynamic_content.includes import log, settings
-from dynamic_content.util import structures
+from framework.includes import log, settings
+from framework.util import structures
 
 
 __author__ = 'Justus Adam'

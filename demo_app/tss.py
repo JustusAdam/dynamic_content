@@ -5,7 +5,7 @@ This is a temporary script that will execute some queries on the database to fil
 to get some basic site setup done. It will be done in this script to avoid trying to insert into tables that have not
 been created yet.
 """
-from dynamic_content.util import console, structures
+from framework.util import console, structures
 
 
 __author__ = 'Justus Adam'
@@ -13,11 +13,11 @@ __version__ = '0.2.1'
 
 
 def init_tables():
-    from dynamic_content.includes import log
+    from framework.includes import log
     from importlib import import_module
-    from dynamic_content.backend import orm
+    from framework.backend import orm
     import inspect
-    from dynamic_content.includes import settings
+    from framework.includes import settings
 
 
     def _init_module(m):
@@ -45,14 +45,14 @@ def init_tables():
             console.print_error(error)
             log.write_error('init_tables:', error)
 
-    from dynamic_content.middleware import alias, csrf
+    from framework.middleware import alias, csrf
     alias.Alias.create_table()
     csrf.ARToken.create_table()
 
 
 
 def initialize():
-    from dynamic_content.includes import settings
+    from framework.includes import settings
     from dycm import users as user_module, commons, theming, node
 
     admin_menu_common = 'admin_menu'
@@ -94,7 +94,7 @@ def initialize():
 
     # add some useful aliases
 
-    from dynamic_content.middleware import alias
+    from framework.middleware import alias
 
     aliases = [
         ('/', '/node/1'),

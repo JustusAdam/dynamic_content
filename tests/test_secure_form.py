@@ -3,7 +3,7 @@ import peewee
 __author__ = 'Justus Adam'
 
 import unittest
-from dynamic_content.middleware import csrf
+from framework.middleware import csrf
 import binascii
 
 
