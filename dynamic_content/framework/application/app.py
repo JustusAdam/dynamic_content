@@ -39,7 +39,7 @@ class Application(threading.Thread, lazy.Loadable):
 
     def load(self):
         """
-        Load necessary for the application
+        Load necessary stuff for the application
         :return: None
         """
         if settings['runlevel'] == structures.RunLevel.DEBUG:
@@ -51,6 +51,16 @@ class Application(threading.Thread, lazy.Loadable):
         self.load_modules()
         if callable(self.init_function):
             self.init_function()
+        self.load_apps()
+
+    @component.inject_method('Settings')
+    def load_apps(self, settings):
+        """
+        Load apps
+        :return:
+        """
+        for module in settings['import']:
+            importlib.import_module(module)
 
     @lazy.ensure_loaded
     def run(self):

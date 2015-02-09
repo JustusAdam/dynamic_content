@@ -24,6 +24,9 @@ file_directories: {
   public: 'files/public',
 }
 
+import:
+  - 'demo_app'
+
 allow_indexing: True
 ssl_certfile: "../dynamic-content.org.crt"
 ssl_keyfile: "../dynamic-content.org.key"
@@ -49,8 +52,6 @@ database: {
 }
 
 runlevel: 0
-
-project_dir: 'testapp'
 
 # 0:FULL, 1:STANDARD, 2:FRAMEWORK
 distribution: 0

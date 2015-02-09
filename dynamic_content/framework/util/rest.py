@@ -1,4 +1,4 @@
-from dynamic_content import http
+from framework import http
 
 __author__ = 'Justus Adam'
 

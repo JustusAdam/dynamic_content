@@ -56,27 +56,6 @@ def bool_from_str(string):
         return None
 
 
-def prepare():
-    """
-    Some generic operations to do before starting the app.
-    :return:
-    """
-
-    # print(python_logo_ascii_art)
-
-    print('\n\n\n')
-
-    _basedir = pathlib.Path(__file__).parent.parent.resolve()
-
-    # if framework is not in the path yet, add it and import it
-    if not str(_basedir.parent) in sys.path:
-        sys.path.append(str(_basedir.parent))
-
-    del _basedir
-
-    check_parallel_process()
-
-
 def check_parallel_process():
     """
     If the setproctitle and subprocess dependency can be imported
@@ -140,10 +119,6 @@ def update_settings(settings, custom, kwsettings):
     """
     settings.update(kwsettings)
     settings.update(custom)
-
-    # This is why this function cannot be moved to another package/module
-    settings['dc_basedir'] = str(pathlib.Path(__file__).parent.parent)
-
     return settings
 
 
@@ -302,10 +277,12 @@ def init_settings(settings):
     :return:
     """
     if settings._wrapped is None:
+        parent = pathlib.Path(__file__).parent
         register(
             'settings',
-            config.read_config(pathlib.Path(__file__).parent / 'settings.yml')
+             config.read_config(parent / 'settings.yml')
         )
+        settings['dc_basedir'] = str(parent)
 
     return settings
 
@@ -325,7 +302,7 @@ def main():
 
     update_settings(settings, custom_settings, startargs)
 
-    prepare()
+    check_parallel_process()
 
     from framework import application
 
