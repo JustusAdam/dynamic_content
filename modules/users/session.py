@@ -2,7 +2,7 @@ import binascii
 from . import model, users
 import datetime
 import os
-from dyc.util import time
+from dynamic_content.util import time
 
 
 __author__ = 'Justus Adam'

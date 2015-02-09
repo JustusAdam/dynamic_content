@@ -1,4 +1,4 @@
-from dyc.util import html
+from dynamic_content.util import html
 from . import model, page
 
 

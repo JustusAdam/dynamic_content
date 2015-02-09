@@ -1,8 +1,8 @@
 from dycm import theming
-from dyc.util import decorators, structures
-import dyc
+from dynamic_content.util import decorators, structures
+import dynamic_content
 from . import model, page
-from dyc.util import html
+from dynamic_content.util import html
 
 __author__ = 'Justus Adam'
 __version__ = '0.2'
@@ -17,7 +17,7 @@ class Common:
 
 
 class RegionHandler:
-    @dyc.inject_method('CommonsMap')
+    @dynamic_content.inject_method('CommonsMap')
     def __init__(self, commons_map, region_name, region_config, theme, client):
         self.commons_map = commons_map
         self.client = client

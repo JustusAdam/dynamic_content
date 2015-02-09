@@ -1,6 +1,6 @@
-from dyc.util.py34 import hashlib
+from dynamic_content.util.py34 import hashlib
 import os
-from dyc.includes import log, settings
+from dynamic_content.includes import log, settings
 from . import model
 
 __author__ = 'Justus Adam'

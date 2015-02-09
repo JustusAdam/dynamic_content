@@ -1,6 +1,6 @@
-from dyc.util import html, structures
+from dynamic_content.util import html, structures
 from ._elements import WysiwygTextarea, identifier
-from dyc.mvc import context
+from dynamic_content.mvc import context
 
 __author__ = 'Justus Adam'
 

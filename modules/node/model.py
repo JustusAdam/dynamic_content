@@ -1,7 +1,7 @@
 import functools
 from dycm import theming
-from dyc.util import time
-from dyc.backend import orm
+from dynamic_content.util import time
+from dynamic_content.backend import orm
 from dycm.users import model as usersmodel
 from dycm.commons import model as commonsmodel
 

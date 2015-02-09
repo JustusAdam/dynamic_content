@@ -1,6 +1,6 @@
 import unittest
-from dyc.util import parser
-from dyc.util.parser import elements as _e
+from dynamic_content.util import parser
+from dynamic_content.util.parser import elements as _e
 
 
 __author__ = 'Justus Adam'

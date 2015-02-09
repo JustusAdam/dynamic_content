@@ -88,7 +88,7 @@ target/
 *.pbm
 
 # custom files
-dyc/custom/
+dynamic_content/custom/
 
 # cloud9 configuration files
 .c9/

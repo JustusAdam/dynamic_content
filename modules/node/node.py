@@ -1,9 +1,9 @@
 import functools
 import pathlib
-from dyc import dchp
-from dyc.http import response
-from dyc.util import config, structures
-from dyc import mvc
+from dynamic_content import dchp
+from dynamic_content.http import response
+from dynamic_content.util import config, structures
+from dynamic_content import mvc
 from dycm import theming, commons
 
 __author__ = 'Justus Adam'

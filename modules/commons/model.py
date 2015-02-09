@@ -1,4 +1,4 @@
-from dyc.backend import orm
+from dynamic_content.backend import orm
 from dycm import theming
 
 

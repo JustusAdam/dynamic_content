@@ -1,5 +1,5 @@
 from . import pages, model
-from dyc.util import typesafe
+from dynamic_content.util import typesafe
 
 __author__ = 'Justus Adam'
 

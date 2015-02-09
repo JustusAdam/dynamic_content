@@ -1,11 +1,11 @@
 import inspect
-import dyc
-from dyc.includes import log
+import dynamic_content
+from dynamic_content.includes import log
 
 __author__ = 'Justus Adam'
 
 
-@dyc.component('CommonsMap')
+@dynamic_content.component('CommonsMap')
 class Mapper(dict):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -20,7 +20,7 @@ class Mapper(dict):
         self.__setitem__(name, val)
 
 
-_mapper = dyc.get_component('CommonsMap')
+_mapper = dynamic_content.get_component('CommonsMap')
 
 
 def register(name, handler):

@@ -1,8 +1,8 @@
 import unittest
-import dyc
-from dyc import route
-from dyc.util import structures
-from dyc import http
+import dynamic_content
+from dynamic_content import route
+from dynamic_content.util import structures
+from dynamic_content import http
 
 __author__ = 'Justus Adam'
 
@@ -25,7 +25,7 @@ class TestDecorator(unittest.TestCase):
         def handle(model, arg, get):
             return model, arg, get
 
-        handler, args, kwargs = dyc.get_component('PathMap').resolve(r)
+        handler, args, kwargs = dynamic_content.get_component('PathMap').resolve(r)
         result_model, result_arg, result_get = handler(model, *args, **kwargs)
         self.assertEqual(model, result_model)
         self.assertEqual(testpath, result_arg)

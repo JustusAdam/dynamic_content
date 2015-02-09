@@ -1,5 +1,5 @@
-from dyc.backend import orm
-from dyc.includes import settings
+from dynamic_content.backend import orm
+from dynamic_content.includes import settings
 
 __author__ = 'Justus Adam'
 

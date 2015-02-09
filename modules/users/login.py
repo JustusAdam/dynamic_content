@@ -1,11 +1,11 @@
 import datetime
 from http import cookies
 
-from dyc import http
-from dyc import hooks
-from dyc.util import html, console
-from dyc import route
-from dyc.middleware import csrf
+from dynamic_content import http
+from dynamic_content import hooks
+from dynamic_content.util import html, console
+from dynamic_content import route
+from dynamic_content.middleware import csrf
 from dycm import commons, theming
 from . import session, users, decorator
 

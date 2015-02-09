@@ -1,7 +1,7 @@
 import functools
-from dyc.util import structures, decorators
-from dyc.mvc import context
-from dyc.errors import exceptions
+from dynamic_content.util import structures, decorators
+from dynamic_content.mvc import context
+from dynamic_content.errors import exceptions
 
 __author__ = 'Justus Adam'
 

@@ -1,10 +1,10 @@
 import re
 import itertools
 
-from dyc import route
-from dyc import http
-from dyc.util import html
-from dyc.middleware import csrf
+from dynamic_content import route
+from dynamic_content import http
+from dynamic_content.util import html
+from dynamic_content.middleware import csrf
 from dycm import theming
 from dycm.users import model, users, decorator
 

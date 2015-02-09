@@ -1,4 +1,4 @@
-from dyc.util import console
+from dynamic_content.util import console
 from . import users
 
 

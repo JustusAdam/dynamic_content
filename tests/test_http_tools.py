@@ -1,4 +1,4 @@
-from dyc.http import headers
+from dynamic_content.http import headers
 import inspect
 
 __author__ = 'justusadam'

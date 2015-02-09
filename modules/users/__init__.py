@@ -1,4 +1,4 @@
-from dyc.includes import settings
+from dynamic_content.includes import settings
 from . import users, model, client, session, decorator , middleware
 
 

@@ -1,8 +1,8 @@
 import unittest
-from dyc.errors.exceptions import ControllerError, MethodHandlerNotFound
-from dyc.route._map import MultiTablePathMap, TreePathMap
-from dyc.route.decorator import ControlFunction
-from dyc import http
+from dynamic_content.errors.exceptions import ControllerError, MethodHandlerNotFound
+from dynamic_content.route._map import MultiTablePathMap, TreePathMap
+from dynamic_content.route.decorator import ControlFunction
+from dynamic_content import http
 
 __author__ = 'Justus Adam'
 

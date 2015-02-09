@@ -1,5 +1,5 @@
-from dyc import mvc
-from dyc.util import html
+from dynamic_content import mvc
+from dynamic_content.util import html
 from . import model
 
 __author__ = 'Justus Adam'

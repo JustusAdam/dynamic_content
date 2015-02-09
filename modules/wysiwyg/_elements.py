@@ -1,4 +1,4 @@
-from dyc.util import html
+from dynamic_content.util import html
 
 __author__ = 'Justus Adam'
 

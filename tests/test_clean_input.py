@@ -1,5 +1,5 @@
 import unittest
-from dyc.util import clean
+from dynamic_content.util import clean
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'

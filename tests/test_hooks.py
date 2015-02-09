@@ -1,4 +1,4 @@
-from dyc import hooks
+from dynamic_content import hooks
 
 __author__ = 'justusadam'
 __version__ = '0.1'

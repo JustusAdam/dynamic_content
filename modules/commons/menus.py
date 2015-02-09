@@ -1,7 +1,7 @@
 import collections
 import itertools
 
-from dyc.util import html
+from dynamic_content.util import html
 from . import model
 from . import base, component
 

@@ -1,5 +1,5 @@
-from dyc.backend import orm
-from dyc.util import time
+from dynamic_content.backend import orm
+from dynamic_content.util import time
 
 __author__ = 'Justus Adam'
 

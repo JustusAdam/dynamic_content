@@ -1,8 +1,8 @@
 import collections
 
-from dyc import route
-from dyc import http
-from dyc.util import html
+from dynamic_content import route
+from dynamic_content import http
+from dynamic_content.util import html
 from dycm import commons, node
 from dycm.users import decorator as user_dec
 from . import model
