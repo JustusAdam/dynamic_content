@@ -1,7 +1,7 @@
 import datetime
 import pathlib
-from dycc import route
-from dycc import http
+from dyc import route
+from dyc import http
 
 
 @route.controller_function('/upload', method=http.RequestMethods.post, query=['file', 'name'])

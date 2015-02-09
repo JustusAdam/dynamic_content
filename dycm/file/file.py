@@ -6,13 +6,13 @@ own page handlers.
 import pathlib
 from urllib import parse
 import mimetypes
-from dycc import http
-import dycc
-from dycc import route
-from dycc.includes import settings
-from dycc.util import html, structures
-from dycc.http import response
-from dycc import middleware
+from dyc import http
+import dyc
+from dyc import route
+from dyc.includes import settings
+from dyc.util import html, structures
+from dyc.http import response
+from dyc import middleware
 
 
 __author__ = 'Justus Adam'
@@ -113,4 +113,4 @@ def directory(request, real_dir):
             title=real_dir.name
             )
         )
-    return dycc.get_component('TemplateFormatter')(_default_view, dc_obj)
+    return dyc.get_component('TemplateFormatter')(_default_view, dc_obj)

@@ -1,4 +1,4 @@
-from dycc.middleware import Handler
+from dyc.middleware import Handler
 from dycm import file
 from . import _theming, model, _breadcrumbs
 

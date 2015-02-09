@@ -1,5 +1,5 @@
-from dycc import mvc
-from dycc.util import html
+from dyc import mvc
+from dyc.util import html
 from . import model
 
 __author__ = 'Justus Adam'

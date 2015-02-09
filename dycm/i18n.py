@@ -1,5 +1,5 @@
-from dycc.backend import orm
-from dycc.includes import settings
+from dyc.backend import orm
+from dyc.includes import settings
 
 __author__ = 'Justus Adam'
 

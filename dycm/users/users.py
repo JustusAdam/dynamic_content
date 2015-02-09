@@ -1,6 +1,6 @@
-from dycc.util.py34 import hashlib
+from dyc.util.py34 import hashlib
 import os
-from dycc.includes import log, settings
+from dyc.includes import log, settings
 from . import model
 
 __author__ = 'Justus Adam'

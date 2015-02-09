@@ -1,7 +1,7 @@
-from dycc import route
-from dycc.util import html
+from dyc import route
+from dyc.util import html
 from dycm import i18n
-from dycc.middleware import csrf
+from dyc.middleware import csrf
 from . import model as _model, menus as _menus, decorator
 
 __author__ = 'Justus Adam'

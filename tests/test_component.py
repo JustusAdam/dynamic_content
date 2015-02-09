@@ -1,6 +1,6 @@
 import unittest
-import dycc
-from dycc._component import ComponentWrapper
+import dyc
+from dyc._component import ComponentWrapper
 
 
 __author__ = 'Justus Adam'
@@ -9,7 +9,7 @@ __author__ = 'Justus Adam'
 component_name = 'test_component'
 
 
-@dycc.Component(component_name)
+@dyc.Component(component_name)
 class Hello(object):
     attribute = None
     pass
@@ -17,8 +17,8 @@ class Hello(object):
 
 class ComponentTest(unittest.TestCase):
     def test_register(self):
-        self.assertIsInstance(dycc.get_component[component_name], ComponentWrapper)
-        self.assertEqual(dycc.get_component[component_name].attribute, None)
-        self.assertIsInstance(dycc.get_component[component_name]._wrapped, Hello)
+        self.assertIsInstance(dyc.get_component[component_name], ComponentWrapper)
+        self.assertEqual(dyc.get_component[component_name].attribute, None)
+        self.assertIsInstance(dyc.get_component[component_name]._wrapped, Hello)
 
-        self.assertIs(dycc.get_component(component_name), dycc.get_component[component_name])
+        self.assertIs(dyc.get_component(component_name), dyc.get_component[component_name])

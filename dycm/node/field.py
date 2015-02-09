@@ -1,8 +1,8 @@
-import dycc
-from dycc.errors.exceptions import DCException
+import dyc
+from dyc.errors.exceptions import DCException
 from dycm import wysiwyg
 from . import model
-from dycc.util import lazy, html, clean
+from dyc.util import lazy, html, clean
 
 
 __author__ = 'Justus Adam'
@@ -12,7 +12,7 @@ __version__ = '0.2'
 DEFAULT_FIELD_HANDLER_NAME = 'FieldHandler'
 
 
-@dycc.Component('FieldTypes')
+@dyc.Component('FieldTypes')
 class Fields(lazy.Loadable):
     def __init__(self):
         super().__init__()
@@ -21,7 +21,7 @@ class Fields(lazy.Loadable):
     @staticmethod
     def _get_handler(string:str):
         module, *function = string.split('.', 1)
-        return getattr(dycc.get_component('Modules')[module],
+        return getattr(dyc.get_component('Modules')[module],
             function if function else DEFAULT_FIELD_HANDLER_NAME)
 
     def load(self):
@@ -35,7 +35,7 @@ class Fields(lazy.Loadable):
         return self._inner[item]
 
 
-@dycc.inject(fields='fields')
+@dyc.inject(fields='fields')
 def field(field_type, fields):
     def inner(class_):
         fields[field_type] = class_

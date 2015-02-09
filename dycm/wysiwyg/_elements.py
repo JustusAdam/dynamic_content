@@ -1,4 +1,4 @@
-from dycc.util import html
+from dyc.util import html
 
 __author__ = 'Justus Adam'
 

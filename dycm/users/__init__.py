@@ -1,4 +1,4 @@
-from dycc.includes import settings
+from dyc.includes import settings
 from . import users, model, client, session, decorator , middleware
 
 

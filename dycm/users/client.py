@@ -1,4 +1,4 @@
-from dycc.util import console
+from dyc.util import console
 from . import users
 
 

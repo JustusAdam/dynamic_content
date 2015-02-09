@@ -1,4 +1,4 @@
-from dycc import hooks
+from dyc import hooks
 
 __author__ = 'justusadam'
 __version__ = '0.1'

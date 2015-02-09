@@ -1,4 +1,4 @@
-from dycc.http import headers
+from dyc.http import headers
 import inspect
 
 __author__ = 'justusadam'

@@ -1,8 +1,8 @@
 import json
 import pathlib
-from dycc import mvc
-from dycc.includes import settings
-from dycc.util import html, structures
+from dyc import mvc
+from dyc.includes import settings
+from dyc.util import html, structures
 from . import model
 
 __author__ = 'Justus Adam'

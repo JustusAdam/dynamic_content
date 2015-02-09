@@ -1,10 +1,10 @@
 from datetime import datetime
 import functools
 
-import dycc
-from dycc import http
-from dycc import route
-from dycc.util import lazy, html, clean
+import dyc
+from dyc import http
+from dyc import route
+from dyc.util import lazy, html, clean
 from dycm import wysiwyg
 from dycm.commons import menus as _menus, model as commonsmodel
 from dycm.users import decorator as user_dec
@@ -43,7 +43,7 @@ def not_under(a, val=0):
         return a
 
 
-@dycc.Component('CMSCompilers')
+@dyc.Component('CMSCompilers')
 class Compilers(lazy.Loadable):
     def __init__(self):
         self._dict = None
@@ -299,7 +299,7 @@ class FieldBasedPageContent(object):
 @route.controller_class
 class CMSController(object):
 
-    @dycc.inject_method('CMSCompilers')
+    @dyc.inject_method('CMSCompilers')
     def __init__(self, compiler_map):
         self.compiler_map = compiler_map
 

@@ -1,6 +1,6 @@
-from dycc import route
-from dycc import http
-from dycc.util import html
+from dyc import route
+from dyc import http
+from dyc.util import html
 from dycm import theming, commons
 from dycm.users.login import LOGOUT_BUTTON
 from dycm.users import users, decorator

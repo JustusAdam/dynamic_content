@@ -1,5 +1,5 @@
 import binascii
-from dycc.middleware import csrf
+from dyc.middleware import csrf
 
 __author__ = 'Justus Adam'
 

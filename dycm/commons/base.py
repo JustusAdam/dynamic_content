@@ -1,4 +1,4 @@
-from dycc.util import html
+from dyc.util import html
 from . import model, page
 
 

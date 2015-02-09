@@ -1,7 +1,7 @@
 import collections
 import itertools
 
-from dycc.util import html
+from dyc.util import html
 from . import model
 from . import base, component
 

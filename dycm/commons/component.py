@@ -1,11 +1,11 @@
 import inspect
-import dycc
-from dycc.includes import log
+import dyc
+from dyc.includes import log
 
 __author__ = 'Justus Adam'
 
 
-@dycc.component('CommonsMap')
+@dyc.component('CommonsMap')
 class Mapper(dict):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -20,7 +20,7 @@ class Mapper(dict):
         self.__setitem__(name, val)
 
 
-_mapper = dycc.get_component('CommonsMap')
+_mapper = dyc.get_component('CommonsMap')
 
 
 def register(name, handler):

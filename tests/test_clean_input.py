@@ -1,5 +1,5 @@
 import unittest
-from dycc.util import clean
+from dyc.util import clean
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
