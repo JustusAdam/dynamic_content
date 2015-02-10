@@ -301,9 +301,9 @@ class Script(ContainerElement):
     def __init__(
         self,
         *content,
-        src:str=None,
+        src: str=None,
         prop_type='text/javascript',
-        additional:dict=None
+        additional: dict=None
     ):
         super().__init__(
             *content,
@@ -485,9 +485,23 @@ TableData = functools.partial(ContainerElement, html_type='td')
 
 
 class Input(BaseClassIdElement):
-    def __init__(self, classes:set=None, element_id:str=None, input_type='text', name:str=None, form:str=None,
-                 value:str=None, required=False, additional:dict=None):
-        super().__init__('input', classes=classes, element_id=element_id, additional=additional)
+    def __init__(
+        self,
+        classes: set=None,
+        element_id: str=None,
+        input_type='text',
+        name: str=None,
+        form: str=None,
+        value: str=None,
+        required=False,
+        additional: dict=None
+    ):
+        super().__init__(
+            'input',
+            classes=classes,
+            element_id=element_id,
+            additional=additional
+        )
         self._value_params['name'] = name
         self._value_params['type'] = input_type
         self._value_params['form'] = form
@@ -599,7 +613,6 @@ class Label(ContainerElement):
             additional=additional
         )
         self._value_params['label'] = label_for
-
 
 
 def SubmitButton(
