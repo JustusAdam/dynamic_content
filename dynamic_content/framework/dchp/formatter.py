@@ -42,7 +42,7 @@ class TemplateFormatter(object):
 
         c, *arg = c.groups() if c else (None, view_name)
 
-        handler = getattr(self, self.responses[c])
+        handler = self.responses[c]
 
         return handler(dc_obj, *arg)
 
