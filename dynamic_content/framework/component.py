@@ -1,3 +1,6 @@
+"""
+Implementation for globally available 'Singletons'
+"""
 import functools
 from framework.errors import exceptions
 
@@ -14,8 +17,24 @@ def _name_transform(name):
 
 
 def method_proxy(func):
+    """
+    Decorator/func wrapper for methods on a Component wrapper
+
+    :param func:
+    :return: <local>.call
+    """
     name = func if isinstance(func, str) else func.__name__
+
     def call(obj, *args, **kwargs):
+        """
+        Inner wrapping call
+
+        :param obj: Wrapper instance
+        :param args: call arguments
+        :param kwargs: call kwargs
+        :return: return of the called method
+        """
+
         if obj._wrapped is None:
             raise exceptions.ComponentNotLoaded(obj._name)
         return getattr(obj._wrapped, name)(*args, **kwargs)
@@ -146,6 +165,13 @@ del _decorator
 
 
 def register(name, obj):
+    """
+    Register component in container
+
+    :param name: component name
+    :param obj: component instance
+    :return: None
+    """
     get_component[name] = obj
 
 
@@ -159,12 +185,18 @@ def inject(*components, **kwcomponents):
     All **kwcomponents will be added to (and overwrite on key collision)
      the **kwargs the function is being called with.
 
-    :param component:
-    :param argname:
+    :param components: positional components to inject
+    :param kwcomponents: keyword components to inject
     :return:
     """
 
     def inner(func):
+        """
+        Inner function to allow call arguments
+
+        :param func: function to wrap
+        :return: functools.partial with injected components
+        """
         # TODO when moving to 3.4 replace unify inject and inject_method
         # and use functools.partialmethod here
         return functools.partial(
@@ -190,14 +222,27 @@ def inject_method(*components, **kwcomponents):
     All **kwcomponents will be added to (and overwrite on key collision)
      the **kwargs the function is being called with.
 
-    :param component:
-    :param argname:
+    :param components: positional components to inject
+    :param kwcomponents: keyword components to inject
     :return:
     """
 
     def inner(func):
+        """
+        Inner function
+        :param func: function to wrap
+        :return:
+        """
         @functools.wraps(func)
         def wrap(self, *args, **kwargs):
+            """
+            Wrapper function
+
+            :param self: method typical self parameter
+            :param args: call args
+            :param kwargs: call kwargs
+            :return: wrapped function call result
+            """
             for a, b in kwcomponents.items():
                 kwargs[a] = get_component(b)
             return func(

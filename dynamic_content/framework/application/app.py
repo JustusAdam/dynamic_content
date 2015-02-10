@@ -1,10 +1,10 @@
+"""Implementation of the main Application class"""
 import importlib
 import functools
 import threading
 import traceback
 from http import server
 from framework.includes import settings, log
-
 
 # enable https
 if settings['https_enabled']:
@@ -57,7 +57,8 @@ class Application(threading.Thread, lazy.Loadable):
     def load_apps(self, settings):
         """
         Load apps
-        :return:
+
+        :return: None
         """
         for module in settings['import']:
             importlib.import_module(module)
@@ -66,7 +67,8 @@ class Application(threading.Thread, lazy.Loadable):
     def run(self):
         """
         The executable that is run by the Thread
-        :return:
+
+        :return: None
         """
         console.print_name()
         if settings['runlevel'] == structures.RunLevel.DEBUG:
@@ -81,7 +83,7 @@ class Application(threading.Thread, lazy.Loadable):
         """
         Load modules specified in settings
 
-        :return:
+        :return: None
         """
         for module in settings['modules']:
             importlib.import_module('.' + module, 'dycm')
@@ -102,7 +104,7 @@ class Application(threading.Thread, lazy.Loadable):
 
         :param ssl_enabled: boolean whether ssl is enabled
         :param environ: WSGI's environ dict
-        :return:
+        :return: request.Request object
         """
         search_headers = {
             'CONTENT_TYPE',
@@ -184,6 +186,12 @@ class Application(threading.Thread, lazy.Loadable):
                 thttps.start()
 
     def run_wsgi_http_server(self, ssl_enabled):
+        """
+        Construct an instance of the WSGI server
+
+        :param ssl_enabled: whether to wrap the socket with (open)ssl
+        :return: server instance (already started)
+        """
         from framework.http import wsgi
 
         port = 'ssl_port' if ssl_enabled else 'port'
@@ -213,67 +221,63 @@ class Application(threading.Thread, lazy.Loadable):
         return httpd
 
     def run_http_server_loop(self):
+        """
+        Spawn the http/https servers as specified in settings
+
+        :return: None
+        """
         from framework.backend import orm
         if (hasattr(orm.database_proxy, 'database')
             and orm.database_proxy.database == ':memory:'):
             if settings['https_enabled']:
-                self.run_https_server()
+                self.run_http_server(True)
             elif settings['http_enabled']:
-                self.run_http_server()
+                self.run_http_server(False)
         else:
             if settings['http_enabled']:
                 thttp = threading.Thread(
                     target=self.run_http_server,
+                    args=(False, ),
                     name='DC-HTTP-Server'
                     )
                 thttp.start()
             if settings['http_enabled']:
                 thttps = threading.Thread(
-                    target=self.run_https_server,
+                    target=self.run_http_server,
+                    args=(True, ),
                     name='DC-HTTPS-Server'
                     )
                 thttps.start()
 
+    def run_http_server(self, ssl_enabled):
+        """
+        Construct a http server and run it
 
-    def run_http_server(self):
+        :param ssl_enabled: whether to enable https
+        :return: server instance
+        """
         from framework.http import request_handler
         from framework.http import server
         request_handler = functools.partial(
-                            request_handler.RequestHandler,
-                            self.http_callback,
-                            False
-                            )
+            request_handler.RequestHandler,
+            self.http_callback,
+            False
+            )
+
+        port = 'ssl_port' if ssl_enabled else 'port'
 
         server_address = (
             settings['server']['host'],
-            settings['server']['port']
+            settings['server'][port]
             )
         httpd = server.ThreadedHTTPServer(server_address, request_handler)
-        console.cprint('\n\n')
-        console.print_info('Starting Server on host: {}, port:'.format(
-            *server_address))
-        httpd.serve_forever()
-
-    def run_https_server(self):
-        from framework.http import server
-        from framework.http import request_handler
-        request_handler = functools.partial(
-                            request_handler.RequestHandler,
-                            self.http_callback,
-                            True
-                            )
-
-        server_address = (
-            settings['server']['host'],
-            settings['server']['port']
-            )
-        httpd = server.ThreadedHTTPServer(server_address, request_handler)
-        httpd.socket = ssl.wrap_socket(
-            httpd.socket,
-            keyfile=settings['ssl_keyfile'],
-            certfile=settings['ssl_certfile'],
-            server_side=True
-            )
+        if ssl_enabled:
+            httpd.socket = ssl.wrap_socket(
+                httpd.socket,
+                keyfile=settings['ssl_keyfile'],
+                certfile=settings['ssl_certfile'],
+                server_side=True
+                )
         console.cprint('\n\n')
         console.print_info('Starting Server on host: {}, port:'.format(
             *server_address))
@@ -282,6 +286,13 @@ class Application(threading.Thread, lazy.Loadable):
     @catch_vardump
     @component.inject_method(pathmap='PathMap')
     def process_request(self, request, pathmap):
+        """
+        Respond to a http.request.Request instance
+
+        :param request: the incoming and preprocessed request.
+        :param pathmap: injected pathmap component
+        :return: http.response.Response object
+        """
         res = middleware.Handler.return_call_hooks_with(
             lambda self, request: self.handle_request(request),
             request
