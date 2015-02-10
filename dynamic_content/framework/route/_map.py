@@ -4,7 +4,7 @@ from framework import http
 from framework.errors import exceptions
 from .. import component
 from framework.util import console, structures
-from framework.includes import settings
+from framework.includes import get_settings
 
 
 __author__ = 'Justus Adam'
@@ -552,5 +552,5 @@ component.Component('PathMap')(
     {
         structures.PathMaps.MULTI_TABLE: MultiTablePathMap,
         structures.PathMaps.TREE: TreePathMap
-    }[settings['pathmap_type']]
+    }[get_settings()['pathmap_type']]
 )

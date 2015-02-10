@@ -5,7 +5,7 @@ import argparse
 import pathlib
 import sys
 from framework.util import config, structures, console
-from framework.component import inject, register
+from framework import component
 
 python_logo_ascii_art = """
           .?77777777777777$.
@@ -240,7 +240,7 @@ def process_cmd_args(settings):
     return settings
 
 
-@inject('settings')
+@component.inject('settings')
 def get_settings(settings):
     """
     It felt cleaner to provide the settings via dependency injection.
@@ -270,21 +270,20 @@ def get_custom_settings(startargs):
     )
 
 
-@inject('settings')
-def init_settings(settings):
+def init_settings():
     """
     Initialize the settings with the default settings.
 
-    :param settings: injected settings component
     :return:
     """
-    if settings._wrapped is None:
-        parent = pathlib.Path(__file__).parent
-        register(
+    parent = pathlib.Path(__file__).parent
+    if 'settings' not in component.component_container:
+        component.register(
             'settings',
              config.read_config(parent / 'settings.yml')
         )
-        settings['dc_basedir'] = str(parent)
+    settings = component.get_component['settings'].get()
+    settings['dc_basedir'] = str(parent)
 
     return settings
 
@@ -300,14 +299,9 @@ def main():
 
     startargs = process_cmd_args({})
 
-    if startargs['mode'] == 'selftest':
-        settings.update(startargs)
-        settings['test_dir'] = 'tests'
-    else:
+    custom_settings = get_custom_settings(startargs)
 
-        custom_settings = get_custom_settings(startargs)
-
-        update_settings(settings, custom_settings, startargs)
+    update_settings(settings, custom_settings, startargs)
 
     sys.path = [settings['project_dir']] + sys.path
 
@@ -322,14 +316,13 @@ def main():
 
         application.Application().start()
 
-    elif startargs['mode'] in ('test', 'selftest'):
+    elif startargs['mode'] == 'test':
         import nose
         import importlib
         nose.main(
             module=importlib.import_module(
                 settings.get(
-                    'test_dir',
-                    'tests'
+                    'test_dir'
                 ).replace('/', '.')
             )
         )

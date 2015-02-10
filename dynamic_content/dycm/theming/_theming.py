@@ -1,7 +1,7 @@
 import json
 import pathlib
 from framework import mvc
-from framework.includes import settings
+from framework.includes import get_settings, inject_settings
 from framework.util import html, structures
 from . import model
 
@@ -14,11 +14,13 @@ config_file_name = 'config.json'
 pagetitle = '<a href="/">dynamic_content - fast, lightweight and extensible</a>'
 
 
-def _default_theme():
+@inject_settings
+def _default_theme(settings):
     return settings.get('default_theme', 'default_theme')
 
 
-def _default_admin_theme():
+@inject_settings
+def _default_admin_theme(settings):
     return settings.get('default_theme', 'admin_theme')
 
 

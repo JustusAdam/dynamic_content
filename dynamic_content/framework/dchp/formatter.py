@@ -5,7 +5,7 @@ import sys
 from framework.http import response
 from ..component import Component
 from . import evaluator
-from framework.includes import settings
+from framework.includes import get_settings
 
 
 __author__ = 'Justus Adam'
@@ -130,5 +130,5 @@ class TemplateFormatter(object):
             if 'template_directory' in dc_obj.config:
                 yield dc_obj.config['template_directory'] + '/' + view
 
-            yield settings.get('project_dir', '.') + '/templates/' + view
-            yield settings['dc_basedir'] + '/templates/' + view
+            yield get_settings().get('project_dir', '.') + '/templates/' + view
+            yield get_settings()['dc_basedir'] + '/templates/' + view

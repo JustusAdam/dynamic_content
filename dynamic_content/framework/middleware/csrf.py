@@ -5,7 +5,7 @@ from framework.backend import orm
 from . import register, Handler
 from framework.util import html
 from framework.http import RequestMethods, response
-from framework.includes import settings
+from framework.includes import get_settings
 
 
 __author__ = 'Justus Adam'
@@ -23,7 +23,7 @@ class AntiCSRFMiddleware(Handler):
         request = dc_obj.request
         if request.method is not RequestMethods.post:
             return None
-        if not settings['anti_csrf']:
+        if not get_settings()['anti_csrf']:
             return None
         if not handler.options.get('anti_csrf', True):
             return None

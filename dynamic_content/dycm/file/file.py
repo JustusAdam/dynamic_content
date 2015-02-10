@@ -7,7 +7,7 @@ import pathlib
 from urllib import parse
 import mimetypes
 from framework import http, route, component, middleware
-from framework.includes import settings
+from framework.includes import get_settings, inject_settings
 from framework.util import html, structures
 from framework.http import response
 
@@ -19,11 +19,13 @@ _template_path = 'themes/default_theme/template/page.html'
 _default_view = 'indexdir'
 
 
-def get_file_directories():
+@inject_settings
+def get_file_directories(settings):
     return settings.get('file_directories', ())
 
 
-def handle(request):
+@inject_settings
+def handle(settings, request):
     path_split = request.path.split('/')
     path_split = path_split[1:] if path_split[0] == '' else path_split
     if len(path_split) < 1:
@@ -42,7 +44,8 @@ def handle(request):
     return response.Response(code=response.HttpResponseCodes.NotFound)
 
 
-def serve_from(request, file, basedir):
+@inject_settings
+def serve_from(settings, request, file, basedir):
 
     trailing_slash = file.endswith('/')
 
@@ -92,7 +95,8 @@ class PathHandler(middleware.Handler):
         return None
 
 
-def directory(request, real_dir):
+@component.inject('TemplateFormatter')
+def directory(tf, request, real_dir):
     if not isinstance(real_dir, pathlib.Path):
         real_dir = pathlib.Path(real_dir)
     dc_obj = structures.DynamicContent(
@@ -110,4 +114,4 @@ def directory(request, real_dir):
             title=real_dir.name
             )
         )
-    return component.get_component('TemplateFormatter')(_default_view, dc_obj)
+    return tf(_default_view, dc_obj)

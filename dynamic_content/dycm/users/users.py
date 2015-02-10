@@ -1,6 +1,6 @@
 from framework.util.py34 import hashlib
 import os
-from framework.includes import log, settings
+from framework.includes import log, get_settings, inject_settings
 from . import model
 
 __author__ = 'Justus Adam'
@@ -35,7 +35,8 @@ GUEST = model.User(oid=0, username='_GUEST', access_group=GUEST_GRP, email_addre
 GUEST.save()
 
 
-def hash_password(password, salt):
+@inject_settings
+def hash_password(settings ,password, salt):
     return hashlib.pbkdf2_hmac(settings['hashing_algorithm'], password, salt, settings['hashing_rounds'],
                                settings['hash_length'])
 
@@ -45,7 +46,8 @@ def check_ident(password, salt, comp_hash):
     return hashed == bytes(comp_hash)
 
 
-def hash_and_new_salt(password):
+@inject_settings
+def hash_and_new_salt(settings, password):
     salt = os.urandom(settings['salt_length'])
     hashed = hash_password(password.encode(), salt)
     return hashed, salt

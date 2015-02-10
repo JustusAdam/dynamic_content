@@ -2,24 +2,28 @@ import pathlib
 import datetime
 import functools
 
-from . import settings
+from . import inject_settings
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-_path = (
-    pathlib.Path(settings['logfile'][1:])
-    if settings['logfile'].startswith('/')
-    else pathlib.Path(__file__).parent / settings['logfile']
-    )
-if _path.is_dir():
-    raise IsADirectoryError
-elif not _path.exists():
-    _path.touch()
+@inject_settings
+def get_path(settings):
+    _path = (
+        pathlib.Path(settings['logfile'][1:])
+        if settings['logfile'].startswith('/')
+        else pathlib.Path(__file__).parent / settings['logfile']
+        )
+    if _path.is_dir():
+        raise IsADirectoryError
+    elif not _path.exists():
+        _path.touch()
+    return _path
+
 
 def open_log():
-    return open(str(_path), mode='a')
+    return open(str(get_path()), mode='a')
 
 
 def write(*stuff):

@@ -14,8 +14,9 @@ import traceback
 from urllib.error import HTTPError
 import collections
 from framework.http import Request
-from framework.includes import log, settings
+from framework.includes import log
 from framework.util import console
+from framework import component
 
 
 __author__ = 'Justus Adam'
@@ -150,7 +151,8 @@ class RequestHandler(server.BaseHTTPRequestHandler):
                     )
                 )
 
-    def send_document(self, response):
+    @component.inject_method('settings')
+    def send_document(self, settings, response):
 
         (self.send_error(response.code)
         if response.code >= 400

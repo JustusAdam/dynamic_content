@@ -1,9 +1,10 @@
 from . import response
-from framework.includes import settings, log
+from framework.includes import get_settings, inject_settings, log
 from framework.util import console
 
 
-def conditional_redirect(request):
+@inject_settings
+def conditional_redirect(settings, request):
     if request.ssl_enabled is True:
         return None
     elif not settings['https_enabled']:

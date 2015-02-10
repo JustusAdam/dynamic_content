@@ -1,12 +1,13 @@
 from peewee import *
-from framework.includes import settings
+from framework.includes import inject_settings
 from framework.util import console, structures
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-def proxy_db():
+@inject_settings
+def proxy_db(settings):
     """
     Return the database specified in settings.
 

@@ -16,31 +16,6 @@ def _name_transform(name):
     return new_name
 
 
-def method_proxy(func):
-    """
-    Decorator/func wrapper for methods on a Component wrapper
-
-    :param func:
-    :return: <local>.call
-    """
-    name = func if isinstance(func, str) else func.__name__
-
-    def call(obj, *args, **kwargs):
-        """
-        Inner wrapping call
-
-        :param obj: Wrapper instance
-        :param args: call arguments
-        :param kwargs: call kwargs
-        :return: return of the called method
-        """
-
-        if obj._wrapped is None:
-            raise exceptions.ComponentNotLoaded(obj._name)
-        return getattr(obj._wrapped, name)(*args, **kwargs)
-    return call if isinstance(func, str) else functools.wraps(func)(call)
-
-
 class ComponentWrapper(object):
     """
     A Proxy object for components to allow modules to bind
@@ -53,47 +28,22 @@ class ComponentWrapper(object):
     Please note that _name and _allow_reload can ONLY be set at instantiation.
     """
 
-    __slots__ = ('_name', '_wrapped', '_allow_reload')
+    __slots__ = ('name', 'wrapped', 'allow_reload')
 
     def __init__(self, name, allow_reload=False):
-        super().__setattr__('_name', name)
-        super().__setattr__('_wrapped', None)
-        super().__setattr__('_allow_reload', allow_reload)
+        self.allow_reload = allow_reload
+        self.name = name
+        self.wrapped = None
 
-    def __getattr__(self, item):
-        if self.__getattribute__('_wrapped') is None:
-            raise exceptions.ComponentNotLoaded(item)
-        return getattr(self._wrapped, item)
+    def set(self, obj):
+        if not self.allow_reload and self.wrapped is not None:
+            raise exceptions.ComponentLoaded(self.name)
+        self.wrapped = obj
 
-    def __setattr__(self, key, value):
-        if key == '_wrapped':
-            if self._allow_reload is False:
-                if self._wrapped is None:
-                    super().__setattr__(key, value)
-                else:
-                    raise exceptions.ComponentLoaded(self._name)
-            else:
-                super().__setattr__(key, value)
-        else:
-            setattr(self._wrapped, key, value)
-
-    def __delattr__(self, item):
-        if item is '_wrapped' or item is '_promise':
-            raise TypeError('Cannot delete wrapped object')
-        else:
-            delattr(self._wrapped, item)
-
-    def __call__(self, *args, **kwargs):
-        return self._wrapped(*args, **kwargs)
-
-    def __bool__(self):
-        return bool(self._wrapped)
-
-    __dir__ = method_proxy('__dir__')
-    __str__ = method_proxy('__str__')
-    __setitem__ = method_proxy('__setitem__')
-    __delitem__ = method_proxy('__delitem__')
-    __getitem__ = method_proxy('__getitem__')
+    def get(self):
+        if self.wrapped is None:
+            raise exceptions.ComponentNotLoaded(self.name)
+        return self.wrapped
 
 
 class ComponentContainer(dict):
@@ -127,7 +77,7 @@ class ComponentContainer(dict):
                 'Expected Type {} or {}, got {}'.format(str, type, type(key))
                 )
         item = super().setdefault(key, ComponentWrapper(key))
-        item._wrapped = value
+        item.set(value)
 
     def __getitem__(self, key):
         if isinstance(key, type):
@@ -139,9 +89,15 @@ class ComponentContainer(dict):
     def __getattr__(self, item):
         return self.__getitem__(item)
 
+    def __contains__(self, item):
+        return not (
+            not super().__contains__(item)
+            or self[item].wrapped is None
+        )
+
 
 # the only real singleton in the framework
-call_component = get_component = ComponentContainer()
+call_component = get_component = component_container = ComponentContainer()
 
 
 # removing the constructor for the accessor object
@@ -172,7 +128,7 @@ def register(name, obj):
     :param obj: component instance
     :return: None
     """
-    get_component[name] = obj
+    get_component[name].set(obj)
 
 
 def inject(*components, **kwcomponents):
@@ -190,24 +146,27 @@ def inject(*components, **kwcomponents):
     :return:
     """
 
+    components = tuple(get_component(a) for a in components)
+    kwcomponents = {
+        a: get_component(b) for a, b in kwcomponents.items()
+    }
+
     def inner(func):
         """
         Inner function to allow call arguments
 
         :param func: function to wrap
-        :return: functools.partial with injected components
+        :return: function wrapper
         """
-        # TODO when moving to 3.4 replace unify inject and inject_method
-        # and use functools.partialmethod here
-        return functools.partial(
-            func,
-            *tuple(
-                get_component(a) for a in components
-            ),
-            **{
-                a:get_component(b) for a,b in kwcomponents.items()
-            }
-        )
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(
+                *tuple(a.get() for a in components) + args,
+                **dict(((a, b.get()) for a, b in kwcomponents.items()), **kwargs)
+            )
+
+        return wrapper
 
     return inner
 
@@ -227,6 +186,11 @@ def inject_method(*components, **kwcomponents):
     :return:
     """
 
+    components = tuple(get_component(a) for a in components)
+    kwcomponents = {
+        a: get_component(b) for a, b in kwcomponents.items()
+    }
+
     def inner(func):
         """
         Inner function
@@ -234,7 +198,7 @@ def inject_method(*components, **kwcomponents):
         :return:
         """
         @functools.wraps(func)
-        def wrap(self, *args, **kwargs):
+        def wrapper(self, *args, **kwargs):
             """
             Wrapper function
 
@@ -243,12 +207,12 @@ def inject_method(*components, **kwcomponents):
             :param kwargs: call kwargs
             :return: wrapped function call result
             """
-            for a, b in kwcomponents.items():
-                kwargs[a] = get_component(b)
+
             return func(
-                *(self, ) + tuple(get_component(a) for a in components) + args,
-                **kwargs
-                )
-        return wrap
+                *(self, ) + tuple(a.get() for a in components) + args,
+                **dict(((a, b.get()) for a, b in kwcomponents.items()), **kwargs)
+            )
+
+        return wrapper
 
     return inner

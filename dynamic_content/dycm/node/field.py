@@ -12,27 +12,28 @@ __version__ = '0.2'
 DEFAULT_FIELD_HANDLER_NAME = 'FieldHandler'
 
 
-@component.Component('FieldTypes')
-class Fields(lazy.Loadable):
-    def __init__(self):
-        super().__init__()
-        self._inner = None
-
-    @staticmethod
-    def _get_handler(string:str):
-        module, *function = string.split('.', 1)
-        return getattr(component.get_component('Modules')[module],
-            function if function else DEFAULT_FIELD_HANDLER_NAME)
-
-    def load(self):
-        self._inner = {
-            a.machine_name: self._get_handler(a.handler)
-                for a in model.FieldType.select()
-        }
-
-    @lazy.ensure_loaded
-    def __getitem__(self, item):
-        return self._inner[item]
+# @component.Component('FieldTypes')
+# class Fields(lazy.Loadable):
+#     @component.inject_method('Modules')
+#     def __init__(self, m):
+#         super().__init__()
+#         self._inner = None
+#         self.modules = m
+#
+#     def _get_handler(self, string: str):
+#         module, *function = string.split('.', 1)
+#         return getattr(self.modules[module],
+#             function if function else DEFAULT_FIELD_HANDLER_NAME)
+#
+#     def load(self):
+#         self._inner = {
+#             a.machine_name: self._get_handler(a.handler)
+#             for a in model.FieldType.select()
+#         }
+#
+#     @lazy.ensure_loaded
+#     def __getitem__(self, item):
+#         return self._inner[item]
 
 
 @component.inject(fields='fields')

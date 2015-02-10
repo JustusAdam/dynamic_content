@@ -1,7 +1,7 @@
 """
 Hooking implementation
 """
-from .component import Component, get_component
+from . import component
 from .errors import exceptions
 from .util import console
 
@@ -233,7 +233,7 @@ class HookList(list):
         self._sort()
 
 
-@Component('HookManager')
+@component.Component('HookManager')
 class HookManager:
     __slots__ = '_hooks',
 
@@ -247,7 +247,7 @@ class HookManager:
 
         :return: HookManager instance
         """
-        return get_component('HookManager')
+        return component.get_component('HookManager').get()
 
     def init_hook(self, hook, expected_class=Hook):
         """

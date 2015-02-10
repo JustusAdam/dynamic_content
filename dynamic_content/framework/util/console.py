@@ -1,5 +1,5 @@
 import functools
-from framework.includes import settings
+from framework.includes import get_settings
 import datetime
 
 
@@ -28,7 +28,7 @@ def _print(*args, end=csi + '0m\n', **kwargs):
 
 
 def cprint(*args, end=csi + '0m\n', **kwargs):
-    if settings['runlevel'] in (0,1):
+    if get_settings()['runlevel'] in (0,1):
         _print(*args, end=end, **kwargs)
 
 

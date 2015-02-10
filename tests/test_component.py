@@ -20,13 +20,13 @@ class ComponentTest(unittest.TestCase):
             component.get_component[component_name], component.ComponentWrapper
         )
         self.assertEqual(
-            component.get_component[component_name].attribute, None
+            component.get_component[component_name].get().attribute, None
         )
         self.assertIsInstance(
-            component.get_component[component_name]._wrapped, Hello
+            component.get_component[component_name].wrapped, Hello
         )
 
         self.assertIs(
-            component.get_component(component_name),
-            component.get_component[component_name]
+            component.get_component(component_name).get(),
+            component.get_component[component_name].get()
         )

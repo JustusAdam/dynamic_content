@@ -1,8 +1,8 @@
-from framework.includes import settings
+from framework.includes import get_settings
 from . import users, model, client, session, decorator , middleware
 
 
-if settings.get('use_login_page', False):
+if get_settings().get('use_login_page', False):
     from . import login
 
 __author__ = 'Justus Adam'

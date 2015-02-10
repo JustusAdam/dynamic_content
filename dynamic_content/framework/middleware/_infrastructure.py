@@ -36,7 +36,9 @@ def load(stuff):
 Handler.init_hook()
 
 
-cmw = component.get_component('Middleware')
+@component.inject('middleware')
+def get_middleware(middleware):
+    return middleware
 
 
 def register(options=(), args=(), kwargs=None):

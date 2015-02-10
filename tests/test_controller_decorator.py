@@ -23,7 +23,7 @@ class TestDecorator(unittest.TestCase):
         def handle(model, arg, get):
             return model, arg, get
 
-        handler, args, kwargs = component.get_component('PathMap').resolve(r)
+        handler, args, kwargs = component.get_component('PathMap').get().resolve(r)
         result_model, result_arg, result_get = handler(model, *args, **kwargs)
         self.assertEqual(model, result_model)
         self.assertEqual(testpath, result_arg)

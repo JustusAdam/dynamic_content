@@ -4,12 +4,7 @@ import functools
 import threading
 import traceback
 from http import server
-from framework.includes import settings, log
-
-# enable https
-if settings['https_enabled']:
-    import ssl
-
+from framework.includes import log
 from framework.util import console, lazy, catch_vardump, structures
 from framework import http, middleware, component
 from framework.errors import exceptions
@@ -29,30 +24,36 @@ class Application(threading.Thread, lazy.Loadable):
 
     call with .run() to execute in main thread (not recommended)
     """
-    def __init__(self, init_function=None):
+    @component.inject_method('settings')
+    def __init__(self, settings, init_function=None):
         if settings['runlevel'] == structures.RunLevel.DEBUG:
             log.write_info('app starting')
         super().__init__()
         lazy.Loadable.__init__(self)
         self.init_function = init_function
-        self.decorator = component.get_component('TemplateFormatter')
+        self.settings = settings
 
     def load(self):
         """
         Load necessary stuff for the application
         :return: None
         """
-        if settings['runlevel'] == structures.RunLevel.DEBUG:
+        if self.settings['runlevel'] == structures.RunLevel.DEBUG:
             log.write_info('loading components')
         console.print_info('Loading Components ... ')
         from framework import mvc, route, dchp
         console.print_info('Loading Middleware ...')
-        middleware.load(settings['middleware'])
+        middleware.load(self.settings['middleware'])
         console.print_info('Loading Modules ...')
         self.load_modules()
+        self.load_formatter()
         if callable(self.init_function):
             self.init_function()
         self.load_apps()
+
+    @component.inject_method('TemplateFormatter')
+    def load_formatter(self, formatter):
+        self.decorator = formatter
 
     @component.inject_method('Settings')
     def load_apps(self, settings):
@@ -72,21 +73,20 @@ class Application(threading.Thread, lazy.Loadable):
         :return: None
         """
         console.print_name()
-        if settings['runlevel'] == structures.RunLevel.DEBUG:
+        if self.settings['runlevel'] == structures.RunLevel.DEBUG:
             log.write_info('starting server')
-        if settings['server_type'] == structures.ServerTypes.PLAIN:
+        if self.settings['server_type'] == structures.ServerTypes.PLAIN:
             self.run_http_server_loop()
-        elif settings['server_type'] == structures.ServerTypes.WSGI:
+        elif self.settings['server_type'] == structures.ServerTypes.WSGI:
             self.run_wsgi_server_loop()
 
-    @staticmethod
-    def load_modules():
+    def load_modules(self):
         """
         Load modules specified in settings
 
         :return: None
         """
-        for module in settings['modules']:
+        for module in self.settings['modules']:
             importlib.import_module('.' + module, 'dycm')
 
     def http_callback(self, request):
@@ -166,19 +166,19 @@ class Application(threading.Thread, lazy.Loadable):
             hasattr(orm.database_proxy, 'database')
             and orm.database_proxy.database == ':memory:'
         ):
-            if settings['https_enabled']:
+            if self.settings['https_enabled']:
                 self.run_wsgi_http_server(True)
-            elif settings['http_enabled']:
+            elif self.settings['http_enabled']:
                 self.run_wsgi_http_server(False)
         else:
-            if settings['http_enabled']:
+            if self.settings['http_enabled']:
                 thttp = threading.Thread(
                     target=self.run_wsgi_http_server,
                     args=(False, ),
                     name='DC-HTTP-Server'
                     )
                 thttp.start()
-            if settings['https_enabled']:
+            if self.settings['https_enabled']:
                 thttps = threading.Thread(
                     target=self.run_wsgi_http_server,
                     args=(True, ),
@@ -198,25 +198,26 @@ class Application(threading.Thread, lazy.Loadable):
         port = 'ssl_port' if ssl_enabled else 'port'
 
         httpd = wsgi.Server(
-            (settings['server']['host'],
-            settings['server'][port]),
+            (self.settings['server']['host'],
+            self.settings['server'][port]),
             wsgi.Handler
         )
 
         httpd.set_app(functools.partial(self.wsgi_callback, ssl_enabled))
         if ssl_enabled:
+            import ssl
             httpd.socket = ssl.wrap_socket(
                 httpd.socket,
-                keyfile=settings['ssl_keyfile'],
-                certfile=settings['ssl_certfile'],
+                keyfile=self.settings['ssl_keyfile'],
+                certfile=self.settings['ssl_certfile'],
                 server_side=True
                 )
         console.cprint('\n\n')
         console.print_info(
             'Starting {} WSGI Server on    Port: {}     and Host: {}'.format(
                 'HTTPS' if ssl_enabled else 'HTTP',
-                settings['server']['host'],
-                settings['server']['port']
+                self.settings['server']['host'],
+                self.settings['server']['port']
                 ))
         httpd.serve_forever()
         return httpd
@@ -230,19 +231,19 @@ class Application(threading.Thread, lazy.Loadable):
         from framework.backend import orm
         if (hasattr(orm.database_proxy, 'database')
             and orm.database_proxy.database == ':memory:'):
-            if settings['https_enabled']:
+            if self.settings['https_enabled']:
                 self.run_http_server(True)
-            elif settings['http_enabled']:
+            elif self.settings['http_enabled']:
                 self.run_http_server(False)
         else:
-            if settings['http_enabled']:
+            if self.settings['http_enabled']:
                 thttp = threading.Thread(
                     target=self.run_http_server,
                     args=(False, ),
                     name='DC-HTTP-Server'
                     )
                 thttp.start()
-            if settings['http_enabled']:
+            if self.settings['http_enabled']:
                 thttps = threading.Thread(
                     target=self.run_http_server,
                     args=(True, ),
@@ -268,15 +269,16 @@ class Application(threading.Thread, lazy.Loadable):
         port = 'ssl_port' if ssl_enabled else 'port'
 
         server_address = (
-            settings['server']['host'],
-            settings['server'][port]
+            self.settings['server']['host'],
+            self.settings['server'][port]
             )
         httpd = server.ThreadedHTTPServer(server_address, request_handler)
         if ssl_enabled:
+            import ssl
             httpd.socket = ssl.wrap_socket(
                 httpd.socket,
-                keyfile=settings['ssl_keyfile'],
-                certfile=settings['ssl_certfile'],
+                keyfile=self.settings['ssl_keyfile'],
+                certfile=self.settings['ssl_certfile'],
                 server_side=True
                 )
         console.cprint('\n\n')
@@ -350,7 +352,7 @@ class Application(threading.Thread, lazy.Loadable):
                 '<p>Stacktrace:</p>'
                 '<code> {} </code>'
                 ).format(e, traceback.format_exc()) if (
-                    settings['runlevel'] in
+                    self.settings['runlevel'] in
                     (structures.RunLevel.TESTING, structures.RunLevel.DEBUG)
                 ) else (
                 '<p>The Page you requested could not be found, or'

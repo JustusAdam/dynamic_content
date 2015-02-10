@@ -4,4 +4,10 @@ __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-settings = component.get_component('settings')
+@component.inject('settings')
+def get_settings(settings):
+    return settings
+
+
+def inject_settings(func):
+    return component.inject('settings')(func)

@@ -1,7 +1,7 @@
 import functools
 import inspect
 
-from framework.includes import log, settings
+from framework.includes import log, get_settings
 from framework.util import structures
 
 
@@ -11,9 +11,9 @@ __author__ = 'Justus Adam'
 def deprecated(func):
     @functools.wraps(func)
     def wrap(*args, **kwargs):
-        if settings['logging_level'] == structures.LoggingLevel.THROW_ALL:
+        if get_settings()['logging_level'] == structures.LoggingLevel.THROW_ALL:
             raise DeprecationWarning
-        if settings['logging_level'] == structures.LoggingLevel.LOG_WARNINGS:
+        if get_settings()['logging_level'] == structures.LoggingLevel.LOG_WARNINGS:
             log.write_warning('in', func, ':', 'using deprecated function')
         return func(*args, **kwargs)
 
