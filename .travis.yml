@@ -6,7 +6,7 @@ python:
     - "pypy3"
 install:
     - pip install --upgrade -r requirements.txt
-script: dynamic_content/dynamic_content -m selftest
+script: python dynamic_content/dynamic_content -m selftest
 sudo: false
 os:
   - linux
