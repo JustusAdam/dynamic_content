@@ -1,0 +1,32 @@
+{
+  "name": "default_theme",
+  "template_directory": "template",
+  "stylesheet_directory": "css",
+  "stylesheets": ["style.css"],
+  "show_powered_by": true,
+  "favicon": "favicon.png",
+  "single_node_template": "template/node",
+  "multi_node_template": "template/multi_node",
+  "regions": {
+    "navigation": {
+      "classes": ["horizontal"],
+      "menu_depth": 2
+    },
+    "footer": {
+      "classes": ["horizontal"]
+    },
+    "sidebar_left": {
+      "classes": [
+        "sidebar",
+        "vertical"
+      ],
+      "menu_depth": 2
+    },
+    "sidebar_right": {
+      "classes": [
+        "sidebar",
+        "vertical"
+      ]
+    }
+  }
+}
