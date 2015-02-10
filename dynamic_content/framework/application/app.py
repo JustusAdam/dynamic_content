@@ -45,6 +45,7 @@ class Application(threading.Thread, lazy.Loadable):
         if settings['runlevel'] == structures.RunLevel.DEBUG:
             log.write_info('loading components')
         console.print_info('Loading Components ... ')
+        from framework import mvc, route, dchp
         console.print_info('Loading Middleware ...')
         middleware.load(settings['middleware'])
         console.print_info('Loading Modules ...')
