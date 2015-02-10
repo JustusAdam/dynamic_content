@@ -137,7 +137,7 @@ def prepare_parser():
     # arguments
 
     parser.add_argument(
-        '--modus', '-m',
+        '--mode', '-m',
         choices=('run', 'test', 'debug', 'selftest'),
         default='run'
     )
@@ -194,9 +194,9 @@ def process_cmd_args(settings):
 
     startargs = parser.parse_args()
 
-    assert startargs.modus
+    assert startargs.mode
 
-    settings['modus'] = startargs.modus
+    settings['mode'] = startargs.mode
 
     pd = startargs.path if startargs.path else '.'
 
@@ -300,7 +300,7 @@ def main():
 
     startargs = process_cmd_args({})
 
-    if startargs['modus'] == 'selftest':
+    if startargs['mode'] == 'selftest':
         settings.update(startargs)
         settings['test_dir'] = 'tests'
     else:
@@ -314,15 +314,15 @@ def main():
     # omitted, due to issues
     # check_parallel_process()
 
-    console.print_debug(startargs['modus'])
+    console.print_debug(startargs['mode'])
 
-    if startargs['modus'] == 'run':
+    if startargs['mode'] == 'run':
 
         from framework import application
 
         application.Application().start()
 
-    elif startargs['modus'] in ('test', 'selftest'):
+    elif startargs['mode'] in ('test', 'selftest'):
         import nose
         import importlib
         nose.main(
