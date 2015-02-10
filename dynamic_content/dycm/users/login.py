@@ -27,8 +27,8 @@ PASSWORD_INPUT = (
 LOGOUT_TARGET = '/login'
 
 LOGOUT_BUTTON = html.A(
-    '/' + logout_prefix,
     'Logout',
+    href='/' + logout_prefix,
     classes={'logout', 'button'}
     )
 

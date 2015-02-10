@@ -88,18 +88,18 @@ def users_overview(dc_obj, get_query):
             href = '/users/{}'.format(user.oid)
             yield (
                 html.A(
-                    href,
-                    str(user.oid)
+                    str(user.oid),
+                    href=href
                 ),
                 html.A(
-                    href,
-                    user.username
+                    user.username,
+                    href=href
                 ),
                 ' '.join((user.first_name, user.middle_name, user.last_name)),
                 user.date_created,
                 html.A(
-                    '/users/' + str(user.oid) + '/edit',
                     'edit',
+                    href='/users/' + str(user.oid) + '/edit'
                 )
             )
 
@@ -113,7 +113,7 @@ def users_overview(dc_obj, get_query):
     dc_obj.context['content']=(
         html.ContainerElement(
             html.TableElement(*head + user_list, classes={'user-overview'}),
-            html.A('/users/new', 'New User', classes={'button'})
+            html.A('New User', href='/users/new', classes={'button'})
         )
         if user_list else
         html.ContainerElement(
@@ -124,8 +124,8 @@ def users_overview(dc_obj, get_query):
             html.ContainerElement(
                 'Would you like to ',
                 html.A(
-                    '/users/new',
                     'create one',
+                    href='/users/new',
                     additional={
                         'style': 'color:rgb(255, 199, 37);text-decoration:none;'
                         }

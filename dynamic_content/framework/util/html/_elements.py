@@ -177,8 +177,8 @@ class AbstractList(ContainerElement):
 class A(ContainerElement):
     def __init__(
         self,
-        href,
         *content,
+        href='',
         classes:set=None,
         element_id:str=None,
         additional:dict=None

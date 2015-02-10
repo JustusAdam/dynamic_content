@@ -186,7 +186,8 @@ class FieldBasedPageContent(object):
             return html.List(
                 *[
                     html.A(
-                        link, name,
+                        name,
+                        href=link,
                         classes={'editorial-link'},
                     ) for name, link in l
                 ],
@@ -354,7 +355,7 @@ class CMSController(object):
             node = handler.access(dc_obj, a)
             if not node:
                 continue
-            node['title'] = html.A('/node/{}'.format(a.oid), node['title'])
+            node['title'] = html.A(node['title'], href='/node/{}'.format(a.oid))
             yield node
 
     @route.controller_method(

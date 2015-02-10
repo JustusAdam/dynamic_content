@@ -60,15 +60,6 @@ class ComponentContainer(dict):
     thus "_my Property" = "myproperty"
 
     """
-
-    def __call__(self, *args, **kwargs):
-        if len(args) == 0:
-            raise AttributeError
-        if len(args) == 1:
-            if not kwargs:
-                return self.__getitem__(args[0])
-        return self.__getitem__(args[0])(*args[1:], **kwargs)
-
     def __setitem__(self, key, value):
         if isinstance(key, str):
             key = _name_transform(key)
@@ -85,6 +76,8 @@ class ComponentContainer(dict):
         else:
             new_key = _name_transform(key)
             return super().setdefault(new_key, ComponentWrapper(new_key))
+
+    __call__ = __getitem__
 
     def __getattr__(self, item):
         return self.__getitem__(item)

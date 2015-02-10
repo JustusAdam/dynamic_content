@@ -22,8 +22,8 @@ class MenuAdminController:
         menus = _model.Menu.select()
         l = [
             [
-                html.A(str(url.path) + '/' + item.machine_name, item.id),
-                html.A(str(url.path) + '/' + item.machine_name, i18n.translate(item.display_name)),
+                html.A(item.id, href=str(url.path) + '/' + item.machine_name),
+                html.A(i18n.translate(item.display_name), href=str(url.path) + '/' + item.machine_name),
                 html.Checkbox(checked=bool(item.enabled))
             ] for item in menus]
         dc_obj.context['content'] = csrf.SecureForm(html.TableElement(*l, classes={'menu-overview'}))

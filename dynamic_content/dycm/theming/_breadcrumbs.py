@@ -26,8 +26,8 @@ def render_breadcrumbs(url):
                     classes={'breadcrumb-separator'}
                 ),
                 html.A(
-                    location,
                     name,
+                    href=location,
                     classes={'breadcrumb'}
                 )
             ):
