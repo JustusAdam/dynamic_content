@@ -194,7 +194,7 @@ def process_cmd_args(settings):
 
     assert startargs.modus
 
-    settings['modus'] = startargs.modus
+    settings['modus'] = startargs.modus[0]
 
     pd = startargs.path if startargs.path else '.'
 
@@ -302,11 +302,30 @@ def main():
 
     update_settings(settings, custom_settings, startargs)
 
-    check_parallel_process()
+    sys.path = [settings['project_dir']] + sys.path
 
-    from framework import application
+    # omitted, due to issues
+    # check_parallel_process()
 
-    application.Application().start()
+    console.print_debug(startargs['modus'])
+
+    if startargs['modus'] == 'run':
+
+        from framework import application
+
+        application.Application().start()
+
+    elif startargs['modus'] == 'test':
+        import nose
+        import importlib
+        nose.main(
+            module=importlib.import_module(
+                settings.get(
+                    'test_dir',
+                    'tests'
+                ).replace('/', '.')
+            )
+        )
 
 
 if __name__ == '__main__':

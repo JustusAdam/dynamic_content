@@ -1,3 +1,4 @@
+"""Implementation of the formatter object that renders the template"""
 import re
 import sys
 
@@ -25,32 +26,49 @@ _defaults = {
 
 @Component('TemplateFormatter')
 class TemplateFormatter(object):
+    """
+    Handler Object parsing the view name returned by the controller and
+    compiling an appropriate response object.
+    """
 
-    responses = {
-        None: 'serve_document',
-        'redirect': 'redirect'
-    }
+    def __init__(self):
+        self.responses = {
+            None: self.serve_document,
+            'redirect': self.redirect
+        }
 
     def __call__(self, view_name, dc_obj):
-        request = dc_obj.request
-
         c = ARG_REGEX.match(view_name) if view_name else None
 
         c, *arg = c.groups() if c else (None, view_name)
 
         handler = getattr(self, self.responses[c])
 
-        return handler(dc_obj, request, *arg)
+        return handler(dc_obj, *arg)
 
     @staticmethod
-    def redirect(dc_obj, request, location):
+    def redirect(dc_obj, location):
+        """
+        Handle a redirect response
+
+        :param dc_obj: the DynamicContent instance
+        :param location: location to redirect to
+        :return: response.Redirect()
+        """
         return response.Redirect(
             location=location,
             headers=dc_obj.config.get('headers', None),
             cookies=dc_obj.config.get('cookies', None)
             )
 
-    def serve_document(self, dc_obj, request, view_name):
+    def serve_document(self, dc_obj, view_name):
+        """
+        Handle a 200 OK response
+
+        :param dc_obj: the DynamicContent instance
+        :param view_name: name of the view to use as template
+        :return: response.Response()
+        """
 
         encoding = dc_obj.config.get('encoding', _defaults['encoding'])
         decorator_attributes = dc_obj.config.get('decorator_attributes', {})
@@ -59,7 +77,7 @@ class TemplateFormatter(object):
             document = dc_obj.context['content']
 
         elif ('no_view' in decorator_attributes
-            or view_name is None):
+              or view_name is None):
             document = dc_obj.context['content'].encode(encoding)
         else:
             pairing = self.make_pairing(dc_obj)
@@ -85,13 +103,26 @@ class TemplateFormatter(object):
 
     @staticmethod
     def make_pairing(dc_obj):
+        """
+        Construct initial globals for template
+
+        :param dc_obj: the DynamicContent instance
+        :return: globals dict
+        """
         return dict(
             dc_obj.context,
-            request= dc_obj.request
+            request=dc_obj.request
         )
 
     @staticmethod
     def view_path(view, dc_obj):
+        """
+        Generator of paths in which to look for the template
+
+        :param view: name of the view
+        :param dc_obj: DynamicContent instance
+        :return: generator of paths
+        """
         view = view if view.endswith('.html') else view + '.html'
         if view.startswith('/'):
             yield view[1:]
