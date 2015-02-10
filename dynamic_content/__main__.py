@@ -137,7 +137,9 @@ def prepare_parser():
     # arguments
 
     parser.add_argument(
-        '--modus', '-m', choices=('run', 'test', 'debug', 'selftest')
+        '--modus', '-m',
+        choices=('run', 'test', 'debug', 'selftest'),
+        default='run'
     )
 
     parser.add_argument(
