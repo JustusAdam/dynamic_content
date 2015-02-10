@@ -1,4 +1,5 @@
 from framework import component
+from . import _settings
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'

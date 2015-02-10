@@ -1,13 +1,13 @@
 import inspect
 from functools import wraps
-from framework.includes import settings
+from framework.includes import get_settings
 from framework.util import structures
 
 __author__ = 'Justus Adam'
 
 
 def typesafe(func):
-    if settings['runlevel'] == structures.RunLevel.PRODUCTION: return func
+    if get_settings()['runlevel'] == structures.RunLevel.PRODUCTION: return func
     spec = inspect.getfullargspec(func)
     types = spec.annotations
     def_args = spec.args

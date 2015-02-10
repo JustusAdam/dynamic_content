@@ -270,24 +270,6 @@ def get_custom_settings(startargs):
     )
 
 
-def init_settings():
-    """
-    Initialize the settings with the default settings.
-
-    :return:
-    """
-    parent = pathlib.Path(__file__).parent
-    if 'settings' not in component.component_container:
-        component.register(
-            'settings',
-             config.read_config(parent / 'settings.yml')
-        )
-    settings = component.get_component['settings'].get()
-    settings['dc_basedir'] = str(parent)
-
-    return settings
-
-
 def main():
     """
     Things to do to start the app.
@@ -295,7 +277,7 @@ def main():
     :return: None
     """
 
-    settings = init_settings()
+    settings = get_settings()
 
     startargs = process_cmd_args({})
 

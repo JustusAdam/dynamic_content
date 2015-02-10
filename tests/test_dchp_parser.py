@@ -1,5 +1,5 @@
 import unittest
-from dynamic_content import dchp
+from framework import dchp
 
 
 class TestDcHP(unittest.TestCase):
