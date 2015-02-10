@@ -1,4 +1,5 @@
 from .. import component
+import pathlib
 
 
 class Settings(dict):
@@ -58,6 +59,7 @@ default_settings = {
 
     'http_enabled': True,
     'https_enabled': False,
+    'dc_basedir': str(pathlib.Path(__file__).parent.parent.parent.resolve())
 }
 
 component.register(
