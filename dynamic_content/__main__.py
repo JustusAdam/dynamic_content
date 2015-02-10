@@ -137,7 +137,7 @@ def prepare_parser():
     # arguments
 
     parser.add_argument(
-        'modus', choices=('run', 'test', 'debug'), nargs=1
+        '--modus', '-m', choices=('run', 'test', 'debug', 'selftest')
     )
 
     parser.add_argument(
@@ -194,7 +194,7 @@ def process_cmd_args(settings):
 
     assert startargs.modus
 
-    settings['modus'] = startargs.modus[0]
+    settings['modus'] = startargs.modus
 
     pd = startargs.path if startargs.path else '.'
 
@@ -298,9 +298,14 @@ def main():
 
     startargs = process_cmd_args({})
 
-    custom_settings = get_custom_settings(startargs)
+    if startargs['modus'] == 'selftest':
+        settings.update(startargs)
+        settings['test_dir'] = 'tests'
+    else:
 
-    update_settings(settings, custom_settings, startargs)
+        custom_settings = get_custom_settings(startargs)
+
+        update_settings(settings, custom_settings, startargs)
 
     sys.path = [settings['project_dir']] + sys.path
 
@@ -315,7 +320,7 @@ def main():
 
         application.Application().start()
 
-    elif startargs['modus'] == 'test':
+    elif startargs['modus'] in ('test', 'selftest'):
         import nose
         import importlib
         nose.main(

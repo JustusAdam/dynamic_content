@@ -1,4 +1,4 @@
-from dynamic_content import hooks
+from framework import hooks
 
 __author__ = 'justusadam'
 __version__ = '0.1'
@@ -71,7 +71,6 @@ class MyTestCase(unittest.TestCase):
             res3,
             (8, 3, 6)
         )
-
 
 
 if __name__ == '__main__':

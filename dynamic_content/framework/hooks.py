@@ -1,3 +1,6 @@
+"""
+Hooking implementation
+"""
 from .component import Component, get_component
 from .errors import exceptions
 from .util import console
@@ -7,7 +10,7 @@ __version__ = '0.1'
 
 
 class Hook:
-    __doc__ = """
+    """
     Abstract Hook baseclass. Used mainly to ensure typesafety
      in the Hook manager
 
