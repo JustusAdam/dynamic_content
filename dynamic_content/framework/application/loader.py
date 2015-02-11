@@ -42,7 +42,13 @@ class Loader:
 
         :return: None
         """
-        for module in self.settings['import']:
-            m = importlib.import_module(module)
-            if hasattr(m, 'init_app') and callable(m.init_app):
-                m.init_app()
+        modules = tuple(
+            importlib.import_module(module)
+            for module in self.settings['import']
+        )
+        for module in modules:
+            if hasattr(module, 'init_app') and callable(module.init_app):
+                module.init_app()
+        for module in modules:
+            if hasattr(module, 'run_services') and callable(module.run_services):
+                module.run_services()
