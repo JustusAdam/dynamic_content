@@ -24,12 +24,9 @@ model.AccessGroup.create_table(fail_silently=True)
 
 # special access groups
 UNKNOWN_GRP = -1  # placeholder - user group undetermined
-CONTROL_GROUP = model.AccessGroup(oid=CONTROL_GROUP_NR, machine_name='control_group')
-CONTROL_GROUP.save()
-GUEST_GRP = model.AccessGroup(oid=1, machine_name='_GUEST_GROUP')  # Not an authenticated User
-GUEST_GRP.save()
-AUTH = model.AccessGroup(oid=2, machine_name='_AUTH')  # Default group for users. users that have no particular group assigned to them
-AUTH.save()
+CONTROL_GROUP = model.AccessGroup.get_or_create(oid=CONTROL_GROUP_NR, machine_name='control_group')
+GUEST_GRP = model.AccessGroup.get_or_create(oid=1, machine_name='_GUEST_GROUP')  # Not an authenticated User
+AUTH = model.AccessGroup.get_or_create(oid=2, machine_name='_AUTH')  # Default group for users. users that have no particular group assigned to them
 
 # special usernames
 UNKNOWN = -1  # placeholder - user undetermined
