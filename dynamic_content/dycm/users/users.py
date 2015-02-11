@@ -17,13 +17,14 @@ _value_mapping = {
 #
 # do NOT change these values after installing
 # unless you reset the database and reinstall
-CONTROL_GROUP = 0
+CONTROL_GROUP_NR = 0
 
 model.User.create_table(fail_silently=True)
 model.AccessGroup.create_table(fail_silently=True)
 
 # special access groups
 UNKNOWN_GRP = -1  # placeholder - user group undetermined
+CONTROL_GROUP = model.AccessGroup.create(oid=CONTROL_GROUP_NR, machine_name='control_group')
 GUEST_GRP = model.AccessGroup(oid=1, machine_name='_GUEST_GROUP')  # Not an authenticated User
 GUEST_GRP.save()
 AUTH = model.AccessGroup(oid=2, machine_name='_AUTH')  # Default group for users. users that have no particular group assigned to them
@@ -36,9 +37,14 @@ GUEST.save()
 
 
 @inject_settings
-def hash_password(settings ,password, salt):
-    return hashlib.pbkdf2_hmac(settings['hashing_algorithm'], password, salt, settings['hashing_rounds'],
-                               settings['hash_length'])
+def hash_password(settings, password, salt):
+    return hashlib.pbkdf2_hmac(
+        settings['hashing_algorithm'],
+        password,
+        salt,
+        settings['hashing_rounds'],
+        settings['hash_length']
+    )
 
 
 def check_ident(password, salt, comp_hash):
@@ -89,12 +95,12 @@ def check_permission(aid, permission, strict=False):
 
 
 def assign_permission(aid, permission):
-    if aid == CONTROL_GROUP:
+    if aid == CONTROL_GROUP_NR:
         log.write_error('users, permissions, assign_permission: cannot assign permissions to control group')
     elif check_permission(aid=aid, permission=permission, strict=True):
         log.write_warning('in users, permissions, assign_permission:',
                           'access group ' + str(aid) + ' already owns permission ' + permission)
-    elif not check_permission(aid=CONTROL_GROUP, permission=permission):
+    elif not check_permission(aid=CONTROL_GROUP_NR, permission=permission):
         log.write_warning('users, permissions, assign_permission:',
                           'permission ' + permission + ' does not exist yet')
         new_permission(permission)
@@ -104,17 +110,17 @@ def assign_permission(aid, permission):
 
 
 def revoke_permission(aid, permission):
-    if aid == CONTROL_GROUP:
+    if aid == CONTROL_GROUP_NR:
         log.write_error('users, permissions, assign_permission: cannot revoke permissions from control group')
     else:
         model.AccessGroupPermission(group=aid, permission=permission).delete_instance()
 
 
 def new_permission(permission):
-    result = model.AccessGroupPermission.select().where(model.AccessGroupPermission.group == CONTROL_GROUP,
+    result = model.AccessGroupPermission.select().where(model.AccessGroupPermission.group == CONTROL_GROUP_NR,
                                                         model.AccessGroupPermission.permission == permission)
     if result.wrapped_count() == 0:
-        model.AccessGroupPermission.create(group=CONTROL_GROUP, permission=permission)
+        model.AccessGroupPermission.create(group=CONTROL_GROUP_NR, permission=permission)
 
 
 def remove_permission(permission):

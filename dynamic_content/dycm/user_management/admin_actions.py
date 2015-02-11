@@ -245,7 +245,7 @@ def edit_permissions_action(dc_obj, post):
             # print('assigning permission ' + ' '.join([g[1].replace('-', ' '), 'to', str(g[0])]))
             new_perm.append((int(g[0]), g[1].replace('-', ' ')))
     new_perm = _sort_perm_list(new_perm)
-    old_perm, control_perm = split_list(permissions_list, lambda a: int(a[0]) != users.CONTROL_GROUP, )
+    old_perm, control_perm = split_list(permissions_list, lambda a: int(a[0]) != users.CONTROL_GROUP_NR, )
     add = []
     remove = []
     while new_perm and old_perm:

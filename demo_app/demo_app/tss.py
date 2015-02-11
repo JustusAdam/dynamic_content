@@ -20,21 +20,19 @@ def init_tables(settings):
     from framework.backend import orm
     import inspect
 
-
     def _init_module(m):
         for item in dir(m):
             item = getattr(m, item)
             if inspect.isclass(item) and issubclass(item, orm.Model):
                 try:
                     item.create_table()
-                    # console.cprint('creating table ' + str(item._meta.db_table))
                 except Exception as e:
                     log.write_error('create_table:', e)
 
-    c = {}
-
-    for module in settings['modules']:
-        c[module] = import_module('dycm.' + module)
+    c = {
+        module: import_module('dycm.' + module)
+        for module in settings['modules']
+    }
 
     for module in c.values():
         _init_module(module)
@@ -59,7 +57,7 @@ def initialize(settings):
 
     ADMIN_GRP = 5
 
-    user_module.users.add_acc_grp('control_group', user_module.users.CONTROL_GROUP)
+    # user_module.users.add_acc_grp('control_group', user_module.users.CONTROL_GROUP)
 
     permissions = [
         [
