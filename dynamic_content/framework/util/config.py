@@ -1,11 +1,8 @@
 """
 Tool for convenient standard (json, yaml) config reading and writing
 """
-import functools
-import pathlib
 import yaml
 import json
-import re
 
 
 __author__ = 'Justus Adam'

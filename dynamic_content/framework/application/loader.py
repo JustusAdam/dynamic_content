@@ -2,7 +2,7 @@ import importlib
 from framework import middleware
 from framework import component
 from framework.includes import log
-from framework.util import console, structures
+from framework.util import structures
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'

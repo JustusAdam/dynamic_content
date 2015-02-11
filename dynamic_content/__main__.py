@@ -4,7 +4,7 @@ Main file that runs the application.
 import argparse
 import pathlib
 import sys
-from framework.util import config, structures, console
+from framework.util import config, structures
 from framework import component
 from framework.includes import log
 
@@ -297,7 +297,8 @@ def main():
 
         from framework import application
 
-        application.Application().start()
+        a = application.Application()
+        a.start()
 
     elif startargs['mode'] == 'test':
         import nose
