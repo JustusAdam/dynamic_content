@@ -1,40 +1,54 @@
-import pathlib
-import datetime
 import functools
-
-from . import inject_settings
+from framework.util import time
+import pathlib
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-@inject_settings
-def get_path(settings):
-    _path = (
-        pathlib.Path(settings['logfile'][1:])
-        if settings['logfile'].startswith('/')
-        else pathlib.Path(__file__).parent / settings['logfile']
-        )
-    if _path.is_dir():
-        raise IsADirectoryError
-    elif not _path.exists():
-        _path.touch()
-    return _path
+def _cache(func):
+    class Cache:
+        __slots__ = 'cached',
+
+        def __init__(self, cached):
+            self.cached = cached
+
+    _cached = Cache(None)
+
+    def inner():
+        if _cached.cached is None:
+            _cached.cached = func()
+        return _cached.cached
+
+    return inner
+
+
+@_cache
+def get_path():
+    dirpath = pathlib.Path(__file__).parent.resolve()
+    path = dirpath / ''.join(('session-log-', str(time.utcnow()), '.log'))
+    if path.exists():
+        raise IOError('logfile name exists')
+    else:
+        path.touch()
+
+    return str(path)
 
 
 def open_log():
     return open(str(get_path()), mode='a')
 
 
-def write(*stuff):
+def write(*args, **kwargs):
     with open_log() as log:
-        print(*stuff, file=log)
+        print(*args, file=log, **kwargs)
 
 
-def write_any(*stuff):
-    write(datetime.datetime.now(), *stuff)
+def write_any(*args, **kwargs):
+    write(time.utcnow(), *args, **kwargs)
 
 
-write_error   = functools.partial(write_any, '[ERROR]  ')
-write_info    = functools.partial(write_any, '[INFO]   ')
-write_warning = functools.partial(write_any, '[WARNING]')
+print_error = write_error = functools.partial(write_any,     '[ERROR]  ')
+print_info = write_info = functools.partial(write_any,       '[INFO]   ')
+print_warning = write_warning = functools.partial(write_any, '[WARNING]')
+print_debug = write_debug = functools.partial(write_any,     '[DEBUG]  ')

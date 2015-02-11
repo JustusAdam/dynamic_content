@@ -1,6 +1,6 @@
 from peewee import *
-from framework.includes import inject_settings
-from framework.util import console, structures
+from framework.includes import inject_settings, log
+from framework.util import structures
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
@@ -13,7 +13,7 @@ def proxy_db(settings):
 
     :return:
     """
-    console.print_info('Current RunLevel:  ', settings['runlevel'],  '  ->  ', structures.RunLevel[settings['runlevel']])
+    log.print_info('Current RunLevel:  ', settings['runlevel'],  '  ->  ', structures.RunLevel[settings['runlevel']])
     if settings['runlevel'] in [structures.RunLevel.TESTING, structures.RunLevel.DEBUG]:
         db = SqliteDatabase(':memory:')
         db.connect()

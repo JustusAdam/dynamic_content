@@ -57,6 +57,15 @@ class Application(threading.Thread):
 
         if (hasattr(orm.database_proxy, 'database')
             and orm.database_proxy.database == ':memory:'):
+            log.print_warning(
+                'Using an in-memory database with this software is supported '
+                'however bears some restrictions. ',
+                'SQlite does not support sharing connections between threads ',
+                'as such you may only use a single server thread '
+                'when using an in-memory database.',
+                'It is recommended to only use in-memory databases for testing',
+                sep='\n'
+            )
             if self.settings['https_enabled']:
                 self.threads.append(thread_class(True, l))
             elif self.settings['http_enabled']:
@@ -72,12 +81,13 @@ class Application(threading.Thread):
             thread.start()
 
     def wait(self):
-        while True:
-            a = input('Press an key to stop the server')
-            if a:
-                for thread in self.threads:
-                    thread.join(0)
-                quit(code=0)
+        try:
+            while True:
+                input('Press an Ctrl-C to stop the server ...')
+        except KeyboardInterrupt:
+            for thread in self.threads:
+                thread.join(1)
+            raise
 
 
 if __name__ == '__main__':

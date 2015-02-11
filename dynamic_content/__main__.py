@@ -6,6 +6,7 @@ import pathlib
 import sys
 from framework.util import config, structures, console
 from framework import component
+from framework.includes import log
 
 python_logo_ascii_art = """
           .?77777777777777$.
@@ -83,7 +84,7 @@ def check_parallel_process():
     )
 
     if len(lines) != 0:
-        console.print_debug(lines)
+        log.print_debug(lines)
         user_input = input(
             '\n\nAnother {} process has been detected.\n'
             'Would you like to kill it, in order to start a new one?\n'
@@ -290,7 +291,7 @@ def main():
     # omitted, due to issues
     # check_parallel_process()
 
-    console.print_debug(startargs['mode'])
+    log.print_debug(startargs['mode'])
 
     if startargs['mode'] == 'run':
 

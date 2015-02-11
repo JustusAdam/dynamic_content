@@ -29,7 +29,6 @@ def init_tables(settings):
                     item.create_table()
                     # console.cprint('creating table ' + str(item._meta.db_table))
                 except Exception as e:
-                    console.print_error(e)
                     log.write_error('create_table:', e)
 
     c = {}
@@ -43,7 +42,6 @@ def init_tables(settings):
             m = import_module('.model', module.__name__)
             _init_module(m)
         except Exception as error:
-            console.print_error(error)
             log.write_error('init_tables:', error)
 
     from framework.middleware import alias, csrf

@@ -3,7 +3,7 @@ Hooking implementation
 """
 from . import component
 from .errors import exceptions
-from .util import console
+from .includes import log
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
@@ -274,7 +274,7 @@ class HookManager:
         :return: None
         """
         if not hook in self._hooks:
-            console.print_warning(
+            log.print_warning(
                 'Assigning to uninitialized hook {}, '
                 'assuming type {}'.format(hook, type(handler))
             )

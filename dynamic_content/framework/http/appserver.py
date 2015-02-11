@@ -94,7 +94,6 @@ class AppTread(threading.Thread):
                 handler_options={}
             )
 
-
             dc_obj.context['title'] = '404 - Page not found'
             dc_obj.context['content'] = (
                 '<h3>Pathmapper encountered an error</h3>'
@@ -214,13 +213,6 @@ class WGSI(AppTread):
                 certfile=self.settings['ssl_certfile'],
                 server_side=True
                 )
-        console.cprint('\n\n')
-        console.print_info(
-            'Starting {} WSGI Server on    Port: {}     and Host: {}'.format(
-                'HTTPS' if self.ssl_enabled else 'HTTP',
-                self.settings['server']['host'],
-                self.settings['server']['port']
-                ))
         httpd.serve_forever()
         return httpd
 
@@ -268,7 +260,4 @@ class HTTP(AppTread):
                 certfile=self.settings['ssl_certfile'],
                 server_side=True
                 )
-        console.cprint('\n\n')
-        console.print_info('Starting Server on host: {}, port:'.format(
-            *server_address))
         httpd.serve_forever()

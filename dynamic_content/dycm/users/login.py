@@ -2,7 +2,8 @@ import datetime
 from http import cookies
 
 from framework import http, hooks, route
-from framework.util import html, console
+from framework.includes import log
+from framework.util import html
 from framework.middleware import csrf
 from dycm import commons, theming
 from . import session, users, decorator
@@ -136,7 +137,7 @@ def login_(dc_obj):
 @decorator.authorize('access login page')
 @theming.theme()
 def login(dc_obj, failed):
-    console.print_debug(failed)
+    log.print_debug(failed)
     if failed == 'failed':
         message = html.ContainerElement(
             'Your Login failed, please try again.',

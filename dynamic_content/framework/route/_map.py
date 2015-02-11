@@ -4,7 +4,7 @@ from framework import http
 from framework.errors import exceptions
 from .. import component
 from framework.util import console, structures
-from framework.includes import get_settings
+from framework.includes import get_settings, log
 
 
 __author__ = 'Justus Adam'
@@ -122,14 +122,14 @@ class PathMap(Segment):
 
     @staticmethod
     def print_info(path, handler):
-        console.print_info(
-            'Registering on path {csi}4m{path}{csi}24m    '
-            ' Handler: {module}.{csi}1m{function}'.format(
+        log.print_info(
+            'Registering on path {path}    '
+            ' Handler: {module}.{function}'.format(
                 path=path,
                 module=handler.function.__module__,
-                csi=console.csi,
-                function=handler.function.__name__)
-                )
+                function=handler.function.__name__
+            )
+        )
 
     def add_path(self, path:str, handler):
         """registers given handler at given path"""

@@ -17,11 +17,11 @@ class Loader:
     def load(self):
         if self.settings['runlevel'] == structures.RunLevel.DEBUG:
             log.write_info('loading components')
-        console.print_info('Loading Components ... ')
+        log.write_info('Loading Components ... ')
         from framework import mvc, route, dchp
-        console.print_info('Loading Middleware ...')
+        log.print_warning('Loading Middleware ...')
         middleware.load(self.settings['middleware'])
-        console.print_info('Loading Modules ...')
+        log.print_info('Loading Modules ...')
         self.load_modules()
         if callable(self.init_function):
             self.init_function()
