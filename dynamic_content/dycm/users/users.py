@@ -1,6 +1,6 @@
 from framework.util.py34 import hashlib
 import os
-from framework.includes import log, get_settings, inject_settings
+from framework.includes import log, inject_settings
 from . import model
 
 __author__ = 'Justus Adam'
@@ -24,7 +24,8 @@ model.AccessGroup.create_table(fail_silently=True)
 
 # special access groups
 UNKNOWN_GRP = -1  # placeholder - user group undetermined
-CONTROL_GROUP = model.AccessGroup.create(oid=CONTROL_GROUP_NR, machine_name='control_group')
+CONTROL_GROUP = model.AccessGroup(oid=CONTROL_GROUP_NR, machine_name='control_group')
+CONTROL_GROUP.save()
 GUEST_GRP = model.AccessGroup(oid=1, machine_name='_GUEST_GROUP')  # Not an authenticated User
 GUEST_GRP.save()
 AUTH = model.AccessGroup(oid=2, machine_name='_AUTH')  # Default group for users. users that have no particular group assigned to them
