@@ -2,7 +2,7 @@ import functools
 from framework.util import time
 import os
 import pathlib
-from dynamic_content.framework.component import inject
+from framework.component import inject
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
