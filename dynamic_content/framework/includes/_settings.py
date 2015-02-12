@@ -38,7 +38,7 @@ default_settings = {
 
     # 0:MULTI_TABLE, 1:TREE
     'pathmap_type': 0,
-    'logfile': 'app.log',
+    'logfile': '',
     'middleware': [
         'framework.middleware.alias.Middleware',
         'modules.file.PathHandler',

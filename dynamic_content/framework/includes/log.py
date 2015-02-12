@@ -28,10 +28,8 @@ def _cache(func):
 @_cache
 @inject('settings')
 def get_path(settings):
-    logfile = settings['logfile']
-    log_dir = logfile
-    dirpath = pathlib.Path(log_dir)
-    if not dirpath.exists():
+    dirpath = pathlib.Path(settings['logfile'])
+    if settings['logfile'] == '' or not dirpath.exists():
         dirpath = pathlib.Path(__file__).parent.resolve()
     path = dirpath / ''.join(('session-log-', str(time.utcnow()), '.log'))
     if path.exists():
