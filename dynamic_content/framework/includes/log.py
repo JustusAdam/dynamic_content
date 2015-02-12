@@ -28,9 +28,12 @@ def _cache(func):
 @_cache
 @inject('settings')
 def get_path(settings):
-    dirpath = pathlib.Path(settings['logfile'])
-    if settings['logfile'] == '' or not dirpath.exists():
-        dirpath = pathlib.Path(__file__).parent.resolve()
+    dirpath = (
+        pathlib.Path(settings['logfile'])
+        if 'logfile' in settings 
+        else get_default_log_path()
+        )
+    
     path = dirpath / ''.join(('session-log-', str(time.utcnow()), '.log'))
     if path.exists():
         raise IOError('logfile name exists')
@@ -38,6 +41,11 @@ def get_path(settings):
         path.touch()
 
     return str(path)
+
+
+def get_default_log_path():
+    # TODO add platform dependant path
+    return pathlib.Path(__file__).parent.resolve()
 
 
 def open_log():
