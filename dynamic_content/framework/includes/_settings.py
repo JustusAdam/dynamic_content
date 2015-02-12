@@ -41,7 +41,7 @@ default_settings = {
     'logfile': 'app.log',
     'middleware': [
         'framework.middleware.alias.Middleware',
-        'modules.file.PathHandler',
+        'dycm.file.PathHandler',
         'framework.middleware.ssl.ConditionalSSLRedirect',
         # 'framework.middleware.rest.JSONTransform'
     ],

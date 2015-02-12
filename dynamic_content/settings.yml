@@ -31,7 +31,7 @@ pathmap_type: 0
 logfile: 'app.log'
 middleware:
   - 'framework.middleware.alias.Middleware'
-  - 'modules.file.PathHandler'
+  - 'dy.file.PathHandler'
   - 'framework.middleware.ssl.ConditionalSSLRedirect'
   # - 'framework.middleware.rest.JSONTransform'
 
