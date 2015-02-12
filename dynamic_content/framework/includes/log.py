@@ -1,6 +1,8 @@
 import functools
 from framework.util import time
+import os
 import pathlib
+from dynamic_content.framework.component import inject
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
@@ -35,6 +37,8 @@ def get_path(settings):
     else:
         log_dir = logfile
     dirpath = pathlib.Path(log_dir)
+    if not dirpath.exists():
+        dirpath = pathlib.Path(__file__).parent.resolve()
     path = dirpath / ''.join(('session-log-', str(time.utcnow()), '.log'))
     if path.exists():
         raise IOError('logfile name exists')
