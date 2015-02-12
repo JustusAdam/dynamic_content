@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/JustusAdam/dynamic_content.svg?branch=master)](https://travis-ci.org/JustusAdam/dynamic_content)
+[![Build Status](https://travis-ci.org/dynamic-content/dynamic_content.svg?branch=master)](https://travis-ci.org/dynamic-content/dynamic_content)
 
 # dynamic_content
 
