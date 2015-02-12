@@ -1,6 +1,8 @@
 import functools
 from framework.util import time
+import os
 import pathlib
+from framework.component import inject
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
@@ -24,8 +26,11 @@ def _cache(func):
 
 
 @_cache
-def get_path():
-    dirpath = pathlib.Path(__file__).parent.resolve()
+@inject('settings')
+def get_path(settings):
+    dirpath = pathlib.Path(settings['logfile'])
+    if settings['logfile'] == '' or not dirpath.exists():
+        dirpath = pathlib.Path(__file__).parent.resolve()
     path = dirpath / ''.join(('session-log-', str(time.utcnow()), '.log'))
     if path.exists():
         raise IOError('logfile name exists')
