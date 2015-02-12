@@ -30,8 +30,7 @@ AUTH = model.AccessGroup.get_or_create(oid=2, machine_name='_AUTH')  # Default g
 
 # special usernames
 UNKNOWN = -1  # placeholder - user undetermined
-GUEST = model.User(oid=0, username='_GUEST', access_group=GUEST_GRP, email_address='test@test')  # Not a authenticated User
-GUEST.save()
+GUEST = model.User.get_or_create(oid=0, username='_GUEST', access_group=GUEST_GRP, email_address='test@test')  # Not a authenticated User
 
 
 @inject_settings

@@ -75,8 +75,8 @@ def initialize(settings):
         ]
     ]
 
+    user_module.users.add_acc_grp('admin', ADMIN_GRP)
     for access_group, name, permission_list in permissions:
-        user_module.users.add_acc_grp(name, access_group)
         for permission in permission_list:
             user_module.users.new_permission(permission)
             user_module.users.assign_permission(access_group, permission)
@@ -110,7 +110,7 @@ def initialize(settings):
         ('default_theme', str(theme_path / 'themes/default_theme'), True),
         ('admin_theme', str(theme_path / 'themes/admin_theme'), True)
     ]:
-        theming.model.Theme.create(
+        theming.model.Theme.get_or_create(
             machine_name=name,
             path=path,
             enabled=enabled

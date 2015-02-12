@@ -1,8 +1,8 @@
 import importlib
-from framework import middleware
-from framework import component
+from framework import middleware, component
 from framework.includes import log
 from framework.util import structures
+from . import registry
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
@@ -13,6 +13,7 @@ class Loader:
     def __init__(self, settings, init_function=None):
         self.settings = settings
         self.init_function = init_function
+        self.registry = registry.Registry()
 
     def load(self):
         if self.settings['runlevel'] == structures.RunLevel.DEBUG:
