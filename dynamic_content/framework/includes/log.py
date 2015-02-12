@@ -28,14 +28,8 @@ def _cache(func):
 @_cache
 @inject('settings')
 def get_path(settings):
-    working_dir = settings['project_dir']
     logfile = settings['logfile']
-    if logfile[0:2] == './':
-        log_dir = working_dir + logfile[1:]
-    elif logfile[0:3] == '../':
-        log_dir = working_dir + '/' + logfile
-    else:
-        log_dir = logfile
+    log_dir = logfile
     dirpath = pathlib.Path(log_dir)
     if not dirpath.exists():
         dirpath = pathlib.Path(__file__).parent.resolve()
