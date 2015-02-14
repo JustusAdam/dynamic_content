@@ -59,8 +59,7 @@ class Hook:
 
 
 class ClassHook(Hook):
-    __slots__ = ()
-    __doc__ = """
+    """
     Base class for inheritance based hooks.
 
     Use by subclassing this class and setting the hook_name attribute,
@@ -76,6 +75,7 @@ class ClassHook(Hook):
      with the manager, but only if the constructor does not require
      additional arguments
     """
+    __slots__ = ()
     hook_name = ''
 
     @classmethod
@@ -167,8 +167,8 @@ class InstanceHook(Hook):
         return self.manager().yield_call_hooks_with(self.hook_name, executable, *args, **kwargs)
 
 
-class FunctionHook(Hook):
-    __doc__ = """
+class FunctionHook(InstanceHook):
+    """
     Special subclass of InstanceHook.
 
     Designed to allow you to quickly turn an arbitrary callable into a hook.
@@ -180,8 +180,8 @@ class FunctionHook(Hook):
     """
     __slots__ = 'function',
 
-    def __init__(self, function, priority=0):
-        super().__init__(priority)
+    def __init__(self, function, hook_name, priority=0):
+        super().__init__(hook_name, priority)
         self.function = function
 
     def __call__(self, *args, **kwargs):
