@@ -52,11 +52,17 @@ class Application(threading.Thread):
         self.wait()
 
     def start_servers(self, thread_class):
+        """
+        Start all servers defined in settings
+
+        :param thread_class: AppThread subclass to use
+        :return: None
+        """
 
         l = loader.Loader()
 
-        if (hasattr(orm.database_proxy, 'database')
-            and orm.database_proxy.database == ':memory:'):
+        if (hasattr(orm.database_proxy, 'database') and (
+                orm.database_proxy.database == ':memory:')):
             log.print_warning(
                 'Using an in-memory database with this software is supported '
                 'however bears some restrictions. ',
@@ -81,6 +87,11 @@ class Application(threading.Thread):
             thread.start()
 
     def wait(self):
+        """
+        Wait for input to stop the server
+
+        :return: None
+        """
         try:
             while True:
                 input('Press an Ctrl-C to stop the server ...')

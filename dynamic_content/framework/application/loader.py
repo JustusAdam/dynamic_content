@@ -16,6 +16,10 @@ class Loader:
         self.registry = registry.Registry()
 
     def load(self):
+        """
+        Main work of the loader
+        :return: None
+        """
         if self.settings['runlevel'] == structures.RunLevel.DEBUG:
             log.write_info('loading components')
         log.write_info('Loading Components ... ')
