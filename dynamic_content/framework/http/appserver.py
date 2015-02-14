@@ -1,3 +1,5 @@
+"""Dedicated threading.Thread subclasses that run servers"""
+
 import functools
 import threading
 import traceback
@@ -5,13 +7,14 @@ from framework import middleware, component, http
 from framework.errors import exceptions
 from http import server
 from framework.includes import log
-from framework.util import structures, catch_vardump, console
+from framework.util import structures, catch_vardump
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
 class AppTread(threading.Thread):
+    """Custom Thread baseclass"""
 
     @component.inject_method('settings')
     def __init__(self, settings, ssl_enabled, name, loader=None):
@@ -21,16 +24,29 @@ class AppTread(threading.Thread):
         self.loader = loader
 
     def run(self):
+        """
+        Custom run method
+        :return: None
+        """
         if self.loader:
             self.loader.load()
         self.load_formatter()
         self.run_server()
 
     def run_server(self):
+        """
+        To be overwritten in subclass
+        :return:
+        """
         raise NotImplementedError
 
     @component.inject_method('TemplateFormatter')
     def load_formatter(self, formatter):
+        """
+        Delay loading the formatter
+        :param formatter:
+        :return:
+        """
         self.decorator = formatter
 
     @catch_vardump
@@ -133,6 +149,7 @@ class AppTread(threading.Thread):
 
 
 class WGSI(AppTread):
+    """Thread that runs a WSGI server"""
     def __init__(self, ssl_enabled, loader=None, name='WSGI-Server'):
         super().__init__(ssl_enabled, name, loader)
 
@@ -194,6 +211,10 @@ class WGSI(AppTread):
         )
 
     def run_server(self):
+        """
+        Overwritten method called from parent class
+        :return: Server
+        """
         from framework.http import wsgi
 
         port = 'ssl_port' if self.ssl_enabled else 'port'
@@ -218,6 +239,7 @@ class WGSI(AppTread):
 
 
 class HTTP(AppTread):
+    """Plain HTTP server thread"""
     def __init__(self, ssl_enabled, name='HTTP-Server'):
         super().__init__(ssl_enabled, name)
 
@@ -234,7 +256,6 @@ class HTTP(AppTread):
         """
         Construct a http server and run it
 
-        :param ssl_enabled: whether to enable https
         :return: server instance
         """
         from framework.http import request_handler
