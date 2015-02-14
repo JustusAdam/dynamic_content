@@ -38,7 +38,6 @@ default_settings = {
 
     # 0:MULTI_TABLE, 1:TREE
     'pathmap_type': 0,
-    'logfile': 'app.log',
     'middleware': [
         'framework.middleware.alias.Middleware',
         'dycm.file.PathHandler',

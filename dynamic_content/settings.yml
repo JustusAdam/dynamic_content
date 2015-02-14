@@ -28,10 +28,9 @@ runlevel: 0
 
 # 0:MULTI_TABLE, 1:TREE
 pathmap_type: 0
-logfile: 'app.log'
 middleware:
   - 'framework.middleware.alias.Middleware'
-  - 'dy.file.PathHandler'
+  - 'dycm.file.PathHandler'
   - 'framework.middleware.ssl.ConditionalSSLRedirect'
   # - 'framework.middleware.rest.JSONTransform'
 
