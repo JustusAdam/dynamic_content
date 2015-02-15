@@ -1,3 +1,8 @@
+"""
+Store miscellaneous persistent but changeable
+python data structures in the database
+"""
+
 import pickle
 from framework.backend import orm
 
@@ -11,6 +16,10 @@ class _Registry(orm.BaseModel):
 
 
 class Registry():
+    """
+    A sort of dictionary imitating object that stores
+    miscellaneous information in then database
+    """
     def __getitem__(self, item):
         return pickle.loads(
             _Registry.get(key=item).value
