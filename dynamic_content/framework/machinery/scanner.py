@@ -1,3 +1,6 @@
+"""Implementation of the scanner object and its parts and hooks"""
+import collections
+
 from framework import hooks
 from framework.machinery import linker, component
 
@@ -5,59 +8,33 @@ __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-class ScanHandler(object):
-    """
-    Baseclass for handlers interacting with the scanner
-    """
-    def __init__(self, module):
-        self.module = module
-
-    def __call__(self, var_name, var_type) -> linker.Link:
-        raise NotImplementedError
-
-    @classmethod
-    def make(cls, priority=0):
-        """
-        Construct a ScannerHook with this as handler
-
-        :param priority: priority of the resulting hook
-        :return: ScannerHook instance
-        """
-        return ScannerHook(cls, priority)
-
-
 class ScannerHook(hooks.ClassHook):
     """
     Hook into the module scanning to handle certain types or names of Symbols
     """
+    __slots__ = ()
     hook_name = 'module_scan_hook'
 
-    def __init__(self, handler_class, priority):
-        self.handler_class = handler_class
-        super().__init__(priority)
+    def __call__(self, module, var_name, var):
+        raise NotImplementedError
 
-    @classmethod
-    def make(cls, priority=0):
-        """
-        Decorator to turn a subclass of ScanHandler into a usable Hook
 
-        :param priority: priority of the resulting hook
-        :return: wrapper func
-        """
-        def wrap(class_):
-            assert isinstance(class_, ScanHandler)
-            return cls(class_, priority)
-        return wrap
+class _SingleValueMultihook(ScannerHook):
+    __slots__ = 'internal_hooks',
 
-    def __call__(self, module):
-        return self.handler_class(module)
+    def __init__(self):
+        super().__init__()
+        self.internal_hooks = collections.defaultdict(list)
 
-    def __eq__(self, other):
-        if isinstance(other, ScannerHook):
-            return other.handler_class == self.handler_class
+    def get_instance(self, instance):
+        return instance
 
-    def __hash__(self):
-        return hash(self.handler_class)
+    def __call__(self, module, var_name, var):
+        pass
+
+    def get_internal_hook_selector(self, var_name, var):
+        raise NotImplementedError
+
 
 
 class Scanner(object):
@@ -68,11 +45,11 @@ class Scanner(object):
     def __init__(self, linker):
         self.linker = linker
 
-    def __call__(self, modules):
+    def scan(self, modules):
         for module in modules:
             # we go through all the modules first and find all scanner hooks
-            # so we can ensure none of them are perhaps not
-            # present when we use them later
+            # so we can ensure all of them are present
+            # at the start of the actual scan later
             self.find_scanner_hooks(module)
         for module in modules:
             # now we go through each module
@@ -88,13 +65,9 @@ class Scanner(object):
         """
         # we immediately create a frozenset to immutably assign the links
         self.linker[module] = frozenset(
-            handler(var_name, var)
-            # we iterate through the scanner hooks first
-            # since this call yields newly created handlers every time
-            for handler in ScannerHook.yield_call_hooks(module)
-            # and then the variables since they do not
-            # get created every time
+            link
             for var_name, var in self.iter_module(module)
+            for link in ScannerHook.yield_call_hooks(module, var_name, var)
         )
 
     def find_scanner_hooks(self, module):
@@ -107,9 +80,7 @@ class Scanner(object):
         for var_name, var in self.iter_module(module):
             if not isinstance(var, ScannerHook):
                 continue
-            elif issubclass(var, ScanHandler):
-                var = var.make()
-            if var not in ScannerHook.get_hooks():
+            elif var not in ScannerHook.get_hooks():
                 var.register_instance()
 
     @staticmethod
