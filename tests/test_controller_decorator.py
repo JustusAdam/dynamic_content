@@ -1,5 +1,6 @@
 import unittest
-from framework import component, route, http
+from framework import route, http
+from framework.machinery import component
 from framework.util import structures
 
 __author__ = 'Justus Adam'

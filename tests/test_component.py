@@ -1,5 +1,5 @@
 import unittest
-from framework import component
+from framework.machinery import component
 
 
 __author__ = 'Justus Adam'
