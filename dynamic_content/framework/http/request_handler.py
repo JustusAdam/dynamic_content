@@ -15,8 +15,7 @@ from urllib.error import HTTPError
 import collections
 from framework.http import Request
 from framework.includes import log
-from framework.util import console
-from framework import component
+from framework.machinery import component
 
 
 __author__ = 'Justus Adam'

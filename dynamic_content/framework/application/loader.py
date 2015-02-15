@@ -1,8 +1,8 @@
 import importlib
-from framework import middleware, component
+from framework import middleware
 from framework.includes import log
 from framework.util import structures
-from . import registry
+from framework.machinery import component, registry
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'

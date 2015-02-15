@@ -1,4 +1,4 @@
-from .. import component
+from ..machinery import component
 import pathlib
 
 

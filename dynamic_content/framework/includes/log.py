@@ -1,7 +1,7 @@
 import functools
 from framework.util import time
 import pathlib
-from framework.component import inject
+from framework.machinery import component
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
@@ -27,7 +27,7 @@ def _cache(func):
 
 
 @_cache
-@inject('settings')
+@component.inject('settings')
 def get_path(settings):
     """
     Get the full file path to the log

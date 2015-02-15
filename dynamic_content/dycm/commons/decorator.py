@@ -1,6 +1,6 @@
 from dycm import theming
 from framework.util import decorators, structures, html
-from framework import component
+from framework.machinery import component
 from . import model, page
 
 

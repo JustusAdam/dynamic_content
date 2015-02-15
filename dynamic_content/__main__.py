@@ -5,7 +5,7 @@ import argparse
 import pathlib
 import sys
 from framework.util import config, structures
-from framework import component
+from framework.machinery import component
 from framework.includes import log
 
 python_logo_ascii_art = """

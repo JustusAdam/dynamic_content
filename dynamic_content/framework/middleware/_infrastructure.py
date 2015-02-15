@@ -1,6 +1,7 @@
 import inspect
 import importlib
-from framework import hooks, component
+from framework import hooks
+from framework.machinery import component
 
 
 __author__ = 'Justus Adam'

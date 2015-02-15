@@ -1,7 +1,8 @@
 from datetime import datetime
 import functools
 
-from framework import http, route, component
+from framework import http, route
+from framework.machinery import component
 from framework.util import lazy, html, clean
 from dycm import wysiwyg
 from dycm.commons import menus as _menus, model as commonsmodel

@@ -1,5 +1,5 @@
 import inspect
-from framework import component
+from framework.machinery import component
 from framework.includes import log
 
 __author__ = 'Justus Adam'

@@ -6,10 +6,11 @@ own page handlers.
 import pathlib
 from urllib import parse
 import mimetypes
-from framework import http, route, component, middleware
-from framework.includes import get_settings, inject_settings
+from framework import http, route, middleware
+from framework.includes import inject_settings
 from framework.util import html, structures
 from framework.http import response
+from framework.machinery import component
 
 
 __author__ = 'Justus Adam'

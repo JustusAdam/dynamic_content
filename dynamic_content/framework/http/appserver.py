@@ -3,11 +3,12 @@
 import functools
 import threading
 import traceback
-from framework import middleware, component, http
+from framework import middleware, http
 from framework.errors import exceptions
 from http import server
 from framework.includes import log
 from framework.util import structures, catch_vardump
+from framework.machinery import component
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'

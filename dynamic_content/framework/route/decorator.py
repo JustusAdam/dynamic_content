@@ -30,7 +30,7 @@ RestControllerFunction.
 
 import functools
 
-from .. import component
+from ..machinery import component
 from framework import http
 from framework.mvc import context
 from framework.util import rest

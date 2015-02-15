@@ -1,5 +1,5 @@
 from framework.errors.exceptions import DCException
-from framework import component
+from framework.machinery import component
 from dycm import wysiwyg
 from . import model
 from framework.util import lazy, html, clean

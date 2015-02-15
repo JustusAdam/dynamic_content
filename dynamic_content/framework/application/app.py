@@ -3,7 +3,7 @@ import threading
 from framework.backend import orm
 from framework.includes import log
 from framework.util import console, structures
-from framework import component
+from framework.machinery import component
 from . import loader
 from framework.http import appserver
 
