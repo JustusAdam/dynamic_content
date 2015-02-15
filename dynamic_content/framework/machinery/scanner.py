@@ -36,7 +36,6 @@ class _SingleValueMultihook(ScannerHook):
         raise NotImplementedError
 
 
-
 class Scanner(object):
     """
     Scanner object to find important functions in hooks

@@ -3,7 +3,7 @@ import re
 import sys
 
 from framework.http import response
-from ..component import Component
+from ..machinery import component
 from . import evaluator
 from framework.includes import get_settings
 
@@ -24,7 +24,7 @@ _defaults = {
 }
 
 
-@Component('TemplateFormatter')
+@component.Component('TemplateFormatter')
 class TemplateFormatter(object):
     """
     Handler Object parsing the view name returned by the controller and

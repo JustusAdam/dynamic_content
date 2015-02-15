@@ -1,4 +1,4 @@
-from framework import component
+from framework.machinery import component
 from . import _settings
 
 __author__ = 'Justus Adam'

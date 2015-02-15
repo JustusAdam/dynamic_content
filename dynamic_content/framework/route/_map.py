@@ -2,7 +2,7 @@ import collections
 from framework import http
 
 from framework.errors import exceptions
-from .. import component
+from ..machinery import component
 from framework.util import console, structures
 from framework.includes import get_settings, log
 
