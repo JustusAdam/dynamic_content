@@ -91,3 +91,20 @@ class LackingPermission(DCException):
         self.client = client
         self.permission = permission
         self.action = action
+
+
+class LinkerException(DCException):
+    """Base exception for errors with links"""
+    pass
+
+
+class IsLinked(LinkerException):
+    """Trying to link a already linked link"""
+    def __init__(self, link):
+        super().__init__('{} has been linked already'.format(link))
+
+
+class IsNotLinked(LinkerException):
+    """trying to unlink an unliked link"""
+    def __init__(self, link):
+        super().__init__('{} is not linked'.format(link))

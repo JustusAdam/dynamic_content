@@ -1,7 +1,7 @@
 """
 Hooking implementation
 """
-from . import component
+from .machinery import component
 from .errors import exceptions
 from .includes import log
 
