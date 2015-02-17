@@ -34,7 +34,7 @@ It is by no means feature complete. Pull requests, contributions and feedback ar
 * Navigate to the root folder (should be `dynamic_content`)
 * Start the application by either
   * Invoking the python interpreter  
-  `python3 demo_app/main.py`
+  `python3 dynamic_content`
   You can specify the `--host` and `--port` (default 'localhost:9012')
   Full information on the supported command line options can be found by calling the script with `-h` or `--help`
   * Starting the shellscript  
