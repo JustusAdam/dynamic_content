@@ -19,8 +19,18 @@ class ScannerHook(hooks.ClassHook):
         raise NotImplementedError
 
 
-class _SingleValueMultihook(ScannerHook):
+class _SingleValueMultiHook(ScannerHook):
     __slots__ = 'internal_hooks',
+
+    class HookContainer(object):
+        __slots__ = 'selector', 'executable'
+
+        def __init__(self, selector, executable):
+            self.selector = selector
+            self.executable = executable
+
+        def __call__(self, *args, **kwargs):
+            return self.executable(*args, **kwargs)
 
     def __init__(self):
         super().__init__()
@@ -30,33 +40,68 @@ class _SingleValueMultihook(ScannerHook):
         return instance
 
     def __call__(self, module, var_name, var):
-        pass
+        selector = self.get_internal_hook_selector(var_name, var)
+        for hook in self.internal_hooks[selector]:
+            yield hook(var)
 
     def get_internal_hook_selector(self, var_name, var):
+        """
+        Get a selector from the subclass
+
+        :param var_name: variable name
+        :param var: variable value
+        :return: selector (some value derived from either var_name or var)
+        """
         raise NotImplementedError
 
+    def add(self, selector, executable):
+        self.internal_hooks[selector].add(
+            self.HookContainer(selector, executable)
+        )
 
-class Scanner(object):
+
+class SingleNameMultiHook(_SingleValueMultiHook):
+    """Hook for name based handling"""
+    def get_internal_hook_selector(self, var_name, var):
+        return var_name
+
+
+class SingleTypeMultiHook(_SingleValueMultiHook):
+    """Hook for type based handling"""
+    def get_internal_hook_selector(self, var_name, var):
+        return type(var)
+
+
+class Scanner:
     """
     Scanner object to find important functions in hooks
     """
+    __slots__ = ('linker', 'tracker')
+
     @component.inject_method(linker.Linker)
     def __init__(self, linker):
         self.linker = linker
+        # the tracker will keep track of all scanned values
+        # to avoid handling them twice
+        self.tracker = set()
 
     def scan(self, modules):
-        track = set()
+        """
+        Scan these modules for interesting objects
+        :param modules:
+        :return:
+        """
         for module in modules:
             # we go through all the modules first and find all scanner hooks
             # so we can ensure all of them are present
             # at the start of the actual scan later
-            self.find_scanner_hooks(module, track)
+            self.find_scanner_hooks(module)
         for module in modules:
             # now we go through each module
             # calling the hooks we discovered earlier
-            self.find_any(module, track)
+            self.find_any(module)
 
-    def find_any(self, module, track):
+    def find_any(self, module):
         """
         Iter module and call hooks on each symbol
 
@@ -66,34 +111,33 @@ class Scanner(object):
         # we immediately create a frozenset to immutably assign the links
         self.linker[module] = frozenset(
             link
-            for var_name, var in self.iter_module(module, track)
-            for link in ScannerHook.yield_call_hooks(module, var_name, var)
+            for var_name, var in self.iter_module(module)
+            for links in ScannerHook.yield_call_hooks(module, var_name, var)
+            for link in links
         )
 
-    def find_scanner_hooks(self, module, track):
+    def find_scanner_hooks(self, module):
         """
         Finds instances of ScannerHook and registers them
 
         :param module: module object
         :return:
         """
-        for var_name, var in self.iter_module(module, track):
+        for var_name, var in self.iter_module(module):
             if not isinstance(var, ScannerHook):
                 continue
             elif var not in ScannerHook.get_hooks():
                 var.register_instance()
 
-    @staticmethod
-    def iter_module(module, track):
+    def iter_module(self, module):
         """
         A custom generator to only return
-        the symbols newly defined in the module
+        the symbols defined in the module once
 
         :param module: module object
-        :param track: persistent set that tracks already scanned objects
         :return: yielding symbols/symbol names
         """
         for var_name, var in vars(module):
-            if var not in track:
-                track.add(var)
+            if var not in self.tracker:
+                self.tracker.add(var)
                 yield var_name, var
