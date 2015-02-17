@@ -41,7 +41,7 @@ It is by no means feature complete. Pull requests, contributions and feedback ar
   `./start.sh`
 * Open the webpage `choosen_host:choosen_port` with the browser of your choosing, the default being `localhost:9012`
 
-You can look at and manipulate the settings at `demo_app/custom_setting.yml`
+You can look at and manipulate the settings at `demo_app/setting.yml`
 
 
 ## Roadmap
