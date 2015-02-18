@@ -15,6 +15,8 @@ class Link(object):
     Represents a connection between some kind of handler defined in a module
     and the dynamic_content internal logic
     """
+    __slots__ = 'is_linked', 'strict'
+
     def __init__(self, strict=False):
         self.is_linked = False
         self.strict = strict
@@ -31,7 +33,7 @@ class Link(object):
         self.is_linked = True
 
     def link_action(self):
-        """linking implementation"""
+        """the actual work of the link action"""
         raise NotImplementedError
 
     def unlink(self):
@@ -45,7 +47,7 @@ class Link(object):
         self.is_linked = False
 
     def unlink_action(self):
-        """unlinking implementation"""
+        """the actual work of the unlink action"""
         raise NotImplementedError
 
 
@@ -54,6 +56,8 @@ class Linker(dict):
     """
     Container and utility class for links
     """
+    __slots__ = ()
+
     def link(self, module):
         """
         Link all links in module

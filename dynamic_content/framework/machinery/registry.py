@@ -15,11 +15,13 @@ class _Registry(orm.BaseModel):
     value = orm.BlobField()
 
 
-class Registry():
+class Registry:
     """
     A sort of dictionary imitating object that stores
     miscellaneous information in then database
     """
+    __slots__ = ()
+
     def __getitem__(self, item):
         return pickle.loads(
             _Registry.get(key=item).value

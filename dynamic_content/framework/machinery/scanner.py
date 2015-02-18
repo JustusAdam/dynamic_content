@@ -23,6 +23,11 @@ class _SingleValueMultiHook(ScannerHook):
     __slots__ = 'internal_hooks',
 
     class HookContainer(object):
+        """
+        Another level of indirection
+
+        Implemented as a flyweight object
+        """
         __slots__ = 'selector', 'executable'
 
         def __init__(self, selector, executable):
@@ -35,9 +40,6 @@ class _SingleValueMultiHook(ScannerHook):
     def __init__(self):
         super().__init__()
         self.internal_hooks = collections.defaultdict(list)
-
-    def get_instance(self, instance):
-        return instance
 
     def __call__(self, module, var_name, var):
         selector = self.get_internal_hook_selector(var_name, var)
@@ -64,9 +66,26 @@ class _SingleValueMultiHook(ScannerHook):
         raise NotImplementedError
 
     def add(self, selector, executable):
+        """
+        Register a new executable to handle the selector in question
+
+        :param selector: key
+        :param executable: executable to register
+        :return:
+        """
+        assert self.is_selector(selector)
         self.internal_hooks[selector].add(
             self.HookContainer(selector, executable)
         )
+
+    def is_selector(self, selector):
+        """
+        Verify whether the selector has the correct type
+
+        :param selector:
+        :return:
+        """
+        raise NotImplementedError
 
 
 class SingleNameMultiHook(_SingleValueMultiHook):
@@ -74,7 +93,23 @@ class SingleNameMultiHook(_SingleValueMultiHook):
     __slots__ = ()
 
     def get_internal_hook_selector(self, var_name, var):
+        """
+        Uses variable names for selection
+
+        :param var_name:
+        :param var:
+        :return:
+        """
         return var_name
+
+    def is_selector(self, selector):
+        """
+        Verify the selector is a string
+        
+        :param selector:
+        :return:
+        """
+        return isinstance(selector, str)
 
 
 class SingleTypeMultiHook(_SingleValueMultiHook):
@@ -82,7 +117,22 @@ class SingleTypeMultiHook(_SingleValueMultiHook):
     __slots__ = ()
 
     def get_internal_hook_selector(self, var_name, var):
+        """
+        We use type for selection
+
+        :param var_name:
+        :param var:
+        :return:
+        """
         return type(var)
+
+    def is_selector(self, selector):
+        """
+        Verify the selector is actually a type
+        :param selector:
+        :return:
+        """
+        return isinstance(selector, type)
 
 
 class SingleSubtypesMultiHook(_SingleValueMultiHook):
@@ -90,6 +140,13 @@ class SingleSubtypesMultiHook(_SingleValueMultiHook):
     __slots__ = ()
 
     def get_internal_hook_selector(self, var_name, var):
+        """
+        This subclass uses variable (sub)types
+
+        :param var_name:
+        :param var:
+        :return:
+        """
         return type(var)
 
     def get_internal_hooks(self, selector):
@@ -98,13 +155,22 @@ class SingleSubtypesMultiHook(_SingleValueMultiHook):
         any registered for super types of that type
 
         :param selector: the type of the object
-        :return: yielding hooks
+        :returns: yielding hooks
         """
         for hook in self.internal_hooks[selector]:
             yield hook
         for cls in selector.__bases__:
             for hook in self.internal_hooks[cls]:
                 yield hook
+
+    def is_selector(self, selector):
+        """
+        Selectors have to be an instance of type
+
+        :param selector:
+        :return:
+        """
+        return isinstance(selector, type)
 
 
 class Scanner:
