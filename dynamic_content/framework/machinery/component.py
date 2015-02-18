@@ -60,6 +60,8 @@ class ComponentContainer(dict):
     thus "_my Property" = "myproperty"
 
     """
+    __slots__ = ()
+
     def __setitem__(self, key, value):
         if isinstance(key, str):
             key = _name_transform(key)

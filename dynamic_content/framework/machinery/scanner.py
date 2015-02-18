@@ -41,8 +41,17 @@ class _SingleValueMultiHook(ScannerHook):
 
     def __call__(self, module, var_name, var):
         selector = self.get_internal_hook_selector(var_name, var)
-        for hook in self.internal_hooks[selector]:
+        for hook in self.get_internal_hooks(selector):
             yield hook(var)
+
+    def get_internal_hooks(self, selector):
+        """
+        Allows override for hook retrieval
+
+        :param selector: the key
+        :return: list of hooks
+        """
+        return self.internal_hooks[selector]
 
     def get_internal_hook_selector(self, var_name, var):
         """
@@ -62,14 +71,40 @@ class _SingleValueMultiHook(ScannerHook):
 
 class SingleNameMultiHook(_SingleValueMultiHook):
     """Hook for name based handling"""
+    __slots__ = ()
+
     def get_internal_hook_selector(self, var_name, var):
         return var_name
 
 
 class SingleTypeMultiHook(_SingleValueMultiHook):
     """Hook for type based handling"""
+    __slots__ = ()
+
     def get_internal_hook_selector(self, var_name, var):
         return type(var)
+
+
+class SingleSubtypesMultiHook(_SingleValueMultiHook):
+    """Hooks for types that allow subtypes"""
+    __slots__ = ()
+
+    def get_internal_hook_selector(self, var_name, var):
+        return type(var)
+
+    def get_internal_hooks(self, selector):
+        """
+        Yield all hooks registered for that type as well as
+        any registered for super types of that type
+
+        :param selector: the type of the object
+        :return: yielding hooks
+        """
+        for hook in self.internal_hooks[selector]:
+            yield hook
+        for cls in selector.__bases__:
+            for hook in self.internal_hooks[cls]:
+                yield hook
 
 
 class Scanner:
