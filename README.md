@@ -30,7 +30,7 @@ It is by no means feature complete. Pull requests, contributions and feedback ar
 ## Installation
 
 1. Clone the repository  
-`git clone https://github.com/JustusAdam/dynamic_content.git`  
+`git clone https://github.com/dynamic-content/dynamic_content.git`  
 * Navigate to the root folder (should be `dynamic_content`)
 * Start the application by either
   * Invoking the python interpreter  
