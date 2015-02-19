@@ -197,7 +197,7 @@ class Scanner:
         :return: None
         """
 
-        def get_submodules(current_module:pathlib.Path, parent_modules=tuple):
+        def get_submodules(current_module: pathlib.Path, parent_modules=tuple):
             """
             Helper function for constructing the
             python module paths from directories
@@ -207,14 +207,28 @@ class Scanner:
             :return: own submodules or self if self is not a package/dir
             """
             me = parent_modules + (current_module.stem, )
-            if current_module.name == '__init__.py':
-                yield '.'.join(parent_modules)
-            elif (current_module.suffix == '.py'
-                  and not current_module.name.startswith('_')):
+            if (current_module.is_file()
+                    and current_module.suffix == '.py'
+                    # we omit 'private' or 'protected' .py files
+                    # starting with '_'
+                    and not current_module.name.startswith('_')):
+                # we only yield ourselves if we are only a .py file
                 yield '.'.join(me)
             elif current_module.is_dir():
-                for path in current_module.iterdir():
-                    yield get_submodules(path, me)
+                # constructing tuple because we iterate over it twice
+                contents = tuple(current_module.iterdir())
+                for path in contents:
+                    # ensure we are a package
+                    if path.name == '__init__.py':
+                        # return the package itself
+                        yield me
+                        # return submodules recursively
+                        for path in contents:
+                            yield get_submodules(path, me)
+
+        # ----------------------------------------------------------
+        # the helper function ends
+        # ----------------------------------------------------------
 
         # we construct a list of modules
         # from the parent modules
@@ -237,13 +251,16 @@ class Scanner:
             # have to retrieve from settings first
             #
             # modules come first, apps later
-            for a in ('modules', 'import')
+
+            for a in ('modules', 'import')  # outer loop
+
 
             # and get the names contained
             #
             # we return an empty tuple
             # if the key isn't set
-            for module in settings.get(a, ())
+
+            for module in settings.get(a, ())  # inner loop
         )
 
         self.scan(*modules)
