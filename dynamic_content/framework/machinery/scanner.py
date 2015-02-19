@@ -190,12 +190,50 @@ class Scanner:
 
     @component.inject_method(includes.SettingsDict)
     def scan_from_settings(self, settings):
-        # we construct a list of parent modules
-        # mentioned in settings
-        pmodules = (
-            importlib.import_module(module)
+        """
+        Scan all modules defined as module or import in settings
 
-            # we iterate over the two keys we
+        :param settings: injected settings
+        :return: None
+        """
+
+        def get_submodules(current_module:pathlib.Path, parent_modules=tuple):
+            """
+            Helper function for constructing the
+            python module paths from directories
+
+            :param current_module: pathlib.Path of the current module
+            :param parent_modules: tuple of parent module names
+            :return: own submodules or self if self is not a package/dir
+            """
+            me = parent_modules + (current_module.stem, )
+            if current_module.name == '__init__.py':
+                yield '.'.join(parent_modules)
+            elif (current_module.suffix == '.py'
+                  and not current_module.name.startswith('_')):
+                yield '.'.join(me)
+            elif current_module.is_dir():
+                for path in current_module.iterdir():
+                    yield get_submodules(path, me)
+
+        # we construct a list of modules
+        # from the parent modules
+        # mentioned in settings
+        modules = tuple(
+
+            # we get all submodules
+            get_submodules(
+                # we construct paths first
+                pathlib.Path(
+                    # from the modules file
+                    importlib.import_module(module).__file__
+                ),
+                # the parent modules are empty at this point
+                ()
+            )
+
+
+            # we iterate over the keys we
             # have to retrieve from settings first
             #
             # modules come first, apps later
@@ -208,8 +246,7 @@ class Scanner:
             for module in settings.get(a, ())
         )
 
-        def get_submodules(module:pathlib.Path):
-            pass
+        self.scan(*modules)
 
 
     def scan(self, modules):
