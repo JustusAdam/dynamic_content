@@ -98,6 +98,29 @@ class LinkerException(DCException):
     pass
 
 
+class LinkingException(LinkerException):
+    """Base exception for errors while linking"""
+    def __init__(self, link, nested_exception=None, message=None):
+        s = ['{} in link {}'.format(self.__class__.__name__, link)]
+        if isinstance(nested_exception, Exception):
+            s.append('with nested exception: {}'.format(nested_exception))
+        if message is not None:
+            s.append('with message {}'.format(message))
+        super().__init__(
+            ' '.join(s)
+        )
+
+
+class LinkingFailed(LinkingException):
+    """Attempting to link failed"""
+    pass
+
+
+class UnlinkingFailed(LinkingException):
+    """Attempting to unlink failed"""
+    pass
+
+
 class IsLinked(LinkerException):
     """Trying to link a already linked link"""
     def __init__(self, link):

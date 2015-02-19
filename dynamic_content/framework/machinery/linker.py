@@ -28,8 +28,12 @@ class Link(object):
                 raise exceptions.IsLinked(self)
             else:
                 return
-
-        self.link_action()
+        try:
+            self.link_action()
+        except Exception as e:
+            raise exceptions.LinkingFailed(
+                self, nested_exception=e
+            )
         self.is_linked = True
 
     def link_action(self):
@@ -43,7 +47,12 @@ class Link(object):
                 raise exceptions.IsNotLinked(self)
             else:
                 return
-        self.unlink_action()
+        try:
+            self.unlink_action()
+        except Exception as e:
+            raise exceptions.UnlinkingFailed(
+                self, nested_exception=e
+            )
         self.is_linked = False
 
     def unlink_action(self):

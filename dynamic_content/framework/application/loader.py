@@ -20,8 +20,6 @@ class Loader:
         Main work of the loader
         :return: None
         """
-        if self.settings['runlevel'] == structures.RunLevel.DEBUG:
-            log.write_info('loading components')
         log.write_info('Loading Components ... ')
         from framework import mvc, route, dchp
         log.print_warning('Loading Middleware ...')
