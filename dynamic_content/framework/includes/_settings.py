@@ -2,10 +2,6 @@ from ..machinery import component
 import pathlib
 
 
-class Settings(dict):
-    pass
-
-
 default_settings = {
     # the order in this list dictates the order in which
     # these modules will be activated
@@ -61,7 +57,7 @@ default_settings = {
     'dc_basedir': str(pathlib.Path(__file__).parent.parent.parent.resolve())
 }
 
-component.register(
-    'settings',
-    Settings(default_settings)
-)
+
+@component.component('settings', (default_settings, ))
+class SettingsDict(dict):
+    pass

@@ -1,7 +1,9 @@
 """Implementation of the scanner object and its parts and hooks"""
 import collections
+import importlib
+import pathlib
 
-from framework import hooks
+from framework import hooks, includes
 from framework.machinery import linker, component
 
 __author__ = 'Justus Adam'
@@ -105,7 +107,7 @@ class SingleNameMultiHook(_SingleValueMultiHook):
     def is_selector(self, selector):
         """
         Verify the selector is a string
-        
+
         :param selector:
         :return:
         """
@@ -185,6 +187,30 @@ class Scanner:
         # the tracker will keep track of all scanned values
         # to avoid handling them twice
         self.tracker = set()
+
+    @component.inject_method(includes.SettingsDict)
+    def scan_from_settings(self, settings):
+        # we construct a list of parent modules
+        # mentioned in settings
+        pmodules = (
+            importlib.import_module(module)
+
+            # we iterate over the two keys we
+            # have to retrieve from settings first
+            #
+            # modules come first, apps later
+            for a in ('modules', 'import')
+
+            # and get the names contained
+            #
+            # we return an empty tuple
+            # if the key isn't set
+            for module in settings.get(a, ())
+        )
+
+        def get_submodules(module:pathlib.Path):
+            pass
+
 
     def scan(self, modules):
         """

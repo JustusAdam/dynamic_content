@@ -65,12 +65,11 @@ class Application(threading.Thread):
                 orm.database_proxy.database == ':memory:')):
             log.print_warning(
                 'Using an in-memory database with this software is supported '
-                'however bears some restrictions. ',
-                'SQlite does not support sharing connections between threads ',
+                'however bears some restrictions. '
+                'SQlite does not support sharing connections between threads '
                 'as such you may only use a single server thread '
-                'when using an in-memory database.',
-                'It is recommended to only use in-memory databases for testing',
-                sep='\n'
+                'when using an in-memory database.'
+                'It is recommended to only use in-memory databases for testing'
             )
             if self.settings['https_enabled']:
                 self.threads.append(thread_class(True, l))

@@ -99,9 +99,16 @@ call_component = get_component = component_container = ComponentContainer()
 del ComponentContainer
 
 
-def _decorator(name, *args, **kwargs):
+def _decorator(name, args=None, kwargs=None):
     def inner(class_):
-        obj = class_(*args, **kwargs)
+        if args is None and kwargs is None:
+            obj = class_()
+        elif args is None:
+            obj = class_(**kwargs)
+        elif kwargs is None:
+            obj = class_(*args)
+        else:
+            obj = class_(*args, **kwargs)
         register(name, obj)
         register(class_, obj)
         return class_
