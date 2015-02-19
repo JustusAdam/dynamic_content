@@ -1,16 +1,17 @@
 import os
 import unittest
 import binascii
-from framework.machinery import registry
+from framework.machinery import registry, component
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
 class TestRegistry(unittest.TestCase):
-    def setUp(self):
+    @component.inject_method(registry.Registry)
+    def setUp(self, registry_dict):
         registry._Registry.create_table(fail_silently=True)
-        self.registry = registry.Registry()
+        self.registry = registry_dict
         self.r_db_obj = registry._Registry
 
     def test_int_store(self):

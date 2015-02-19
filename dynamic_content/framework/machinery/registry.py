@@ -5,6 +5,7 @@ python data structures in the database
 
 import pickle
 from framework.backend import orm
+from . import component
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
@@ -15,10 +16,13 @@ class _Registry(orm.BaseModel):
     value = orm.BlobField()
 
 
+@component.component('Registry')
 class Registry:
     """
     A sort of dictionary imitating object that stores
     miscellaneous information in then database
+
+    TODO cache some things in a sane way
     """
     __slots__ = ()
 
