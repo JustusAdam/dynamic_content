@@ -28,6 +28,7 @@ class Registry:
         )
 
     def __setitem__(self, key, value):
+        assert isinstance(key, str)
         assert len(key) <= 255
         value = pickle.dumps(value)
         assert isinstance(value, (bytes, bytearray))

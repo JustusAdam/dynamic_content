@@ -235,6 +235,9 @@ class HookList(list):
 
 @component.Component('HookManager')
 class HookManager:
+    """
+    Component managing hook associations
+    """
     __slots__ = '_hooks',
 
     def __init__(self):
@@ -273,7 +276,7 @@ class HookManager:
         :param handler: handler object/function
         :return: None
         """
-        if not hook in self._hooks:
+        if hook not in self._hooks:
             log.print_warning(
                 'Assigning to uninitialized hook {}, '
                 'assuming type {}'.format(hook, type(handler))
@@ -283,7 +286,15 @@ class HookManager:
         container.append(handler)
 
     def has_hook(self, hook):
+        """
+        Check whether a hook is present
+
+        :param hook:
+        :return:
+        """
         return hook in self._hooks
+
+    __contains__ = has_hook
 
     def get_hooks(self, hook):
         """
@@ -347,7 +358,7 @@ class HookManager:
         :return: return executable(hook, *args, **kwargs) if not None
         """
         for res in self.yield_call_hooks_with(hook, executable, *args, **kwargs):
-            if not res is None:
+            if res is not None:
                 return res
         return None
 
@@ -385,7 +396,20 @@ class HookManager:
 
 
 def register(*args, **kwargs):
+    """
+    Decorator that registers an instance of the decorated class as component
+
+    :param args: call args for the __init__
+    :param kwargs: call kwargs for the __init__
+    :return: wrapper function
+    """
     def inner(cls):
+        """
+        Wrapper function for component.register
+
+        :param cls: decorated class
+        :return: cls
+        """
         if not cls.is_initialized():
             cls.init_hook()
         cls(*args, **kwargs).register_instance()
