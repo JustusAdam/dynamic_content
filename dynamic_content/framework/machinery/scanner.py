@@ -7,7 +7,7 @@ from framework import hooks, includes
 from framework.machinery import linker, component
 
 __author__ = 'Justus Adam'
-__version__ = '0.1'
+__version__ = '0.1.2'
 
 
 class ScannerHook(hooks.ClassHook):

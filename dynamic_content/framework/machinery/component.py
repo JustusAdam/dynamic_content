@@ -110,7 +110,8 @@ def _decorator(name, args=None, kwargs=None):
         else:
             obj = class_(*args, **kwargs)
         register(name, obj)
-        register(class_, obj)
+        if class_ not in component_container:
+            register(class_, obj)
         return class_
 
     return inner

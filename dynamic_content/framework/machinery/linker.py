@@ -7,7 +7,7 @@ from . import component
 from framework.errors import exceptions
 
 __author__ = 'Justus Adam'
-__version__ = '0.1'
+__version__ = '0.1.1'
 
 
 class Link(object):
