@@ -21,6 +21,9 @@ class ScannerHook(hooks.ClassHook):
         raise NotImplementedError
 
 
+ScannerHook.init_hook()
+
+
 class __MultiHookBase(ScannerHook):
     # internal_hooks does not need a slot, since it is a class attribute
     __slots__ = ()
@@ -112,6 +115,7 @@ class __MultiHookBase(ScannerHook):
         raise NotImplementedError
 
 
+@hooks.register()
 class SingleNameHook(__MultiHookBase):
     """Hook for name based handling"""
     __slots__ = ()
@@ -142,6 +146,7 @@ class SingleNameHook(__MultiHookBase):
         return isinstance(selector, str)
 
 
+@hooks.register()
 class SingleTypeHook(__MultiHookBase):
     """Hook for type based handling"""
     __slots__ = ()
@@ -171,6 +176,7 @@ class SingleTypeHook(__MultiHookBase):
         return isinstance(selector, type)
 
 
+@hooks.register()
 class SingleSubtypeHook(__MultiHookBase):
     """Hooks for types that allow subtypes"""
     __slots__ = ()
@@ -220,14 +226,15 @@ class Scanner:
     """
     Scanner object to find important functions in hooks
     """
-    __slots__ = ('linker', 'tracker')
+    __slots__ = ('linker', 'hashable_tracker', 'unhashable_tracker')
 
     @component.inject_method(linker.Linker)
     def __init__(self, linker):
         self.linker = linker
         # the tracker will keep track of all scanned values
         # to avoid handling them twice
-        self.tracker = set()
+        self.hashable_tracker = set()
+        self.unhashable_tracker = list()
 
     @component.inject_method(includes.SettingsDict)
     def scan_from_settings(self, settings):
@@ -238,7 +245,10 @@ class Scanner:
         :return: None
         """
 
-        def get_submodules(current_module: pathlib.Path, parent_modules=tuple):
+        def submodules_from_path(
+                current_module: pathlib.Path,
+                parent_modules=tuple
+        ):
             """
             Helper function for constructing the
             python module paths from directories
@@ -270,35 +280,38 @@ class Scanner:
                     if path.name == '__init__.py':
 
                         # return the package itself
-                        yield me
+                        yield '.'.join(me)
 
                         for path in contents:
 
                             # return submodules recursively
-                            for submodule in get_submodules(path, me):
+                            for submodule in submodules_from_path(path, me):
                                 yield submodule
                         break
 
-        def submodules_from_tuple(mtuple, parents):
+        def submodules_from_name(module, parents):
+
+            path = pathlib.Path(
+                # from the modules file
+                importlib.import_module(
+                    (('.'.join(parents) + '.' + module)
+                     if parents
+                     else module)
+                ).__file__
+            )
+            if path.name == '__init__.py':
+                path = path.parent
+
             return tuple(
                 submodule
 
                 # we iterate over modules and apps
                 # modules first
-                for module in mtuple
 
                 # we get all submodules
-                for submodule in get_submodules(
+                for submodule in submodules_from_path(
                     # we construct paths first
-                    pathlib.Path(
-                        # from the modules file
-                        importlib.import_module(
-                            (('.'.join(parents) + '.' + module)
-                             if parents
-                             else module)
-                        ).__file__
-                    ),
-                    # the parent modules are empty at this point
+                    path,
                     parents
                 )
             )
@@ -310,22 +323,21 @@ class Scanner:
         # we construct a list of modules
         # from the parent modules
         # mentioned in settings
-        framework = submodules_from_tuple(
-            ('framework',), ()
+        framework = ('framework', submodules_from_name('framework', ()))
+
+        modules_from_settings = tuple(
+            (module, submodules_from_name(module, ('dycm',)))
+            for module in settings.get('modules', ())
         )
 
-
-        modules_from_settings = submodules_from_tuple(
-            settings.get('modules', ()), ('dycm',)
-        )
-
-        apps = submodules_from_tuple(
-            settings.get('import', ()), ()
+        apps = tuple(
+            (module, submodules_from_name(module, ()))
+            for module in settings.get('import', ())
         )
 
         modules = tuple(
-            importlib.import_module(module)
-            for module in framework + modules_from_settings + apps
+            (name, tuple(importlib.import_module(module) for module in contents))
+            for name, contents in ((framework,) + modules_from_settings + apps)
         )
 
         self.scan(modules)
@@ -336,31 +348,35 @@ class Scanner:
         :param modules:
         :return:
         """
-        for module in modules:
+        for name, submodules in modules:
             # we go through all the modules first and find all scanner hooks
             # so we can ensure all of them are present
             # at the start of the actual scan later
-            self.find_scanner_hooks(module)
+            for module in submodules:
+                self.find_scanner_hooks(module)
 
-        for module in modules:
+        for name, submodules in modules:
             # now we go through each module
             # calling the hooks we discovered earlier
-            self.find_any(module)
+            self.linker[name] = frozenset(
+                link
+                for submodule in submodules
+                for link in self.find_any(name, submodule)
+            )
 
-    def find_any(self, module):
+    def find_any(self, module_name,  submodule):
         """
         Iter module and call hooks on each symbol
 
-        :param module: module object
+        :param module_name: name of the topmost parent module
+        :param submodule: the module in question
         :return:
         """
-        # we immediately create a frozenset to immutably assign the links
-        self.linker[module] = frozenset(
-            link
-            for var_name, var in self.iter_module(module)
-            for links in ScannerHook.yield_call_hooks(module, var_name, var)
-            for link in links
-        )
+        for var_name, var in self.iter_module(submodule):
+            for links in ScannerHook.yield_call_hooks(module_name, var_name, var):
+                for link in links:
+                    if link is not None:
+                        yield link
 
     def find_scanner_hooks(self, module):
         """
@@ -375,6 +391,24 @@ class Scanner:
             elif var not in ScannerHook.get_hooks():
                 var.register_instance()
 
+    def __contains__(self, item):
+        return item in self.get_tracker(item)
+
+    def get_tracker(self, item):
+        try:
+            hash(item)
+            return self.hashable_tracker
+        except TypeError:
+            return self.unhashable_tracker
+
+    def add(self, item):
+        if item not in self:
+            try:
+                hash(item)
+                self.hashable_tracker.add(item)
+            except TypeError:
+                self.unhashable_tracker.append(item)
+
     def iter_module(self, module):
         """
         A custom generator to only return
@@ -387,6 +421,7 @@ class Scanner:
             if var_name.startswith('_'):
                 # we omit private/protected values
                 continue
-            if var not in self.tracker:
-                self.tracker.add(var)
+
+            if var not in self:
+                self.add(var)
                 yield var_name, var

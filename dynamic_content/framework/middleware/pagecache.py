@@ -1,4 +1,4 @@
-from dynamic_content import middleware
+from framework import middleware
 
 
 __author__ = 'Justus Adam'
