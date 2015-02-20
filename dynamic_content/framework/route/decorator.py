@@ -30,7 +30,7 @@ RestControllerFunction.
 
 import functools
 
-from ..machinery import component
+from ..machinery import component, scanner, linker
 from framework import http
 from framework.mvc import context
 from framework.util import rest
@@ -67,7 +67,13 @@ def _to_set(my_input, allowed_vals=str):
             ))
 
 
-class ControlFunction(object):
+class ControlFunction:
+    __slots__ = (
+        'function', 'wrapping', 'value',
+        'method', 'query', 'headers',
+        'instance', 'typeargs', 'options'
+    )
+
     def __init__(self, function, value, method, query, headers, options=None):
         if isinstance(function, ControlFunction):
             self.function = function.function
@@ -96,10 +102,22 @@ class ControlFunction(object):
 
 
 class RestControlFunction(ControlFunction):
+    __slots__ = ()
+
     def __call__(self, model, *args, **kwargs):
         model.json_return = super().__call__(*args, **kwargs)
         model.decorator_attributes |= {'no-view', 'json-format', 'string-return'}
         return model
+
+
+class ControllerClass:
+    __slots__ = 'inner',
+
+    def __init__(self, class_):
+        self.inner = class_
+
+    def get(self):
+        return self.inner
 
 
 def _controller_function(
@@ -112,14 +130,15 @@ def _controller_function(
     **options
     ):
     def wrap(func):
-        h = http.headers.Header.auto_construct(headers) if not headers is None else None
+        h = (http.headers.Header.auto_construct(headers)
+             if headers is not None
+             else None)
         h = set(h) if inspect.isgenerator(h) else {h}
         wrapped = class_(func, value, method, query, h, options)
         for val in wrapped.value:
             get_cm().add_path(val, wrapped)
         return wrapped
     return wrap
-
 
 
 def _controller_method(
@@ -132,7 +151,7 @@ def _controller_method(
     **options
     ):
     def wrap(func):
-        h = http.headers.Header.auto_construct(headers) if not headers is None else None
+        h = http.headers.Header.auto_construct(headers) if headers is not None else None
         h = frozenset(h) if inspect.isgenerator(h) else {h}
         wrapped = class_(func, value, method, query, h, options)
         return wrapped
@@ -156,6 +175,41 @@ def controller_class(class_):
                 for i in wrapped.value:
                     get_cm().add_path(i, wrapped)
     return class_
+
+
+class RouteLink(linker.Link):
+    __slots__ = 'cf',
+
+    def __init__(self, control_function: ControlFunction):
+        super().__init__()
+        self.cf = control_function
+
+    def unlink_action(self):
+        raise NotImplementedError
+
+    def link_action(self):
+        for i in self.cf.value:
+            get_cm().add_path(i, self.cf)
+
+
+@scanner.SingleTypeHook.make(ControlFunction)
+def function_registerer(cf):
+    yield RouteLink(cf)
+
+
+@scanner.SingleTypeHook.make(ControllerClass)
+def class_registerer(cc):
+    c_funcs = tuple(filter(
+        lambda a: isinstance(a, ControlFunction),
+        cc.__dict__.values()
+        ))
+    if c_funcs:
+        instance = cc()
+        get_cm()._controller_classes.append(instance)
+        for item in c_funcs:
+            for wrapped in item.wrapping:
+                wrapped.instance = instance
+                yield RouteLink(wrapped)
 
 
 controller_method = functools.partial(_controller_method, ControlFunction)

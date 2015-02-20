@@ -1,8 +1,7 @@
 import importlib
 from framework import middleware
 from framework.includes import log
-from framework.util import structures
-from framework.machinery import component, registry
+from framework.machinery import component, registry, scanner
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
@@ -14,6 +13,7 @@ class Loader:
         self.settings = settings
         self.init_function = init_function
         self.registry = registry.Registry()
+        self.scanner_instance = scanner.Scanner()
 
     def load(self):
         """
@@ -25,33 +25,14 @@ class Loader:
         log.print_warning('Loading Middleware ...')
         middleware.load(self.settings['middleware'])
         log.print_info('Loading Modules ...')
-        self.load_modules()
+        self.run_scanner()
         if callable(self.init_function):
             self.init_function()
-        self.load_apps()
 
-    def load_modules(self):
+    def run_scanner(self):
         """
-        Load modules specified in settings
-
-        :return: None
-        """
-        for module in self.settings['modules']:
-            importlib.import_module('.' + module, 'dycm')
-
-    def load_apps(self):
-        """
-        Load apps
+        Runs the Scanner
 
         :return: None
         """
-        modules = tuple(
-            importlib.import_module(module)
-            for module in self.settings['import']
-        )
-        for module in modules:
-            if hasattr(module, 'init_app') and callable(module.init_app):
-                module.init_app()
-        for module in modules:
-            if hasattr(module, 'run_services') and callable(module.run_services):
-                module.run_services()
+        self.scanner_instance.scan_from_settings()

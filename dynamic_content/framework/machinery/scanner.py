@@ -22,6 +22,7 @@ class ScannerHook(hooks.ClassHook):
 
 
 class __MultiHookBase(ScannerHook):
+    # internal_hooks does not need a slot, since it is a class attribute
     __slots__ = ()
 
     internal_hooks = collections.defaultdict(list)
@@ -77,13 +78,25 @@ class __MultiHookBase(ScannerHook):
         :return:
         """
         assert cls.is_selector(selector)
+        assert callable(executable)
         cls.internal_hooks[selector].append(
             cls.HookContainer(selector, executable)
         )
 
     @classmethod
     def make(cls, selector):
+        """
+        Decorator function to register a new hook
+
+        :param selector: selector the hook handles
+        :return: wrapper func
+        """
         def inner(executable):
+            """
+            Wrapper function for registering executable as hook
+            :param executable: callable that handles the hook
+            :return: unchanged executable
+            """
             cls.add(selector, executable)
             return executable
         return inner
@@ -235,64 +248,87 @@ class Scanner:
             :return: own submodules or self if self is not a package/dir
             """
             me = parent_modules + (current_module.stem, )
+
             if (current_module.is_file()
                     and current_module.suffix == '.py'
+
                     # we omit 'private' or 'protected' .py files
                     # starting with '_'
                     and not current_module.name.startswith('_')):
-                # we only yield ourselves if we are only a .py file
+
+                # we yield ourselves if we are only a .py file
                 yield '.'.join(me)
+
             elif current_module.is_dir():
+
                 # constructing tuple because we iterate over it twice
                 contents = tuple(current_module.iterdir())
+
                 for path in contents:
+
                     # ensure we are a package
                     if path.name == '__init__.py':
+
                         # return the package itself
                         yield me
-                        # return submodules recursively
+
                         for path in contents:
+
+                            # return submodules recursively
                             for submodule in get_submodules(path, me):
                                 yield submodule
+                        break
+
+        def submodules_from_tuple(mtuple, parents):
+            return tuple(
+                submodule
+
+                # we iterate over modules and apps
+                # modules first
+                for module in mtuple
+
+                # we get all submodules
+                for submodule in get_submodules(
+                    # we construct paths first
+                    pathlib.Path(
+                        # from the modules file
+                        importlib.import_module(
+                            (('.'.join(parents) + '.' + module)
+                             if parents
+                             else module)
+                        ).__file__
+                    ),
+                    # the parent modules are empty at this point
+                    parents
+                )
+            )
 
         # ----------------------------------------------------------
-        # the helper function ends
+        # the helper functions end
         # ----------------------------------------------------------
 
         # we construct a list of modules
         # from the parent modules
         # mentioned in settings
-        modules = tuple(
-
-            # we get all submodules
-            get_submodules(
-                # we construct paths first
-                pathlib.Path(
-                    # from the modules file
-                    importlib.import_module(module).__file__
-                ),
-                # the parent modules are empty at this point
-                ()
-            )
-
-
-            # we iterate over the keys we
-            # have to retrieve from settings first
-            #
-            # modules come first, apps later
-
-            for a in ('modules', 'import')  # outer loop
-
-
-            # and get the names contained
-            #
-            # we return an empty tuple
-            # if the key isn't set
-
-            for module in settings.get(a, ())  # inner loop
+        framework = submodules_from_tuple(
+            ('framework',), ()
         )
 
-        self.scan(*modules)
+
+        modules_from_settings = submodules_from_tuple(
+            settings.get('modules', ()), ('dycm',)
+        )
+
+        apps = submodules_from_tuple(
+            settings.get('import', ()), ()
+        )
+
+        modules = tuple(
+            importlib.import_module(module)
+            for module in framework + modules_from_settings + apps
+        )
+
+        self.scan(modules)
 
     def scan(self, modules):
         """
@@ -305,6 +341,7 @@ class Scanner:
             # so we can ensure all of them are present
             # at the start of the actual scan later
             self.find_scanner_hooks(module)
+
         for module in modules:
             # now we go through each module
             # calling the hooks we discovered earlier
@@ -346,7 +383,7 @@ class Scanner:
         :param module: module object
         :return: yielding symbols/symbol names
         """
-        for var_name, var in vars(module):
+        for var_name, var in vars(module).items():
             if var_name.startswith('_'):
                 # we omit private/protected values
                 continue
