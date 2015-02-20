@@ -21,8 +21,10 @@ class ScannerHook(hooks.ClassHook):
         raise NotImplementedError
 
 
-class _SingleValueMultiHook(ScannerHook):
-    __slots__ = 'internal_hooks',
+class __MultiHookBase(ScannerHook):
+    __slots__ = ()
+
+    internal_hooks = collections.defaultdict(list)
 
     class HookContainer(object):
         """
@@ -39,25 +41,23 @@ class _SingleValueMultiHook(ScannerHook):
         def __call__(self, *args, **kwargs):
             return self.executable(*args, **kwargs)
 
-    def __init__(self):
-        super().__init__()
-        self.internal_hooks = collections.defaultdict(list)
-
     def __call__(self, module, var_name, var):
         selector = self.get_internal_hook_selector(var_name, var)
         for hook in self.get_internal_hooks(selector):
             yield hook(var)
 
-    def get_internal_hooks(self, selector):
+    @classmethod
+    def get_internal_hooks(cls, selector):
         """
         Allows override for hook retrieval
 
         :param selector: the key
         :return: list of hooks
         """
-        return self.internal_hooks[selector]
+        return cls.internal_hooks[selector]
 
-    def get_internal_hook_selector(self, var_name, var):
+    @classmethod
+    def get_internal_hook_selector(cls, var_name, var):
         """
         Get a selector from the subclass
 
@@ -67,7 +67,8 @@ class _SingleValueMultiHook(ScannerHook):
         """
         raise NotImplementedError
 
-    def add(self, selector, executable):
+    @classmethod
+    def add(cls, selector, executable):
         """
         Register a new executable to handle the selector in question
 
@@ -75,12 +76,20 @@ class _SingleValueMultiHook(ScannerHook):
         :param executable: executable to register
         :return:
         """
-        assert self.is_selector(selector)
-        self.internal_hooks[selector].add(
-            self.HookContainer(selector, executable)
+        assert cls.is_selector(selector)
+        cls.internal_hooks[selector].append(
+            cls.HookContainer(selector, executable)
         )
 
-    def is_selector(self, selector):
+    @classmethod
+    def make(cls, selector):
+        def inner(executable):
+            cls.add(selector, executable)
+            return executable
+        return inner
+
+    @classmethod
+    def is_selector(cls, selector):
         """
         Verify whether the selector has the correct type
 
@@ -90,11 +99,16 @@ class _SingleValueMultiHook(ScannerHook):
         raise NotImplementedError
 
 
-class SingleNameMultiHook(_SingleValueMultiHook):
+class SingleNameHook(__MultiHookBase):
     """Hook for name based handling"""
     __slots__ = ()
 
-    def get_internal_hook_selector(self, var_name, var):
+    # we need to reinitialize this or we'd
+    # use the internal_hooks of the parent class
+    internal_hooks = collections.defaultdict(list)
+
+    @classmethod
+    def get_internal_hook_selector(cls, var_name, var):
         """
         Uses variable names for selection
 
@@ -104,7 +118,8 @@ class SingleNameMultiHook(_SingleValueMultiHook):
         """
         return var_name
 
-    def is_selector(self, selector):
+    @classmethod
+    def is_selector(cls, selector):
         """
         Verify the selector is a string
 
@@ -114,11 +129,16 @@ class SingleNameMultiHook(_SingleValueMultiHook):
         return isinstance(selector, str)
 
 
-class SingleTypeMultiHook(_SingleValueMultiHook):
+class SingleTypeHook(__MultiHookBase):
     """Hook for type based handling"""
     __slots__ = ()
 
-    def get_internal_hook_selector(self, var_name, var):
+    # we need to reinitialize this or we'd
+    # use the internal_hooks of the parent class
+    internal_hooks = collections.defaultdict(list)
+
+    @classmethod
+    def get_internal_hook_selector(cls, var_name, var):
         """
         We use type for selection
 
@@ -128,7 +148,8 @@ class SingleTypeMultiHook(_SingleValueMultiHook):
         """
         return type(var)
 
-    def is_selector(self, selector):
+    @classmethod
+    def is_selector(cls, selector):
         """
         Verify the selector is actually a type
         :param selector:
@@ -137,11 +158,16 @@ class SingleTypeMultiHook(_SingleValueMultiHook):
         return isinstance(selector, type)
 
 
-class SingleSubtypesMultiHook(_SingleValueMultiHook):
+class SingleSubtypeHook(__MultiHookBase):
     """Hooks for types that allow subtypes"""
     __slots__ = ()
 
-    def get_internal_hook_selector(self, var_name, var):
+    # we need to reinitialize this or we'd
+    # use the internal_hooks of the parent class
+    internal_hooks = collections.defaultdict(list)
+
+    @classmethod
+    def get_internal_hook_selector(cls, var_name, var):
         """
         This subclass uses variable (sub)types
 
@@ -151,7 +177,8 @@ class SingleSubtypesMultiHook(_SingleValueMultiHook):
         """
         return type(var)
 
-    def get_internal_hooks(self, selector):
+    @classmethod
+    def get_internal_hooks(cls, selector):
         """
         Yield all hooks registered for that type as well as
         any registered for super types of that type
@@ -159,13 +186,14 @@ class SingleSubtypesMultiHook(_SingleValueMultiHook):
         :param selector: the type of the object
         :returns: yielding hooks
         """
-        for hook in self.internal_hooks[selector]:
+        for hook in cls.internal_hooks[selector]:
             yield hook
-        for cls in selector.__bases__:
-            for hook in self.internal_hooks[cls]:
+        for class_ in selector.__bases__:
+            for hook in cls.internal_hooks[class_]:
                 yield hook
 
-    def is_selector(self, selector):
+    @classmethod
+    def is_selector(cls, selector):
         """
         Selectors have to be an instance of type
 
@@ -224,7 +252,8 @@ class Scanner:
                         yield me
                         # return submodules recursively
                         for path in contents:
-                            yield get_submodules(path, me)
+                            for submodule in get_submodules(path, me):
+                                yield submodule
 
         # ----------------------------------------------------------
         # the helper function ends
@@ -264,7 +293,6 @@ class Scanner:
         )
 
         self.scan(*modules)
-
 
     def scan(self, modules):
         """
@@ -319,6 +347,9 @@ class Scanner:
         :return: yielding symbols/symbol names
         """
         for var_name, var in vars(module):
+            if var_name.startswith('_'):
+                # we omit private/protected values
+                continue
             if var not in self.tracker:
                 self.tracker.add(var)
                 yield var_name, var
