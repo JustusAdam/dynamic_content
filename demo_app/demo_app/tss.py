@@ -82,11 +82,10 @@ def initialize(settings):
             user_module.users.new_permission(permission)
             user_module.users.assign_permission(access_group, permission)
 
-    if settings['runlevel'] in [structures.RunLevel.TESTING, structures.RunLevel.DEBUG]:
-        user_module.users.add_user(username='justus', password='???', email='justus.jonas@verizon.com', first_name='Justus', last_name='Jonas')
-        user_module.users.assign_access_group('justus', ADMIN_GRP)
-        user_module.users.add_user(username='peter', password='???', email='peter.shaw@verizon.com', first_name='Peter', last_name='Shaw')
-        user_module.users.add_user(username='bob', password='???', email='bob.andrews@verizon.com', first_name='Bob', last_name='Andrews')
+    user_module.users.add_user(username='justus', password='???', email='justus.jonas@verizon.com', first_name='Justus', last_name='Jonas')
+    user_module.users.assign_access_group('justus', ADMIN_GRP)
+    user_module.users.add_user(username='peter', password='???', email='peter.shaw@verizon.com', first_name='Peter', last_name='Shaw')
+    user_module.users.add_user(username='bob', password='???', email='bob.andrews@verizon.com', first_name='Bob', last_name='Andrews')
 
 
     # add some useful aliases

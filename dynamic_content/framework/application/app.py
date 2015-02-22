@@ -37,8 +37,7 @@ class Application(threading.Thread):
     """
     @component.inject_method('settings')
     def __init__(self, settings, init_function=None):
-        if settings['runlevel'] == structures.RunLevel.DEBUG:
-            logging.getLogger(__name__).info('app starting')
+        logging.getLogger(__name__).info('app starting')
         super().__init__()
         self.init_function = init_function
         self.settings = settings
@@ -53,8 +52,8 @@ class Application(threading.Thread):
         logging.critical(
             dc_ascii_art
         )
-        if self.settings['runlevel'] == structures.RunLevel.DEBUG:
-            logging.getLogger(__name__).info('starting server')
+
+        logging.getLogger(__name__).info('starting server')
         if self.settings['server_type'] == structures.ServerTypes.PLAIN:
             thread_class = appserver.HTTP
         elif self.settings['server_type'] == structures.ServerTypes.WSGI:

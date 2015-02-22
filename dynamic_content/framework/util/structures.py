@@ -18,10 +18,6 @@ SQLite = collections.namedtuple(
     'SQLite',
     ('name', )
 )
-RunLevel = Enumeration(
-    'RunLevel',
-    ('TESTING', 'DEBUG', 'PRODUCTION')
-    )
 PathMaps = Enumeration('PathMaps', ('MULTI_TABLE', 'TREE'))
 ServerTypes = Enumeration('ServerTypes', ('WSGI', 'PLAIN'))
 Distributions = Enumeration(
@@ -50,7 +46,6 @@ Mainly consists (after instantiation by the application) of two dictionaries:
 """
 DynamicContent = collections.namedtuple('DynamicContent',
     ('config', 'context', 'request', 'handler_options'))
-
 
 
 class InvisibleList(list):
