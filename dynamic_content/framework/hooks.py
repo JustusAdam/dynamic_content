@@ -278,7 +278,7 @@ class HookManager:
         :return: None
         """
         if hook not in self._hooks:
-            logging.warning(
+            logging.getLogger(__name__).warning(
                 'Assigning to uninitialized hook {}, '
                 'assuming type {}'.format(hook, type(handler))
             )

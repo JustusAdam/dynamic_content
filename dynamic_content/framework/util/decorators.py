@@ -12,10 +12,9 @@ __author__ = 'Justus Adam'
 def deprecated(func):
     @functools.wraps(func)
     def wrap(*args, **kwargs):
-        if get_settings()['logging_level'] == structures.LoggingLevel.THROW_ALL:
-            raise DeprecationWarning
-        if get_settings()['logging_level'] == structures.LoggingLevel.LOG_WARNINGS:
-            logging.warning('in', func, ':', 'using deprecated function')
+        logging.getLogger(__name__).warning(
+            'in {} : using deprecated function'.format(func)
+        )
         return func(*args, **kwargs)
 
     return wrap

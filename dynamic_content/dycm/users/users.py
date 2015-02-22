@@ -1,7 +1,8 @@
+from framework.machinery import component
 from framework.util.py34 import hashlib
 import os
 import logging
-from framework.includes import inject_settings
+from framework.includes import SettingsDict
 from . import model
 
 __author__ = 'Justus Adam'
@@ -34,7 +35,7 @@ UNKNOWN = -1  # placeholder - user undetermined
 GUEST = model.User.get_or_create(oid=0, username='_GUEST', access_group=GUEST_GRP, email_address='test@test')  # Not a authenticated User
 
 
-@inject_settings
+@component.inject(SettingsDict)
 def hash_password(settings, password, salt):
     return hashlib.pbkdf2_hmac(
         settings['hashing_algorithm'],
@@ -50,7 +51,7 @@ def check_ident(password, salt, comp_hash):
     return hashed == bytes(comp_hash)
 
 
-@inject_settings
+@component.inject(SettingsDict)
 def hash_and_new_salt(settings, password):
     salt = os.urandom(settings['salt_length'])
     hashed = hash_password(password.encode(), salt)
@@ -94,13 +95,20 @@ def check_permission(aid, permission, strict=False):
 
 def assign_permission(aid, permission):
     if aid == CONTROL_GROUP_NR:
-        logging.error('users, permissions, assign_permission: cannot assign permissions to control group')
+        logging.getLogger(__name__).error(
+            'users, permissions, assign_permission: '
+            'cannot assign permissions to control group'
+        )
     elif check_permission(aid=aid, permission=permission, strict=True):
-        logging.warning('in users, permissions, assign_permission:',
-                          'access group ' + str(aid) + ' already owns permission ' + permission)
+        logging.getLogger(__name__).warning(
+            'in users, permissions, assign_permission:',
+            'access group {} already owns permission {}'.format(aid, permission)
+        )
     elif not check_permission(aid=CONTROL_GROUP_NR, permission=permission):
-        logging.warning('users, permissions, assign_permission:',
-                          'permission ' + permission + ' does not exist yet')
+        logging.getLogger(__name__).warning(
+            'users, permissions, assign_permission:',
+            'permission {} does not exist yet'.format(permission)
+        )
         new_permission(permission)
         assign_permission(aid, permission)
     else:
@@ -109,14 +117,19 @@ def assign_permission(aid, permission):
 
 def revoke_permission(aid, permission):
     if aid == CONTROL_GROUP_NR:
-        logging.error('users, permissions, assign_permission: cannot revoke permissions from control group')
+        logging.getLogger(__name__).error(
+            'users, permissions, assign_permission: '
+            'cannot revoke permissions from control group'
+        )
     else:
         model.AccessGroupPermission(group=aid, permission=permission).delete_instance()
 
 
 def new_permission(permission):
-    result = model.AccessGroupPermission.select().where(model.AccessGroupPermission.group == CONTROL_GROUP_NR,
-                                                        model.AccessGroupPermission.permission == permission)
+    result = model.AccessGroupPermission.select().where(
+        model.AccessGroupPermission.group == CONTROL_GROUP_NR,
+        model.AccessGroupPermission.permission == permission
+    )
     if result.wrapped_count() == 0:
         model.AccessGroupPermission.create(group=CONTROL_GROUP_NR, permission=permission)
 

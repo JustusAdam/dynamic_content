@@ -7,7 +7,7 @@ import pathlib
 from urllib import parse
 import mimetypes
 from framework import http, route, middleware
-from framework.includes import inject_settings
+from framework.includes import SettingsDict
 from framework.util import html, structures
 from framework.http import response
 from framework.machinery import component
@@ -20,12 +20,12 @@ _template_path = 'themes/default_theme/template/page.html'
 _default_view = 'indexdir'
 
 
-@inject_settings
+@component.inject(SettingsDict)
 def get_file_directories(settings):
     return settings.get('file_directories', ())
 
 
-@inject_settings
+@component.inject(SettingsDict)
 def handle(settings, request):
     path_split = request.path.split('/')
     path_split = path_split[1:] if path_split[0] == '' else path_split
@@ -45,7 +45,7 @@ def handle(settings, request):
     return response.Response(code=response.HttpResponseCodes.NotFound)
 
 
-@inject_settings
+@component.inject(SettingsDict)
 def serve_from(settings, request, file, basedir):
 
     trailing_slash = file.endswith('/')

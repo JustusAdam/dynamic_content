@@ -100,7 +100,7 @@ class AppTread(threading.Thread):
 
         except (exceptions.PathResolving,
                 exceptions.MethodHandlerNotFound) as e:
-            logging.error('Page not found with exception {}'.format(e))
+            logging.getLogger(__name__).error('Page not found with exception {}'.format(e))
             view = 'error'
 
             dc_obj = structures.DynamicContent(

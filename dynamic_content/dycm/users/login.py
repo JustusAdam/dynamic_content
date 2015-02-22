@@ -137,7 +137,7 @@ def login_(dc_obj):
 @decorator.authorize('access login page')
 @theming.theme()
 def login(dc_obj, failed):
-    logging.debug(failed)
+    logging.getLogger(__name__).debug(failed)
     if failed == 'failed':
         message = html.ContainerElement(
             'Your Login failed, please try again.',

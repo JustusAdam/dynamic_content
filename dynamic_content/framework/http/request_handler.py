@@ -76,17 +76,17 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             try:
                 return function(*args, **kwargs)
             except PermissionError:
-                logging.error(
+                logging.getLogger(__name__).error(
                     'permission denied for operation {}'.format(self.path)
                     )
                 self.send_error(401, *self.responses[401])
             except TypeError:
-                logging.error(
+                logging.getLogger(__name__).error(
                     'value error for operation {}'.format(self.path)
                     )
                 self.send_error(400, *self.responses[400])
             except FileNotFoundError:
-                logging.error(
+                logging.getLogger(__name__).error(
                     'file could not be found for operation {}'.format(self.path)
                     )
                 self.send_error(404, *self.responses[404])
@@ -95,7 +95,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             except Exception as exception:
                 print(exception)
                 traceback.print_tb(sys.exc_info()[2])
-                logging.error('Unexpected error {}'.format(exception))
+                logging.getLogger(__name__).error('Unexpected error {}'.format(exception))
                 self.send_error(500, *self.responses[500])
 
         if _catch_errors:
@@ -104,10 +104,10 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             return function
 
     def process_http_error(self, error, response=None):
-        logging.error(error)
+        logging.getLogger(__name__).error(error)
         if error.code >= 400:
             if error.reason:
-                logging.warning(
+                logging.getLogger(__name__).warning(
                 'HTTPError, code: {}, message: {}'.format(
                     error.code, error.reason
                     )
@@ -116,7 +116,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
                     error.code, self.responses[error.code][0], error.reason
                     )
             else:
-                logging.warning(
+                logging.getLogger(__name__).warning(
                     'HTTPError,  code: {}, message: {}'.format(
                         error.code, self.responses[error.code][0]
                         )

@@ -12,10 +12,21 @@ __version__ = '0.2'
 
 @component.inject(SettingsDict)
 def get_settings(settings):
+    """
+    Convenience method to obtain the settings dict
+
+    :param settings: injected settings component
+    :return: settings
+    """
     return settings
 
 
 def inject_settings(func):
+    """
+    Convenience decorator to inject the settings
+    :param func:
+    :return:
+    """
     return component.inject(SettingsDict)(func)
 
 

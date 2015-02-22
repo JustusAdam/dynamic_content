@@ -85,7 +85,7 @@ def check_parallel_process():
     )
 
     if len(lines) != 0:
-        logging.debug(lines)
+        logging.getLogger(__name__).debug(lines)
         user_input = input(
             '\n\nAnother {} process has been detected.\n'
             'Would you like to kill it, in order to start a new one?\n'
@@ -294,7 +294,7 @@ def main():
 
     includes._init_log()
 
-    logging.debug(startargs['mode'])
+    logging.getLogger(__name__).debug(startargs['mode'])
 
     if startargs['mode'] == 'run':
 

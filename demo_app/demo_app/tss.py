@@ -1,21 +1,27 @@
-import pathlib
-
-__doc__ = """
-This is a temporary script that will execute some queries on the database to fill in the necessary content
-to get some basic site setup done. It will be done in this script to avoid trying to insert into tables that have not
-been created yet.
 """
-from framework.util import structures
-from framework.includes import inject_settings
+This is a temporary script that will execute some queries on the database
+to fill in the necessary content to get some basic site setup done.
+It will be done in this script to avoid trying to insert into tables
+that have not been created yet.
+"""
+import pathlib
 import logging
 
+from framework.machinery import component
+from framework.includes import SettingsDict
 
 __author__ = 'Justus Adam'
 __version__ = '0.2.1'
 
 
-@inject_settings
+@component.inject(SettingsDict)
 def init_tables(settings):
+    """
+    Initialize database tables
+
+    :param settings:
+    :return:
+    """
     from importlib import import_module
     import inspect
 
@@ -28,7 +34,7 @@ def init_tables(settings):
                 try:
                     item.create_table()
                 except Exception as e:
-                    logging.error('create_table:{}'.format(e))
+                    logging.getLogger(__name__).error('create_table:{}'.format(e))
 
     c = {
         module: import_module('dycm.' + module)
@@ -41,15 +47,21 @@ def init_tables(settings):
             m = import_module('.model', module.__name__)
             _init_module(m)
         except Exception as error:
-            logging.error('init_tables:{}'.format(error))
+            logging.getLogger(__name__).error('init_tables:{}'.format(error))
 
     from framework.middleware import alias, csrf
     alias.Alias.create_table()
     csrf.ARToken.create_table()
 
 
-@inject_settings
+@component.inject(SettingsDict)
 def initialize(settings):
+    """
+    Put some test data into the database
+
+    :param settings:
+    :return:
+    """
     from dycm import users as user_module, commons, theming, node
 
     admin_menu_common = 'admin_menu'
@@ -58,23 +70,46 @@ def initialize(settings):
 
     ADMIN_GRP = 5
 
-    # user_module.users.add_acc_grp('control_group', user_module.users.CONTROL_GROUP)
+    # user_module.users.add_acc_grp(
+    #   'control_group',
+    #   user_module.users.CONTROL_GROUP
+    # )
 
-    permissions = [
-        [
+    permissions = (
+        (
             user_module.users.GUEST_GRP, 'unauthorized guests',
-            ['access login page', 'access content type article', 'access common login', 'access node overview']
-        ], [
+            (
+                'access login page',
+                'access content type article',
+                'access common login',
+                'access node overview'
+            )
+        ), (
             user_module.users.AUTH, 'any authorized user',
-            ['access logout', 'access unpublished content type article', 'access content type article',
-             'access common ' + 'user_information', 'view own user info', 'access node overview']
-        ], [
+            (
+                'access logout',
+                'access unpublished content type article',
+                'access content type article',
+                'access common ' + 'user_information',
+                'view own user info',
+                'access node overview'
+            )
+        ), (
             ADMIN_GRP, 'admin',
-            ['edit user accounts', 'access users overview', 'edit content type article', 'add content type article',
-             'access common ' + admin_menu_common, 'access admin pages', 'view other user info', 'view permissions',
-             'edit permissions', 'access node overview']
-        ]
-    ]
+            (
+                'edit user accounts',
+                'access users overview',
+                'edit content type article',
+                'add content type article',
+                'access common ' + admin_menu_common,
+                'access admin pages',
+                'view other user info',
+                'view permissions',
+                'edit permissions',
+                'access node overview'
+            )
+        )
+    )
 
     user_module.users.add_acc_grp('admin', ADMIN_GRP)
     for access_group, name, permission_list in permissions:
@@ -82,11 +117,28 @@ def initialize(settings):
             user_module.users.new_permission(permission)
             user_module.users.assign_permission(access_group, permission)
 
-    user_module.users.add_user(username='justus', password='???', email='justus.jonas@verizon.com', first_name='Justus', last_name='Jonas')
+    user_module.users.add_user(
+        username='justus',
+        password='???',
+        email='justus.jonas@verizon.com',
+        first_name='Justus',
+        last_name='Jonas'
+    )
     user_module.users.assign_access_group('justus', ADMIN_GRP)
-    user_module.users.add_user(username='peter', password='???', email='peter.shaw@verizon.com', first_name='Peter', last_name='Shaw')
-    user_module.users.add_user(username='bob', password='???', email='bob.andrews@verizon.com', first_name='Bob', last_name='Andrews')
-
+    user_module.users.add_user(
+        username='peter',
+        password='???',
+        email='peter.shaw@verizon.com',
+        first_name='Peter',
+        last_name='Shaw'
+    )
+    user_module.users.add_user(
+        username='bob',
+        password='???',
+        email='bob.andrews@verizon.com',
+        first_name='Bob',
+        last_name='Andrews'
+    )
 
     # add some useful aliases
 
@@ -99,8 +151,6 @@ def initialize(settings):
 
     for a, source in aliases:
         alias.add_alias(source, a)
-
-
 
     # add themes
 
@@ -141,7 +191,9 @@ def initialize(settings):
                 weight=weight
             )
 
-    for name, content in (('copyright', '<p>\"dynamic_content\" CMS - © Justus Adam 2015</p>'), ):
+    for name, content in (
+        ('copyright', '<p>\"dynamic_content\" CMS - © Justus Adam 2015</p>'),
+    ):
         commons.model.CommonData.create(
             machine_name=name,
             content=content
@@ -153,7 +205,7 @@ def initialize(settings):
         ('copyright', 'com_text', 'commons', 0),
         # commons from users
         # from admin
-        #(admin_menu_common, 'admin_menu', 'admin', 1)
+        # (admin_menu_common, 'admin_menu', 'admin', 1)
     ]
 
     commons_list = [
@@ -163,7 +215,7 @@ def initialize(settings):
         # from users
 
         # from admin
-        #(admin_menu_common, 'sidebar_left', 4, 'default_theme', True)
+        # (admin_menu_common, 'sidebar_left', 4, 'default_theme', True)
     ]
 
     if 'user_management' in settings['modules']:
@@ -181,23 +233,32 @@ def initialize(settings):
         )
 
     for machine_name, type_, handler, access_type in commons_config_list:
-        commons.add_commons_config(machine_name=machine_name,
-                           commons_type=type_,
-                           access_type=access_type)
+        commons.add_commons_config(
+            machine_name=machine_name,
+            commons_type=type_,
+            access_type=access_type
+        )
 
     for name, region, weight, theme, show_title in commons_list:
-        commons.assign_common(common_name=name,
-                      region=region,
-                      weight=weight,
-                      theme=theme,
-                      show_title=show_title)
+        commons.assign_common(
+            common_name=name,
+            region=region,
+            weight=weight,
+            theme=theme,
+            show_title=show_title
+        )
 
 
-    _ct1 = node.model.ContentType.create(machine_name='article',
-                                         displey_name='Simple Article',
-                                         theme=theming.model.Theme.get(machine_name='default_theme'))
+    _ct1 = node.model.ContentType.create(
+        machine_name='article',
+        displey_name='Simple Article',
+        theme=theming.model.Theme.get(machine_name='default_theme')
+    )
 
-    bodytype = node.model.FieldType.create(machine_name='body', handler='node.text_field_handler')
+    bodytype = node.model.FieldType.create(
+        machine_name='body',
+        handler='node.text_field_handler'
+    )
 
     node.model.FieldConfig.create(
         field_type=bodytype,
@@ -209,15 +270,36 @@ def initialize(settings):
     bodyfield = node.model.field('body')
     bodyfield.create_table()
 
-    page = node.model.Page.create(content_type=_ct1, page_title="Welcome to \"dynamic_content\"", creator=1,
-                                  published=True)
-    bodyfield.create(page_id=page.oid, page_type='node',
-                     content='<div><h3>Welcome to your \"dynamic_content\" installation</h3><p>First off, thank you for choosing this software to run your website</p><p>I try to make this software to be the easiest to use and extend content management software there is.</p><div>I hope you\'ll enjoy using this software. If you are a developer please consider helping out with the development, I am always looking for aid and fresh ideas.</div></div>')
+    page = node.model.Page.create(
+        content_type=_ct1,
+        page_title="Welcome to \"dynamic_content\"",
+        creator=1,
+        published=True
+    )
+    bodyfield.create(
+        page_id=page.oid,
+        page_type='node',
+        content='<div><h3>Welcome to your \"dynamic_content\" installation</h3>'
+                '<p>First off, thank you for choosing this software to run '
+                'your website</p><p>I try to make this software to be the '
+                'easiest to use and extend content management software there '
+                'is.</p><div>I hope you\'ll enjoy using this software. If you '
+                'are a developer please consider helping out with the '
+                'development, I am always looking for aid and fresh ideas.'
+                '</div></div>'
+    )
 
-    page = node.model.Page.create(content_type=_ct1, page_title='Wuhuuu', creator=1, published=True)
-    bodyfield.create(page_id=page.oid,
-                     content='<p>More content is good</p>',
-                     page_type='node')
+    page = node.model.Page.create(
+        content_type=_ct1,
+        page_title='Wuhuuu',
+        creator=1,
+        published=True
+    )
+    bodyfield.create(
+        page_id=page.oid,
+        content='<p>More content is good</p>',
+        page_type='node'
+    )
 
     # add admin pages
     #

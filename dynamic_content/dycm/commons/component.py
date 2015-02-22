@@ -15,7 +15,7 @@ class Mapper(dict):
         if not isinstance(name, str):
             raise TypeError('expected type <str>, got ' + repr(type(name)))
         if name in self:
-            logging.warning(
+            logging.getLogger(__name__).warning(
                 'in CommonsMap, register: Overwriting commons handler ', name
                 )
         self.__setitem__(name, val)

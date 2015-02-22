@@ -1,18 +1,19 @@
 import logging
 
 from . import response
-from framework.includes import inject_settings
+from framework.includes import SettingsDict
+from framework.machinery import component
 
 
-@inject_settings
+@component.inject(SettingsDict)
 def conditional_redirect(settings, request):
     if request.ssl_enabled is True:
         return None
     elif not settings['https_enabled']:
-        logging.debug(
+        logging.getLogger(__name__).debug(
             'Forced redirect to encrypted connection was '
             'requested, but SSL is not enabled.')
-        logging.debug(
+        logging.getLogger(__name__).debug(
             'Forced redirect to encrypted connection was '
             'requested, but SSL is not enabled.')
         return None

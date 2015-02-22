@@ -1,15 +1,13 @@
-import logging
-
 from peewee import *
 
-from framework.includes import inject_settings
-from framework.util import structures
+from framework.includes import SettingsDict
+from framework.machinery import component
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-@inject_settings
+@component.inject(SettingsDict)
 def proxy_db(settings):
     """
     Return the database specified in settings.
