@@ -6,7 +6,7 @@ from framework.util import time
 from ._settings import SettingsDict
 
 __author__ = 'Justus Adam'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 @component.inject(SettingsDict)
