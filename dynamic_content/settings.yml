@@ -14,13 +14,17 @@ hashing_rounds: 100000
 hash_length: 64
 salt_length: 16
 
-# 0:LOG_WARNINGS, 1:LOG_ERRORS, 2:THROW_ERRORS, 3:THROW_ALL
-logging_level: 3
+logging_level: DEBUG
 
 server: {
   port: 9012,
   host: 'localhost',
   ssl_port: 9443,
+}
+
+database: {
+  name: ':memory:',
+  type: 'SQlite'
 }
 
 # 0:TESTING, 1:DEBUG, 2:PRODUCTION

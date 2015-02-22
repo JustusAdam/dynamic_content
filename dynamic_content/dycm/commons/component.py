@@ -1,6 +1,7 @@
 import inspect
+import logging
+
 from framework.machinery import component
-from framework.includes import log
 
 __author__ = 'Justus Adam'
 
@@ -14,7 +15,7 @@ class Mapper(dict):
         if not isinstance(name, str):
             raise TypeError('expected type <str>, got ' + repr(type(name)))
         if name in self:
-            log.write_warning(
+            logging.warning(
                 'in CommonsMap, register: Overwriting commons handler ', name
                 )
         self.__setitem__(name, val)

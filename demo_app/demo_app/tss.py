@@ -7,6 +7,7 @@ been created yet.
 """
 from framework.util import structures
 from framework.includes import inject_settings
+import logging
 
 
 __author__ = 'Justus Adam'
@@ -15,10 +16,10 @@ __version__ = '0.2.1'
 
 @inject_settings
 def init_tables(settings):
-    from framework.includes import log
     from importlib import import_module
-    from framework.backend import orm
     import inspect
+
+    from framework.backend import orm
 
     def _init_module(m):
         for item in dir(m):
@@ -27,7 +28,7 @@ def init_tables(settings):
                 try:
                     item.create_table()
                 except Exception as e:
-                    log.write_error('create_table:', e)
+                    logging.error('create_table:{}'.format(e))
 
     c = {
         module: import_module('dycm.' + module)
@@ -40,7 +41,7 @@ def init_tables(settings):
             m = import_module('.model', module.__name__)
             _init_module(m)
         except Exception as error:
-            log.write_error('init_tables:', error)
+            logging.error('init_tables:{}'.format(error))
 
     from framework.middleware import alias, csrf
     alias.Alias.create_table()

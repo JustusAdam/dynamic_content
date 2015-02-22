@@ -1,9 +1,10 @@
 """
 Hooking implementation
 """
+import logging
+
 from .machinery import component
 from .errors import exceptions
-from .includes import log
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
@@ -277,7 +278,7 @@ class HookManager:
         :return: None
         """
         if hook not in self._hooks:
-            log.print_warning(
+            logging.warning(
                 'Assigning to uninitialized hook {}, '
                 'assuming type {}'.format(hook, type(handler))
             )

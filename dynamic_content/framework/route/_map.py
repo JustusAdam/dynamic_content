@@ -1,10 +1,11 @@
 import collections
-from framework import http
+import logging
 
+from framework import http
 from framework.errors import exceptions
 from ..machinery import component
-from framework.util import console, structures
-from framework.includes import get_settings, log
+from framework.util import structures
+from framework.includes import get_settings
 
 
 __author__ = 'Justus Adam'
@@ -122,7 +123,7 @@ class PathMap(Segment):
 
     @staticmethod
     def print_info(path, handler):
-        log.print_info(
+        logging.info(
             'Registering on path {path}    '
             ' Handler: {module}.{function}'.format(
                 path=path,

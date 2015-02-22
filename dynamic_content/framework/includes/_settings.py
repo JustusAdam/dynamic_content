@@ -20,17 +20,13 @@ default_settings = {
     'hash_length': 64,
     'salt_length': 16,
 
-    # 0:LOG_WARNINGS, 1:LOG_ERRORS, 2:THROW_ERRORS, 3:THROW_ALL
-    'logging_level': 3,
+    'logging_level': 'debug',
 
     'server': {
         'port': 9012,
         'host': 'localhost',
         'ssl_port': 9443,
     },
-
-    # 0:TESTING, 1:DEBUG, 2:PRODUCTION
-    'runlevel': 0,
 
     # 0:MULTI_TABLE, 1:TREE
     'pathmap_type': 0,
@@ -46,6 +42,11 @@ default_settings = {
     'default_headers': {
         'Content-Type': 'text/html; charset=utf-8',
         'Cache-Control': 'no-cache',
+    },
+
+    'database': {
+        'name': ':memory:',
+        'type': 'SQlite'
     },
 
     # 0:WSGI, 1:PLAIN

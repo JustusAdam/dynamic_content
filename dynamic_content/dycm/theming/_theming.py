@@ -1,7 +1,7 @@
 import json
 import pathlib
 from framework import mvc
-from framework.includes import get_settings, inject_settings
+from framework.includes import inject_settings
 from framework.util import html, structures
 from . import model
 

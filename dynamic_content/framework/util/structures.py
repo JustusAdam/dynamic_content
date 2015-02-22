@@ -18,11 +18,6 @@ SQLite = collections.namedtuple(
     'SQLite',
     ('name', )
 )
-
-LoggingLevel = Enumeration(
-    'Logging',
-    ('LOG_WARNINGS', 'LOG_ERRORS', 'THROW_ERRORS', 'THROW_ALL')
-    )
 RunLevel = Enumeration(
     'RunLevel',
     ('TESTING', 'DEBUG', 'PRODUCTION')

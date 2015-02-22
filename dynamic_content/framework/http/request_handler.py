@@ -13,8 +13,9 @@ import sys
 import traceback
 from urllib.error import HTTPError
 import collections
+import logging
+
 from framework.http import Request
-from framework.includes import log
 from framework.machinery import component
 
 
@@ -75,17 +76,17 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             try:
                 return function(*args, **kwargs)
             except PermissionError:
-                log.write_error(
+                logging.error(
                     'permission denied for operation {}'.format(self.path)
                     )
                 self.send_error(401, *self.responses[401])
             except TypeError:
-                log.write_error(
+                logging.error(
                     'value error for operation {}'.format(self.path)
                     )
                 self.send_error(400, *self.responses[400])
             except FileNotFoundError:
-                log.write_error(
+                logging.error(
                     'file could not be found for operation {}'.format(self.path)
                     )
                 self.send_error(404, *self.responses[404])
@@ -94,7 +95,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             except Exception as exception:
                 print(exception)
                 traceback.print_tb(sys.exc_info()[2])
-                log.write_error('Unexpected error {}'.format(exception))
+                logging.error('Unexpected error {}'.format(exception))
                 self.send_error(500, *self.responses[500])
 
         if _catch_errors:
@@ -103,10 +104,10 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             return function
 
     def process_http_error(self, error, response=None):
-        log.print_error(error)
+        logging.error(error)
         if error.code >= 400:
             if error.reason:
-                log.write_warning(
+                logging.warning(
                 'HTTPError, code: {}, message: {}'.format(
                     error.code, error.reason
                     )
@@ -115,7 +116,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
                     error.code, self.responses[error.code][0], error.reason
                     )
             else:
-                log.write_warning(
+                logging.warning(
                     'HTTPError,  code: {}, message: {}'.format(
                         error.code, self.responses[error.code][0]
                         )

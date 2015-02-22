@@ -6,7 +6,8 @@ import pathlib
 import sys
 from framework.util import config, structures
 from framework.machinery import component
-from framework.includes import log
+from framework import includes
+import logging
 
 python_logo_ascii_art = """
           .?77777777777777$.
@@ -84,7 +85,7 @@ def check_parallel_process():
     )
 
     if len(lines) != 0:
-        log.print_debug(lines)
+        logging.debug(lines)
         user_input = input(
             '\n\nAnother {} process has been detected.\n'
             'Would you like to kill it, in order to start a new one?\n'
@@ -153,7 +154,7 @@ def prepare_parser():
     parser.add_argument(
         '--loglevel',
         type=str,
-        choices=tuple(map(str.lower, structures.LoggingLevel._fields))
+        choices=('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
         )
     parser.add_argument(
         '--pathmap',
@@ -291,7 +292,9 @@ def main():
     # omitted, due to issues
     # check_parallel_process()
 
-    log.print_debug(startargs['mode'])
+    includes._init_log()
+
+    logging.debug(startargs['mode'])
 
     if startargs['mode'] == 'run':
 

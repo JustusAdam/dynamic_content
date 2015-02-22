@@ -1,8 +1,9 @@
 """Implementation of the main Application class"""
 import threading
+import logging
+
 from framework.backend import orm
-from framework.includes import log
-from framework.util import console, structures
+from framework.util import structures
 from framework.machinery import component
 from . import loader
 from framework.http import appserver
@@ -10,6 +11,18 @@ from framework.http import appserver
 
 __author__ = 'Justus Adam'
 __version__ = '0.2.3'
+
+
+dc_ascii_art = """
+
+       __                            _                           __             __
+  ____/ /_  ______  ____ _____ ___  (_)____    _________  ____  / /____  ____  / /_
+ / __  / / / / __ \/ __ `/ __ `__ \/ / ___/   / ___/ __ \/ __ \/ __/ _ \/ __ \/ __/
+/ /_/ / /_/ / / / / /_/ / / / / / / / /__    / /__/ /_/ / / / / /_/  __/ / / / /_
+\__,_/\__, /_/ /_/\__,_/_/ /_/ /_/_/\___/____\___/\____/_/ /_/\__/\___/_/ /_/\__/
+     /____/                            /_____/
+
+"""
 
 
 class Application(threading.Thread):
@@ -25,7 +38,7 @@ class Application(threading.Thread):
     @component.inject_method('settings')
     def __init__(self, settings, init_function=None):
         if settings['runlevel'] == structures.RunLevel.DEBUG:
-            log.write_info('app starting')
+            logging.info('app starting')
         super().__init__()
         self.init_function = init_function
         self.settings = settings
@@ -37,9 +50,11 @@ class Application(threading.Thread):
 
         :return: None
         """
-        console.print_name()
+        logging.critical(
+            dc_ascii_art
+        )
         if self.settings['runlevel'] == structures.RunLevel.DEBUG:
-            log.write_info('starting server')
+            logging.info('starting server')
         if self.settings['server_type'] == structures.ServerTypes.PLAIN:
             thread_class = appserver.HTTP
         elif self.settings['server_type'] == structures.ServerTypes.WSGI:
@@ -63,7 +78,7 @@ class Application(threading.Thread):
 
         if (hasattr(orm.database_proxy, 'database') and (
                 orm.database_proxy.database == ':memory:')):
-            log.print_warning(
+            logging.warning(
                 'Using an in-memory database with this software is supported '
                 'however bears some restrictions. '
                 'SQlite does not support sharing connections between threads '

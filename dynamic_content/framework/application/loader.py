@@ -1,6 +1,5 @@
-import importlib
 from framework import middleware
-from framework.includes import log
+import logging
 from framework.machinery import component, registry, scanner
 
 __author__ = 'Justus Adam'
@@ -20,11 +19,11 @@ class Loader:
         Main work of the loader
         :return: None
         """
-        log.write_info('Loading Components ... ')
+        logging.info('Loading Components ... ')
         from framework import mvc, route, dchp
-        log.print_warning('Loading Middleware ...')
+        logging.warning('Loading Middleware ...')
         middleware.load(self.settings['middleware'])
-        log.print_info('Loading Modules ...')
+        logging.info('Loading Modules ...')
         self.run_scanner()
         if callable(self.init_function):
             self.init_function()

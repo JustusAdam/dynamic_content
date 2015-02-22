@@ -1,5 +1,8 @@
+import logging
+
 from peewee import *
-from framework.includes import inject_settings, log
+
+from framework.includes import inject_settings
 from framework.util import structures
 
 __author__ = 'Justus Adam'
@@ -13,28 +16,20 @@ def proxy_db(settings):
 
     :return:
     """
-    log.print_info('Current RunLevel:  ', settings['runlevel'],  '  ->  ', structures.RunLevel[settings['runlevel']])
-    if settings['runlevel'] in [structures.RunLevel.TESTING, structures.RunLevel.DEBUG]:
-        db = SqliteDatabase(':memory:')
-        db.connect()
-        return db
-    elif settings['runlevel'] == structures.RunLevel.PRODUCTION:
-        if settings['database']['type'] == 'mysql':
-            mysqld = MySQLDatabase(
-                **{
-                    a: b
-                    for a, b in settings['database'].keys()
-                    if not a == 'type'
-                }
-            )
-            mysqld.connect()
-            return mysqld
-        elif settings['database']['type'] == 'sqlite':
-            sqlited = SqliteDatabase(settings['database']['name'])
-            sqlited.connect()
-            return sqlited
-    else:
-        raise ValueError
+    if settings['database']['type'].lower() == 'mysql':
+        mysqld = MySQLDatabase(
+            **{
+                a: b
+                for a, b in settings['database'].keys()
+                if not a == 'type'
+            }
+        )
+        mysqld.connect()
+        return mysqld
+    elif settings['database']['type'].lower() == 'sqlite':
+        sqlited = SqliteDatabase(settings['database']['name'])
+        sqlited.connect()
+        return sqlited
 
 
 database_proxy = proxy_db()

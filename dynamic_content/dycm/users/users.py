@@ -1,6 +1,7 @@
 from framework.util.py34 import hashlib
 import os
-from framework.includes import log, inject_settings
+import logging
+from framework.includes import inject_settings
 from . import model
 
 __author__ = 'Justus Adam'
@@ -93,12 +94,12 @@ def check_permission(aid, permission, strict=False):
 
 def assign_permission(aid, permission):
     if aid == CONTROL_GROUP_NR:
-        log.write_error('users, permissions, assign_permission: cannot assign permissions to control group')
+        logging.error('users, permissions, assign_permission: cannot assign permissions to control group')
     elif check_permission(aid=aid, permission=permission, strict=True):
-        log.write_warning('in users, permissions, assign_permission:',
+        logging.warning('in users, permissions, assign_permission:',
                           'access group ' + str(aid) + ' already owns permission ' + permission)
     elif not check_permission(aid=CONTROL_GROUP_NR, permission=permission):
-        log.write_warning('users, permissions, assign_permission:',
+        logging.warning('users, permissions, assign_permission:',
                           'permission ' + permission + ' does not exist yet')
         new_permission(permission)
         assign_permission(aid, permission)
@@ -108,7 +109,7 @@ def assign_permission(aid, permission):
 
 def revoke_permission(aid, permission):
     if aid == CONTROL_GROUP_NR:
-        log.write_error('users, permissions, assign_permission: cannot revoke permissions from control group')
+        logging.error('users, permissions, assign_permission: cannot revoke permissions from control group')
     else:
         model.AccessGroupPermission(group=aid, permission=permission).delete_instance()
 

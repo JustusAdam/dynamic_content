@@ -3,10 +3,11 @@
 import functools
 import threading
 import traceback
+import logging
+from http import server
+
 from framework import middleware, http
 from framework.errors import exceptions
-from http import server
-from framework.includes import log
 from framework.util import structures, catch_vardump
 from framework.machinery import component
 
@@ -99,7 +100,7 @@ class AppTread(threading.Thread):
 
         except (exceptions.PathResolving,
                 exceptions.MethodHandlerNotFound) as e:
-            log.write_error('Page not found with exception {}'.format(e))
+            logging.error('Page not found with exception {}'.format(e))
             view = 'error'
 
             dc_obj = structures.DynamicContent(
