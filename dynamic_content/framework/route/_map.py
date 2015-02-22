@@ -1,3 +1,5 @@
+"""Implementation of path resolvers"""
+
 import collections
 import logging
 
@@ -19,7 +21,7 @@ _typecheck = {
 
 
 class Segment(dict):
-    __doc__ = """A Segment of the path structure"""
+    """A Segment of the path structure"""
     __slots__ = 'name', 'handler', 'wildcard'
 
     def __init__(self, name, handler=None, **kwargs):
@@ -30,12 +32,20 @@ class Segment(dict):
 
     @staticmethod
     def add_to_container(container, handler_func):
+        """
+        Try to add a given handler to a handler container
+
+        :param container:
+        :param handler_func:
+        :return:
+        """
         def _compare_two(one, other):
             h1, h2 = set(one.headers), set(other.headers)
 
             if h1 == h2:
                 raise exceptions.ControllerError(
-                'Handler mapping collision. Headers do not differ.')
+                    'Handler mapping collision. Headers do not differ.'
+                )
 
         for a in handler_func.method:
             current = getattr(container, a)
@@ -45,8 +55,10 @@ class Segment(dict):
                 for item in current:
                     _compare_two(item, handler_func)
                 else:
-                    setattr(container, a,
-                        sorted((handler_func, ) + current, key=len))
+                    setattr(
+                        container, a,
+                        sorted((handler_func, ) + current, key=len)
+                    )
             else:
                 _compare_two(current, handler_func)
                 setattr(container, a, sorted((handler_func, current), key=len))
@@ -55,8 +67,9 @@ class Segment(dict):
 TypeArg = collections.namedtuple('TypeArg', ('name', 'type'))
 # A Path argument with a name.
 
+
 class HandlerContainer(object):
-    __doc__ = """Value object for holding handlers to various request
+    """Value object for holding handlers to various request
     types with some convenience methods for value access"""
     __slots__ = 'get', 'post'
 
@@ -75,9 +88,19 @@ typemap = {
 
 
 def handler_from_container(container, method, headers):
-    handler_container = (container.handler
-            if isinstance(container, Segment)
-            else container)
+    """
+    Get a handler given a container and method
+
+    :param container:
+    :param method:
+    :param headers:
+    :return:
+    """
+    handler_container = (
+        container.handler
+        if isinstance(container, Segment)
+        else container
+    )
     if handler_container is None:
         return None
     handler = getattr(handler_container, method)
@@ -100,12 +123,14 @@ def handler_from_container(container, method, headers):
 
 
 class PathMap(Segment):
-    __doc__ = """Abstract Baseclass for path mappers"""
+    """Abstract Baseclass for path mappers"""
     __slots__ = '_controller_classes',
 
     def __init__(self, **kwargs):
         super().__init__('/', **kwargs)
-        # console.print_info('Utilizing PathMapType:   ' + self.__class__.__name__)
+        logging.getLogger(__name__).debug(
+            'Utilizing PathMapType:   ' + self.__class__.__name__
+        )
         self._controller_classes = []
 
     def __iadd__(self, other):
@@ -123,7 +148,14 @@ class PathMap(Segment):
 
     @staticmethod
     def print_info(path, handler):
-        logging.info(
+        """
+        Print some debug info to the log
+
+        :param path:
+        :param handler:
+        :return:
+        """
+        logging.getLogger(__name__).debug(
             'Registering on path {path}    '
             ' Handler: {module}.{function}'.format(
                 path=path,
@@ -133,12 +165,22 @@ class PathMap(Segment):
         )
 
     def add_path(self, path:str, handler):
-        """registers given handler at given path"""
+        """
+        registers given handler at given path
+
+        :param path: where to register
+        :param handler: handler to register
+        """
         raise NotImplementedError
 
     # @decorators.catch(exception=(exceptions.ControllerError, PermissionError), return_value='error', log_error=True, print_error=True)
     def resolve(self, request):
-        """Resolve and handle a request to given url"""
+        """
+        Resolve and handle a request to given url
+
+        :param request object
+        :return: handler, args, kwargs (from path)
+        """
         handler, args, kwargs = self.find_handler(request)
 
         if handler.query is True:
@@ -438,7 +480,7 @@ class MultiTableSegment(Segment):
 
 
 class MultiTablePathMap(MultiTableSegment, PathMap):
-    __doc__ = """Path mapper implementation based on junction stacked hash tables"""
+    """Path mapper implementation based on junction stacked hash tables"""
     __slots__ = ()
 
     @staticmethod
@@ -505,7 +547,6 @@ class MultiTablePathMap(MultiTableSegment, PathMap):
             if stack.p:
                 stack.flush_p()
         return stack.r
-
 
     def add_path(self, path:str, handler):
         path = path if path.startswith('/') else '/' + path

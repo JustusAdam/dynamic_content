@@ -38,7 +38,7 @@ class Application(threading.Thread):
     @component.inject_method('settings')
     def __init__(self, settings, init_function=None):
         if settings['runlevel'] == structures.RunLevel.DEBUG:
-            logging.info('app starting')
+            logging.getLogger(__name__).info('app starting')
         super().__init__()
         self.init_function = init_function
         self.settings = settings
@@ -54,7 +54,7 @@ class Application(threading.Thread):
             dc_ascii_art
         )
         if self.settings['runlevel'] == structures.RunLevel.DEBUG:
-            logging.info('starting server')
+            logging.getLogger(__name__).info('starting server')
         if self.settings['server_type'] == structures.ServerTypes.PLAIN:
             thread_class = appserver.HTTP
         elif self.settings['server_type'] == structures.ServerTypes.WSGI:
@@ -78,12 +78,12 @@ class Application(threading.Thread):
 
         if (hasattr(orm.database_proxy, 'database') and (
                 orm.database_proxy.database == ':memory:')):
-            logging.warning(
+            logging.getLogger(__name__).warning(
                 'Using an in-memory database with this software is supported '
-                'however bears some restrictions. '
+                'however bears some restrictions. \n'
                 'SQlite does not support sharing connections between threads '
                 'as such you may only use a single server thread '
-                'when using an in-memory database.'
+                'when using an in-memory database.\n'
                 'It is recommended to only use in-memory databases for testing'
             )
             if self.settings['https_enabled']:

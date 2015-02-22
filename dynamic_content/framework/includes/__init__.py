@@ -23,7 +23,7 @@ def _init_log():
 
     base = functools.partial(
         logging.basicConfig,
-        format='%(asctime)s [%(levelname)9s]:%(message)s',
+        format='%(asctime)s %(levelname)9s [%(name)12s] : %(message)s',
         level=getattr(
             logging,
             get_settings().get('logging_level', 'warning').upper()

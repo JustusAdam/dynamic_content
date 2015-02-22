@@ -19,5 +19,7 @@ class Information(object):
     def check_permission(self, permission):
         result = users.check_permission(self.access_group, permission)
         if not result:
-            logging.warning('Failed to authorize for ', permission)
+            logging.getLogger(__name__).warning(
+                'Failed to authorize for %s' % permission
+            )
         return result

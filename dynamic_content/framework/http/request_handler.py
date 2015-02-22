@@ -178,3 +178,15 @@ class RequestHandler(server.BaseHTTPRequestHandler):
                 shutil.copyfileobj(stream, self.wfile)
             finally:
                 stream.close()
+
+    def log_message(self, format, *args):
+        logging.getLogger(__name__).info("%s - - [%s] %s\n" %
+                         (self.address_string(),
+                          self.log_date_time_string(),
+                          format%args))
+
+    def log_error(self, format, *args):
+        logging.getLogger(__name__).error("%s - - [%s] %s\n" %
+                         (self.address_string(),
+                          self.log_date_time_string(),
+                          format%args))
