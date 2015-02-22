@@ -1,8 +1,9 @@
 import logging
 import functools
+import time
 
 from framework.machinery import component
-from framework.util import time
+from framework.util import time as ftime
 from ._settings import SettingsDict
 
 __author__ = 'Justus Adam'
@@ -21,7 +22,10 @@ def inject_settings(func):
 def _init_log():
 
     # TODO add more special format values here
-    logfile = get_settings().get('logfile', 'console') % {'t': time.utcnow()}
+    logfile = get_settings().get('logfile', 'console') % {
+        'timestamp': time.time(),
+        'time': ftime.utcnow()
+    }
 
     base = functools.partial(
         logging.basicConfig,
