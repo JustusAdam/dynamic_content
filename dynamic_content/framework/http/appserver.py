@@ -15,7 +15,7 @@ __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-class AppTread(threading.Thread):
+class AppThread(threading.Thread):
     """Custom Thread baseclass"""
 
     @component.inject_method('settings')
@@ -144,7 +144,7 @@ class AppTread(threading.Thread):
         return response
 
 
-class WGSI(AppTread):
+class WGSI(AppThread):
     """Thread that runs a WSGI server"""
     def __init__(self, ssl_enabled, loader=None, name='WSGI-Server'):
         super().__init__(ssl_enabled, name, loader)
@@ -234,7 +234,7 @@ class WGSI(AppTread):
         return httpd
 
 
-class HTTP(AppTread):
+class HTTP(AppThread):
     """Plain HTTP server thread"""
     def __init__(self, ssl_enabled, name='HTTP-Server'):
         super().__init__(ssl_enabled, name)
