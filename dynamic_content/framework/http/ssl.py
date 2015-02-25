@@ -1,12 +1,21 @@
+"""SSL related infrastructure"""
+
 import logging
 
 from . import response
-from framework.includes import SettingsDict
+from framework import includes
 from framework.machinery import component
 
 
-@component.inject(SettingsDict)
+@component.inject(includes.SettingsDict)
 def conditional_redirect(settings, request):
+    """
+    Redirect the request to the ssl enabled server (if existent)
+
+    :param settings: injected settings
+    :param request: incoming request
+    :return: Redirect or None
+    """
     if request.ssl_enabled is True:
         return None
     elif not settings['https_enabled']:

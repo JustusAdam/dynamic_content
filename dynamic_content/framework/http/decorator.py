@@ -1,3 +1,5 @@
+"""HTTP related decorators"""
+
 import functools
 from framework.util import structures
 from . import ssl

@@ -1,3 +1,4 @@
+"""Context dct related infrastructure"""
 import functools
 from framework.util import structures
 
@@ -10,7 +11,7 @@ def apply_to_context(
     apply_before=True,
     return_from_decorator=False,
     with_return=False
-    ):
+):
     """
     Apply the outer decorated function to the inner decorated
     functions first argument

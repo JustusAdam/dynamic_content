@@ -9,7 +9,11 @@ __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-class ThreadedHTTPServer(server.HTTPServer, socketserver.ThreadingMixIn): pass
+class ThreadedHTTPServer(server.HTTPServer, socketserver.ThreadingMixIn):
+    """Server executing requests in a separate thread"""
+    pass
 
 
-class ForkedHTTPServer(server.HTTPServer, socketserver.ForkingMixIn): pass
+class ForkedHTTPServer(server.HTTPServer, socketserver.ForkingMixIn):
+    """Server executing each request in a separate process fork"""
+    pass

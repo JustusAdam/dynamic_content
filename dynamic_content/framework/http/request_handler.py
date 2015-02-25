@@ -29,18 +29,27 @@ HEADER_SPLIT_REGEX = re.compile("(\S+?)\s*:\s*(\S+)")
 
 
 class RequestHandler(server.BaseHTTPRequestHandler):
-    def __init__(self,
-        callback_function,
-        ssl_enabled,
-        request,
-        client_address,
-        server
-        ):
+    """
+    Python stdlib RequestHandler subclass for use with this framework
+    """
+    def __init__(
+            self,
+            callback_function,
+            ssl_enabled,
+            request,
+            client_address,
+            server
+    ):
         self.callback = callback_function
         self.ssl_enabled = ssl_enabled
         super().__init__(request, client_address, server)
 
     def do_POST(self):
+        """
+        Handle an incoming post request
+
+        :return:
+        """
         post_query = self.rfile.read(int(self.headers['Content-Length'])).decode()
 
         request = Request.from_path_and_post(
@@ -50,6 +59,11 @@ class RequestHandler(server.BaseHTTPRequestHandler):
         return self.do_any(request)
 
     def do_GET(self):
+        """
+        Handle an incoming GET request
+
+        :return:
+        """
         request = Request.from_path_and_post(
             self.headers['Host'],
             self.path,
@@ -60,6 +74,12 @@ class RequestHandler(server.BaseHTTPRequestHandler):
         return self.do_any(request)
 
     def do_any(self, request):
+        """
+        Common operations on an incoming request
+
+        :param request:
+        :return:
+        """
         try:
             response = self.error_wrapper(self.callback)(request)
         except HTTPError as error:
@@ -72,7 +92,19 @@ class RequestHandler(server.BaseHTTPRequestHandler):
         return 0
 
     def error_wrapper(self, function):
+        """
+        Wrap function to respond with error codes is exceptions are thrown
+
+        :param function: funciton to wrap
+        :return:
+        """
         def wrapped(*args, **kwargs):
+            """
+            Wrapper funciton
+            :param args: function call arguments
+            :param kwargs: function call keyword arguments
+            :return: funciton(*args, **kwargs)
+            """
             try:
                 return function(*args, **kwargs)
             except PermissionError:
@@ -104,12 +136,19 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             return function
 
     def process_http_error(self, error, response=None):
+        """
+        Steps to take if an error has occurred
+
+        :param error:
+        :param response:
+        :return:
+        """
         logging.getLogger(__name__).error(error)
         if error.code >= 400:
             if error.reason:
                 logging.getLogger(__name__).warning(
-                'HTTPError, code: {}, message: {}'.format(
-                    error.code, error.reason
+                    'HTTPError, code: {}, message: {}'.format(
+                        error.code, error.reason
                     )
                 )
                 self.send_error(
@@ -134,6 +173,12 @@ class RequestHandler(server.BaseHTTPRequestHandler):
         return 0
 
     def process_headers(self, headers:dict):
+        """
+        Transform headers to be sent back
+
+        :param headers:
+        :return:
+        """
         if isinstance(headers, (dict, collections.ChainMap)):
             for k, v in headers.items():
                 self.send_header(k, v)
@@ -153,10 +198,17 @@ class RequestHandler(server.BaseHTTPRequestHandler):
 
     @component.inject_method('settings')
     def send_document(self, settings, response):
+        """
+        Sending a document back or an error
+        :param settings:
+        :param response:
+        :return:
+        """
 
-        (self.send_error(response.code)
-        if response.code >= 400
-        else self.send_response(response.code))
+        if response.code < 400:
+            self.send_response(response.code)
+        else:
+            self.send_error(response.code)
 
         if response.code == 200:
             response.headers.setdefault(
@@ -180,12 +232,28 @@ class RequestHandler(server.BaseHTTPRequestHandler):
                 stream.close()
 
     def log_message(self, format, *args):
+        """
+        Overwriting parent method
+        to log messages to the logger instead of stderr
+
+        :param format:
+        :param args:
+        :return:
+        """
         logging.getLogger(__name__).info("%s - - [%s] %s\n" %
                          (self.address_string(),
                           self.log_date_time_string(),
                           format%args))
 
     def log_error(self, format, *args):
+        """
+        Overwriting parent method
+        to log messages to the logger instead of stderr
+
+        :param format:
+        :param args:
+        :return:
+        """
         logging.getLogger(__name__).error("%s - - [%s] %s\n" %
                          (self.address_string(),
                           self.log_date_time_string(),
