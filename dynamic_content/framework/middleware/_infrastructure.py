@@ -9,9 +9,18 @@ __version__ = '0.1'
 
 
 class Handler(hooks.ClassHook):
+    """
+    Middleware handler/hook base class
+    """
     hook_name = 'middleware'
 
     def handle_request(self, request):
+        """
+        Method to be overwritten if hooking right after the request creation
+
+        :param request:
+        :return:
+        """
         pass
 
     def handle_controller(self, dc_obj, handler, args, kwargs):

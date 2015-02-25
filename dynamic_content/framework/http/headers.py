@@ -1,3 +1,7 @@
+"""
+Modelling of headers in special python classes
+for easier interaction with headers and values of headers
+"""
 import inspect
 
 __author__ = 'Justus Adam'
@@ -5,6 +9,7 @@ __version__ = '0.1'
 
 
 class Header:
+    """Object representing a http header"""
     __slots__ = 'key', 'value'
 
     def __init__(self, key, value=None):
@@ -13,12 +18,24 @@ class Header:
 
     @classmethod
     def from_str(cls, string:str):
+        """
+        Create a new Header Instance from an input string
+
+        :param string:
+        :return:
+        """
         assert isinstance(string, str)
         k, v = string.split(': ', 1)
         return cls(k, v)
 
     @classmethod
     def many_from_str(cls, string:str):
+        """
+        Construct headers from an input string
+
+        :param string:
+        :return:
+        """
         assert isinstance(string, str)
         for i in string.split('\r\n'):
             for s in i.split('\n'):
@@ -26,6 +43,12 @@ class Header:
 
     @classmethod
     def any_from_str(cls, string:str):
+        """
+        Construct many or one headers from string
+
+        :param string:
+        :return: Header or generator[Header]
+        """
         assert isinstance(string, str)
         l = string.split('\n')
         if len(l) == 1:
@@ -82,6 +105,11 @@ class Header:
 
     @classmethod
     def many_from_set(cls, s):
+        """
+        Construct headers from a set of input data
+        :param s:
+        :return:
+        """
         assert isinstance(s, (set, frozenset))
         for i in s:
             yield cls.auto_construct(i)
@@ -136,6 +164,11 @@ class Header:
             )
 
     def to_tuple(self):
+        """
+        Return header values as a tuple
+
+        :return:
+        """
         return self.key, self.value
 
     def __eq__(self, other):
@@ -154,12 +187,32 @@ class Header:
 
 
 class HeaderMap(dict):
+    """
+    Convenience dict for storing request related headers
+    """
     __slots__ = ()
 
     def __init__(self, iterable=None, **kwargs):
+
+        # ----------------------
+        # begin helper methods
+        # ----------------------
+
         def one(iterable):
+            """
+            helper method for header construction
+
+            :param iterable:
+            :return:
+            """
 
             def convert(a):
+                """
+                transform input value to a header
+
+                :param a:
+                :return: (name, Header instance)
+                """
                 if not isinstance(a, Header):
                     a = Header.auto_construct(a)
                 return a.key, a
@@ -172,6 +225,9 @@ class HeaderMap(dict):
             for i in kwargs.items():
                 yield convert(i)
 
+        # ----------------------
+        # end helper methods
+        # ----------------------
 
         super().__init__(
             one(iterable)
@@ -183,6 +239,11 @@ class HeaderMap(dict):
         super().__setitem__(key, value)
 
     def add(self, header):
+        """
+        Add a header or multiple to the dict
+        :param header: input data
+        :return: None
+        """
         h = Header.auto_construct(header)
         if inspect.isgenerator(h):
             for i in h:
@@ -191,11 +252,26 @@ class HeaderMap(dict):
             self[h.key] = h
 
     def to_iter(self):
+        """
+        Return all values as an iterable of tuples
+
+        :return: generator
+        """
         for a in self.values():
             yield a.to_tuple()
 
     def to_tuple(self):
+        """
+        Return all values as a tuple of tuples
+
+        :return: tuple
+        """
         return tuple(self.to_iter())
 
     def to_set(self):
+        """
+        Return all values as a set of tuples
+
+        :return: set
+        """
         return set(self.to_iter())

@@ -1,4 +1,4 @@
-"""Evaluate dhcp codeblocks"""
+"""Evaluate dhcp code blocks"""
 from . import parser
 from framework.util.parser import elements
 

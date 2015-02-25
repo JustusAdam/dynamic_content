@@ -1,3 +1,4 @@
+"""Modelling of requests in special python classes"""
 from urllib import parse
 from . import headers as h_mod
 import inspect
@@ -7,6 +8,9 @@ __version__ = '0.1.1'
 
 
 class Request(object):
+    """
+    Representation of a request with all important values and parameters
+    """
     __slots__ = (
         'path',
         'headers',
@@ -37,6 +41,10 @@ class Request(object):
         self.ssl_enabled = ssl_enabled
 
     def parent_page(self):
+        """
+        Convenience method for generating a url of a parent page
+        :return:
+        """
         parent = self.path.rsplit('/', 1)
         if not parent or parent[0] == '':
             return '/'
@@ -46,13 +54,24 @@ class Request(object):
     @classmethod
     def from_path_and_post(
         cls,
-        host,
+        host: str,
         path,
         method,
         headers,
-        ssl_enabled,
+        ssl_enabled: bool,
         query_string=None
         ):
+        """
+        Construct a new Request object from alternative input
+
+        :param host: host[:port] string
+        :param path: path/to/resource
+        :param method: request method (POST, GET)
+        :param headers: request headers
+        :param ssl_enabled: boolean to indicate http or https
+        :param query_string: ?query=values&so_on
+        :return: Request() instance modelling the request
+        """
         host = host.rsplit(':', 1)
         port = int(host[1]) if len(host) == 2 else None
         host = host[0]

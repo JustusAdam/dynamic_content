@@ -403,6 +403,13 @@ class Scanner:
         return item in self.get_tracker(item)
 
     def get_tracker(self, item):
+        """
+        Return appropriate tracker, depending on
+        whether the item is hashable or not
+
+        :param item:
+        :return:
+        """
         try:
             hash(item)
             return self.hashable_tracker
@@ -410,6 +417,12 @@ class Scanner:
             return self.unhashable_tracker
 
     def add(self, item):
+        """
+        Add an item
+
+        :param item:
+        :return:
+        """
         if item not in self:
             try:
                 hash(item)
