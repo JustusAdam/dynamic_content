@@ -4,10 +4,11 @@ Main file that runs the application.
 import argparse
 import pathlib
 import sys
+import logging
+
 from framework.util import config, structures
 from framework.machinery import component
 from framework import includes
-import logging
 
 python_logo_ascii_art = """
           .?77777777777777$.
@@ -300,10 +301,17 @@ def main():
 
         from framework import application
 
-        a = application.Application()
-        a.start()
+        # create a new application thread
+        athread = application.Application()
+
+        # start the application
+        athread.start()
 
     elif startargs['mode'] == 'test':
+
+        # this section does not work yet
+        # this will (eventually) execute tests
+
         import nose
         import importlib
         nose.main(

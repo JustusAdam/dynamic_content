@@ -1,6 +1,7 @@
 """Implementation of the scanner object and its parts and hooks"""
 import collections
 import importlib
+import logging
 import pathlib
 
 from framework import hooks, includes
@@ -8,6 +9,78 @@ from framework.machinery import linker, component
 
 __author__ = 'Justus Adam'
 __version__ = '0.1.2'
+
+
+def submodules_from_path(
+        current_module: pathlib.Path,
+        parent_modules=tuple
+):
+    """
+    Helper function for constructing the
+    python module paths from directories
+
+    :param current_module: pathlib.Path of the current module
+    :param parent_modules: tuple of parent module names
+    :return: own submodules or self if self is not a package/dir
+    """
+    me = parent_modules + (current_module.stem, )
+
+    if (current_module.is_file()
+            and current_module.suffix == '.py'
+
+            # we omit 'private' or 'protected' .py files
+            # starting with '_'
+            and not current_module.name.startswith('_')):
+
+        # we yield ourselves if we are only a .py file
+        yield '.'.join(me)
+
+    elif current_module.is_dir():
+
+        # constructing tuple because we iterate over it twice
+        contents = tuple(current_module.iterdir())
+
+        for path in contents:
+
+            # ensure we are a package
+            if path.name == '__init__.py':
+
+                # return the package itself
+                yield '.'.join(me)
+
+                for path in contents:
+
+                    # return submodules recursively
+                    for submodule in submodules_from_path(path, me):
+                        yield submodule
+                break
+
+
+def submodules_from_name(module, parents):
+        path = pathlib.Path(
+            # from the modules file
+            importlib.import_module(
+                (('.'.join(parents) + '.' + module)
+                 if parents
+                 else module)
+            ).__file__
+        )
+        if path.name == '__init__.py':
+            path = path.parent
+
+        return tuple(
+            submodule
+
+            # we iterate over modules and apps
+            # modules first
+
+            # we get all submodules
+            for submodule in submodules_from_path(
+                # we construct paths first
+                path,
+                parents
+            )
+        )
 
 
 class ScannerHook(hooks.ClassHook):
@@ -245,99 +318,23 @@ class Scanner:
         :return: None
         """
 
-        def submodules_from_path(
-                current_module: pathlib.Path,
-                parent_modules=tuple
-        ):
-            """
-            Helper function for constructing the
-            python module paths from directories
-
-            :param current_module: pathlib.Path of the current module
-            :param parent_modules: tuple of parent module names
-            :return: own submodules or self if self is not a package/dir
-            """
-            me = parent_modules + (current_module.stem, )
-
-            if (current_module.is_file()
-                    and current_module.suffix == '.py'
-
-                    # we omit 'private' or 'protected' .py files
-                    # starting with '_'
-                    and not current_module.name.startswith('_')):
-
-                # we yield ourselves if we are only a .py file
-                yield '.'.join(me)
-
-            elif current_module.is_dir():
-
-                # constructing tuple because we iterate over it twice
-                contents = tuple(current_module.iterdir())
-
-                for path in contents:
-
-                    # ensure we are a package
-                    if path.name == '__init__.py':
-
-                        # return the package itself
-                        yield '.'.join(me)
-
-                        for path in contents:
-
-                            # return submodules recursively
-                            for submodule in submodules_from_path(path, me):
-                                yield submodule
-                        break
-
-        def submodules_from_name(module, parents):
-
-            path = pathlib.Path(
-                # from the modules file
-                importlib.import_module(
-                    (('.'.join(parents) + '.' + module)
-                     if parents
-                     else module)
-                ).__file__
-            )
-            if path.name == '__init__.py':
-                path = path.parent
-
-            return tuple(
-                submodule
-
-                # we iterate over modules and apps
-                # modules first
-
-                # we get all submodules
-                for submodule in submodules_from_path(
-                    # we construct paths first
-                    path,
-                    parents
-                )
-            )
-
-        # ----------------------------------------------------------
-        # the helper functions end
-        # ----------------------------------------------------------
-
         # we construct a list of modules
         # from the parent modules
         # mentioned in settings
-        framework = ('framework', submodules_from_name('framework', ()))
+        framework = ('framework', importlib.import_module('framework'))
 
         modules_from_settings = tuple(
-            (module, submodules_from_name(module, ('dycm',)))
+            (module, importlib.import_module('dycm.{}'.format(module)))
             for module in settings.get('modules', ())
         )
 
         apps = tuple(
-            (module, submodules_from_name(module, ()))
+            (module, importlib.import_module(module))
             for module in settings.get('import', ())
         )
 
         modules = tuple(
-            (name, tuple(importlib.import_module(module) for module in contents))
-            for name, contents in ((framework,) + modules_from_settings + apps)
+            (framework,) + modules_from_settings + apps
         )
 
         self.scan(modules)
@@ -348,20 +345,33 @@ class Scanner:
         :param modules:
         :return:
         """
-        for name, submodules in modules:
+        for name, module in modules:
             # we go through all the modules first and find all scanner hooks
             # so we can ensure all of them are present
             # at the start of the actual scan later
-            for module in submodules:
-                self.find_scanner_hooks(module)
+            for hook in self.find_scanner_hooks(module):
+                logging.getLogger(__name__).debug(
+                    'Found scanner hook {}'.format(hook)
+                )
+                if hook not in hook.get_hooks():
+                    hook.register_instance()
+                    logging.getLogger(__name__).debug(
+                        'Hook registered'
+                    )
+                else:
+                    logging.getLogger(__name__).debug(
+                        'Hook discarded'
+                    )
 
-        for name, submodules in modules:
+        for name, module in modules:
             # now we go through each module
             # calling the hooks we discovered earlier
-            self.linker[name] = frozenset(
-                link
-                for submodule in submodules
-                for link in self.find_any(name, submodule)
+            self.linker.init_module(
+                name,
+                (link for link in self.find_any(name, module))
+            )
+            logging.getLogger(__name__).debug(
+                'Linking module {} with {}'.format(name, self.linker[name])
             )
 
     def find_any(self, module_name,  submodule):
@@ -386,10 +396,8 @@ class Scanner:
         :return:
         """
         for var_name, var in self.iter_module(module):
-            if not isinstance(var, ScannerHook):
-                continue
-            elif var not in ScannerHook.get_hooks():
-                var.register_instance()
+            if isinstance(var, ScannerHook):
+                yield var
 
     def __contains__(self, item):
         return item in self.get_tracker(item)

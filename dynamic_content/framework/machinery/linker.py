@@ -61,11 +61,54 @@ class Link(object):
 
 
 @component.component('linker')
-class Linker(dict):
+class Linker:
     """
     Container and utility class for links
     """
-    __slots__ = ()
+    __slots__ = '_inner_dict',
+
+    def __init__(self):
+        self._inner_dict = {}
+
+    def init_module(self, module, links):
+        """
+        Alternative way of __setitem__ that casts to a frozenset
+
+        :param module:
+        :param links:
+        :return:
+        """
+        self._inner_dict[module] = frozenset(links)
+
+    def __getitem__(self, item):
+        return self._inner_dict[item]
+
+    def __contains__(self, item):
+        return item in self._inner_dict
+
+    def values(self):
+        """
+        Emulating dict methods
+        :return:
+        """
+        return self._inner_dict.values()
+
+    def keys(self):
+        """
+        Emulating dict methods
+        :return:
+        """
+        return self._inner_dict.keys()
+
+    def items(self):
+        """
+        Emulating dict methods
+        :return:
+        """
+        return self._inner_dict.items()
+
+    def __iter__(self):
+        return self._inner_dict.__iter__()
 
     def link(self, module):
         """

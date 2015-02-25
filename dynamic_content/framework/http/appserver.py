@@ -119,13 +119,7 @@ class AppTread(threading.Thread):
                 '<code> {} </code>'
                 '<p>Stacktrace:</p>'
                 '<code> {} </code>'
-                ).format(e, traceback.format_exc()) if (
-                    self.settings['runlevel'] in
-                    (structures.RunLevel.TESTING, structures.RunLevel.DEBUG)
-                ) else (
-                '<p>The Page you requested could not be found, or'
-                'does not support the request method you tried.<p>'
-                )
+                ).format(e, traceback.format_exc())
 
         # Allow view to directly return a response, mainly to handle errors
         if not isinstance(view, http.response.Response):

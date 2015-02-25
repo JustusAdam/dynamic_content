@@ -4,6 +4,7 @@ python data structures in the database
 """
 
 import pickle
+
 from framework.backend import orm
 from . import component
 
@@ -20,7 +21,7 @@ class _Registry(orm.BaseModel):
 class Registry:
     """
     A sort of dictionary imitating object that stores
-    miscellaneous information in then database
+    miscellaneous information in the database
 
     TODO cache some things in a sane way
     """
