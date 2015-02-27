@@ -68,6 +68,9 @@ def _to_set(my_input, allowed_vals=str):
 
 
 class ControlFunction:
+    """
+    Object representing a function/method that handles one or more paths
+    """
     __slots__ = (
         'function', 'wrapping', 'value',
         'method', 'query', 'headers',
@@ -102,6 +105,9 @@ class ControlFunction:
 
 
 class RestControlFunction(ControlFunction):
+    """
+    Control function with json return
+    """
     __slots__ = ()
 
     def __call__(self, model, *args, **kwargs):

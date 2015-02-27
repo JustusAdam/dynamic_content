@@ -7,7 +7,21 @@ __version__ = '0.1'
 
 
 def catch_vardump(func):
+    """
+    Catch a vardump exception in func and return an error page containing the
+    locals and globals of the function the exception was raised in
+
+    :param func: wrapped function
+    :return: wrapper function
+    """
     def lformat(d):
+        """
+        Local formatting function transforming a dict into a string of <p> html
+        elements containing the keys and values
+
+        :param d: dict to format
+        :return: html "formatted" str
+        """
         return ''.join('<p>{}: {}</p>'.format(*a) for a in d.items())
 
     @functools.wraps(func)

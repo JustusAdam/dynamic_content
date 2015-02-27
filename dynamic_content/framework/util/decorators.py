@@ -10,55 +10,91 @@ __author__ = 'Justus Adam'
 
 
 def deprecated(func):
+    """
+    Mark a funciton as not to be used anymore
+    This'll create log messages, every time the function gets called
+
+    :param func: wrapped function
+    :return: wrapper
+    """
     @functools.wraps(func)
     def wrap(*args, **kwargs):
         logging.getLogger(__name__).warning(
-            'in {} : using deprecated function'.format(func)
+            'in {} : using deprecated function {}'.format(func.__module__, func)
         )
         return func(*args, **kwargs)
 
     return wrap
 
 
+# for convenience and those who like to roll caps
 Deprecated = deprecated
 
 
 def filter_args(types, args, kwargs):
-    all_args = list(args) + list(kwargs.values())
-    for t in types:
-        yield filter_([arg for arg in all_args if isinstance(arg, t)], t)
+    """
+    Filter all arguments for a specific amount of them matching certain types
+    """
 
+    all_args = args + tuple(kwargs.values())
 
-def filter_(list_, type_):
-    if len(list_) == 1:
-        return list_[0]
-    perfect = [a for a in list_ if type(a) == type_]
-    if perfect:
-        return perfect[0]
-    else:
-        return list_[0]
+    # iterate over all types we need
+    for type_ in types:
+
+        # try to potentially find a type matching exactly
+        perfect_type_match = filter(lambda a: type(a) == type_, all_args)
+
+        try:
+            # try to yield the first element from the filter
+            yield perfect_type_match.__next__()
+        except StopIteration:
+            # the perfect_match was empty
+            try:
+                # try looking for subclasses
+                filtered = filter(
+                    lambda a: isinstance(a,type_), all_args
+                )
+                # try yielding one element
+                yield filtered.__next__()
+            except StopIteration:
+                # in none of that succeeded we throw an exception
+                raise TypeError('no argument with type {} found'.format(type_))
 
 
 class apply_to_type:
     """
     Decorator for decorators.
-    Takes types as arguments (must be unique) and decorates or wraps a decorator or wrapper of a function.
+    Takes types as arguments (must be unique)
+    and decorates or wraps a decorator or wrapper of a function.
+
+    If the wrapped function gets called with (a) subtype of two of the
+    types you specified it is ambiguous to the function how these
+    would be matched, and as such the behaviour in this casse
+    is undefined for performance reasons
 
     When called will make a list of arguments from args and kwargs
      corresponding to the specified types (and in the same order).
      It will later pass this list to the decorator.
 
-    :param apply_before: if true the decorator is called first, then the function (all return values are cashed),
-     if false the function is called first then the decorator (all return values are cashed)
+    :param apply_before: if true the decorator is called first,
+                         then the function (all return values are cashed),
+                         if false the function is called first,
+                         then the decorator (all return values are cashed)
 
-    :param return_from_decorator: if true the cashed result from calling the decorator is returned, if false the
-     cashed result from calling the function is returned
+    :param return_from_decorator: if true the cashed result from calling
+                                  the decorator is returned, if false the
+                                  cashed result from calling
+                                  the function is returned
 
-    :param apply_in_decorator: if true the decorator will be called with a callback (instead of with the custom list) first
-     that, if called (with no parameters) executes the function and returns the result
-     and called again with the custom argument list.
-     If this option is true this decorator will never call the function and the return value
-     will be the return value from the wrapped decorator
+    :param apply_in_decorator: if true the decorator will be called with
+                               a callback (instead of with the custom list)
+                               first that, if called (with no parameters)
+                               executes the function and returns the result
+                               and called again with the custom argument list.
+                               If this option is true this decorator will never
+                               call the function and the return value
+                               will be the return value from the wrapped
+                               decorator
 
     """
 

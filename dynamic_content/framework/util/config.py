@@ -21,6 +21,12 @@ dumpers = {
 
 
 def guess_type(file:str):
+    """
+    Guess the filetype from the file ending in a form suitable for the
+    loaders and dumpers dict
+    :param file: file name
+    :return: filetype name
+    """
     a = file.rsplit('.', 1)[1]
     return {
         'yml': 'yaml'
@@ -28,6 +34,12 @@ def guess_type(file:str):
 
 
 def read_config(file):
+    """
+    Read a config file and return a dict of its contents
+
+    :param file: filename
+    :return: dict
+    """
     file = str(file)
     _type = guess_type(file)
     with open(file, 'r') as f:
@@ -35,6 +47,12 @@ def read_config(file):
 
 
 def write_config(obj, file):
+    """
+    Write data to a config file
+
+    :param obj: parent data object (usually dict)
+    :retunr: None
+    """
     file = str(file)
     _type = guess_type(file)
     with open(file, 'w') as f:

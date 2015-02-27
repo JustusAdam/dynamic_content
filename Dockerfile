@@ -1,3 +1,9 @@
+# ----------------------------------------
+#   this dockerfile is unfinished
+#   it'll most likely not work
+#   but it is a first draft
+# ----------------------------------------
+#
 # use debian base image
 FROM debian
 # that's me, hello
@@ -6,7 +12,7 @@ MAINTAINER Justus Adam
 USER dynamic_content_framework
 # install python3
 RUN apt-get update && apt-get install -y \
-    python3 
+    python3
 # set working directory already
 WORKDIR /dyc
 # expose default ports for http and https

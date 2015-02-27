@@ -1,3 +1,5 @@
+"""Genericly useful tools with few dependencies"""
+
 from ._misc import catch_vardump
 
 __author__ = 'Justus Adam'
