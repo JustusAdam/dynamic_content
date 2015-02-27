@@ -23,7 +23,7 @@ def remove_dangerous_tags(text, severity_level=1):
 
 
 _cached_regex_provider = functools.lru_cache()(
-    functools.partial(re.compile, pattern, flags=re.S)
+    functools.partial(re.compile, flags=re.S)
 )
 
 
