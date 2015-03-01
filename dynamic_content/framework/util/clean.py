@@ -22,9 +22,8 @@ def remove_dangerous_tags(text, severity_level=1):
     return clean_text(text, forbidden)
 
 
-_cached_regex_provider = functools.lru_cache()(
-    functools.partial(re.compile, flags=re.S)
-)
+_regex_provider = functools.partial(re.compile, flags=re.S)
+
 
 
 def clean_text(text, forbidden_tags):
@@ -35,8 +34,8 @@ def clean_text(text, forbidden_tags):
     :return: cleaned text
     """
     for tag in forbidden_tags:
-        regex2 = _cached_regex_provider('<' + tag + '.*?>')
-        regex3 = _cached_regex_provider('</' + tag + '.*?>')
+        regex2 = _regex_provider('<' + tag + '.*?>')
+        regex3 = _regex_provider('</' + tag + '.*?>')
         text = re.sub(regex2, '', text)
         text = re.sub(regex3, '', text)
     return text

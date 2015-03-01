@@ -1,3 +1,9 @@
+"""
+Content creators of the node module
+
+These are the classes exposed to the framework
+"""
+
 from datetime import datetime
 import functools
 
@@ -28,22 +34,12 @@ _scroll_left = '<'
 _scroll_right = '>'
 
 
-def not_over(a, val):
-    if a > val:
-        return val
-    else:
-        return a
-
-
-def not_under(a, val=0):
-    if a < val:
-        return val
-    else:
-        return a
-
-
 @component.Component('CMSCompilers')
 class Compilers(lazy.Loadable):
+    """
+    Component containing an instance of FieldBasedPageContent
+    for each content type
+    """
     def __init__(self):
         self._dict = None
         super().__init__()
@@ -55,6 +51,10 @@ class Compilers(lazy.Loadable):
         return self._dict[item]
 
     def load(self):
+        """
+        Creates a FieldBasedPageContent instance for each content type
+        and registers it
+        """
         self._dict = {
             ct.machine_name: FieldBasedPageContent(ct)
             for ct in _model.ContentType.select()
@@ -67,12 +67,18 @@ class FieldBasedPageContent(object):
     page_type = 'node'
 
     def __init__(self, content_type):
+        # we save the database representation
         self.dbobj = content_type
+
+        # for conveniense the name of the content type again
         self.content_type = content_type.machine_name
         self.fields = list(self.get_fields())
         self.theme = self.dbobj.theme
 
     def get_permission(self, page, modifier):
+        """
+        Custom way for verifying a permission is granted
+        """
         return self.join_permission(modifier) if page.published else \
             self.join_permission('access unpublished')
 
@@ -101,26 +107,47 @@ class FieldBasedPageContent(object):
         return node
 
     def field_contents(self, page):
+        """
+        The combined content of the page fields
+        """
         return ''.join(str(a) for a in self.field_display(page))
 
     def field_display(self, page):
+        """
+        The page fields when just accessing the page
+
+        :param page: the page value object
+        :return: generator of field contents
+        """
         f = lambda a: a['content']
         for single_field in self.fields:
             yield f(single_field.access(page))
 
     def field_edit(self, page):
+        """
+        The page fields when editing an existing page
+
+        :param page: the page value object
+        :return: generator of labels and fields
+        """
         for single_field in self.fields:
             a = single_field.edit(page)
             yield html.Label(a['name'], label_for=a['name'])
             yield a['content']
 
     def field_add(self):
+        """
+        The Page fields when adding a new page
+        """
         for single_field in self.fields:
             a = single_field.add()
             yield html.Label(a['name'], label_for=a['name'])
             yield a['content']
 
     def access(self, dc_obj, page):
+        """
+        the compiler function for page content access
+        """
         return self.compile(dc_obj, page, _access_modifier)
 
     @wysiwyg.use()
@@ -242,20 +269,21 @@ class FieldBasedPageContent(object):
                 content=query.get(field.name, [None])[0]
             )
 
-        return ':redirect:/node/' + str(page.oid)
+        return ':redirect:/node/{}'.format(page.oid)
 
     @staticmethod
     def admin_options(page=None):
         if page is not None and page.menu_item is not None:
             parent = '-1' if page.menu_item is None else page.menu_item
-            selected = '-'.join([page.menu_item.menu.machine_name, str(parent)])
+            selected = '{}-{}'.format(page.menu_item.menu.machine_name, parent)
             m_c = _menus.menu_chooser('parent-menu', selected=selected)
         else:
             m_c = _menus.menu_chooser('parent-menu')
         menu_options = html.TableRow(
             html.Label(
                 'Menu Parent',
-                label_for='parent-menu'),
+                label_for='parent-menu'
+                ),
             m_c,
             classes={'menu-parent'}
             )
