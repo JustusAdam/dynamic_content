@@ -347,6 +347,8 @@ class List(AbstractList):
         return ContainerElement(*args, html_type=self._subtypes[0], classes=self.item_classes,
                                 additional=self.item_additionals)
 
+Li = List
+
 
 class Select(AbstractList):
     _subtypes = ['option']
