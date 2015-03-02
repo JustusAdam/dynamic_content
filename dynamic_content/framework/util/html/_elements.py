@@ -14,11 +14,11 @@ __version__ = '0.2'
 
 class BaseElement:
     """
-    Please note: '_customs' is not to be modified from outside the class, it is purely an easy way for subclasses to add
-    custom properties without having to change the render function(s).
-    Rule of thumb is that _customs should be used for any additional, visible properties mentioned in the constructor of
-    your inheriting class, unless you require a more complex setter and/or way of rendering.
+    Base element for html abstracting elements that can be rendered to string
     """
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = ('_value_params', '_params', 'html_type')
 
     def __init__(self, html_type, additional:dict=None):
         self.html_type = html_type
@@ -47,7 +47,7 @@ class BaseElement:
         )
 
     def render(self):
-        return '<' + self.render_head() + '>'
+        return '<{}>'.format(self.render_head())
 
     def __str__(self):
         return self.render()
@@ -57,6 +57,10 @@ class BaseElement:
 
 
 class BaseClassIdElement(BaseElement):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = ()
+
     def __init__(
         self,
         html_type,
@@ -86,6 +90,10 @@ class BaseClassIdElement(BaseElement):
 
 
 class ContainerElement(list, BaseClassIdElement):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = ()
+
     _list_replacement = None
 
     def __init__(
@@ -111,10 +119,9 @@ class ContainerElement(list, BaseClassIdElement):
 
     @property
     def list_replacement(self):
-        if self._list_replacement:
-            return self._list_replacement
-        else:
-            return ContainerElement
+        return (self._list_replacement
+            if self._list_replacement is not None
+            else ContainerElement)
 
     def ensure_type(self, value):
         if isinstance(value, (list, tuple)):
@@ -126,7 +133,7 @@ class ContainerElement(list, BaseClassIdElement):
         return ''.join(str(a) for a in self)
 
     def render(self):
-        return '<' + self.render_head() + '>' + self.render_content() + '</' + self.html_type + '>'
+        return '<{}>{}</{}>'.format(self.render_head(), self.render_content(), self.html_type)
 
     def iter_content(self):
         for a in self.content:
@@ -137,10 +144,10 @@ class ContainerElement(list, BaseClassIdElement):
                 yield a
 
     def to_iter(self):
-        yield '<' + self.render_head() + '>'
+        yield '<{}>'.format(self.render_head())
         for a in self.iter_content():
             yield a
-        yield '</' + self.html_type + '>'
+        yield '</{}>'.format(self.html_type)
 
 
 Div = functools.partial(ContainerElement, html_type='div')
@@ -149,7 +156,11 @@ Span = functools.partial(ContainerElement, html_type='span')
 
 
 class AbstractList(ContainerElement):
-    _subtypes = ['li']
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = ()
+
+    _subtypes = 'li',
     _regex = re.compile('<(\w+)')
 
     def subtype_wrapper(self, *args, **kwargs):
@@ -168,13 +179,17 @@ class AbstractList(ContainerElement):
         elif (isinstance(value, BaseElement)
               and value.html_type in self._subtypes):
             return value
-        elif isinstance(value, (list, tuple)):
+        elif hasattr(value, '__iter__'):
             return self.subtype_wrapper(*value)
         else:
             return self.subtype_wrapper(value)
 
 
 class A(ContainerElement):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = ()
+
     def __init__(
         self,
         *content,
@@ -194,6 +209,10 @@ class A(ContainerElement):
 
 
 class HTMLPage(ContainerElement):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = '_stylesheets', '_metatags', '_scripts'
+
     _stylesheets = None
     _metatags = None
     _scripts = None
@@ -268,6 +287,10 @@ class HTMLPage(ContainerElement):
 
 
 class LinkElement(BaseElement):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = ()
+
     def __init__(
         self,
         href,
@@ -282,6 +305,10 @@ class LinkElement(BaseElement):
 
 
 class Stylesheet(BaseElement):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = ()
+
     def __init__(
         self,
         href,
@@ -298,6 +325,10 @@ class Stylesheet(BaseElement):
 
 
 class Script(ContainerElement):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = ()
+
     def __init__(
         self,
         *content,
@@ -315,6 +346,10 @@ class Script(ContainerElement):
 
 
 class List(AbstractList):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = 'item_classes', 'item_additionals'
+
     def __init__(
         self,
         *content,
@@ -336,12 +371,17 @@ class List(AbstractList):
         )
 
     def ensure_subtype(self, value):
-        if isinstance(value, BaseClassIdElement) and value.html_type in self._subtypes:
-            value.classes |= self.item_classes
+        value = super().ensure_subtype(value)
+
+        if self.item_classes is not None:
+            value.classes = (
+                self.item_classes
+                if value.classes is None
+                else set(value.classes) | self.item_classes
+                )
+        if self.item_additionals is not None:
             value._value_params.update(self.item_additionals)
-            return value
-        else:
-            return super().ensure_subtype(value)
+        return value
 
     def subtype_wrapper(self, *args):
         return ContainerElement(*args, html_type=self._subtypes[0], classes=self.item_classes,
@@ -351,6 +391,10 @@ Li = List
 
 
 class Select(AbstractList):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = 'selected',
+
     _subtypes = ['option']
 
     def __init__(
@@ -385,6 +429,10 @@ class Select(AbstractList):
 
 
 class Option(ContainerElement):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = 'selected',
+
     def __init__(
         self,
         *content,
@@ -403,6 +451,10 @@ class Option(ContainerElement):
 
 
 class TableElement(ContainerElement):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = 'table_head',
+
     def __init__(
         self,
         *content,
@@ -450,6 +502,10 @@ class TableElement(ContainerElement):
 
 
 class AbstractTableRow(ContainerElement):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = ()
+
     def __init__(
         self,
         *content,
@@ -487,6 +543,10 @@ TableData = functools.partial(ContainerElement, html_type='td')
 
 
 class Input(BaseClassIdElement):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = ()
+
     def __init__(
         self,
         classes: set=None,
@@ -512,10 +572,14 @@ class Input(BaseClassIdElement):
             self._params.add('required')
 
     def render(self):
-        return '<' + self.render_head() + ' />'
+        return '<{} />'.format(self.render_head())
 
 
 class TextInput(Input):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = ()
+
     def __init__(
         self,
         classes:set=None,
@@ -541,6 +605,10 @@ class TextInput(Input):
 
 
 class AbstractCheckable(Input):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = ()
+
     def __init__(
         self,
         input_type,
@@ -572,6 +640,10 @@ Checkbox = functools.partial(AbstractCheckable, input_type='checkbox')
 
 
 class Textarea(ContainerElement):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = ()
+
     def __init__(
         self,
         *content,
@@ -599,6 +671,10 @@ class Textarea(ContainerElement):
 
 
 class Label(ContainerElement):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = ()
+
     def __init__(
         self,
         *content,
@@ -637,6 +713,10 @@ def SubmitButton(
 
 
 class FormElement(ContainerElement):
+    # I tried to make the memory fingerprint smaller with this
+    # however this does not work with multiple inheritance
+    # __slots__ = 'submit',
+
     def __init__(
         self,
         *content,
@@ -677,6 +757,8 @@ def container_wrapper(used_class, **kwargs):
 # HACK 'defaultdict' esque hack to provide all elements to the parser
 # SECURITY ISSUE! Template will not be checked for html correctness
 class Elements(dict):
+    __slots__ = ()
+
     def __getitem__(self, item):
         if item in self:
             return super().__getitem__(item)
