@@ -13,10 +13,20 @@ def to_html_head(*items):
     :param items: items to transform
     :return: str
     """
-    return ' '.join(_to_html_head(a) for a in items if a)
+
+    # we need these two stacked generators because
+    # calling _to_html_head with a non-empty dict
+    # where all values are bool(value)==False
+    # returns an '' which will result in it getting
+    # joined and producing a rogue ' '
+    # so we need to filter for empty strings AFTER
+    # running _to_html_head
+    return ' '.join(b for b in (_to_html_head(a) for a in items) if b != '')
 
 
 def _to_html_head(item):
+    if item is None:
+        return None
     if isinstance(item, str):
         # have to test for str first because we
         # handle arbitrary iterable types later

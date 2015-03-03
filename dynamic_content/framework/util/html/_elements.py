@@ -62,12 +62,12 @@ class BaseClassIdElement(BaseElement):
     # __slots__ = ()
 
     def __init__(
-        self,
-        html_type,
-        classes:set=None,
-        element_id:str=None,
-        additional:dict=None
-    ):
+            self,
+            html_type,
+            classes:set=None,
+            element_id:str=None,
+            additional:dict=None
+        ):
         super().__init__(html_type, additional)
         self._value_params['class'] = classes
         self._value_params['id'] = element_id
@@ -97,13 +97,13 @@ class ContainerElement(list, BaseClassIdElement):
     _list_replacement = None
 
     def __init__(
-        self,
-        *content,
-        html_type='div',
-        classes:set=None,
-        element_id:str=None,
-        additional:dict=None
-    ):
+            self,
+            *content,
+            html_type='div',
+            classes:set=None,
+            element_id:str=None,
+            additional:dict=None
+        ):
         super().__init__(content)
         BaseClassIdElement.__init__(
             self,
@@ -133,7 +133,11 @@ class ContainerElement(list, BaseClassIdElement):
         return ''.join(str(a) for a in self)
 
     def render(self):
-        return '<{}>{}</{}>'.format(self.render_head(), self.render_content(), self.html_type)
+        return '<{}>{}</{}>'.format(
+            self.render_head(),
+            self.render_content(),
+            self.html_type
+        )
 
     def iter_content(self):
         for a in self.content:
@@ -176,9 +180,11 @@ class AbstractList(ContainerElement):
                 return value
             else:
                 return self.subtype_wrapper(value)
-        elif (isinstance(value, BaseElement)
-              and value.html_type in self._subtypes):
-            return value
+        elif isinstance(value, BaseElement):
+            if value.html_type in self._subtypes:
+                return value
+            else:
+                return self.subtype_wrapper(value)
         elif hasattr(value, '__iter__'):
             return self.subtype_wrapper(*value)
         else:
@@ -191,13 +197,13 @@ class A(ContainerElement):
     # __slots__ = ()
 
     def __init__(
-        self,
-        *content,
-        href='',
-        classes:set=None,
-        element_id:str=None,
-        additional:dict=None
-    ):
+            self,
+            *content,
+            href='/',
+            classes:set=None,
+            element_id:str=None,
+            additional:dict=None
+        ):
         super().__init__(
             *content,
             html_type='a',
@@ -218,16 +224,16 @@ class HTMLPage(ContainerElement):
     _scripts = None
 
     def __init__(
-        self,
-        title,
-        *content,
-        classes:set=None,
-        element_id:str=None,
-        additional:dict=None,
-        metatags:set=None,
-        stylesheets:set=None,
-        scripts:set=None
-    ):
+            self,
+            title,
+            *content,
+            classes:set=None,
+            element_id:str=None,
+            additional:dict=None,
+            metatags:set=None,
+            stylesheets:set=None,
+            scripts:set=None
+        ):
         super().__init__(
             title,
             *content,
@@ -292,12 +298,12 @@ class LinkElement(BaseElement):
     # __slots__ = ()
 
     def __init__(
-        self,
-        href,
-        rel,
-        element_type:str=None,
-        additional:dict=None
-    ):
+            self,
+            href,
+            rel,
+            element_type:str=None,
+            additional:dict=None
+        ):
         super().__init__('link', additional)
         self._value_params['rel'] = rel
         self._value_params['href'] = href
@@ -310,13 +316,13 @@ class Stylesheet(BaseElement):
     # __slots__ = ()
 
     def __init__(
-        self,
-        href,
-        media='all',
-        typedec='text/css',
-        rel='stylesheet',
-        additional:dict=None
-    ):
+            self,
+            href,
+            media='all',
+            typedec='text/css',
+            rel='stylesheet',
+            additional:dict=None
+        ):
         super().__init__('link', additional)
         self._value_params['href'] = href
         self._value_params['media'] = media
@@ -330,12 +336,12 @@ class Script(ContainerElement):
     # __slots__ = ()
 
     def __init__(
-        self,
-        *content,
-        src: str=None,
-        prop_type='text/javascript',
-        additional: dict=None
-    ):
+            self,
+            *content,
+            src: str=None,
+            prop_type='text/javascript',
+            additional: dict=None
+        ):
         super().__init__(
             *content,
             html_type='script',
@@ -350,16 +356,18 @@ class List(AbstractList):
     # however this does not work with multiple inheritance
     # __slots__ = 'item_classes', 'item_additionals'
 
+    _subtypes = 'li',
+
     def __init__(
-        self,
-        *content,
-        list_type='ul',
-        classes:set=None,
-        element_id:str=None,
-        additional:dict=None,
-        item_classes:set=None,
-        item_additional_properties:dict=None
-    ):
+            self,
+            *content,
+            list_type='ul',
+            classes:set=None,
+            element_id:str=None,
+            additional:dict=None,
+            item_classes:set=None,
+            item_additional_properties:dict=None
+        ):
         self.item_classes = item_classes
         self.item_additionals = item_additional_properties
         super().__init__(
@@ -384,10 +392,16 @@ class List(AbstractList):
         return value
 
     def subtype_wrapper(self, *args):
-        return ContainerElement(*args, html_type=self._subtypes[0], classes=self.item_classes,
-                                additional=self.item_additionals)
+        return ContainerElement(
+            *args,
+            html_type=self._subtypes[0],
+            classes=self.item_classes,
+            additional=self.item_additionals
+        )
 
-Li = List
+Ol = functools.partial(List, list_type='ol')
+
+Ul = functools.partial(List, list_type='ul')
 
 
 class Select(AbstractList):
@@ -395,20 +409,20 @@ class Select(AbstractList):
     # however this does not work with multiple inheritance
     # __slots__ = 'selected',
 
-    _subtypes = ['option']
+    _subtypes = 'option',
 
     def __init__(
-        self,
-        *content,
-        classes:set=None,
-        element_id:str=None,
-        additional:dict=None,
-        form:str=None,
-        required:bool=False,
-        disabled=False,
-        name:str=None,
-        selected:str=None
-    ):
+            self,
+            *content,
+            classes:set=None,
+            element_id:str=None,
+            additional:dict=None,
+            form:str=None,
+            required:bool=False,
+            disabled=False,
+            name:str=None,
+            selected:str=None
+        ):
         self.selected = selected
         super().__init__(
             *content,
@@ -434,11 +448,11 @@ class Option(ContainerElement):
     # __slots__ = 'selected',
 
     def __init__(
-        self,
-        *content,
-        selected=False,
-        value:str=None
-    ):
+            self,
+            *content,
+            selected=False,
+            value:str=None
+        ):
         super().__init__(*content, html_type='option')
         self._value_params['value'] = value
         self.selected = selected
@@ -456,13 +470,13 @@ class TableElement(ContainerElement):
     # __slots__ = 'table_head',
 
     def __init__(
-        self,
-        *content,
-        classes:set=None,
-        element_id:str=None,
-        additional:dict=None,
-        table_head=False
-    ):
+            self,
+            *content,
+            classes:set=None,
+            element_id:str=None,
+            additional:dict=None,
+            table_head=False
+        ):
         self.table_head = table_head
         super().__init__(
             *content,
@@ -501,19 +515,22 @@ class TableElement(ContainerElement):
         return str(TableHead(row))
 
 
+Table = TableElement
+
+
 class AbstractTableRow(ContainerElement):
     # I tried to make the memory fingerprint smaller with this
     # however this does not work with multiple inheritance
     # __slots__ = ()
 
     def __init__(
-        self,
-        *content,
-        html_type: str=None,
-        classes: set=None,
-        element_id: str=None,
-        additional: dict=None
-    ):
+            self,
+            *content,
+            html_type: str=None,
+            classes: set=None,
+            element_id: str=None,
+            additional: dict=None
+        ):
         super().__init__(
             *content,
             html_type=html_type,
@@ -535,11 +552,11 @@ class AbstractTableRow(ContainerElement):
             return TableData(row)
 
 
-TableHead = functools.partial(AbstractTableRow, html_type='th')
+Th = TableHead = functools.partial(AbstractTableRow, html_type='th')
 
-TableRow = functools.partial(AbstractTableRow, html_type='tr')
+Tr = TableRow = functools.partial(AbstractTableRow, html_type='tr')
 
-TableData = functools.partial(ContainerElement, html_type='td')
+Td = TableData = functools.partial(ContainerElement, html_type='td')
 
 
 class Input(BaseClassIdElement):
@@ -548,18 +565,18 @@ class Input(BaseClassIdElement):
     # __slots__ = ()
 
     def __init__(
-        self,
-        classes: set=None,
-        element_id: str=None,
-        input_type='text',
-        name: str=None,
-        form: str=None,
-        value: str=None,
-        required=False,
-        additional: dict=None
-    ):
+            self,
+            classes: set=None,
+            element_id: str=None,
+            input_type='text',
+            name: str=None,
+            form: str=None,
+            value: str=None,
+            required=False,
+            additional: dict=None
+        ):
         super().__init__(
-            'input',
+            html_type='input',
             classes=classes,
             element_id=element_id,
             additional=additional
@@ -581,16 +598,16 @@ class TextInput(Input):
     # __slots__ = ()
 
     def __init__(
-        self,
-        classes:set=None,
-        element_id:str=None,
-        name:str=None,
-        form:str=None,
-        value:str=None,
-        size:int=60,
-        required=False,
-        additional:dict=None
-    ):
+            self,
+            classes:set=None,
+            element_id:str=None,
+            name:str=None,
+            form:str=None,
+            value:str=None,
+            size:int=60,
+            required=False,
+            additional:dict=None
+        ):
         super().__init__(
             classes=classes,
             element_id=element_id,
@@ -610,17 +627,17 @@ class AbstractCheckable(Input):
     # __slots__ = ()
 
     def __init__(
-        self,
-        input_type,
-        classes:set=None,
-        element_id:str=None,
-        name:str=None,
-        form:str=None,
-        value:str=None,
-        required=False,
-        checked=False,
-        additional:dict=None
-    ):
+            self,
+            input_type,
+            classes:set=None,
+            element_id:str=None,
+            name:str=None,
+            form:str=None,
+            value:str=None,
+            required=False,
+            checked=False,
+            additional:dict=None
+        ):
         super().__init__(
             classes=classes,
             element_id=element_id,
@@ -645,17 +662,17 @@ class Textarea(ContainerElement):
     # __slots__ = ()
 
     def __init__(
-        self,
-        *content,
-        classes:set=None,
-        element_id:str=None,
-        name:str=None,
-        form:str=None,
-        required=False,
-        rows=0,
-        cols=0,
-        additional:dict=None
-    ):
+            self,
+            *content,
+            classes:set=None,
+            element_id:str=None,
+            name:str=None,
+            form:str=None,
+            required=False,
+            rows=0,
+            cols=0,
+            additional:dict=None
+        ):
         super().__init__(
             *content,
             html_type='textarea',
@@ -676,13 +693,13 @@ class Label(ContainerElement):
     # __slots__ = ()
 
     def __init__(
-        self,
-        *content,
-        label_for:str=None,
-        classes:set=None,
-        element_id:str=None,
-        additional:dict=None
-    ):
+            self,
+            *content,
+            label_for:str=None,
+            classes:set=None,
+            element_id:str=None,
+            additional:dict=None
+        ):
         super().__init__(
             *content,
             html_type='label',
@@ -694,13 +711,13 @@ class Label(ContainerElement):
 
 
 def SubmitButton(
-    value='Submit',
-    classes:set=None,
-    element_id:str=None,
-    name:str=None,
-    form:str=None,
-    additional:dict=None
-):
+        value='Submit',
+        classes:set=None,
+        element_id:str=None,
+        name:str=None,
+        form:str=None,
+        additional:dict=None
+    ):
     return Input(
         value=value,
         classes=classes,
