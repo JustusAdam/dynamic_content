@@ -114,7 +114,71 @@ class TestElementsRendering(unittest.TestCase):
                 self.assertIn(str(element), rendered)
 
     def test_select(self):
-        pass
+        contents = (
+            ('value1', 'content1'),
+            ('value2', 'content2')
+        )
+
+        name = 'testoption'
+
+        # test without classes and id's
+
+        rendered_options = ''.join(
+            '<option value="{}">{}</option>'.format(value, content)
+            for value, content in contents
+        )
+
+        element = html.Select(*contents, name=name)
+
+        rendered_element = '<select name="{}">{}</select>'.format(
+            name, rendered_options
+        )
+
+        self.assertEqual(str(element), rendered_element)
+
+        # test with classes and id's
+
+        classes = 'class1', 'class2'
+
+        testid = 'id1'
+
+        element = html.Select(*contents, name=name, classes=classes, element_id=testid)
+
+        rendered_html_element = str(element)
+
+        # make sure the classes are present
+        self.assertIn(
+            'class="{}"'.format(' '.join(classes)),
+            rendered_html_element
+        )
+
+        # make sure the id is present
+        self.assertIn(
+            'id="{}"'.format(testid),
+            rendered_html_element
+        )
+
+        # make sure the name is present
+        self.assertIn(
+            'name="{}"'.format(name),
+            rendered_html_element
+        )
+
+        # ensure the tag is correct
+        self.assertIn(
+            '<select ',
+            rendered_html_element
+        )
+        self.assertIn(
+            '</select>',
+            rendered_html_element
+        )
+
+        # ensure the content is present and in order
+        self.assertIn(
+            '>{}</select>'.format(rendered_options),
+            rendered_html_element
+        )
 
     def test_table_element(self):
         content = (
