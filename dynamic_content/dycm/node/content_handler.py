@@ -284,7 +284,7 @@ class FieldBasedPageContent(object):
                 'Menu Parent',
                 label_for='parent-menu'
                 ),
-            m_c,
+            str(m_c),
             classes={'menu-parent'}
             )
         publishing_options = html.TableRow(

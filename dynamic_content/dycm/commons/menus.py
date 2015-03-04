@@ -10,12 +10,21 @@ __author__ = 'Justus Adam'
 
 
 def menu_chooser(name='menu_chooser', **kwargs):
-    menus = [[('none', 'None')]] + [[(single_menu.machine_name + '-' + a[0], a[1]) for a in
-                                     menu(name=single_menu.machine_name, item_class=MenuChooseItem).render()] for
-                                    single_menu in
-                                    model.Menu.select()]
-    return html.Select(*list(itertools.chain(*menus)), name=name, **kwargs)
+    menus = tuple(_menu_chooser_iterator())
+    return html.Select(*tuple(itertools.chain(*menus)), name=name, **kwargs)
 
+
+def _menu_chooser_iterator():
+    yield ('none', 'None'),
+    for single_menu in model.Menu.select():
+
+        yield tuple(
+            (single_menu.machine_name + '-' + a[0], a[1])
+            for a in menu(
+                name=single_menu.machine_name,
+                item_class=MenuChooseItem
+            ).render()
+        )
 
 root_ident = -1
 
@@ -24,10 +33,14 @@ class MenuItem:
     """
     MenuItem base implementation.
 
-    A MenuItem represents a node in a menu and all its children and offers a method to render the menu/node by calling
-    the render method in its children. The __str__ method returns a pure String representation of the rendered menu.
+    A MenuItem represents a node in a menu and all its children
+    and offers a method to render the menu/node by calling
+    the render method in its children. The __str__ method returns a pure
+    String representation of the rendered menu.
 
-    Please note that the return of this function is flat and is simply a ordered list and child items are not wrapped
+    Please note that the return of this function is flat and is simply
+    an ordered list and child items are not wrapped
+
     in a list.
     """
 
@@ -50,9 +63,9 @@ class MenuItem:
 
     def render(self, depth=0, max_depth=-1):
         if 0 <= max_depth <= depth:
-            return [self.render_self(depth)]
+            return self.render_self(depth),
         else:
-            return [self.render_self(depth)] + self.render_children(depth + 1, max_depth)
+            return (self.render_self(depth), ) + self.render_children(depth + 1, max_depth)
 
     def render_self(self, depth):
         if depth == 0:
@@ -62,9 +75,9 @@ class MenuItem:
 
     def render_children(self, depth=0, max_depth=-1):
         if not self.children:
-            return []
+            return ()
         else:
-            return list(itertools.chain(
+            return tuple(itertools.chain(
                 *tuple(a.render(depth, max_depth) for a in self.children))
                 )
 
@@ -140,7 +153,8 @@ class Handler(base.Handler):
 
 def get_items(menu_i, item_class=MenuItem):
     """
-    Calls the database operation obtaining data about the menu items and casts them onto MenuItems for convenience
+    Calls the database operation obtaining data about the menu items
+    and casts them onto MenuItems for convenience
     :return: List of MenuItems
     """
     menu_i = (
@@ -150,7 +164,7 @@ def get_items(menu_i, item_class=MenuItem):
         )
     items = model.MenuItem.select().where(model.MenuItem.menu == menu_i,
                                           model.MenuItem.enabled == True)
-    return tuple(item_class(
+    return (item_class(
         a.display_name,
         a.path,
         a.parent,
@@ -177,7 +191,6 @@ def order_items(name, source_table, language, items, root_class=MenuItem):
         for item in items:
             key = item.parent_item if item.parent_item else root_ident
             mapping[key].append(item)
-
 
         for item in items:
             item.children = sorted(
