@@ -1,3 +1,4 @@
+"""Menu implementation"""
 import collections
 import itertools
 
