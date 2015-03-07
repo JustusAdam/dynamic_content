@@ -55,7 +55,9 @@ default_settings = {
 
     'http_enabled': True,
     'https_enabled': False,
-    'dc_basedir': str(pathlib.Path(__file__).parent.parent.parent.resolve())
+    'dc_basedir': str(pathlib.Path(__file__).parent.parent.parent.resolve()),
+    'sess_token_length': 16,
+    'sess_length': -1
 }
 
 
