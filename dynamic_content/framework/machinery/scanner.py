@@ -1,6 +1,7 @@
 """Implementation of the scanner object and its parts and hooks"""
 import collections
 import importlib
+import inspect
 import logging
 import pathlib
 
@@ -121,7 +122,12 @@ class __MultiHookBase(ScannerHook):
     def __call__(self, module, var_name, var):
         selector = self.get_internal_hook_selector(var_name, var)
         for hook in self.get_internal_hooks(selector):
-            yield hook(var)
+            res = hook(var)
+            if inspect.isgenerator(res):
+                for i in res:
+                    yield i
+            else:
+                yield res
 
     @classmethod
     def get_internal_hooks(cls, selector):
@@ -160,11 +166,11 @@ class __MultiHookBase(ScannerHook):
         )
 
     @classmethod
-    def make(cls, selector):
+    def make(cls, *selectors):
         """
         Decorator function to register a new hook
 
-        :param selector: selector the hook handles
+        :param selectors: selectors the hook handles
         :return: wrapper func
         """
         def inner(executable):
@@ -173,7 +179,8 @@ class __MultiHookBase(ScannerHook):
             :param executable: callable that handles the hook
             :return: unchanged executable
             """
-            cls.add(selector, executable)
+            for selector in selectors:
+                cls.add(selector, executable)
             return executable
         return inner
 
@@ -374,7 +381,7 @@ class Scanner:
                 'Linking module {} with {}'.format(name, self.linker[name])
             )
 
-    def find_any(self, module_name,  submodule):
+    def find_any(self, module_name,  module):
         """
         Iter module and call hooks on each symbol
 
@@ -382,7 +389,7 @@ class Scanner:
         :param submodule: the module in question
         :return:
         """
-        for var_name, var in self.iter_module(submodule):
+        for var_name, var in self.iter_module_once(module):
             for links in ScannerHook.yield_call_hooks(module_name, var_name, var):
                 for link in links:
                     if link is not None:
@@ -430,7 +437,7 @@ class Scanner:
             except TypeError:
                 self.unhashable_tracker.append(item)
 
-    def iter_module(self, module):
+    def iter_module_once(self, module):
         """
         A custom generator to only return
         the symbols defined in the module once
@@ -438,11 +445,21 @@ class Scanner:
         :param module: module object
         :return: yielding symbols/symbol names
         """
+        for var_name, var in self.iter_module(module):
+            if var not in self:
+                self.add(var)
+                yield var_name, var
+
+    @staticmethod
+    def iter_module(module):
+        """
+        Iterate through all public variables of a given module
+
+        :param module:
+        :return:
+        """
         for var_name, var in vars(module).items():
             if var_name.startswith('_'):
                 # we omit private/protected values
                 continue
-
-            if var not in self:
-                self.add(var)
-                yield var_name, var
+            yield var_name, var
