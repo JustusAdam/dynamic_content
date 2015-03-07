@@ -11,3 +11,9 @@ __author__ = 'Justus Adam'
 START_REGION = 'sidebar_left'
 
 START_THEME = 'default_theme'
+
+
+added_default_settings = {
+    'sess_token_length': 16,
+    'sess_length': -1
+}

@@ -7,15 +7,30 @@ __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-class SettingsLink(linker.Link):
-    """link custom default settings keys"""
-
-    __slots__ = 'variable', 'deleted'
+class NonOverwritingSettingsLink(linker.Link):
+    __slots__ = 'variable',
 
     def __init__(self, variable):
         assert isinstance(variable, dict)
         super().__init__()
         self.variable = variable
+
+    def unlink_action(self):
+        pass
+
+    @component.inject_method(includes.SettingsDict)
+    def link_action(self, settings:dict):
+        for k, v in self.variable.items():
+            settings.setdefault(k, v)
+
+
+class OverwritingSettingsLink(NonOverwritingSettingsLink):
+    """link custom default settings keys"""
+
+    __slots__ = 'deleted',
+
+    def __init__(self, variable):
+        super().__init__(variable)
         self.deleted = None
 
     @component.inject_method(includes.SettingsDict)
@@ -42,6 +57,12 @@ class SettingsLink(linker.Link):
         settings.update(self.variable)
 
 
-@scanner.SingleNameHook.make('settings_keys')
+
+@scanner.SingleNameHook.make('added_default_settings')
 def handle_settings_keys(variable):
-    return SettingsLink(variable)
+    return NonOverwritingSettingsLink(variable)
+
+
+@scanner.SingleNameHook.make('overwrite_settings_keys')
+def handle_settings_keys_overwrite(variable):
+    return OverwritingSettingsLink(variable)
