@@ -19,6 +19,9 @@ class AuthorizationMiddleware(middleware.Handler):
     Attach client information to the request
     if session information is provided in the cookies
     """
+
+    __slots__ = ()
+
     def handle_request(self, request):
         if 'Cookie' in request.headers:
             cookies = http.cookies.SimpleCookie(request.headers['Cookie'].value)

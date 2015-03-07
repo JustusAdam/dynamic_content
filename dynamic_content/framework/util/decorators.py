@@ -97,9 +97,23 @@ class apply_to_type:
                                decorator
 
     """
+    __slots__ = (
+        'types',
+        'apply_before',
+        'return_',
+        'apply_in',
+        'overwrite',
+        'decorator'
+    )
 
-    def __init__(self, *types, apply_before=True, return_from_decorator=False, apply_in_decorator=False,
-                 overwrite_input=False):
+    def __init__(
+            self,
+            *types,
+            apply_before=True,
+            return_from_decorator=False,
+            apply_in_decorator=False,
+            overwrite_input=False
+    ):
         assert len(set(types)) == len(types)
         self.types = types
         self.apply_before = apply_before
@@ -193,6 +207,7 @@ def multicache(func):
 
 
 class singlecache:
+    """save only one call to func"""
     def __init__(self, func):
         self._cache = None
         self.func = func
@@ -240,7 +255,9 @@ def catch(exception, return_value=None, log_error=True):
                 return func(*args, **kwargs)
             except exception as e:
                 if log_error:
-                    logging.getLogger(__name__).error('in', func, 'with exception:', e)
+                    logging.getLogger(__name__).error(
+                        '{} errored with exception: {}'.format(func, e)
+                    )
                 return return_value
         return _inner
     return wrap

@@ -14,6 +14,8 @@ class Information(object):
     """
     Value object containing information about the client
     """
+    __slots__ = 'user',
+
     def __init__(self, user):
         self.user = user
 

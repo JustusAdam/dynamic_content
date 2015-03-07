@@ -29,6 +29,8 @@ def new_exp_time():
 class Session:
     """Session object with utility methods"""
 
+    __slots__ = 'user', 'token'
+
     def __init__(self, user, token=None):
         assert isinstance(user, model.User)
         assert isinstance(token, bytes) or token is None
