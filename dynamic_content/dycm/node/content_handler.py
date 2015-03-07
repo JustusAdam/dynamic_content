@@ -6,6 +6,7 @@ These are the classes exposed to the framework
 
 from datetime import datetime
 import functools
+import logging
 
 from framework import http, route
 from framework.machinery import component
@@ -162,7 +163,7 @@ class FieldBasedPageContent(object):
         try:
             success = self.do_edit(page, query)
         except Exception as e:
-            print(e)
+            logging.getLogger(__name__).warning(e)
             success = False
 
         return ':redirect:/node/{}{}'.format(page.oid, '' if success else '/add')

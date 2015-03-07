@@ -1,3 +1,5 @@
+"""Session management implementation"""
+
 import binascii
 from . import model, users
 import datetime
@@ -6,6 +8,7 @@ from framework.util import time
 
 
 __author__ = 'Justus Adam'
+__version__ = '0.2'
 
 
 # both in seconds
@@ -70,10 +73,7 @@ class Session:
 
 
 def start_session(uid_or_username: str, password):
-    user = (
-        uid_or_username if isinstance(uid_or_username, model.User)
-        else model.User.get(oid=uid_or_username)
-    )
+    user = users.get_single_user(uid_or_username)
     return binascii.hexlify(Session.start(user, password).token).decode()
 
 
@@ -92,4 +92,5 @@ def authenticate_user(username_or_uid, password):
 
 
 def validate_session(token):
-    return Session.validate(token).user
+    session = Session.validate(token)
+    return session.user if session is not None else None

@@ -107,7 +107,7 @@ class Permission:
             new_permission(self.permission)
             assign_permission(group, self.permission)
         else:
-            model.AccessGroupPermission.create(group=group, permission=group.permission)
+            model.AccessGroupPermission.create(group=group, permission=self.permission)
         return self
 
     def revoke(self, group):
@@ -218,6 +218,8 @@ def check_permission(group, permission, strict=False):
 
 def assign_permission(group, permission):
     """assign this permission to this group"""
+    if isinstance(group, int):
+        group = model.AccessGroup.get(oid=group)
     Permission(permission).assign(group)
 
 

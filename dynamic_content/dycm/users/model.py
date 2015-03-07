@@ -1,3 +1,5 @@
+"""Database objects of the users module"""
+
 from framework.backend import orm
 from framework.util import time
 

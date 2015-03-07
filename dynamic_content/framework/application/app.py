@@ -115,7 +115,7 @@ class Application(threading.Thread):
 
 
 if __name__ == '__main__':
-    print(
+    logging.getLogger(__name__).critical(
         'This is not the main application file '
         'simply invoke the directory with the '
         'python interpreter'

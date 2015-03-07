@@ -11,29 +11,29 @@ __author__ = 'Justus Adam'
 
 def deprecated(func):
     """
-    Mark a funciton as not to be used anymore
-    This'll create log messages, every time the function gets called
+    Mark a function as not to be used anymore
+    This will create log messages every time the function gets called
 
     :param func: wrapped function
     :return: wrapper
     """
     @functools.wraps(func)
     def wrap(*args, **kwargs):
-        logging.getLogger(__name__).warning(
-            'in {} : using deprecated function {}'.format(func.__module__, func)
+        logging.getLogger(func.__module__).warning(
+            'using deprecated function {}'.format(func)
         )
         return func(*args, **kwargs)
 
     return wrap
 
 
-# for convenience and those who like to roll caps
+# for convenience of those who like to roll with caps
 Deprecated = deprecated
 
 
 def filter_args(types, args, kwargs):
     """
-    Filter all arguments for a specific amount of them matching certain types
+    Filter all arguments (and kwargs) for those which match provided types
     """
 
     all_args = args + tuple(kwargs.values())
@@ -127,7 +127,7 @@ class apply_to_type:
                         else:
                             return func(*args, **kwargs)
                     except TypeError as e:
-                        print(func)
+                        logging.getLogger(__name__).error(func)
                         raise e
 
                 if self.apply_in:
@@ -232,22 +232,20 @@ def transformarg(transformer, name, index):
 transform_with = lambda transformer: functools.partial(transformarg, transformer)
 
 
-def catch(exception, return_value=None, print_error=True, log_error=True):
+def catch(exception, return_value=None, log_error=True):
     def wrap(func):
         @functools.wraps(func)
         def _inner(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
             except exception as e:
-                if print_error:
-                    print(e)
                 if log_error:
-                    log.write_error('in', func, 'with exception:', e)
+                    logging.getLogger(__name__).error('in', func, 'with exception:', e)
                 return return_value
         return _inner
     return wrap
 
 
 def vardump():
-    print(locals())
-    print(globals())
+    logging.getLogger(__name__).error(locals())
+    logging.getLogger(__name__).error(globals())

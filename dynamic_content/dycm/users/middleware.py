@@ -1,9 +1,11 @@
+"""user related middleware"""
+
+import logging
 import time
 import http.cookies
 from framework import middleware
 from framework.http import response
 from . import session, users, client
-
 
 
 __author__ = 'Justus Adam'
@@ -13,6 +15,10 @@ SESSION_TOKEN_IDENTIFIER = 'SESS'
 
 
 class AuthorizationMiddleware(middleware.Handler):
+    """
+    Attach client information to the request
+    if session information is provided in the cookies
+    """
     def handle_request(self, request):
         if 'Cookie' in request.headers:
             cookies = http.cookies.SimpleCookie(request.headers['Cookie'].value)
@@ -23,7 +29,7 @@ class AuthorizationMiddleware(middleware.Handler):
             return
         if SESSION_TOKEN_IDENTIFIER in cookies and cookies[SESSION_TOKEN_IDENTIFIER].value != session.SESSION_INVALIDATED:
             for k,v in cookies.items():
-                print('k:', k, '   v:', v)
+                logging.getLogger(__name__).debug('k:', k, '   v:', v)
             db_result = session.validate_session(cookies[SESSION_TOKEN_IDENTIFIER].value)
             if db_result is not None:
                 request.client = client.Information(db_result)

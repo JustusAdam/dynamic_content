@@ -125,8 +125,7 @@ class RequestHandler(server.BaseHTTPRequestHandler):
             except HTTPError as err:
                 raise err
             except Exception as exception:
-                print(exception)
-                traceback.print_tb(sys.exc_info()[2])
+                traceback.print_tb(sys.exc_info()[2], file=logging.getLogger(__name__))
                 logging.getLogger(__name__).error('Unexpected error {}'.format(exception))
                 self.send_error(500, *self.responses[500])
 
