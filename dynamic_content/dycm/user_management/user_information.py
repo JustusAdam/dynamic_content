@@ -1,3 +1,5 @@
+"""Page elements displaying user information"""
+
 from framework import route, http
 from framework.util import html
 from dycm import theming, commons
@@ -14,11 +16,11 @@ class UserInformationCommon(commons.Handler):
     def get_content(self, conf, render_args, client):
         return html.ContainerElement(
             html.ContainerElement(
-                'Hello {}.'.format(' '.join([a for a in [
+                'Hello {}.'.format(' '.join(a for a in (
                     client.user.first_name,
                     client.user.middle_name,
                     client.user.last_name
-                ] if a ])),
+                ) if a)),
                 html_type='p'),
             html.TableElement(
                 ('Your Username: ', self.get_username(client.user)),
@@ -28,7 +30,8 @@ class UserInformationCommon(commons.Handler):
             LOGOUT_BUTTON
         )
 
-    def title(self, conf):
+    @staticmethod
+    def title(conf):
         return 'User Information'
 
     @staticmethod
@@ -43,7 +46,8 @@ class UserInformationCommon(commons.Handler):
 
 
 @route.controller_function(
-    'users/{int}', method=http.RequestMethods.GET,
+    'users/{int}',
+    method=http.RequestMethods.GET,
     query=False
     )
 @theming.theme(default_theme='admin_theme')
@@ -107,7 +111,7 @@ def users_overview(dc_obj, get_query):
 
     head = (
         ('UID', 'Username', 'Name (if provided)', 'Date created', 'Actions')
-        , # ...
+        ,  # ...
     )
     dc_obj.context['title'] = 'User Overview'
     dc_obj.context['content']=(
@@ -137,7 +141,7 @@ def users_overview(dc_obj, get_query):
                 'style': 'padding:15px; text-align:center;'
                     'background-color:cornflowerblue;'
                     'color:white;border-radius:20px;font-size:20px;'
-                    }
+                }
             )
         )
     return 'user_overview'

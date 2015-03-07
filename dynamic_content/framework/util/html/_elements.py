@@ -666,7 +666,7 @@ class TableElement(ContainerElement):
 
     def render_content(self):
         """
-        Override parent to accoutn for ht elements
+        Override parent to account for th elements
 
         :return: string
         """
@@ -726,7 +726,7 @@ class AbstractTableRow(AbstractList):
     # however this does not work with multiple inheritance
     # __slots__ = ()
 
-    _subtypes = 'td'
+    _subtypes = 'td',
 
     def __init__(
             self,

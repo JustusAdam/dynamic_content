@@ -1,5 +1,6 @@
 from framework.backend import orm
-from framework.includes import get_settings
+from framework.includes import SettingsDict, get_settings
+from framework.machinery import component
 
 __author__ = 'Justus Adam'
 
@@ -34,8 +35,9 @@ _t = T() if get_settings().get('i18n_support_enabled', False) is True else None
 del T
 
 
-def translate(source_string, language=get_settings().get('default_language',_default_language)):
-    if language != get_settings().BASE_LANGUAGE and get_settings().I18N_SUPPORT_ENABLED:
+@component.inject(SettingsDict)
+def translate(settings, source_string, language=get_settings().get('default_language',_default_language)):
+    if settings.get('i18n_support_enabled', False) and language != settings.get('base_language', _default_language):
         db_result = getattr(_t, language).get(source_string=source_string)
         return db_result.translation if db_result else source_string
     else:

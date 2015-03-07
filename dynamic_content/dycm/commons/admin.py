@@ -1,6 +1,6 @@
 from framework import route
 from framework.util import html
-from dycm import i18n
+from dycm import i18n, theming
 from framework.middleware import csrf
 from . import model as _model, menus as _menus, decorator
 
@@ -10,20 +10,14 @@ __author__ = 'Justus Adam'
 @route.controller_class
 class MenuAdminController:
     @route.controller_method('menus')
+    @theming.breadcrumbs
     @decorator.Regions
-    def handle_menus(self, dc_obj, url):
-        if len(url.path) == 1:
-            return self.overview(dc_obj, url)
-        elif len(url.path) == 2:
-            return self.a_menu(dc_obj, url)
-
-    @staticmethod
-    def overview(dc_obj, url):
+    def overview(self, dc_obj):
         menus = _model.Menu.select()
         l = [
             [
-                html.A(item.id, href=str(url.path) + '/' + item.machine_name),
-                html.A(i18n.translate(item.display_name), href=str(url.path) + '/' + item.machine_name),
+                html.A(item.id, href='menus/' + item.machine_name),
+                html.A(i18n.translate(item.machine_name), href='menus/' + item.machine_name),
                 html.Checkbox(checked=bool(item.enabled))
             ] for item in menus]
         dc_obj.context['content'] = csrf.SecureForm(html.TableElement(*l, classes={'menu-overview'}))
@@ -31,9 +25,10 @@ class MenuAdminController:
         dc_obj.config['theme'] = 'admin_theme'
         return 'page'
 
-    @staticmethod
-    def a_menu(dc_obj, url):
-        menu_name = url.path[1]
+    @route.controller_method('menus/{str}')
+    @theming.breadcrumbs
+    @decorator.Regions
+    def a_menu(self, dc_obj, menu_name):
         menu = _menus.menu(menu_name).render()
         dc_obj.context['content'] = html.List(*menu, additional={'style': 'list-style-type: none;'})
         dc_obj.context['title'] = i18n.translate(menu_name)

@@ -198,12 +198,12 @@ class RouteLink(linker.Link):
             get_cm().add_path(i, self.cf)
 
 
-@scanner.SingleTypeHook.make(ControlFunction)
+@scanner.MatchingTypeHook.make(ControlFunction)
 def function_registerer(cf):
     yield RouteLink(cf)
 
 
-@scanner.SingleTypeHook.make(ControllerClass)
+@scanner.MatchingTypeHook.make(ControllerClass)
 def class_registerer(cc):
     c_funcs = tuple(filter(
         lambda a: isinstance(a, ControlFunction),

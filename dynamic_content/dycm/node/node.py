@@ -58,7 +58,6 @@ def compile_nodes(res, dc_obj):
     return 'page'
 
 
-
 def make_node(*, theme='default_theme'):
     @mvc.context.apply_to_context(apply_before=False, with_return=True, return_from_decorator=True)
     def _inner(dc_obj, res):

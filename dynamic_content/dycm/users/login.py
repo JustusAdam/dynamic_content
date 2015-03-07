@@ -34,6 +34,9 @@ LOGOUT_BUTTON = html.A(
     )
 
 
+_login_failed = ':redirect:/login/failed'
+
+
 class LoginHook(hooks.ClassHook):
     """
     A Hook designed to allow custom interaction with the login process.
@@ -119,7 +122,7 @@ class LoginCommonHandler(commons.Handler):
 
 
 @route.controller_function(
-    {'login'},
+    'login',
     method=http.RequestMethods.GET,
     query=False,
     require_ssl=True
@@ -164,7 +167,7 @@ def login_post(dc_obj, query):
         query
     ):
         if res is False:
-            return ':redirect:/login/failed'
+            return _login_failed
         if res is True:
             continue
         elif isinstance(res, (tuple, list)) and len(res) == 2:
@@ -174,19 +177,22 @@ def login_post(dc_obj, query):
             return res
     else:
         if not 'username' in query or not 'password' in query:
-            return ':redirect:/login/failed'
+            return
         username, password = query['username'], query['password']
         if not len(username) == 1 or not len(password) == 1:
             return ':redirect:/login/failed'
         username = username[0]
         password = password[0]
-    token = session.start_session(username, password)
+    try:
+        token = session.start_session(username, password)
+    except Exception:
+        return _login_failed
     if token:
         cookie = cookies.SimpleCookie({'SESS': token})
         dc_obj.config['cookies'] = cookie
         return ':redirect:/'
     else:
-        return ':redirect:/login/failed'
+        return _login_failed
 
 
 @route.controller_function(

@@ -32,7 +32,7 @@ class AuthorizationMiddleware(middleware.Handler):
             return
         if SESSION_TOKEN_IDENTIFIER in cookies and cookies[SESSION_TOKEN_IDENTIFIER].value != session.SESSION_INVALIDATED:
             for k,v in cookies.items():
-                logging.getLogger(__name__).debug('k:', k, '   v:', v)
+                logging.getLogger(__name__).debug('key: {}    value: {}'.format(k, v))
             db_result = session.validate_session(cookies[SESSION_TOKEN_IDENTIFIER].value)
             if db_result is not None:
                 request.client = client.Information(db_result)

@@ -196,7 +196,7 @@ class __MultiHookBase(ScannerHook):
 
 
 @hooks.register()
-class SingleNameHook(__MultiHookBase):
+class NameHook(__MultiHookBase):
     """Hook for name based handling"""
     __slots__ = ()
 
@@ -226,8 +226,28 @@ class SingleNameHook(__MultiHookBase):
         return isinstance(selector, str)
 
 
+class CaseInsensitiveNameHook(NameHook):
+    """
+    Name hooks that always call str.lower() on variable names
+    before matching for handlers
+    """
+    __slots__ = ()
+
+    # we need to reinitialize this or we'd
+    # use the internal_hooks of the parent class
+    internal_hooks = collections.defaultdict(list)
+
+    @classmethod
+    def get_internal_hook_selector(cls, var_name, var):
+        return var_name.lower()
+
+    @classmethod
+    def add(cls, selector, executable):
+        super().add(selector.lower(), executable)
+
+
 @hooks.register()
-class SingleTypeHook(__MultiHookBase):
+class MatchingTypeHook(__MultiHookBase):
     """Hook for type based handling"""
     __slots__ = ()
 
@@ -257,7 +277,7 @@ class SingleTypeHook(__MultiHookBase):
 
 
 @hooks.register()
-class SingleSubtypeHook(__MultiHookBase):
+class MatchingSubtypeHook(__MultiHookBase):
     """Hooks for types that allow subtypes"""
     __slots__ = ()
 

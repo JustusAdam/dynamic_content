@@ -145,8 +145,8 @@ class Handler(base.Handler):
         else:
             ul_list = menu(
                 name,
-                item_class=HTMLMenuItem).render_children(0, int(render_args)
-                )
+                item_class=HTMLMenuItem
+            ).render_children(0, int(render_args))
         if ul_list:
             ul_list.element_id = name
         return ul_list
@@ -174,9 +174,10 @@ def get_items(menu_i, item_class=MenuItem):
     ) for a in items)
 
 
-def order_items(name, source_table, language, items, root_class=MenuItem):
+def order_items(items):
     """
-    Takes a list of MenuItems and constructs a tree of parent items and child items.
+    Takes a list of MenuItems and constructs a tree
+    of parent items and child items.
     Child item lists are sored by weight
     :param items: List of MenuItems
     :return: Root for menu tree
@@ -185,7 +186,8 @@ def order_items(name, source_table, language, items, root_class=MenuItem):
 
     def order():
         """
-        Implementation of the tree construction. Uses two loops. Child item lists are sorted
+        Implementation of the tree construction. Uses two loops.
+        Child item lists are sorted
         :return:
         """
 
@@ -202,5 +204,5 @@ def order_items(name, source_table, language, items, root_class=MenuItem):
     return order()  
 
 
-def menu(name, source_table='menu', language='english', item_class=MenuItem):
-    return order_items(name, source_table, language, get_items(name, item_class), item_class)
+def menu(name, item_class=MenuItem):
+    return order_items(get_items(name, item_class))

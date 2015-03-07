@@ -45,8 +45,8 @@ def implements(element_type, *args, **kwargs):
         and not kwargs
         and (inspect.isclass(element_type)
             or callable(element_type)
-            )
-        ):
+        )
+    ):
         element, element_type = element_type, element_type.type
         return _register(element)
     else:

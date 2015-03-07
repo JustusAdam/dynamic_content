@@ -58,11 +58,11 @@ class OverwritingSettingsLink(NonOverwritingSettingsLink):
 
 
 
-@scanner.SingleNameHook.make('added_default_settings')
+@scanner.NameHook.make('added_default_settings')
 def handle_settings_keys(variable):
     return NonOverwritingSettingsLink(variable)
 
 
-@scanner.SingleNameHook.make('overwrite_settings_keys')
+@scanner.NameHook.make('overwrite_settings_keys')
 def handle_settings_keys_overwrite(variable):
     return OverwritingSettingsLink(variable)
