@@ -4,6 +4,7 @@ connections between framework an modules
 """
 
 from . import component
+import logging
 from framework.errors import exceptions
 
 __author__ = 'Justus Adam'
@@ -117,6 +118,9 @@ class Linker:
         :param module:
         :return: None
         """
+        logging.getLogger(__name__).debug(
+            'Linking module {}'.format(module)
+        )
         for link in self[module]:
             link.link()
 
@@ -127,5 +131,8 @@ class Linker:
         :param module:
         :return: None
         """
+        logging.getLogger(__name__).debug(
+            'Unlinking module {}'.format(module)
+        )
         for link in self[module]:
             link.unlink()

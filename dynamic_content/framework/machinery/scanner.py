@@ -239,6 +239,13 @@ class CaseInsensitiveNameHook(NameHook):
 
     @classmethod
     def get_internal_hook_selector(cls, var_name, var):
+        """
+        use lower case variable name for selector
+
+        :param var_name:
+        :param var:
+        :return:
+        """
         return var_name.lower()
 
     @classmethod
@@ -270,6 +277,7 @@ class MatchingTypeHook(__MultiHookBase):
     def is_selector(cls, selector):
         """
         Verify the selector is actually a type
+
         :param selector:
         :return:
         """
@@ -398,7 +406,7 @@ class Scanner:
                 (link for link in self.find_any(name, module))
             )
             logging.getLogger(__name__).debug(
-                'Linking module {} with {}'.format(name, self.linker[name])
+                'Links found for module {}: {}'.format(name, self.linker[name])
             )
 
     def find_any(self, module_name,  module):

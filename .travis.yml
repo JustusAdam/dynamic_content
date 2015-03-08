@@ -6,7 +6,9 @@ python:
     - "pypy3"
 install:
     - pip install --upgrade -r requirements.txt
-script: PYTHONPATH=./dynamic_content nosetests ./tests
+script:
+  - PYTHONPATH=./dynamic_content nosetests ./test_framework
+  - PYTHONPATH=./dynamic_content nosetests ./test_modules
 sudo: false
 os:
   - linux
