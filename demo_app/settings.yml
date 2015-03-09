@@ -8,6 +8,7 @@ modules:
   - 'theming'
   - 'wysiwyg'
   - 'node'
+  - 'admin'
 
 middleware:
   - 'framework.middleware.alias.Middleware'

@@ -1,9 +1,14 @@
 from . import pages, model
 from framework.util import typesafe
+from .pages import overview, category, subcategory, page
 
 __author__ = 'Justus Adam'
 
 name = 'admin'
+
+
+def init():
+    pass
 
 
 def common_handler(item_type):

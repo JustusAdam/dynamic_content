@@ -159,6 +159,32 @@ class Permission:
         return self.permission
 
 
+class Group:
+    """Access group internal representation uncoupled from the database"""
+    __slots__ = 'name', 'aid'
+
+    def __init__(self, name, aid):
+        self.name = name
+        self.aid = aid
+
+    @classmethod
+    def get(cls, name_or_aid):
+        if isinstance(name_or_aid, int):
+            db_repr = model.AccessGroup.get(oid=name_or_aid)
+        elif isinstance(name_or_aid, str):
+            db_repr = model.AccessGroup.get(machine_name=name_or_aid)
+        else:
+            raise TypeError
+        return cls(name=db_repr.machine_name, aid=db_repr.oid)
+
+    @classmethod
+    def get_or_create(cls, name):
+        assert isinstance(name, str)
+
+        db_repr = model.AccessGroup.get_or_create(machine_name=name)
+        return cls(name=db_repr.machine_name, aid=db_repr.oid)
+
+
 @component.inject(SettingsDict)
 def hash_password(settings, password, salt):
     """hash a password according to the settings"""
@@ -252,7 +278,15 @@ def remove_permission(permission):
     Permission(permission).remove()
 
 
-def add_user(username, password, email, first_name='', middle_name='', last_name='', access_group=AUTH):
+def add_user(
+        username,
+        password,
+        email,
+        first_name='',
+        middle_name='',
+        last_name='',
+        access_group=AUTH
+):
     """
     Create a new user
 

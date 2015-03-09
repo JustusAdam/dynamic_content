@@ -1,4 +1,4 @@
-__doc__ = """
+"""
 This module defines decorators to use for registering and interacting
 with the dynamic_content model-view-controller implementation
 
@@ -148,17 +148,17 @@ def _controller_function(
 
 
 def _controller_method(
-    class_,
-    value,
-    *,
-    method=http.RequestMethods.GET,
-    headers=frozenset(),
-    query=False,
-    **options
+        class_,
+        value,
+        *,
+        method=http.RequestMethods.GET,
+        headers=frozenset(),
+        query=False,
+        **options
     ):
     def wrap(func):
         h = http.headers.Header.auto_construct(headers) if headers is not None else None
-        h = frozenset(h) if inspect.isgenerator(h) else {h}
+        h = frozenset(h) if inspect.isgenerator(h) else frozenset({h})
         wrapped = class_(func, value, method, query, h, options)
         return wrapped
     return wrap
@@ -180,7 +180,7 @@ def controller_class(class_):
                 wrapped.instance = instance
                 for i in wrapped.value:
                     get_cm().add_path(i, wrapped)
-    return class_
+    return ControllerClass(class_)
 
 
 @scanner.MatchingTypeHook.make(ControlFunction)
@@ -196,7 +196,7 @@ class RouteLink(linker.SimpleLink):
 
 
 @scanner.MatchingTypeHook.make(ControllerClass)
-def class_registerer(cc):
+def class_registerer(module, cc):
     c_funcs = tuple(filter(
         lambda a: isinstance(a, ControlFunction),
         cc.__dict__.values()
@@ -207,7 +207,7 @@ def class_registerer(cc):
         for item in c_funcs:
             for wrapped in item.wrapping:
                 wrapped.instance = instance
-                yield RouteLink(wrapped)
+                yield RouteLink(module, wrapped)
 
 
 controller_method = functools.partial(_controller_method, ControlFunction)

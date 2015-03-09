@@ -3,6 +3,7 @@ from .component import register, implements
 from .base import Handler
 from .decorator import Regions, add_regions
 from dycm import theming
+from .admin import MenuAdminController
 
 
 __author__ = 'Justus Adam'
