@@ -197,6 +197,8 @@ class RouteLink(linker.SimpleLink):
 
 @scanner.MatchingTypeHook.make(ControllerClass)
 def class_registerer(module, cc):
+    # HACK during transition this is necessary
+    cc = cc.get()
     c_funcs = tuple(filter(
         lambda a: isinstance(a, ControlFunction),
         cc.__dict__.values()

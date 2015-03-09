@@ -79,7 +79,6 @@ def serve_from(settings, request, file, basedir):
             )
 
 
-@route.controller_class
 class PathHandler(middleware.Handler):
     @route.controller_method({'theme/**', 'public/**', '/**'}, method=http.RequestMethods.GET)
     def handle(self, dc_obj, path):
@@ -94,6 +93,8 @@ class PathHandler(middleware.Handler):
         if request.path.split('/')[1] in get_file_directories():
             return handle(request)
         return None
+
+path_controller = route.controller_class(PathHandler)
 
 
 @component.inject('TemplateFormatter')

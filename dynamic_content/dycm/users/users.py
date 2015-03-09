@@ -161,11 +161,19 @@ class Permission:
 
 class Group:
     """Access group internal representation uncoupled from the database"""
-    __slots__ = 'name', 'aid'
+    __slots__ = '_name', '_aid'
 
     def __init__(self, name, aid):
-        self.name = name
-        self.aid = aid
+        self._name = name
+        self._aid = aid
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def aid(self):
+        pass
 
     @classmethod
     def get(cls, name_or_aid):
