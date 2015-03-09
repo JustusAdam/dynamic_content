@@ -16,10 +16,11 @@ class Link(object):
     Represents a connection between some kind of handler defined in a module
     and the dynamic_content internal logic
     """
-    __slots__ = 'is_linked', 'strict'
+    __slots__ = 'is_linked', 'strict', 'module'
 
-    def __init__(self, strict=False):
+    def __init__(self, module, strict=False):
         self.is_linked = False
+        self.module = module
         self.strict = strict
 
     def link(self):
@@ -59,6 +60,14 @@ class Link(object):
     def unlink_action(self):
         """the actual work of the unlink action"""
         raise NotImplementedError
+
+
+class SimpleLink(Link):
+    __slots__ = 'variable',
+
+    def __init__(self, module, variable, strict=False):
+        super().__init__(module, strict)
+        self.variable = variable
 
 
 @component.component('linker')

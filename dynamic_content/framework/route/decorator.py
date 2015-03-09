@@ -183,24 +183,16 @@ def controller_class(class_):
     return class_
 
 
-class RouteLink(linker.Link):
-    __slots__ = 'cf',
-
-    def __init__(self, control_function: ControlFunction):
-        super().__init__()
-        self.cf = control_function
+@scanner.MatchingTypeHook.make(ControlFunction)
+class RouteLink(linker.SimpleLink):
+    __slots__ = ()
 
     def unlink_action(self):
         raise NotImplementedError
 
     def link_action(self):
-        for i in self.cf.value:
-            get_cm().add_path(i, self.cf)
-
-
-@scanner.MatchingTypeHook.make(ControlFunction)
-def function_registerer(cf):
-    yield RouteLink(cf)
+        for i in self.variable.value:
+            get_cm().add_path(i, self.variable)
 
 
 @scanner.MatchingTypeHook.make(ControllerClass)

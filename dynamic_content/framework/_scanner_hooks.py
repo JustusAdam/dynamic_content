@@ -1,19 +1,71 @@
 """some of the frameworks own miscellaneous scanner hooks"""
 from . import includes
-from .machinery import scanner, component, linker
+from .machinery import scanner, component, linker, registry
 
 
 __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
-class NonOverwritingSettingsLink(linker.Link):
-    __slots__ = 'variable',
+@scanner.NameHook.make('finalize')
+class UnloadingFunction(linker.SimpleLink):
+    """unloading function to run every time the module gets unactivated"""
+    __slots__ = ()
 
-    def __init__(self, variable):
+    def link_action(self):
+        pass
+
+    def unlink_action(self):
+        self.variable()
+
+
+@scanner.NameHook.make('init')
+class LoadingFunction(linker.SimpleLink):
+    """loader func to run every time the module gets activated"""
+    __slots__ = ()
+
+    def link_action(self):
+        self.variable()
+
+    def unlink_action(self):
+        pass
+
+
+@scanner.NameHook.make('install')
+class InstallFunction(linker.SimpleLink):
+    """
+    Functions to run once when the module gets first activated
+    """
+    __slots__ = ()
+
+    def link_action(self):
+        if self.module not in registry.Registry()['modules']:
+            self.variable()
+
+    def unlink_action(self):
+        pass
+
+
+@scanner.NameHook.make('deinstall')
+class DeinstallFunction(linker.SimpleLink):
+    """Function to run if the module gets deinstalled"""
+    __slots__ = ()
+
+    def link_action(self):
+        pass
+
+    def unlink_action(self):
+        pass
+
+
+@scanner.NameHook.make('added_default_settings')
+class NonOverwritingSettingsLink(linker.SimpleLink):
+    """Link updating settings with added defaults"""
+    __slots__ = ()
+
+    def __init__(self, module, variable):
         assert isinstance(variable, dict)
-        super().__init__()
-        self.variable = variable
+        super().__init__(module, variable)
 
     def unlink_action(self):
         pass
@@ -24,13 +76,14 @@ class NonOverwritingSettingsLink(linker.Link):
             settings.setdefault(k, v)
 
 
+@scanner.NameHook.make('overwrite_settings_keys')
 class OverwritingSettingsLink(NonOverwritingSettingsLink):
-    """link custom default settings keys"""
+    """overwrite settings keys"""
 
     __slots__ = 'deleted',
 
-    def __init__(self, variable):
-        super().__init__(variable)
+    def __init__(self, module, variable):
+        super().__init__(module, variable)
         self.deleted = None
 
     @component.inject_method(includes.SettingsDict)
@@ -55,14 +108,3 @@ class OverwritingSettingsLink(NonOverwritingSettingsLink):
         """
         self.deleted = {a: settings[a] for a in self.variable}
         settings.update(self.variable)
-
-
-
-@scanner.NameHook.make('added_default_settings')
-def handle_settings_keys(variable):
-    return NonOverwritingSettingsLink(variable)
-
-
-@scanner.NameHook.make('overwrite_settings_keys')
-def handle_settings_keys_overwrite(variable):
-    return OverwritingSettingsLink(variable)

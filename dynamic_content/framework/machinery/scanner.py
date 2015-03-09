@@ -122,7 +122,7 @@ class __MultiHookBase(ScannerHook):
     def __call__(self, module, var_name, var):
         selector = self.get_internal_hook_selector(var_name, var)
         for hook in self.get_internal_hooks(selector):
-            res = hook(var)
+            res = hook(module, var)
             if inspect.isgenerator(res):
                 for i in res:
                     yield i
