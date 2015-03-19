@@ -29,7 +29,7 @@ class ComponentWrapper(util.Maybe):
     Please note that _name and _allow_reload can ONLY be set at instantiation.
     """
 
-    __slots__ = ('name', 'wrapped', 'allow_reload')
+    __slots__ = 'name', 'allow_reload'
 
     def __init__(self, name, allow_reload=False, wrapped=None):
         super().__init__(wrapped)

@@ -7,6 +7,8 @@ __version__ = '0.1'
 
 
 class Monad:
+    __slots__ = ()
+
     def bind(self, func):
         raise NotImplementedError
 
@@ -15,6 +17,8 @@ class Monad:
 
 
 class Maybe(Monad):
+    __slots__ = 'content',
+
     def __init__(self, content=None):
         self.content = content
 
