@@ -46,6 +46,10 @@ class ComponentWrapper(util.Maybe):
             raise exceptions.ComponentNotLoaded(self.name)
         return super().get()
 
+    @property
+    def wrapped(self):
+        return self.get()
+
 
 class ComponentContainer(dict):
     """
@@ -88,7 +92,7 @@ class ComponentContainer(dict):
     def __contains__(self, item):
         return not (
             not super().__contains__(item)
-            or self[item].wrapped is None
+            or self[item].get() is None
         )
 
 
