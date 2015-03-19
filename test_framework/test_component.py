@@ -23,7 +23,7 @@ class ComponentTest(unittest.TestCase):
             component.get_component[component_name].get().attribute, None
         )
         self.assertIsInstance(
-            component.get_component[component_name].wrapped, Hello
+            component.get_component[component_name].get(), Hello
         )
 
         self.assertIs(
