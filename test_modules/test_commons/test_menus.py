@@ -45,6 +45,7 @@ class TestMenus(unittest.TestCase):
             self.menu_1_db_repr
         )
 
+    @nose.SkipTest
     def test_menu_render(self):
         compiled = menus.menu(self.menu_1_name)
         rendered = compiled.render_children(0)
