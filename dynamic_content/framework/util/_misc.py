@@ -6,6 +6,28 @@ __author__ = 'Justus Adam'
 __version__ = '0.1'
 
 
+class Monad:
+    def bind(self, func):
+        raise NotImplementedError
+
+    def get(self):
+        raise NotImplementedError
+
+
+class Maybe(Monad):
+    def __init__(self, content=None):
+        self.content = content
+
+    def get(self):
+        return self.content
+
+    def bind(self, func):
+        if self.content is None:
+            return self
+        else:
+            return func(self.content)
+
+
 def catch_vardump(func):
     """
     Catch a vardump exception in func and return an error page containing the

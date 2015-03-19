@@ -3,6 +3,7 @@ Implementation for globally available 'Singletons'
 """
 import functools
 from framework.errors import exceptions
+from framework import util
 
 
 __author__ = 'Justus Adam'
@@ -16,7 +17,7 @@ def _name_transform(name):
     return new_name
 
 
-class ComponentWrapper(object):
+class ComponentWrapper(util.Maybe):
     """
     A Proxy object for components to allow modules to bind
      components to local variables before the component as been registered
@@ -30,20 +31,20 @@ class ComponentWrapper(object):
 
     __slots__ = ('name', 'wrapped', 'allow_reload')
 
-    def __init__(self, name, allow_reload=False):
+    def __init__(self, name, allow_reload=False, wrapped=None):
+        super().__init__(wrapped)
         self.allow_reload = allow_reload
         self.name = name
-        self.wrapped = None
 
     def set(self, obj):
-        if not self.allow_reload and self.wrapped is not None:
+        if not self.allow_reload and self.content is not None:
             raise exceptions.ComponentLoaded(self.name)
-        self.wrapped = obj
+        self.content = obj
 
     def get(self):
-        if self.wrapped is None:
+        if self.content is None:
             raise exceptions.ComponentNotLoaded(self.name)
-        return self.wrapped
+        return super().get()
 
 
 class ComponentContainer(dict):
