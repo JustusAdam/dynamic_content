@@ -33,7 +33,7 @@ default_settings = {
     'middleware': [
         'framework.middleware.alias.Middleware',
         'dycm.file.PathHandler',
-        'framework.middleware.ssl.ConditionalSSLRedirect',
+        'framework.middleware.ssl.ConditionalRedirect',
         # 'framework.middleware.rest.JSONTransform'
     ],
 
