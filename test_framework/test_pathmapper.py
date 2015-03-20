@@ -34,7 +34,7 @@ class TestMapper(unittest.TestCase):
             handler = ControlFunction(handler, path, method, False, None)
             handler.typeargs = typeargs
             self.mt_mapper.add_path(path, handler)
-            request = http.Request(host, port, teststring, method, None, None, False)
+            request = http.Request(host, port, teststring, method, None, None, False, None)
             handler, args, kwargs = self.mt_mapper.find_handler(request)
             self.assertEqual(handler(*args, **kwargs), result)
 
@@ -42,7 +42,7 @@ class TestMapper(unittest.TestCase):
             handler = ControlFunction(handler, path, method, False, None)
             handler.typeargs = typeargs
             self.mt_mapper.add_path(path, handler)
-            request = http.Request(host, port, teststring, method, None, None, False)
+            request = http.Request(host, port, teststring, method, None, None, False, None)
             handler, args, kwargs = self.mt_mapper.resolve(request)
             self.assertTupleEqual(handler(*args, **kwargs), result)
 
@@ -59,14 +59,14 @@ class TestMapper(unittest.TestCase):
         for path, handler, teststring, result, targs in self.testpaths1:
             handler = ControlFunction(handler, path, method, False, None)
             self.t_mapper.add_path(path, handler)
-            request = http.Request(host, port, teststring, method, None, None, False)
+            request = http.Request(host, port, teststring, method, None, None, False, None)
             handler, args, kwargs = self.t_mapper.find_handler(request)
             self.assertEqual(handler(*args, **kwargs), result)
 
         for path, handler, teststring, result, targs in self.testpaths2:
             handler = ControlFunction(handler, path, method, False, None)
             self.t_mapper.add_path(path, handler)
-            request = http.Request(host, port, teststring, method, None, None, False)
+            request = http.Request(host, port, teststring, method, None, None, False, None)
             handler, args, kwargs = self.t_mapper.resolve(request)
             self.assertTupleEqual(handler(*args, **kwargs), result)
 
@@ -93,10 +93,10 @@ class TestMapper(unittest.TestCase):
                 )
 
                 mapper.add_path(path, handler)
-                request1 = http.Request(host, port, path, method, query, frozenset(), False)
-                request2 = http.Request(host, port, path, method, query, headers, False)
+                request1 = http.Request(host, port, path, method, query, frozenset(), False, None)
+                request2 = http.Request(host, port, path, method, query, headers, False, None)
                 h2 = http.headers.HeaderMap(headers, Method='0')
-                request3 = http.Request(host, port, path, method, query, h2, False)
+                request3 = http.Request(host, port, path, method, query, h2, False, None)
                 if not is_empty:
                     self.assertRaises(MethodHandlerNotFound, mapper.resolve, request1)
                 self.assertIs(

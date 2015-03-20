@@ -12,7 +12,7 @@ class TestDecorator(unittest.TestCase):
 
         prefix1 = 'hello/{str}'
         testpath = 'somepath35'
-        r = http.Request('localhost', 8080, '/hello/' + testpath, 'get', {}, None, False)
+        r = http.Request('localhost', 8080, '/hello/' + testpath, 'get', {}, None, False, None)
         model = structures.DynamicContent(
             request=r,
             context={},
