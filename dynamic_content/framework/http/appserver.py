@@ -190,11 +190,13 @@ class WGSI(AppThread):
             }
         method = environ['REQUEST_METHOD'].lower()
         if method == 'post':
-            query = environ['wsgi.input'].read(int(environ['CONTENT_LENGTH'])).decode() + environ['QUERY_STRING']
+            payload = environ['wsgi.input'].read(int(environ['CONTENT_LENGTH'])).decode()
+            query = payload + environ['QUERY_STRING']
         elif method == 'get':
+            payload = None
             query = environ['QUERY_STRING']
         else:
-            query = None
+            query = payload = None
         return http.Request.from_path_and_post(
             host=environ['HTTP_HOST'],
             path=environ['PATH_INFO'],
@@ -203,7 +205,8 @@ class WGSI(AppThread):
                 },
             method=method,
             query_string=query,
-            ssl_enabled=ssl_enabled
+            ssl_enabled=ssl_enabled,
+            payload=payload
         )
 
     def run_server(self):

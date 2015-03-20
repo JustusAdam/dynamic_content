@@ -19,10 +19,11 @@ class Request(object):
         'client',
         'ssl_enabled',
         'host',
-        'port'
+        'port',
+        'payload'
     )
 
-    def __init__(self, host, port, path:str, method, query, headers, ssl_enabled):
+    def __init__(self, host, port, path:str, method, query, headers, ssl_enabled, payload):
         self.host = host
         self.port = port
         headers = h_mod.Header.auto_construct(headers) if headers is not None else None
@@ -39,6 +40,7 @@ class Request(object):
         self.query = query
         self.client = None
         self.ssl_enabled = ssl_enabled
+        self.payload = payload
 
     def parent_page(self):
         """
@@ -53,13 +55,14 @@ class Request(object):
 
     @classmethod
     def from_path_and_post(
-        cls,
-        host: str,
-        path,
-        method,
-        headers,
-        ssl_enabled: bool,
-        query_string=None
+            cls,
+            host: str,
+            path,
+            method,
+            headers,
+            ssl_enabled: bool,
+            query_string=None,
+            payload=None
         ):
         """
         Construct a new Request object from alternative input
@@ -80,4 +83,4 @@ class Request(object):
         if query_string:
             query.update(parse.parse_qs(query_string))
         path = parsed.path
-        return cls(host, port, path, method, query, headers, ssl_enabled)
+        return cls(host, port, path, method, query, headers, ssl_enabled, payload)
